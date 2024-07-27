@@ -1,6 +1,5 @@
 package cn.iocoder.yudao.module.member.service.auth;
 
-import cn.iocoder.yudao.framework.security.core.service.SecurityAuthFrameworkService;
 import cn.iocoder.yudao.module.member.controller.app.auth.vo.*;
 
 import javax.validation.Valid;
@@ -12,47 +11,46 @@ import javax.validation.Valid;
  *
  * @author 芋道源码
  */
-public interface MemberAuthService extends SecurityAuthFrameworkService {
+public interface MemberAuthService {
 
     /**
      * 手机 + 密码登录
      *
      * @param reqVO 登录信息
-     * @param userIp 用户 IP
-     * @param userAgent 用户 UA
-     * @return 身份令牌，使用 JWT 方式
+     * @return 登录结果
      */
-    String login(@Valid AppAuthLoginReqVO reqVO, String userIp, String userAgent);
+    AppAuthLoginRespVO login(@Valid AppAuthLoginReqVO reqVO);
+
+    /**
+     * 基于 token 退出登录
+     *
+     * @param token token
+     */
+    void logout(String token);
 
     /**
      * 手机 + 验证码登陆
      *
-     * @param reqVO 登陆信息
-     * @param userIp 用户 IP
-     * @param userAgent 用户 UA
-     * @return 身份令牌，使用 JWT 方式
+     * @param reqVO    登陆信息
+     * @return 登录结果
      */
-    String smsLogin(@Valid AppAuthSmsLoginReqVO reqVO, String userIp, String userAgent);
+    AppAuthLoginRespVO smsLogin(@Valid AppAuthSmsLoginReqVO reqVO);
 
     /**
      * 社交登录，使用 code 授权码
      *
      * @param reqVO 登录信息
-     * @param userIp 用户 IP
-     * @param userAgent 用户 UA
-     * @return 身份令牌，使用 JWT 方式
+     * @return 登录结果
      */
-    String socialQuickLogin(@Valid AppAuthSocialQuickLoginReqVO reqVO, String userIp, String userAgent);
+    AppAuthLoginRespVO socialLogin(@Valid AppAuthSocialLoginReqVO reqVO);
 
     /**
-     * 社交登录，使用 手机号 + 手机验证码
+     * 微信小程序的一键登录
      *
      * @param reqVO 登录信息
-     * @param userIp 用户 IP
-     * @param userAgent 用户 UA
-     * @return 身份令牌，使用 JWT 方式
+     * @return 登录结果
      */
-    String socialBindLogin(@Valid AppAuthSocialBindLoginReqVO reqVO, String userIp, String userAgent);
+    AppAuthLoginRespVO weixinMiniAppLogin(AppAuthWeixinMiniAppLoginReqVO reqVO);
 
     /**
      * 获得社交认证 URL
@@ -64,24 +62,27 @@ public interface MemberAuthService extends SecurityAuthFrameworkService {
     String getSocialAuthorizeUrl(Integer type, String redirectUri);
 
     /**
-     * 修改用户密码
-     * @param userId 用户id
-     * @param userReqVO 用户请求实体类
-     */
-    void updatePassword(Long userId, AppAuthUpdatePasswordReqVO userReqVO);
-
-    /**
-     * 忘记密码
-     * @param userReqVO 用户请求实体类
-     */
-    void resetPassword(AppAuthResetPasswordReqVO userReqVO);
-
-    /**
      * 给用户发送短信验证码
      *
      * @param userId 用户编号
      * @param reqVO 发送信息
      */
     void sendSmsCode(Long userId, AppAuthSmsSendReqVO reqVO);
+
+    /**
+     * 校验短信验证码是否正确
+     *
+     * @param userId 用户编号
+     * @param reqVO 校验信息
+     */
+    void validateSmsCode(Long userId, AppAuthSmsValidateReqVO reqVO);
+
+    /**
+     * 刷新访问令牌
+     *
+     * @param refreshToken 刷新令牌
+     * @return 登录结果
+     */
+    AppAuthLoginRespVO refreshToken(String refreshToken);
 
 }

@@ -43,17 +43,14 @@ spring:
       primary: master
       datasource:
         master:
-          name: ruoyi-vue-pro
-          url: jdbc:mysql://400-infra.server.iocoder.cn:3306/${spring.datasource.dynamic.datasource.master.name}?useSSL=false&allowPublicKeyRetrieval=true&useUnicode=true&characterEncoding=UTF-8&serverTimezone=CTT
-          driver-class-name: com.mysql.jdbc.Driver
+          url: jdbc:mysql://127.0.0.1:3306/ruoyi-vue-pro?useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true&nullCatalogMeansCurrent=true # MySQL Connector/J 8.X 连接的示例
           username: root
-          password: 3WLiVUBEwTbvAfsh
+          password: 123456
         slave: # 模拟从库，可根据自己需要修改 # 模拟从库，可根据自己需要修改
-          name: ruoyi-vue-pro
-          url: jdbc:mysql://400-infra.server.iocoder.cn:3306/${spring.datasource.dynamic.datasource.slave.name}?useSSL=false&allowPublicKeyRetrieval=true&useUnicode=true&characterEncoding=UTF-8&serverTimezone=CTT
-          driver-class-name: com.mysql.jdbc.Driver
+          lazy: true # 开启懒加载，保证启动速度
+          url: jdbc:mysql://127.0.0.1:3306/ruoyi-vue-pro?useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true&nullCatalogMeansCurrent=true # MySQL Connector/J 8.X 连接的示例
           username: root
-          password: 3WLiVUBEwTbvAfsh
+          password: 123456
 
   # Redis 配置。Redisson 默认的配置足够使用，一般不需要进行调优
   redis:
@@ -61,10 +58,6 @@ spring:
     port: 6379 # 端口
     database: 1 # 数据库索引
 #    password: 123456 # 密码，建议生产环境开启
-
-jasypt:
-  encryptor:
-    password: yuanma # 加解密的秘钥
 
 --- #################### 定时任务相关配置 ####################
 
@@ -97,19 +90,22 @@ spring:
     jdbc: # 使用 JDBC 的 JobStore 的时候，JDBC 的配置
       initialize-schema: NEVER # 是否自动使用 SQL 初始化 Quartz 表结构。这里设置成 never ，我们手动创建表结构。
 
---- #################### 配置中心相关配置 ####################
+--- #################### 消息队列相关 ####################
 
-# Apollo 配置中心
-apollo:
-  bootstrap:
-    enabled: true # 设置 Apollo 在启动阶段生效
-    eagerLoad:
-      enabled: true # 设置 Apollo 在日志初始化前生效，可以实现日志的动态级别配置
-  jdbc: # 自定义的 JDBC 配置项，用于数据库的地址
-    dao: cn.iocoder.yudao.module.infra.dal.mysql.config.ConfigDAOImpl
-    url: ${spring.datasource.dynamic.datasource.master.url}
-    username: ${spring.datasource.dynamic.datasource.master.username}
-    password: ${spring.datasource.dynamic.datasource.master.password}
+# rocketmq 配置项，对应 RocketMQProperties 配置类
+rocketmq:
+  name-server: 127.0.0.1:9876 # RocketMQ Namesrv
+
+spring:
+  # RabbitMQ 配置项，对应 RabbitProperties 配置类
+  rabbitmq:
+    host: 127.0.0.1 # RabbitMQ 服务的地址
+    port: 5672 # RabbitMQ 服务的端口
+    username: guest # RabbitMQ 服务的账号
+    password: guest # RabbitMQ 服务的密码
+  # Kafka 配置项，对应 KafkaProperties 配置类
+  kafka:
+    bootstrap-servers: 127.0.0.1:9092 # 指定 Kafka Broker 地址，可以设置多个，以逗号分隔
 
 --- #################### 服务保障相关配置 ####################
 
@@ -117,16 +113,6 @@ apollo:
 lock4j:
   acquire-timeout: 3000 # 获取分布式锁超时时间，默认为 3000 毫秒
   expire: 30000 # 分布式锁的超时时间，默认为 30 毫秒
-
-# Resilience4j 配置项
-resilience4j:
-  ratelimiter:
-    instances:
-      backendA:
-        limit-for-period: 1 # 每个周期内，允许的请求数。默认为 50
-        limit-refresh-period: 60s # 每个周期的时长，单位：微秒。默认为 500
-        timeout-duration: 1s # 被限流时，阻塞等待的时长，单位：微秒。默认为 5s
-        register-health-indicator: true # 是否注册到健康监测
 
 --- #################### 监控相关配置 ####################
 
@@ -146,7 +132,7 @@ spring:
       client:
         url: http://127.0.0.1:${server.port}/${spring.boot.admin.context-path} # 设置 Spring Boot Admin Server 地址
         instance:
-          prefer-ip: true # 注册实例时，优先使用 IP
+          service-host-type: IP # 注册实例时，优先使用 IP [IP, HOST_NAME, CANONICAL_HOST_NAME]
       # Spring Boot Admin Server 服务端的相关配置
       context-path: /admin # 配置 Spring
 
@@ -164,29 +150,25 @@ wx: # 参见 https://github.com/Wechat-Group/WxJava/blob/develop/spring-boot-sta
     # 存储配置，解决 AccessToken 的跨节点的共享
     config-storage:
       type: RedisTemplate # 采用 RedisTemplate 操作 Redis，会自动从 Spring 中获取
-      key-prefix: wx # Redis Key 的前缀 TODO 芋艿：解决下 Redis key 管理的配置
+      key-prefix: wx # Redis Key 的前缀
+      http-client-type: HttpClient # 采用 HttpClient 请求微信公众号平台
+  miniapp: # 小程序配置（必填），参见 https://github.com/Wechat-Group/WxJava/blob/develop/spring-boot-starters/wx-java-miniapp-spring-boot-starter/README.md 文档
+    appid: wx63c280fe3248a3e7
+    secret: 6f270509224a7ae1296bbf1c8cb97aed
+    config-storage:
+      type: RedisTemplate # 采用 RedisTemplate 操作 Redis，会自动从 Spring 中获取
+      key-prefix: wa # Redis Key 的前缀
       http-client-type: HttpClient # 采用 HttpClient 请求微信公众号平台
 
 --- #################### 芋道相关配置 ####################
 
 # 芋道配置项，设置当前项目所有自定义的配置
 yudao:
-  security:
-    token-header: Authorization
-    token-timeout: 1d
-    session-timeout: 30m
-    mock-enable: true
-    mock-secret: test
-  xss:
-    enable: false
-    exclude-urls: # 如下两个 url，仅仅是为了演示，去掉配置也没关系
-      - ${spring.boot.admin.context-path}/** # 不处理 Spring Boot Admin 的请求
-      - ${management.endpoints.web.base-path}/** # 不处理 Actuator 的请求
   pay:
-    pay-notify-url: http://niubi.natapp1.cc/api/pay/order/notify
-    pay-return-url: http://niubi.natapp1.cc/api/pay/order/return
-    refund-notify-url: http://niubi.natapp1.cc/api/pay/refund/notify
+    order-notify-url: http://yunai.natapp1.cc/admin-api/pay/notify/order # 支付渠道的【支付】回调地址
+    refund-notify-url: http://yunai.natapp1.cc/admin-api/pay/notify/refund # 支付渠道的【退款】回调地址
   demo: true # 开启演示模式
+  tencent-lbs-key: TVDBZ-TDILD-4ON4B-PFDZA-RNLKH-VVF6E # QQ 地图的密钥 https://lbs.qq.com/service/staticV2/staticGuide/staticDoc
 
 justauth:
   enabled: true
@@ -199,6 +181,16 @@ justauth:
       client-id: wwd411c69a39ad2e54
       client-secret: 1wTb7hYxnpT2TUbIeHGXGo7T0odav1ic10mLdyyATOw
       agent-id: 1000004
+      ignore-check-redirect-uri: true
+    # noinspection SpringBootApplicationYaml
+    WECHAT_MINI_APP: # 微信小程序
+      client-id: ${wx.miniapp.appid}
+      client-secret: ${wx.miniapp.secret}
+      ignore-check-redirect-uri: true
+      ignore-check-state: true # 微信小程序，不会使用到 state，所以不进行校验
+    WECHAT_MP: # 微信公众号
+      client-id: ${wx.mp.app-id}
+      client-secret: ${wx.mp.secret}
       ignore-check-redirect-uri: true
   cache:
     type: REDIS

@@ -2,6 +2,14 @@ package ${basePackage}.module.${table.moduleName}.dal.dataobject.${table.busines
 
 import lombok.*;
 import java.util.*;
+#foreach ($column in $columns)
+#if (${column.javaType} == "BigDecimal")
+import java.math.BigDecimal;
+#end
+#if (${column.javaType} == "LocalDateTime")
+import java.time.LocalDateTime;
+#end
+#end
 import com.baomidou.mybatisplus.annotation.*;
 import ${BaseDOClassName};
 
@@ -20,6 +28,11 @@ import ${BaseDOClassName};
 @AllArgsConstructor
 public class ${table.className}DO extends BaseDO {
 
+## 特殊：树表专属逻辑
+#if ( $table.templateType == 2 )
+    public static final Long ${treeParentColumn_javaField_underlineCase.toUpperCase()}_ROOT = 0L;
+
+#end
 #foreach ($column in $columns)
 #if (!${baseDOFields.contains(${column.javaField})})##排除 BaseDO 的字段
     /**
@@ -30,7 +43,7 @@ public class ${table.className}DO extends BaseDO {
     #end
      */
     #if (${column.primaryKey})##处理主键
-    @TableId#if (${column.javaType} == 'String')type = IdType.INPUT)#end
+    @TableId#if (${column.javaType} == 'String')(type = IdType.INPUT)#end
     #end
     private ${column.javaType} ${column.javaField};
 #end

@@ -1,14 +1,12 @@
 package cn.iocoder.yudao.module.system.service.tenant;
 
-import cn.hutool.core.util.ReflectUtil;
 import cn.iocoder.yudao.framework.common.enums.CommonStatusEnum;
 import cn.iocoder.yudao.framework.common.pojo.PageResult;
 import cn.iocoder.yudao.framework.tenant.config.TenantProperties;
 import cn.iocoder.yudao.framework.tenant.core.context.TenantContextHolder;
-import cn.iocoder.yudao.module.system.controller.admin.tenant.vo.tenant.TenantCreateReqVO;
-import cn.iocoder.yudao.module.system.controller.admin.tenant.vo.tenant.TenantExportReqVO;
+import cn.iocoder.yudao.framework.test.core.ut.BaseDbUnitTest;
 import cn.iocoder.yudao.module.system.controller.admin.tenant.vo.tenant.TenantPageReqVO;
-import cn.iocoder.yudao.module.system.controller.admin.tenant.vo.tenant.TenantUpdateReqVO;
+import cn.iocoder.yudao.module.system.controller.admin.tenant.vo.tenant.TenantSaveReqVO;
 import cn.iocoder.yudao.module.system.dal.dataobject.permission.MenuDO;
 import cn.iocoder.yudao.module.system.dal.dataobject.permission.RoleDO;
 import cn.iocoder.yudao.module.system.dal.dataobject.tenant.TenantDO;
@@ -16,31 +14,27 @@ import cn.iocoder.yudao.module.system.dal.dataobject.tenant.TenantPackageDO;
 import cn.iocoder.yudao.module.system.dal.mysql.tenant.TenantMapper;
 import cn.iocoder.yudao.module.system.enums.permission.RoleCodeEnum;
 import cn.iocoder.yudao.module.system.enums.permission.RoleTypeEnum;
-import cn.iocoder.yudao.module.system.mq.producer.tenant.TenantProducer;
 import cn.iocoder.yudao.module.system.service.permission.MenuService;
 import cn.iocoder.yudao.module.system.service.permission.PermissionService;
 import cn.iocoder.yudao.module.system.service.permission.RoleService;
 import cn.iocoder.yudao.module.system.service.tenant.handler.TenantInfoHandler;
 import cn.iocoder.yudao.module.system.service.tenant.handler.TenantMenuHandler;
 import cn.iocoder.yudao.module.system.service.user.AdminUserService;
-import cn.iocoder.yudao.framework.test.core.ut.BaseDbUnitTest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 
 import javax.annotation.Resource;
-import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 
 import static cn.iocoder.yudao.framework.common.util.collection.SetUtils.asSet;
-import static cn.iocoder.yudao.framework.common.util.date.DateUtils.addTime;
-import static cn.iocoder.yudao.framework.common.util.date.DateUtils.buildTime;
+import static cn.iocoder.yudao.framework.common.util.date.LocalDateTimeUtils.buildBetweenTime;
+import static cn.iocoder.yudao.framework.common.util.date.LocalDateTimeUtils.buildTime;
 import static cn.iocoder.yudao.framework.common.util.object.ObjectUtils.cloneIgnoreId;
-import static cn.iocoder.yudao.framework.common.util.object.ObjectUtils.max;
 import static cn.iocoder.yudao.framework.test.core.util.AssertUtils.assertPojoEquals;
 import static cn.iocoder.yudao.framework.test.core.util.AssertUtils.assertServiceException;
 import static cn.iocoder.yudao.framework.test.core.util.RandomUtils.*;
@@ -78,46 +72,21 @@ public class TenantServiceImplTest extends BaseDbUnitTest {
     private MenuService menuService;
     @MockBean
     private PermissionService permissionService;
-    @MockBean
-    private TenantProducer tenantProducer;
 
     @BeforeEach
     public void setUp() {
-        // 清理缓存
-        ReflectUtil.setFieldValue(tenantService, "tenantCache", Collections.emptyMap());
-        ReflectUtil.setFieldValue(tenantService, "maxUpdateTime", null);
         // 清理租户上下文
         TenantContextHolder.clear();
     }
 
     @Test
-    public void testInitLocalCache() {
-        // mock 数据
-        TenantDO tenantDO1 = randomPojo(TenantDO.class);
-        tenantMapper.insert(tenantDO1);
-        TenantDO tenantDO2 = randomPojo(TenantDO.class);
-        tenantMapper.insert(tenantDO2);
-
-        // 调用
-        tenantService.initLocalCache();
-        // 断言 tenantCache 缓存
-        Map<Long, TenantDO> tenantCache = tenantService.getTenantCache();
-        assertEquals(2, tenantCache.size());
-        assertPojoEquals(tenantDO1, tenantCache.get(tenantDO1.getId()));
-        assertPojoEquals(tenantDO2, tenantCache.get(tenantDO2.getId()));
-        // 断言 maxUpdateTime 缓存
-        assertEquals(max(tenantDO1.getUpdateTime(), tenantDO2.getUpdateTime()), tenantService.getMaxUpdateTime());
-    }
-
-    @Test
-    public void testGetTenantIds() {
+    public void testGetTenantIdList() {
         // mock 数据
         TenantDO tenant = randomPojo(TenantDO.class, o -> o.setId(1L));
         tenantMapper.insert(tenant);
-        tenantService.initLocalCache();
 
         // 调用，并断言业务异常
-        List<Long> result = tenantService.getTenantIds();
+        List<Long> result = tenantService.getTenantIdList();
         assertEquals(Collections.singletonList(1L), result);
     }
 
@@ -131,7 +100,6 @@ public class TenantServiceImplTest extends BaseDbUnitTest {
         // mock 数据
         TenantDO tenant = randomPojo(TenantDO.class, o -> o.setId(1L).setStatus(CommonStatusEnum.DISABLE.getStatus()));
         tenantMapper.insert(tenant);
-        tenantService.initLocalCache();
 
         // 调用，并断言业务异常
         assertServiceException(() -> tenantService.validTenant(1L), TENANT_DISABLE, tenant.getName());
@@ -143,7 +111,6 @@ public class TenantServiceImplTest extends BaseDbUnitTest {
         TenantDO tenant = randomPojo(TenantDO.class, o -> o.setId(1L).setStatus(CommonStatusEnum.ENABLE.getStatus())
                 .setExpireTime(buildTime(2020, 2, 2)));
         tenantMapper.insert(tenant);
-        tenantService.initLocalCache();
 
         // 调用，并断言业务异常
         assertServiceException(() -> tenantService.validTenant(1L), TENANT_EXPIRE, tenant.getName());
@@ -153,9 +120,8 @@ public class TenantServiceImplTest extends BaseDbUnitTest {
     public void testValidTenant_success() {
         // mock 数据
         TenantDO tenant = randomPojo(TenantDO.class, o -> o.setId(1L).setStatus(CommonStatusEnum.ENABLE.getStatus())
-                .setExpireTime(addTime(Duration.ofDays(1))));
+                .setExpireTime(LocalDateTime.now().plusDays(1)));
         tenantMapper.insert(tenant);
-        tenantService.initLocalCache();
 
         // 调用，并断言业务异常
         tenantService.validTenant(1L);
@@ -184,15 +150,15 @@ public class TenantServiceImplTest extends BaseDbUnitTest {
         }))).thenReturn(300L);
 
         // 准备参数
-        TenantCreateReqVO reqVO = randomPojo(TenantCreateReqVO.class, o -> {
+        TenantSaveReqVO reqVO = randomPojo(TenantSaveReqVO.class, o -> {
             o.setContactName("芋道");
             o.setContactMobile("15601691300");
             o.setPackageId(100L);
             o.setStatus(randomCommonStatus());
-            o.setDomain("https://www.iocoder.cn");
+            o.setWebsite("https://www.iocoder.cn");
             o.setUsername("yunai");
             o.setPassword("yuanma");
-        });
+        }).setId(null); // 设置为 null，方便后面校验
 
         // 调用
         Long tenantId = tenantService.createTenant(reqVO);
@@ -200,14 +166,12 @@ public class TenantServiceImplTest extends BaseDbUnitTest {
         assertNotNull(tenantId);
         // 校验记录的属性是否正确
         TenantDO tenant = tenantMapper.selectById(tenantId);
-        assertPojoEquals(reqVO, tenant);
+        assertPojoEquals(reqVO, tenant, "id");
         assertEquals(300L, tenant.getContactUserId());
         // verify 分配权限
         verify(permissionService).assignRoleMenu(eq(200L), same(tenantPackage.getMenuIds()));
         // verify 分配角色
         verify(permissionService).assignUserRole(eq(300L), eq(singleton(200L)));
-        // verify 发送刷新消息
-        verify(tenantProducer).sendTenantRefreshMessage();
     }
 
     @Test
@@ -216,10 +180,10 @@ public class TenantServiceImplTest extends BaseDbUnitTest {
         TenantDO dbTenant = randomPojo(TenantDO.class, o -> o.setStatus(randomCommonStatus()));
         tenantMapper.insert(dbTenant);// @Sql: 先插入出一条存在的数据
         // 准备参数
-        TenantUpdateReqVO reqVO = randomPojo(TenantUpdateReqVO.class, o -> {
+        TenantSaveReqVO reqVO = randomPojo(TenantSaveReqVO.class, o -> {
             o.setId(dbTenant.getId()); // 设置更新的 ID
             o.setStatus(randomCommonStatus());
-            o.setDomain(randomString());
+            o.setWebsite(randomString());
         });
 
         // mock 套餐
@@ -231,17 +195,15 @@ public class TenantServiceImplTest extends BaseDbUnitTest {
         role100.setTenantId(dbTenant.getId());
         RoleDO role101 = randomPojo(RoleDO.class, o -> o.setId(101L));
         role101.setTenantId(dbTenant.getId());
-        when(roleService.getRoles(isNull())).thenReturn(asList(role100, role101));
+        when(roleService.getRoleList()).thenReturn(asList(role100, role101));
         // mock 每个角色的权限
-        when(permissionService.getRoleMenuIds(eq(101L))).thenReturn(asSet(201L, 202L));
+        when(permissionService.getRoleMenuListByRoleId(eq(101L))).thenReturn(asSet(201L, 202L));
 
         // 调用
         tenantService.updateTenant(reqVO);
         // 校验是否更新正确
         TenantDO tenant = tenantMapper.selectById(reqVO.getId()); // 获取最新的
         assertPojoEquals(reqVO, tenant);
-        // verify 发送刷新消息
-        verify(tenantProducer).sendTenantRefreshMessage();
         // verify 设置角色权限
         verify(permissionService).assignRoleMenu(eq(100L), eq(asSet(200L, 201L)));
         verify(permissionService).assignRoleMenu(eq(101L), eq(asSet(201L)));
@@ -250,7 +212,7 @@ public class TenantServiceImplTest extends BaseDbUnitTest {
     @Test
     public void testUpdateTenant_notExists() {
         // 准备参数
-        TenantUpdateReqVO reqVO = randomPojo(TenantUpdateReqVO.class);
+        TenantSaveReqVO reqVO = randomPojo(TenantSaveReqVO.class);
 
         // 调用, 并断言异常
         assertServiceException(() -> tenantService.updateTenant(reqVO), TENANT_NOT_EXISTS);
@@ -262,7 +224,7 @@ public class TenantServiceImplTest extends BaseDbUnitTest {
         TenantDO dbTenant = randomPojo(TenantDO.class, o -> o.setPackageId(PACKAGE_ID_SYSTEM));
         tenantMapper.insert(dbTenant);// @Sql: 先插入出一条存在的数据
         // 准备参数
-        TenantUpdateReqVO reqVO = randomPojo(TenantUpdateReqVO.class, o -> {
+        TenantSaveReqVO reqVO = randomPojo(TenantSaveReqVO.class, o -> {
             o.setId(dbTenant.getId()); // 设置更新的 ID
         });
 
@@ -347,8 +309,7 @@ public class TenantServiceImplTest extends BaseDbUnitTest {
         reqVO.setContactName("艿");
         reqVO.setContactMobile("1560");
         reqVO.setStatus(CommonStatusEnum.ENABLE.getStatus());
-        reqVO.setBeginCreateTime(buildTime(2020, 12, 1));
-        reqVO.setEndCreateTime(buildTime(2020, 12, 24));
+        reqVO.setCreateTime(buildBetweenTime(2020, 12, 1, 2020, 12, 24));
 
         // 调用
         PageResult<TenantDO> pageResult = tenantService.getTenantPage(reqVO);
@@ -359,44 +320,6 @@ public class TenantServiceImplTest extends BaseDbUnitTest {
     }
 
     @Test
-    public void testGetTenantList() {
-        // mock 数据
-        TenantDO dbTenant = randomPojo(TenantDO.class, o -> { // 等会查询到
-            o.setName("芋道源码");
-            o.setContactName("芋艿");
-            o.setContactMobile("15601691300");
-            o.setStatus(CommonStatusEnum.ENABLE.getStatus());
-            o.setCreateTime(buildTime(2020, 12, 12));
-        });
-        tenantMapper.insert(dbTenant);
-        // 测试 name 不匹配
-        tenantMapper.insert(cloneIgnoreId(dbTenant, o -> o.setName(randomString())));
-        // 测试 contactName 不匹配
-        tenantMapper.insert(cloneIgnoreId(dbTenant, o -> o.setContactName(randomString())));
-        // 测试 contactMobile 不匹配
-        tenantMapper.insert(cloneIgnoreId(dbTenant, o -> o.setContactMobile(randomString())));
-        // 测试 status 不匹配
-        tenantMapper.insert(cloneIgnoreId(dbTenant, o -> o.setStatus(CommonStatusEnum.DISABLE.getStatus())));
-        // 测试 createTime 不匹配
-        tenantMapper.insert(cloneIgnoreId(dbTenant, o -> o.setCreateTime(buildTime(2021, 12, 12))));
-        // 准备参数
-        TenantExportReqVO reqVO = new TenantExportReqVO();
-        reqVO.setName("芋道");
-        reqVO.setContactName("艿");
-        reqVO.setContactMobile("1560");
-        reqVO.setStatus(CommonStatusEnum.ENABLE.getStatus());
-        reqVO.setBeginCreateTime(buildTime(2020, 12, 1));
-        reqVO.setEndCreateTime(buildTime(2020, 12, 24));
-
-        // 调用
-        List<TenantDO> list = tenantService.getTenantList(reqVO);
-        // 断言
-        assertEquals(1, list.size());
-        assertPojoEquals(dbTenant, list.get(0));
-    }
-
-
-    @Test
     public void testGetTenantByName() {
         // mock 数据
         TenantDO dbTenant = randomPojo(TenantDO.class, o -> o.setName("芋道"));
@@ -404,6 +327,18 @@ public class TenantServiceImplTest extends BaseDbUnitTest {
 
         // 调用
         TenantDO result = tenantService.getTenantByName("芋道");
+        // 校验存在
+        assertPojoEquals(result, dbTenant);
+    }
+
+    @Test
+    public void testGetTenantByWebsite() {
+        // mock 数据
+        TenantDO dbTenant = randomPojo(TenantDO.class, o -> o.setWebsite("https://www.iocoder.cn"));
+        tenantMapper.insert(dbTenant);// @Sql: 先插入出一条存在的数据
+
+        // 调用
+        TenantDO result = tenantService.getTenantByWebsite("https://www.iocoder.cn");
         // 校验存在
         assertPojoEquals(result, dbTenant);
     }
@@ -492,8 +427,8 @@ public class TenantServiceImplTest extends BaseDbUnitTest {
         tenantMapper.insert(dbTenant);// @Sql: 先插入出一条存在的数据
         TenantContextHolder.setTenantId(dbTenant.getId());
         // mock 菜单
-        when(menuService.getMenus()).thenReturn(Arrays.asList(randomPojo(MenuDO.class, o -> o.setId(100L)),
-                        randomPojo(MenuDO.class, o -> o.setId(101L))));
+        when(menuService.getMenuList()).thenReturn(Arrays.asList(randomPojo(MenuDO.class, o -> o.setId(100L)),
+                randomPojo(MenuDO.class, o -> o.setId(101L))));
 
         // 调用
         tenantService.handleTenantMenu(handler);

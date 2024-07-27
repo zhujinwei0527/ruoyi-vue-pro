@@ -1,36 +1,33 @@
 package cn.iocoder.yudao.module.member.service.auth;
 
 import cn.hutool.core.lang.Assert;
+import cn.hutool.core.util.ObjectUtil;
 import cn.iocoder.yudao.framework.common.enums.CommonStatusEnum;
+import cn.iocoder.yudao.framework.common.enums.TerminalEnum;
 import cn.iocoder.yudao.framework.common.enums.UserTypeEnum;
 import cn.iocoder.yudao.framework.common.util.monitor.TracerUtils;
 import cn.iocoder.yudao.framework.common.util.servlet.ServletUtils;
-import cn.iocoder.yudao.framework.security.core.LoginUser;
-import cn.iocoder.yudao.framework.security.core.authentication.MultiUsernamePasswordAuthenticationToken;
 import cn.iocoder.yudao.module.member.controller.app.auth.vo.*;
 import cn.iocoder.yudao.module.member.convert.auth.AuthConvert;
 import cn.iocoder.yudao.module.member.dal.dataobject.user.MemberUserDO;
-import cn.iocoder.yudao.module.member.dal.mysql.user.MemberUserMapper;
 import cn.iocoder.yudao.module.member.service.user.MemberUserService;
-import cn.iocoder.yudao.module.system.api.auth.UserSessionApi;
 import cn.iocoder.yudao.module.system.api.logger.LoginLogApi;
 import cn.iocoder.yudao.module.system.api.logger.dto.LoginLogCreateReqDTO;
+import cn.iocoder.yudao.module.system.api.oauth2.OAuth2TokenApi;
+import cn.iocoder.yudao.module.system.api.oauth2.dto.OAuth2AccessTokenCreateReqDTO;
+import cn.iocoder.yudao.module.system.api.oauth2.dto.OAuth2AccessTokenRespDTO;
 import cn.iocoder.yudao.module.system.api.sms.SmsCodeApi;
+import cn.iocoder.yudao.module.system.api.social.SocialClientApi;
 import cn.iocoder.yudao.module.system.api.social.SocialUserApi;
+import cn.iocoder.yudao.module.system.api.social.dto.SocialUserBindReqDTO;
+import cn.iocoder.yudao.module.system.api.social.dto.SocialUserRespDTO;
+import cn.iocoder.yudao.module.system.api.social.dto.SocialWxPhoneNumberInfoRespDTO;
 import cn.iocoder.yudao.module.system.enums.logger.LoginLogTypeEnum;
 import cn.iocoder.yudao.module.system.enums.logger.LoginResultEnum;
+import cn.iocoder.yudao.module.system.enums.oauth2.OAuth2ClientConstants;
 import cn.iocoder.yudao.module.system.enums.sms.SmsSceneEnum;
-import com.google.common.annotations.VisibleForTesting;
+import cn.iocoder.yudao.module.system.enums.social.SocialTypeEnum;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.context.annotation.Lazy;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.authentication.DisabledException;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -39,6 +36,7 @@ import java.util.Objects;
 
 import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception;
 import static cn.iocoder.yudao.framework.common.util.servlet.ServletUtils.getClientIP;
+import static cn.iocoder.yudao.framework.web.core.util.WebFrameworkUtils.getTerminal;
 import static cn.iocoder.yudao.module.member.enums.ErrorCodeConstants.*;
 
 /**
@@ -51,143 +49,153 @@ import static cn.iocoder.yudao.module.member.enums.ErrorCodeConstants.*;
 public class MemberAuthServiceImpl implements MemberAuthService {
 
     @Resource
-    @Lazy // 延迟加载，因为存在相互依赖的问题
-    private AuthenticationManager authenticationManager;
-
-    @Resource
     private MemberUserService userService;
     @Resource
     private SmsCodeApi smsCodeApi;
     @Resource
     private LoginLogApi loginLogApi;
     @Resource
-    private UserSessionApi userSessionApi;
-    @Resource
     private SocialUserApi socialUserApi;
-
     @Resource
-    private PasswordEncoder passwordEncoder;
+    private SocialClientApi socialClientApi;
     @Resource
-    private MemberUserMapper userMapper;
+    private OAuth2TokenApi oauth2TokenApi;
 
     @Override
-    public UserDetails loadUserByUsername(String mobile) throws UsernameNotFoundException {
-        // 获取 username 对应的 SysUserDO
-        MemberUserDO user = userService.getUserByMobile(mobile);
-        if (user == null) {
-            throw new UsernameNotFoundException(mobile);
-        }
-        // 创建 LoginUser 对象
-        return AuthConvert.INSTANCE.convert(user);
-    }
-
-    @Override
-    public String login(AppAuthLoginReqVO reqVO, String userIp, String userAgent) {
+    public AppAuthLoginRespVO login(AppAuthLoginReqVO reqVO) {
         // 使用手机 + 密码，进行登录。
-        LoginUser loginUser = this.login0(reqVO.getMobile(), reqVO.getPassword());
+        MemberUserDO user = login0(reqVO.getMobile(), reqVO.getPassword());
 
-        // 缓存登录用户到 Redis 中，返回 Token 令牌
-        return createUserSessionAfterLoginSuccess(loginUser, LoginLogTypeEnum.LOGIN_USERNAME, userIp, userAgent);
+        // 如果 socialType 非空，说明需要绑定社交用户
+        String openid = null;
+        if (reqVO.getSocialType() != null) {
+            openid = socialUserApi.bindSocialUser(new SocialUserBindReqDTO(user.getId(), getUserType().getValue(),
+                    reqVO.getSocialType(), reqVO.getSocialCode(), reqVO.getSocialState()));
+        }
+
+        // 创建 Token 令牌，记录登录日志
+        return createTokenAfterLoginSuccess(user, reqVO.getMobile(), LoginLogTypeEnum.LOGIN_MOBILE, openid);
     }
 
     @Override
     @Transactional
-    public String smsLogin(AppAuthSmsLoginReqVO reqVO, String userIp, String userAgent) {
+    public AppAuthLoginRespVO smsLogin(AppAuthSmsLoginReqVO reqVO) {
         // 校验验证码
+        String userIp = getClientIP();
         smsCodeApi.useSmsCode(AuthConvert.INSTANCE.convert(reqVO, SmsSceneEnum.MEMBER_LOGIN.getScene(), userIp));
 
         // 获得获得注册用户
-        MemberUserDO user = userService.createUserIfAbsent(reqVO.getMobile(), userIp);
+        MemberUserDO user = userService.createUserIfAbsent(reqVO.getMobile(), userIp, getTerminal());
         Assert.notNull(user, "获取用户失败，结果为空");
 
-        // 执行登陆
-        LoginUser loginUser = AuthConvert.INSTANCE.convert(user);
+        // 校验是否禁用
+        if (CommonStatusEnum.isDisable(user.getStatus())) {
+            createLoginLog(user.getId(), reqVO.getMobile(), LoginLogTypeEnum.LOGIN_SMS, LoginResultEnum.USER_DISABLED);
+            throw exception(AUTH_LOGIN_USER_DISABLED);
+        }
 
-        // 缓存登录用户到 Redis 中，返回 Token 令牌
-        return createUserSessionAfterLoginSuccess(loginUser, LoginLogTypeEnum.LOGIN_SMS, userIp, userAgent);
+        // 如果 socialType 非空，说明需要绑定社交用户
+        String openid = null;
+        if (reqVO.getSocialType() != null) {
+            openid = socialUserApi.bindSocialUser(new SocialUserBindReqDTO(user.getId(), getUserType().getValue(),
+                    reqVO.getSocialType(), reqVO.getSocialCode(), reqVO.getSocialState()));
+        }
+
+        // 创建 Token 令牌，记录登录日志
+        return createTokenAfterLoginSuccess(user, reqVO.getMobile(), LoginLogTypeEnum.LOGIN_SMS, openid);
     }
 
     @Override
-    public String socialQuickLogin(AppAuthSocialQuickLoginReqVO reqVO, String userIp, String userAgent) {
+    @Transactional
+    public AppAuthLoginRespVO socialLogin(AppAuthSocialLoginReqVO reqVO) {
         // 使用 code 授权码，进行登录。然后，获得到绑定的用户编号
-        Long userId = socialUserApi.getBindUserId(UserTypeEnum.MEMBER.getValue(), reqVO.getType(),
+        SocialUserRespDTO socialUser = socialUserApi.getSocialUserByCode(UserTypeEnum.MEMBER.getValue(), reqVO.getType(),
                 reqVO.getCode(), reqVO.getState());
-        if (userId == null) {
-            throw exception(AUTH_THIRD_LOGIN_NOT_BIND);
+        if (socialUser == null) {
+            throw exception(AUTH_SOCIAL_USER_NOT_FOUND);
         }
 
-        // 自动登录
-        MemberUserDO user = userService.getUser(userId);
+        // 情况一：已绑定，直接读取用户信息
+        MemberUserDO user;
+        if (socialUser.getUserId() != null) {
+            user = userService.getUser(socialUser.getUserId());
+        // 情况二：未绑定，注册用户 + 绑定用户
+        } else {
+            user = userService.createUser(socialUser.getNickname(), socialUser.getAvatar(), getClientIP(), getTerminal());
+            socialUserApi.bindSocialUser(new SocialUserBindReqDTO(user.getId(), getUserType().getValue(),
+                    reqVO.getType(), reqVO.getCode(), reqVO.getState()));
+        }
         if (user == null) {
             throw exception(USER_NOT_EXISTS);
         }
 
-        // 创建 LoginUser 对象
-        LoginUser loginUser = AuthConvert.INSTANCE.convert(user);
-
-        // 缓存登录用户到 Redis 中，返回 Token 令牌
-        return createUserSessionAfterLoginSuccess(loginUser, LoginLogTypeEnum.LOGIN_SOCIAL, userIp, userAgent);
+        // 创建 Token 令牌，记录登录日志
+        return createTokenAfterLoginSuccess(user, user.getMobile(), LoginLogTypeEnum.LOGIN_SOCIAL, socialUser.getOpenid());
     }
 
     @Override
-    public String socialBindLogin(AppAuthSocialBindLoginReqVO reqVO, String userIp, String userAgent) {
-        // 使用手机号、手机验证码登录
-        AppAuthSmsLoginReqVO loginReqVO = AppAuthSmsLoginReqVO.builder()
-                .mobile(reqVO.getMobile()).code(reqVO.getSmsCode()).build();
-        String token = this.smsLogin(loginReqVO, userIp, userAgent);
-        LoginUser loginUser = userSessionApi.getLoginUser(token);
+    public AppAuthLoginRespVO weixinMiniAppLogin(AppAuthWeixinMiniAppLoginReqVO reqVO) {
+        // 获得对应的手机号信息
+        SocialWxPhoneNumberInfoRespDTO phoneNumberInfo = socialClientApi.getWxMaPhoneNumberInfo(
+                UserTypeEnum.MEMBER.getValue(), reqVO.getPhoneCode());
+        Assert.notNull(phoneNumberInfo, "获得手机信息失败，结果为空");
+
+        // 获得获得注册用户
+        MemberUserDO user = userService.createUserIfAbsent(phoneNumberInfo.getPurePhoneNumber(),
+                getClientIP(), TerminalEnum.WECHAT_MINI_PROGRAM.getTerminal());
+        Assert.notNull(user, "获取用户失败，结果为空");
 
         // 绑定社交用户
-        socialUserApi.bindSocialUser(AuthConvert.INSTANCE.convert(loginUser.getId(), getUserType().getValue(), reqVO));
-        return token;
+        String openid = socialUserApi.bindSocialUser(new SocialUserBindReqDTO(user.getId(), getUserType().getValue(),
+                SocialTypeEnum.WECHAT_MINI_APP.getType(), reqVO.getLoginCode(), reqVO.getState()));
+
+        // 创建 Token 令牌，记录登录日志
+        return createTokenAfterLoginSuccess(user, user.getMobile(), LoginLogTypeEnum.LOGIN_SOCIAL, openid);
     }
 
-    private String createUserSessionAfterLoginSuccess(LoginUser loginUser, LoginLogTypeEnum logType, String userIp, String userAgent) {
+    private AppAuthLoginRespVO createTokenAfterLoginSuccess(MemberUserDO user, String mobile,
+                                                            LoginLogTypeEnum logType, String openid) {
         // 插入登陆日志
-        createLoginLog(loginUser.getUsername(), logType, LoginResultEnum.SUCCESS);
-        // 缓存登录用户到 Redis 中，返回 Token 令牌
-        return userSessionApi.createUserSession(loginUser, userIp, userAgent);
+        createLoginLog(user.getId(), mobile, logType, LoginResultEnum.SUCCESS);
+        // 创建 Token 令牌
+        OAuth2AccessTokenRespDTO accessTokenRespDTO = oauth2TokenApi.createAccessToken(new OAuth2AccessTokenCreateReqDTO()
+                .setUserId(user.getId()).setUserType(getUserType().getValue())
+                .setClientId(OAuth2ClientConstants.CLIENT_ID_DEFAULT));
+        // 构建返回结果
+        return AuthConvert.INSTANCE.convert(accessTokenRespDTO, openid);
     }
 
     @Override
     public String getSocialAuthorizeUrl(Integer type, String redirectUri) {
-        return socialUserApi.getAuthorizeUrl(type, redirectUri);
+        return socialClientApi.getAuthorizeUrl(type, UserTypeEnum.MEMBER.getValue(), redirectUri);
     }
 
-    private LoginUser login0(String username, String password) {
-        final LoginLogTypeEnum logType = LoginLogTypeEnum.LOGIN_USERNAME;
-        // 用户验证
-        Authentication authentication;
-        try {
-            // 调用 Spring Security 的 AuthenticationManager#authenticate(...) 方法，使用账号密码进行认证
-            // 在其内部，会调用到 loadUserByUsername 方法，获取 User 信息
-            authentication = authenticationManager.authenticate(new MultiUsernamePasswordAuthenticationToken(
-                    username, password, getUserType()));
-        } catch (BadCredentialsException badCredentialsException) {
-            this.createLoginLog(username, logType, LoginResultEnum.BAD_CREDENTIALS);
-            throw exception(AUTH_LOGIN_BAD_CREDENTIALS);
-        } catch (DisabledException disabledException) {
-            this.createLoginLog(username, logType, LoginResultEnum.USER_DISABLED);
-            throw exception(AUTH_LOGIN_USER_DISABLED);
-        } catch (AuthenticationException authenticationException) {
-            log.error("[login0][username({}) 发生未知异常]", username, authenticationException);
-            this.createLoginLog(username, logType, LoginResultEnum.UNKNOWN_ERROR);
-            throw exception(AUTH_LOGIN_FAIL_UNKNOWN);
-        }
-        Assert.notNull(authentication.getPrincipal(), "Principal 不会为空");
-        return (LoginUser) authentication.getPrincipal();
-    }
-
-    private void createLoginLog(String mobile, LoginLogTypeEnum logType, LoginResultEnum loginResult) {
-        // 获得用户
+    private MemberUserDO login0(String mobile, String password) {
+        final LoginLogTypeEnum logTypeEnum = LoginLogTypeEnum.LOGIN_MOBILE;
+        // 校验账号是否存在
         MemberUserDO user = userService.getUserByMobile(mobile);
+        if (user == null) {
+            createLoginLog(null, mobile, logTypeEnum, LoginResultEnum.BAD_CREDENTIALS);
+            throw exception(AUTH_LOGIN_BAD_CREDENTIALS);
+        }
+        if (!userService.isPasswordMatch(password, user.getPassword())) {
+            createLoginLog(user.getId(), mobile, logTypeEnum, LoginResultEnum.BAD_CREDENTIALS);
+            throw exception(AUTH_LOGIN_BAD_CREDENTIALS);
+        }
+        // 校验是否禁用
+        if (CommonStatusEnum.isDisable(user.getStatus())) {
+            createLoginLog(user.getId(), mobile, logTypeEnum, LoginResultEnum.USER_DISABLED);
+            throw exception(AUTH_LOGIN_USER_DISABLED);
+        }
+        return user;
+    }
+
+    private void createLoginLog(Long userId, String mobile, LoginLogTypeEnum logType, LoginResultEnum loginResult) {
         // 插入登录日志
         LoginLogCreateReqDTO reqDTO = new LoginLogCreateReqDTO();
         reqDTO.setLogType(logType.getType());
         reqDTO.setTraceId(TracerUtils.getTraceId());
-        if (user != null) {
-            reqDTO.setUserId(user.getId());
-        }
+        reqDTO.setUserId(userId);
         reqDTO.setUserType(getUserType().getValue());
         reqDTO.setUsername(mobile);
         reqDTO.setUserAgent(ServletUtils.getUserAgent());
@@ -195,143 +203,84 @@ public class MemberAuthServiceImpl implements MemberAuthService {
         reqDTO.setResult(loginResult.getResult());
         loginLogApi.createLoginLog(reqDTO);
         // 更新最后登录时间
-        if (user != null && Objects.equals(LoginResultEnum.SUCCESS.getResult(), loginResult.getResult())) {
-            userService.updateUserLogin(user.getId(), getClientIP());
+        if (userId != null && Objects.equals(LoginResultEnum.SUCCESS.getResult(), loginResult.getResult())) {
+            userService.updateUserLogin(userId, getClientIP());
         }
-    }
-
-    @Override
-    public LoginUser verifyTokenAndRefresh(String token) {
-        // 获得 LoginUser
-        LoginUser loginUser = userSessionApi.getLoginUser(token);
-        if (loginUser == null) {
-            return null;
-        }
-        // 刷新 LoginUser 缓存
-        this.refreshLoginUserCache(token, loginUser);
-        return loginUser;
-    }
-
-    private void refreshLoginUserCache(String token, LoginUser loginUser) {
-        // 每 1/3 的 Session 超时时间，刷新 LoginUser 缓存
-        if (System.currentTimeMillis() - loginUser.getUpdateTime().getTime() <
-                userSessionApi.getSessionTimeoutMillis() / 3) {
-            return;
-        }
-
-        // 重新加载 UserDO 信息
-        MemberUserDO user = userService.getUser(loginUser.getId());
-        if (user == null || CommonStatusEnum.DISABLE.getStatus().equals(user.getStatus())) {
-            // 校验 token 时，用户被禁用的情况下，也认为 token 过期，方便前端跳转到登录界面
-            throw exception(AUTH_TOKEN_EXPIRED);
-        }
-
-        // 刷新 LoginUser 缓存
-        userSessionApi.refreshUserSession(token, loginUser);
-    }
-
-    @Override
-    public LoginUser mockLogin(Long userId) {
-        // 获取用户编号对应的 UserDO
-        MemberUserDO user = userService.getUser(userId);
-        if (user == null) {
-            throw new UsernameNotFoundException(String.valueOf(userId));
-        }
-
-        // 执行登陆
-        this.createLoginLog(user.getMobile(), LoginLogTypeEnum.LOGIN_MOCK, LoginResultEnum.SUCCESS);
-
-        // 创建 LoginUser 对象
-        return AuthConvert.INSTANCE.convert(user);
     }
 
     @Override
     public void logout(String token) {
-        // 查询用户信息
-        LoginUser loginUser = userSessionApi.getLoginUser(token);
-        if (loginUser == null) {
+        // 删除访问令牌
+        OAuth2AccessTokenRespDTO accessTokenRespDTO = oauth2TokenApi.removeAccessToken(token);
+        if (accessTokenRespDTO == null) {
             return;
         }
-        // 删除 session
-        userSessionApi.deleteUserSession(token);
-        // 记录登出日志
-        this.createLogoutLog(loginUser.getId(), loginUser.getUsername());
-    }
-
-    @Override
-    public UserTypeEnum getUserType() {
-        return UserTypeEnum.MEMBER;
-    }
-
-    @Override
-    public void updatePassword(Long userId, AppAuthUpdatePasswordReqVO reqVO) {
-        // 检验旧密码
-        MemberUserDO userDO = checkOldPassword(userId, reqVO.getOldPassword());
-
-        // 更新用户密码
-        userMapper.updateById(MemberUserDO.builder().id(userDO.getId())
-                .password(passwordEncoder.encode(reqVO.getPassword())).build());
-    }
-
-    @Override
-    public void resetPassword(AppAuthResetPasswordReqVO reqVO) {
-        // 检验用户是否存在
-        MemberUserDO userDO = checkUserIfExists(reqVO.getMobile());
-
-        // 使用验证码
-        smsCodeApi.useSmsCode(AuthConvert.INSTANCE.convert(reqVO, SmsSceneEnum.MEMBER_FORGET_PASSWORD,
-                getClientIP()));
-
-        // 更新密码
-        userMapper.updateById(MemberUserDO.builder().id(userDO.getId())
-                .password(passwordEncoder.encode(reqVO.getPassword())).build());
+        // 删除成功，则记录登出日志
+        createLogoutLog(accessTokenRespDTO.getUserId());
     }
 
     @Override
     public void sendSmsCode(Long userId, AppAuthSmsSendReqVO reqVO) {
-        // TODO 要根据不同的场景，校验是否有用户
+        // 情况 1：如果是修改手机场景，需要校验新手机号是否已经注册，说明不能使用该手机了
+        if (Objects.equals(reqVO.getScene(), SmsSceneEnum.MEMBER_UPDATE_MOBILE.getScene())) {
+            MemberUserDO user = userService.getUserByMobile(reqVO.getMobile());
+            if (user != null && !Objects.equals(user.getId(), userId)) {
+                throw exception(AUTH_MOBILE_USED);
+            }
+        }
+        // 情况 2：如果是重置密码场景，需要校验手机号是存在的
+        if (Objects.equals(reqVO.getScene(), SmsSceneEnum.MEMBER_RESET_PASSWORD.getScene())) {
+            MemberUserDO user = userService.getUserByMobile(reqVO.getMobile());
+            if (user == null) {
+                throw exception(USER_MOBILE_NOT_EXISTS);
+            }
+        }
+        // 情况 3：如果是修改密码场景，需要查询手机号，无需前端传递
+        if (Objects.equals(reqVO.getScene(), SmsSceneEnum.MEMBER_UPDATE_PASSWORD.getScene())) {
+            MemberUserDO user = userService.getUser(userId);
+            // TODO 芋艿：后续 member user 手机非强绑定，这块需要做下调整；
+            reqVO.setMobile(user.getMobile());
+        }
+
+        // 执行发送
         smsCodeApi.sendSmsCode(AuthConvert.INSTANCE.convert(reqVO).setCreateIp(getClientIP()));
     }
 
-    /**
-     * 校验旧密码
-     *
-     * @param id          用户 id
-     * @param oldPassword 旧密码
-     * @return MemberUserDO 用户实体
-     */
-    @VisibleForTesting
-    public MemberUserDO checkOldPassword(Long id, String oldPassword) {
-        MemberUserDO user = userMapper.selectById(id);
-        if (user == null) {
-            throw exception(USER_NOT_EXISTS);
-        }
-        // 参数：未加密密码，编码后的密码
-        if (!passwordEncoder.matches(oldPassword,user.getPassword())) {
-            throw exception(USER_PASSWORD_FAILED);
-        }
-        return user;
+    @Override
+    public void validateSmsCode(Long userId, AppAuthSmsValidateReqVO reqVO) {
+        smsCodeApi.validateSmsCode(AuthConvert.INSTANCE.convert(reqVO));
     }
 
-    public MemberUserDO checkUserIfExists(String mobile) {
-        MemberUserDO user = userMapper.selectByMobile(mobile);
-        if (user == null) {
-            throw exception(USER_NOT_EXISTS);
-        }
-        return user;
+    @Override
+    public AppAuthLoginRespVO refreshToken(String refreshToken) {
+        OAuth2AccessTokenRespDTO accessTokenDO = oauth2TokenApi.refreshAccessToken(refreshToken,
+                OAuth2ClientConstants.CLIENT_ID_DEFAULT);
+        return AuthConvert.INSTANCE.convert(accessTokenDO, null);
     }
 
-    private void createLogoutLog(Long userId, String username) {
+    private void createLogoutLog(Long userId) {
         LoginLogCreateReqDTO reqDTO = new LoginLogCreateReqDTO();
         reqDTO.setLogType(LoginLogTypeEnum.LOGOUT_SELF.getType());
         reqDTO.setTraceId(TracerUtils.getTraceId());
         reqDTO.setUserId(userId);
         reqDTO.setUserType(getUserType().getValue());
-        reqDTO.setUsername(username);
+        reqDTO.setUsername(getMobile(userId));
         reqDTO.setUserAgent(ServletUtils.getUserAgent());
         reqDTO.setUserIp(getClientIP());
         reqDTO.setResult(LoginResultEnum.SUCCESS.getResult());
         loginLogApi.createLoginLog(reqDTO);
+    }
+
+    private String getMobile(Long userId) {
+        if (userId == null) {
+            return null;
+        }
+        MemberUserDO user = userService.getUser(userId);
+        return user != null ? user.getMobile() : null;
+    }
+
+    private UserTypeEnum getUserType() {
+        return UserTypeEnum.MEMBER;
     }
 
 }

@@ -10,7 +10,7 @@ import org.springframework.security.config.annotation.web.configurers.Expression
 /**
  * Infra 模块的 Security 配置
  */
-@Configuration("infraSecurityConfiguration")
+@Configuration(proxyBeanMethods = false, value = "infraSecurityConfiguration")
 public class SecurityConfiguration {
 
     @Value("${spring.boot.admin.context-path:''}")
@@ -23,10 +23,10 @@ public class SecurityConfiguration {
             @Override
             public void customize(ExpressionUrlAuthorizationConfigurer<HttpSecurity>.ExpressionInterceptUrlRegistry registry) {
                 // Swagger 接口文档
-                registry.antMatchers("/swagger-ui.html").anonymous()
-                        .antMatchers("/swagger-resources/**").anonymous()
-                        .antMatchers("/webjars/**").anonymous()
-                        .antMatchers("/*/api-docs").anonymous();
+                registry.antMatchers("/v3/api-docs/**").permitAll()
+                        .antMatchers("/webjars/**").permitAll()
+                        .antMatchers("/swagger-ui.html").permitAll()
+                        .antMatchers("/swagger-ui/**").permitAll();
                 // Spring Boot Actuator 的安全配置
                 registry.antMatchers("/actuator").anonymous()
                         .antMatchers("/actuator/**").anonymous();
@@ -35,8 +35,8 @@ public class SecurityConfiguration {
                 // Spring Boot Admin Server 的安全配置
                 registry.antMatchers(adminSeverContextPath).anonymous()
                         .antMatchers(adminSeverContextPath + "/**").anonymous();
-                // 文件的获取接口，可匿名访问
-                registry.antMatchers(buildAdminApi("/infra/file/*/get/**"), buildAppApi("/infra/file/get/**")).permitAll();
+                // 文件读取
+                registry.antMatchers(buildAdminApi("/infra/file/*/get/**")).permitAll();
             }
 
         };

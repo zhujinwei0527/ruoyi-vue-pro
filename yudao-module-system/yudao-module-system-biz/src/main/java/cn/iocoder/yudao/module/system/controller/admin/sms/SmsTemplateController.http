@@ -5,9 +5,10 @@ Content-Type: application/json
 tenant-id: {{adminTenentId}}
 
 {
-  "code": "test_01",
-  "params": {
-    "key01": "value01",
-    "key02": "value02"
+  "templateCode": "test_01",
+  "mobile": "15601691390",
+  "templateParams": {
+    "operation": "value01",
+    "code": "value02"
   }
 }

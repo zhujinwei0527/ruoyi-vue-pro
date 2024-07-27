@@ -1,14 +1,14 @@
 package cn.iocoder.yudao.framework.security.core;
 
 import cn.hutool.core.map.MapUtil;
-import cn.iocoder.yudao.framework.common.enums.CommonStatusEnum;
 import cn.iocoder.yudao.framework.common.enums.UserTypeEnum;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
 
-import java.util.*;
+import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * 登录用户信息
@@ -16,7 +16,10 @@ import java.util.*;
  * @author 芋道源码
  */
 @Data
-public class LoginUser implements UserDetails {
+public class LoginUser {
+
+    public static final String INFO_KEY_NICKNAME = "nickname";
+    public static final String INFO_KEY_DEPT_ID = "deptId";
 
     /**
      * 用户编号
@@ -29,37 +32,21 @@ public class LoginUser implements UserDetails {
      */
     private Integer userType;
     /**
-     * 最后更新时间
+     * 额外的用户信息
      */
-    private Date updateTime;
-
-    /**
-     * 用户名
-     */
-    private String username;
-    /**
-     * 密码
-     */
-    private String password;
-    /**
-     * 状态
-     */
-    private Integer status;
+    private Map<String, String> info;
     /**
      * 租户编号
      */
     private Long tenantId;
-
-    // ========== UserTypeEnum.ADMIN 独有字段 ==========
-    // TODO 芋艿：可以通过定义一个 Map<String, String> exts 的方式，去除管理员的字段。不过这样会导致系统比较复杂，所以暂时不去掉先；
     /**
-     * 角色编号数组
+     * 授权范围
      */
-    private Set<Long> roleIds;
+    private List<String> scopes;
     /**
-     * 部门编号
+     * 过期时间
      */
-    private Long deptId;
+    private LocalDateTime expiresTime;
 
     // ========== 上下文 ==========
     /**
@@ -69,49 +56,6 @@ public class LoginUser implements UserDetails {
      */
     @JsonIgnore
     private Map<String, Object> context;
-
-    @Override
-    @JsonIgnore// 避免序列化
-    public String getPassword() {
-        return password;
-    }
-
-    @Override
-    public String getUsername() {
-        return username;
-    }
-
-    @Override
-    @JsonIgnore// 避免序列化
-    public boolean isEnabled() {
-        return CommonStatusEnum.ENABLE.getStatus().equals(status);
-    }
-
-    @Override
-    @JsonIgnore// 避免序列化
-    public Collection<? extends GrantedAuthority> getAuthorities() {
-        return new HashSet<>();
-    }
-
-    @Override
-    @JsonIgnore// 避免序列化
-    public boolean isAccountNonExpired() {
-        return true; // 返回 true，不依赖 Spring Security 判断
-    }
-
-    @Override
-    @JsonIgnore// 避免序列化
-    public boolean isAccountNonLocked() {
-        return true; // 返回 true，不依赖 Spring Security 判断
-    }
-
-    @Override
-    @JsonIgnore// 避免序列化
-    public boolean isCredentialsNonExpired() {
-        return true;  // 返回 true，不依赖 Spring Security 判断
-    }
-
-    // ========== 上下文 ==========
 
     public void setContext(String key, Object value) {
         if (context == null) {

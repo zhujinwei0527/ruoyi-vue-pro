@@ -1,8 +1,6 @@
 package cn.iocoder.yudao.framework.apilog.core.service;
 
-import cn.iocoder.yudao.framework.apilog.core.service.dto.ApiErrorLogCreateReqDTO;
-
-import javax.validation.Valid;
+import cn.iocoder.yudao.module.infra.api.logger.dto.ApiErrorLogCreateReqDTO;
 
 /**
  * API 错误日志 Framework Service 接口
@@ -14,8 +12,8 @@ public interface ApiErrorLogFrameworkService {
     /**
      * 创建 API 错误日志
      *
-     * @param createDTO 创建信息
+     * @param reqDTO API 错误日志
      */
-    void createApiErrorLogAsync(@Valid ApiErrorLogCreateReqDTO createDTO);
+    void createApiErrorLog(ApiErrorLogCreateReqDTO reqDTO);
 
 }

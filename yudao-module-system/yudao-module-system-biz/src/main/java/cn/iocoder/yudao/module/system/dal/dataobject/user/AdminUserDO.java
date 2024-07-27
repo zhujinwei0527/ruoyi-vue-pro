@@ -1,17 +1,17 @@
 package cn.iocoder.yudao.module.system.dal.dataobject.user;
 
 import cn.iocoder.yudao.framework.common.enums.CommonStatusEnum;
-import cn.iocoder.yudao.framework.mybatis.core.type.JsonLongSetTypeHandler;
 import cn.iocoder.yudao.framework.tenant.core.db.TenantBaseDO;
 import cn.iocoder.yudao.module.system.enums.common.SexEnum;
 import com.baomidou.mybatisplus.annotation.KeySequence;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler;
 import lombok.*;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 import java.util.Set;
 
 /**
@@ -20,7 +20,7 @@ import java.util.Set;
  * @author 芋道源码
  */
 @TableName(value = "system_users", autoResultMap = true) // 由于 SQL Server 的 system_user 是关键字，所以使用 system_users
-@KeySequence("system_user_seq") // 用于 Oracle、PostgreSQL、Kingbase、DB2、H2 数据库的主键自增。如果是 MySQL 等数据库，可不写。
+@KeySequence("system_users_seq") // 用于 Oracle、PostgreSQL、Kingbase、DB2、H2 数据库的主键自增。如果是 MySQL 等数据库，可不写。
 @Data
 @EqualsAndHashCode(callSuper = true)
 @Builder
@@ -52,13 +52,13 @@ public class AdminUserDO extends TenantBaseDO {
      */
     private String remark;
     /**
-     * 部门ID
+     * 部门 ID
      */
     private Long deptId;
     /**
      * 岗位编号数组
      */
-    @TableField(typeHandler = JsonLongSetTypeHandler.class)
+    @TableField(typeHandler = JacksonTypeHandler.class)
     private Set<Long> postIds;
     /**
      * 用户邮箱
@@ -91,6 +91,6 @@ public class AdminUserDO extends TenantBaseDO {
     /**
      * 最后登录时间
      */
-    private Date loginDate;
+    private LocalDateTime loginDate;
 
 }

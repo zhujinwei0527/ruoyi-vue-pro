@@ -2,25 +2,25 @@ package cn.iocoder.yudao.module.system.service.tenant;
 
 import cn.iocoder.yudao.framework.common.enums.CommonStatusEnum;
 import cn.iocoder.yudao.framework.common.pojo.PageResult;
-import cn.iocoder.yudao.module.system.controller.admin.tenant.vo.packages.TenantPackageCreateReqVO;
+import cn.iocoder.yudao.framework.test.core.ut.BaseDbUnitTest;
 import cn.iocoder.yudao.module.system.controller.admin.tenant.vo.packages.TenantPackagePageReqVO;
-import cn.iocoder.yudao.module.system.controller.admin.tenant.vo.packages.TenantPackageUpdateReqVO;
+import cn.iocoder.yudao.module.system.controller.admin.tenant.vo.packages.TenantPackageSaveReqVO;
 import cn.iocoder.yudao.module.system.dal.dataobject.tenant.TenantDO;
 import cn.iocoder.yudao.module.system.dal.dataobject.tenant.TenantPackageDO;
 import cn.iocoder.yudao.module.system.dal.mysql.tenant.TenantPackageMapper;
-import cn.iocoder.yudao.framework.test.core.ut.BaseDbUnitTest;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 
 import javax.annotation.Resource;
+import java.util.List;
 
-import static cn.iocoder.yudao.framework.common.util.date.DateUtils.buildTime;
+import static cn.iocoder.yudao.framework.common.util.date.LocalDateTimeUtils.buildBetweenTime;
+import static cn.iocoder.yudao.framework.common.util.date.LocalDateTimeUtils.buildTime;
 import static cn.iocoder.yudao.framework.common.util.object.ObjectUtils.cloneIgnoreId;
 import static cn.iocoder.yudao.framework.test.core.util.AssertUtils.assertPojoEquals;
 import static cn.iocoder.yudao.framework.test.core.util.AssertUtils.assertServiceException;
-import static cn.iocoder.yudao.framework.test.core.util.RandomUtils.randomLongId;
-import static cn.iocoder.yudao.framework.test.core.util.RandomUtils.randomPojo;
+import static cn.iocoder.yudao.framework.test.core.util.RandomUtils.*;
 import static cn.iocoder.yudao.module.system.enums.ErrorCodeConstants.*;
 import static java.util.Arrays.asList;
 import static org.junit.jupiter.api.Assertions.*;
@@ -48,7 +48,9 @@ public class TenantPackageServiceImplTest extends BaseDbUnitTest {
     @Test
     public void testCreateTenantPackage_success() {
         // 准备参数
-        TenantPackageCreateReqVO reqVO = randomPojo(TenantPackageCreateReqVO.class);
+        TenantPackageSaveReqVO reqVO = randomPojo(TenantPackageSaveReqVO.class,
+                o -> o.setStatus(randomCommonStatus()))
+                .setId(null); // 防止 id 被赋值
 
         // 调用
         Long tenantPackageId = tenantPackageService.createTenantPackage(reqVO);
@@ -56,17 +58,19 @@ public class TenantPackageServiceImplTest extends BaseDbUnitTest {
         assertNotNull(tenantPackageId);
         // 校验记录的属性是否正确
         TenantPackageDO tenantPackage = tenantPackageMapper.selectById(tenantPackageId);
-        assertPojoEquals(reqVO, tenantPackage);
+        assertPojoEquals(reqVO, tenantPackage, "id");
     }
 
     @Test
     public void testUpdateTenantPackage_success() {
         // mock 数据
-        TenantPackageDO dbTenantPackage = randomPojo(TenantPackageDO.class);
+        TenantPackageDO dbTenantPackage = randomPojo(TenantPackageDO.class,
+                o -> o.setStatus(randomCommonStatus()));
         tenantPackageMapper.insert(dbTenantPackage);// @Sql: 先插入出一条存在的数据
         // 准备参数
-        TenantPackageUpdateReqVO reqVO = randomPojo(TenantPackageUpdateReqVO.class, o -> {
+        TenantPackageSaveReqVO reqVO = randomPojo(TenantPackageSaveReqVO.class, o -> {
             o.setId(dbTenantPackage.getId()); // 设置更新的 ID
+            o.setStatus(randomCommonStatus());
         });
         // mock 方法
         Long tenantId01 = randomLongId();
@@ -88,7 +92,7 @@ public class TenantPackageServiceImplTest extends BaseDbUnitTest {
     @Test
     public void testUpdateTenantPackage_notExists() {
         // 准备参数
-        TenantPackageUpdateReqVO reqVO = randomPojo(TenantPackageUpdateReqVO.class);
+        TenantPackageSaveReqVO reqVO = randomPojo(TenantPackageSaveReqVO.class);
 
         // 调用, 并断言异常
         assertServiceException(() -> tenantPackageService.updateTenantPackage(reqVO), TENANT_PACKAGE_NOT_EXISTS);
@@ -156,8 +160,7 @@ public class TenantPackageServiceImplTest extends BaseDbUnitTest {
        reqVO.setName("芋道");
        reqVO.setStatus(CommonStatusEnum.ENABLE.getStatus());
        reqVO.setRemark("源码");
-       reqVO.setBeginCreateTime(buildTime(2022, 10, 9));
-       reqVO.setEndCreateTime(buildTime(2022, 10, 11));
+       reqVO.setCreateTime(buildBetweenTime(2022, 10, 9, 2022, 10, 11));
 
        // 调用
        PageResult<TenantPackageDO> pageResult = tenantPackageService.getTenantPackagePage(reqVO);
@@ -200,4 +203,34 @@ public class TenantPackageServiceImplTest extends BaseDbUnitTest {
         assertServiceException(() -> tenantPackageService.validTenantPackage(dbTenantPackage.getId()),
                 TENANT_PACKAGE_DISABLE, dbTenantPackage.getName());
     }
+
+    @Test
+    public void testGetTenantPackage() {
+        // mock 数据
+        TenantPackageDO dbTenantPackage = randomPojo(TenantPackageDO.class);
+        tenantPackageMapper.insert(dbTenantPackage);// @Sql: 先插入出一条存在的数据
+
+        // 调用
+        TenantPackageDO result = tenantPackageService.getTenantPackage(dbTenantPackage.getId());
+        // 断言
+        assertPojoEquals(result, dbTenantPackage);
+    }
+
+    @Test
+    public void testGetTenantPackageListByStatus() {
+        // mock 数据
+        TenantPackageDO dbTenantPackage = randomPojo(TenantPackageDO.class,
+                o -> o.setStatus(CommonStatusEnum.ENABLE.getStatus()));
+        tenantPackageMapper.insert(dbTenantPackage);
+        // 测试 status 不匹配
+        tenantPackageMapper.insert(cloneIgnoreId(dbTenantPackage,
+                o -> o.setStatus(CommonStatusEnum.DISABLE.getStatus())));
+
+        // 调用
+        List<TenantPackageDO> list = tenantPackageService.getTenantPackageListByStatus(
+                CommonStatusEnum.ENABLE.getStatus());
+        assertEquals(1, list.size());
+        assertPojoEquals(dbTenantPackage, list.get(0));
+    }
+
 }

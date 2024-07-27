@@ -1,40 +1,23 @@
 package cn.iocoder.yudao.module.system.service.logger;
 
-import cn.hutool.core.map.MapUtil;
-import cn.iocoder.yudao.framework.common.enums.CommonStatusEnum;
-import cn.iocoder.yudao.framework.common.enums.UserTypeEnum;
-import cn.iocoder.yudao.framework.common.exception.enums.GlobalErrorCodeConstants;
 import cn.iocoder.yudao.framework.common.pojo.PageResult;
-import cn.iocoder.yudao.framework.common.util.monitor.TracerUtils;
-import cn.iocoder.yudao.framework.common.util.object.ObjectUtils;
-import cn.iocoder.yudao.framework.operatelog.core.dto.OperateLogCreateReqDTO;
-import cn.iocoder.yudao.framework.operatelog.core.enums.OperateTypeEnum;
+import cn.iocoder.yudao.framework.test.core.ut.BaseDbUnitTest;
 import cn.iocoder.yudao.framework.test.core.util.RandomUtils;
-import cn.iocoder.yudao.module.system.controller.admin.logger.vo.operatelog.OperateLogExportReqVO;
+import cn.iocoder.yudao.module.system.api.logger.dto.OperateLogCreateReqDTO;
+import cn.iocoder.yudao.module.system.api.logger.dto.OperateLogPageReqDTO;
 import cn.iocoder.yudao.module.system.controller.admin.logger.vo.operatelog.OperateLogPageReqVO;
 import cn.iocoder.yudao.module.system.dal.dataobject.logger.OperateLogDO;
-import cn.iocoder.yudao.module.system.dal.dataobject.user.AdminUserDO;
 import cn.iocoder.yudao.module.system.dal.mysql.logger.OperateLogMapper;
-import cn.iocoder.yudao.module.system.enums.common.SexEnum;
-import cn.iocoder.yudao.module.system.service.user.AdminUserService;
-import cn.iocoder.yudao.framework.test.core.ut.BaseDbUnitTest;
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 
 import javax.annotation.Resource;
-import java.util.Collections;
-import java.util.List;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
 
-import static cn.hutool.core.util.RandomUtil.randomEle;
-import static cn.iocoder.yudao.framework.common.exception.enums.GlobalErrorCodeConstants.BAD_REQUEST;
-import static cn.iocoder.yudao.framework.common.util.date.DateUtils.buildTime;
+import static cn.iocoder.yudao.framework.common.util.date.LocalDateTimeUtils.buildBetweenTime;
+import static cn.iocoder.yudao.framework.common.util.date.LocalDateTimeUtils.buildTime;
+import static cn.iocoder.yudao.framework.common.util.object.ObjectUtils.cloneIgnoreId;
 import static cn.iocoder.yudao.framework.test.core.util.AssertUtils.assertPojoEquals;
-import static cn.iocoder.yudao.framework.test.core.util.RandomUtils.randomLongId;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.when;
 
 @Import({OperateLogServiceImpl.class})
 public class OperateLogServiceImplTest extends BaseDbUnitTest {
@@ -45,128 +28,87 @@ public class OperateLogServiceImplTest extends BaseDbUnitTest {
     @Resource
     private OperateLogMapper operateLogMapper;
 
-    @MockBean
-    private AdminUserService userService;
-
     @Test
-    public void testCreateOperateLogAsync() throws InterruptedException, ExecutionException {
-        String traceId = TracerUtils.getTraceId();
-        OperateLogCreateReqDTO reqVO = RandomUtils.randomPojo(OperateLogCreateReqDTO.class, o -> {
-            o.setTraceId(traceId);
-            o.setUserId(randomLongId());
-            o.setUserType(randomEle(UserTypeEnum.values()).getValue());
-            o.setExts(MapUtil.<String, Object>builder("orderId", randomLongId()).build());
-        });
+    public void testCreateOperateLog() {
+        OperateLogCreateReqDTO reqVO = RandomUtils.randomPojo(OperateLogCreateReqDTO.class);
 
-        // 执行service方法
-        Future<Boolean> future = operateLogServiceImpl.createOperateLogAsync(reqVO);
-        future.get();
-        // 断言插入是否正确
-        OperateLogDO sysOperateLogDO = operateLogMapper.selectOne("trace_id", traceId);
-        assertPojoEquals(reqVO, sysOperateLogDO);
+        // 调研
+        operateLogServiceImpl.createOperateLog(reqVO);
+        // 断言
+        OperateLogDO operateLogDO = operateLogMapper.selectOne(null);
+        assertPojoEquals(reqVO, operateLogDO);
     }
 
     @Test
-    public void testGetOperateLogPage() {
-        // 构造测试数据
-        // 先构造用户
-        AdminUserDO user = RandomUtils.randomPojo(AdminUserDO.class, o -> {
-            o.setNickname("wangkai");
-            o.setSex(SexEnum.MALE.getSex());
-            o.setStatus(CommonStatusEnum.ENABLE.getStatus());
-        });
-        when(userService.getUsersByNickname("wangkai")).thenReturn(Collections.singletonList(user));
-        Long userId = user.getId();
+    public void testGetOperateLogPage_vo() {
         // 构造操作日志
-        OperateLogDO sysOperateLogDO = RandomUtils.randomPojo(OperateLogDO.class, o -> {
-            o.setUserId(userId);
-            o.setUserType(randomEle(UserTypeEnum.values()).getValue());
-            o.setModule("order");
-            o.setType(OperateTypeEnum.CREATE.getType());
-            o.setStartTime(buildTime(2021, 3, 6));
-            o.setResultCode(GlobalErrorCodeConstants.SUCCESS.getCode());
-            o.setExts(MapUtil.<String, Object>builder("orderId", randomLongId()).build());
+        OperateLogDO operateLogDO = RandomUtils.randomPojo(OperateLogDO.class, o -> {
+            o.setUserId(2048L);
+            o.setBizId(999L);
+            o.setType("订单");
+            o.setSubType("创建订单");
+            o.setAction("修改编号为 1 的用户信息");
+            o.setCreateTime(buildTime(2021, 3, 6));
         });
-        operateLogMapper.insert(sysOperateLogDO);
-
-        // 下面几个是不匹配的数据
-        // 随机 userId
-        operateLogMapper.insert(ObjectUtils.cloneIgnoreId(sysOperateLogDO, logDO -> logDO.setUserId(userId + 1)));
-        // module 不同
-        operateLogMapper.insert(ObjectUtils.cloneIgnoreId(sysOperateLogDO, logDO -> logDO.setModule("user")));
-        // type 不同
-        operateLogMapper.insert(ObjectUtils.cloneIgnoreId(sysOperateLogDO, logDO -> logDO.setType(OperateTypeEnum.IMPORT.getType())));
-        // createTime 不同
-        operateLogMapper.insert(ObjectUtils.cloneIgnoreId(sysOperateLogDO, logDO -> logDO.setStartTime(buildTime(2021, 2, 6))));
-        // resultCode 不同
-        operateLogMapper.insert(ObjectUtils.cloneIgnoreId(sysOperateLogDO, logDO -> logDO.setResultCode(BAD_REQUEST.getCode())));
+        operateLogMapper.insert(operateLogDO);
+        // 测试 userId 不匹配
+        operateLogMapper.insert(cloneIgnoreId(operateLogDO, o -> o.setUserId(1024L)));
+        // 测试 bizId 不匹配
+        operateLogMapper.insert(cloneIgnoreId(operateLogDO, o -> o.setBizId(888L)));
+        // 测试 type 不匹配
+        operateLogMapper.insert(cloneIgnoreId(operateLogDO, o -> o.setType("退款")));
+        // 测试 subType 不匹配
+        operateLogMapper.insert(cloneIgnoreId(operateLogDO, o -> o.setSubType("创建退款")));
+        // 测试 action 不匹配
+        operateLogMapper.insert(cloneIgnoreId(operateLogDO, o -> o.setAction("修改编号为 1 退款信息")));
+        // 测试 createTime 不匹配
+        operateLogMapper.insert(cloneIgnoreId(operateLogDO, o -> o.setCreateTime(buildTime(2021, 2, 6))));
 
         // 构造调用参数
         OperateLogPageReqVO reqVO = new OperateLogPageReqVO();
-        reqVO.setUserNickname("wangkai");
-        reqVO.setModule("order");
-        reqVO.setType(OperateTypeEnum.CREATE.getType());
-        reqVO.setBeginTime(buildTime(2021, 3, 5));
-        reqVO.setEndTime(buildTime(2021, 3, 7));
-        reqVO.setSuccess(true);
+        reqVO.setUserId(2048L);
+        reqVO.setBizId(999L);
+        reqVO.setType("订");
+        reqVO.setSubType("订单");
+        reqVO.setAction("用户信息");
+        reqVO.setCreateTime(buildBetweenTime(2021, 3, 5, 2021, 3, 7));
 
-        // 调用service方法
+        // 调用
         PageResult<OperateLogDO> pageResult = operateLogServiceImpl.getOperateLogPage(reqVO);
         // 断言，只查到了一条符合条件的
         assertEquals(1, pageResult.getTotal());
         assertEquals(1, pageResult.getList().size());
-        assertPojoEquals(sysOperateLogDO, pageResult.getList().get(0));
+        assertPojoEquals(operateLogDO, pageResult.getList().get(0));
     }
 
     @Test
-    public void testGetOperateLogs() {
-        // 构造测试数据
-        // 先构造用户
-        AdminUserDO user = RandomUtils.randomPojo(AdminUserDO.class, o -> {
-            o.setNickname("wangkai");
-            o.setSex(SexEnum.MALE.getSex());
-            o.setStatus(CommonStatusEnum.ENABLE.getStatus());
-        });
-        when(userService.getUsersByNickname("wangkai")).thenReturn(Collections.singletonList(user));
-        Long userId = user.getId();
+    public void testGetOperateLogPage_dto() {
         // 构造操作日志
-        OperateLogDO sysOperateLogDO = RandomUtils.randomPojo(OperateLogDO.class, o -> {
-            o.setUserId(userId);
-            o.setUserType(randomEle(UserTypeEnum.values()).getValue());
-            o.setModule("order");
-            o.setType(OperateTypeEnum.CREATE.getType());
-            o.setStartTime(buildTime(2021, 3, 6));
-            o.setResultCode(GlobalErrorCodeConstants.SUCCESS.getCode());
-            o.setExts(MapUtil.<String, Object>builder("orderId", randomLongId()).build());
+        OperateLogDO operateLogDO = RandomUtils.randomPojo(OperateLogDO.class, o -> {
+            o.setUserId(2048L);
+            o.setBizId(999L);
+            o.setType("订单");
         });
-        operateLogMapper.insert(sysOperateLogDO);
-
-        // 下面几个是不匹配的数据
-        // 随机 userId
-        operateLogMapper.insert(ObjectUtils.cloneIgnoreId(sysOperateLogDO, logDO -> logDO.setUserId(userId + 1)));
-        // module 不同
-        operateLogMapper.insert(ObjectUtils.cloneIgnoreId(sysOperateLogDO, logDO -> logDO.setModule("user")));
-        // type 不同
-        operateLogMapper.insert(ObjectUtils.cloneIgnoreId(sysOperateLogDO, logDO -> logDO.setType(OperateTypeEnum.IMPORT.getType())));
-        // createTime 不同
-        operateLogMapper.insert(ObjectUtils.cloneIgnoreId(sysOperateLogDO, logDO -> logDO.setStartTime(buildTime(2021, 2, 6))));
-        // resultCode 不同
-        operateLogMapper.insert(ObjectUtils.cloneIgnoreId(sysOperateLogDO, logDO -> logDO.setResultCode(BAD_REQUEST.getCode())));
+        operateLogMapper.insert(operateLogDO);
+        // 测试 userId 不匹配
+        operateLogMapper.insert(cloneIgnoreId(operateLogDO, o -> o.setUserId(1024L)));
+        // 测试 bizId 不匹配
+        operateLogMapper.insert(cloneIgnoreId(operateLogDO, o -> o.setBizId(888L)));
+        // 测试 type 不匹配
+        operateLogMapper.insert(cloneIgnoreId(operateLogDO, o -> o.setType("退款")));
 
         // 构造调用参数
-        OperateLogExportReqVO reqVO = new OperateLogExportReqVO();
-        reqVO.setUserNickname("wangkai");
-        reqVO.setModule("order");
-        reqVO.setType(OperateTypeEnum.CREATE.getType());
-        reqVO.setBeginTime(buildTime(2021, 3, 5));
-        reqVO.setEndTime(buildTime(2021, 3, 7));
-        reqVO.setSuccess(true);
+        OperateLogPageReqDTO reqDTO = new OperateLogPageReqDTO();
+        reqDTO.setUserId(2048L);
+        reqDTO.setBizId(999L);
+        reqDTO.setType("订单");
 
-        // 调用 service 方法
-        List<OperateLogDO> list = operateLogServiceImpl.getOperateLogs(reqVO);
+        // 调用
+        PageResult<OperateLogDO> pageResult = operateLogServiceImpl.getOperateLogPage(reqDTO);
         // 断言，只查到了一条符合条件的
-        assertEquals(1, list.size());
-        assertPojoEquals(sysOperateLogDO, list.get(0));
+        assertEquals(1, pageResult.getTotal());
+        assertEquals(1, pageResult.getList().size());
+        assertPojoEquals(operateLogDO, pageResult.getList().get(0));
     }
 
 }

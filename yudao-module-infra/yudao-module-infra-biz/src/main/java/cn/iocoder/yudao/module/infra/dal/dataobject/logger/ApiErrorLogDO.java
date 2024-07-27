@@ -8,7 +8,7 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.*;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 
 /**
  * API 异常数据
@@ -24,6 +24,11 @@ import java.util.Date;
 @AllArgsConstructor
 @KeySequence(value = "infra_api_error_log_seq")
 public class ApiErrorLogDO extends BaseDO {
+
+    /**
+     * {@link #requestParams} 的最大长度
+     */
+    public static final Integer REQUEST_PARAMS_MAX_LENGTH = 8000;
 
     /**
      * 编号
@@ -84,7 +89,7 @@ public class ApiErrorLogDO extends BaseDO {
     /**
      * 异常发生时间
      */
-    private Date exceptionTime;
+    private LocalDateTime exceptionTime;
     /**
      * 异常名
      *
@@ -145,7 +150,7 @@ public class ApiErrorLogDO extends BaseDO {
     /**
      * 处理时间
      */
-    private Date processTime;
+    private LocalDateTime processTime;
     /**
      * 处理用户编号
      *
