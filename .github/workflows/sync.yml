@@ -29,7 +29,7 @@ jobs:
       - name: Add upstream repository and fetch
         run: |
           git remote add upstream https://github.com/YunaiV/ruoyi-vue-pro.git
-          git fetch upstream main
+          git fetch upstream master
           
       - name: Merge upstream
         run: |
@@ -37,7 +37,7 @@ jobs:
           git stash push .github/workflows/sync.yml || true
           
           # 尝试合并上游更改
-          git merge upstream/main --no-edit || true
+          git merge upstream/master --no-edit || true
           
           # 恢复工作流文件
           git stash pop || true
