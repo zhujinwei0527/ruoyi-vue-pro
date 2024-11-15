@@ -1,0 +1,51 @@
+name: Upstream Sync
+
+permissions:
+  contents: write
+
+on:
+  schedule:
+    - cron: "0 1 * * *"  # every day
+  workflow_dispatch:
+
+jobs:
+  sync_latest_from_upstream:
+    name: Sync latest commits from upstream repo
+    runs-on: ubuntu-latest
+    if: ${{ github.event.repository.fork }}
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+          
+      - name: Configure Git
+        run: |
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+          
+      - name: Add upstream repository and fetch
+        run: |
+          git remote add upstream https://github.com/YunaiV/ruoyi-vue-pro.git
+          git fetch upstream main
+          
+      - name: Merge upstream
+        run: |
+          # 存储当前分支的改动
+          git stash push .github/workflows/sync.yml || true
+          
+          # 尝试合并上游更改
+          git merge upstream/main --no-edit || true
+          
+          # 恢复工作流文件
+          git stash pop || true
+          
+          # 添加更改并提交
+          git add .
+          git commit -m "Merge upstream changes while preserving workflow" || echo "No changes to commit"
+          
+      - name: Push changes
+        run: |
+          git push origin main
