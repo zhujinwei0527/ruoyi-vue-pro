@@ -9,9 +9,11 @@ import cn.iocoder.yudao.framework.common.exception.ServiceException;
 import cn.iocoder.yudao.framework.common.pojo.PageResult;
 import cn.iocoder.yudao.framework.common.util.collection.CollectionUtils;
 import cn.iocoder.yudao.framework.common.util.object.BeanUtils;
+import cn.iocoder.yudao.framework.common.util.validation.ValidationUtils;
 import cn.iocoder.yudao.framework.datapermission.core.util.DataPermissionUtils;
 import cn.iocoder.yudao.module.infra.api.config.ConfigApi;
 import cn.iocoder.yudao.module.infra.api.file.FileApi;
+import cn.iocoder.yudao.module.system.controller.admin.auth.vo.AuthRegisterReqVO;
 import cn.iocoder.yudao.module.system.controller.admin.user.vo.profile.UserProfileUpdatePasswordReqVO;
 import cn.iocoder.yudao.module.system.controller.admin.user.vo.profile.UserProfileUpdateReqVO;
 import cn.iocoder.yudao.module.system.controller.admin.user.vo.user.UserImportExcelVO;
@@ -38,6 +40,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
+import javax.validation.ConstraintViolationException;
 import java.io.InputStream;
 import java.time.LocalDateTime;
 import java.util.*;
@@ -110,6 +113,26 @@ public class AdminUserServiceImpl implements AdminUserService {
 
         // 3. 记录操作日志上下文
         LogRecordContext.putVariable("user", user);
+        return user.getId();
+    }
+
+    @Override
+    public Long registerUser(AuthRegisterReqVO registerReqVO) {
+        // 1.1 校验账户配合
+        tenantService.handleTenantInfo(tenant -> {
+            long count = userMapper.selectCount();
+            if (count >= tenant.getAccountCount()) {
+                throw exception(USER_COUNT_MAX, tenant.getAccountCount());
+            }
+        });
+        // 1.2 校验正确性
+        validateUserForCreateOrUpdate(null, registerReqVO.getUsername(), null, null, null, null);
+
+        // 2. 插入用户
+        AdminUserDO user = BeanUtils.toBean(registerReqVO, AdminUserDO.class);
+        user.setStatus(CommonStatusEnum.ENABLE.getStatus()); // 默认开启
+        user.setPassword(encodePassword(registerReqVO.getPassword())); // 加密密码
+        userMapper.insert(user);
         return user.getId();
     }
 
@@ -312,6 +335,7 @@ public class AdminUserServiceImpl implements AdminUserService {
 
     /**
      * 获得部门条件：查询指定部门的子部门编号们，包括自身
+     *
      * @param deptId 部门编号
      * @return 部门编号集合
      */
@@ -443,7 +467,14 @@ public class AdminUserServiceImpl implements AdminUserService {
         UserImportRespVO respVO = UserImportRespVO.builder().createUsernames(new ArrayList<>())
                 .updateUsernames(new ArrayList<>()).failureUsernames(new LinkedHashMap<>()).build();
         importUsers.forEach(importUser -> {
-            // 校验，判断是否有不符合的原因
+            // 2.1.1 校验字段是否符合要求
+            try {
+                ValidationUtils.validate(BeanUtils.toBean(importUser, UserSaveReqVO.class).setPassword(initPassword));
+            } catch (ConstraintViolationException ex){
+                respVO.getFailureUsernames().put(importUser.getUsername(), ex.getMessage());
+                return;
+            }
+            // 2.1.2 校验，判断是否有不符合的原因
             try {
                 validateUserForCreateOrUpdate(null, null, importUser.getMobile(), importUser.getEmail(),
                         importUser.getDeptId(), null);
@@ -451,7 +482,8 @@ public class AdminUserServiceImpl implements AdminUserService {
                 respVO.getFailureUsernames().put(importUser.getUsername(), ex.getMessage());
                 return;
             }
-            // 判断如果不存在，在进行插入
+
+            // 2.2.1 判断如果不存在，在进行插入
             AdminUserDO existUser = userMapper.selectByUsername(importUser.getUsername());
             if (existUser == null) {
                 userMapper.insert(BeanUtils.toBean(importUser, AdminUserDO.class)
@@ -459,7 +491,7 @@ public class AdminUserServiceImpl implements AdminUserService {
                 respVO.getCreateUsernames().add(importUser.getUsername());
                 return;
             }
-            // 如果存在，判断是否允许更新
+            // 2.2.2 如果存在，判断是否允许更新
             if (!isUpdateSupport) {
                 respVO.getFailureUsernames().put(importUser.getUsername(), USER_USERNAME_EXISTS.getMsg());
                 return;
