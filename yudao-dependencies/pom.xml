@@ -14,7 +14,7 @@
     <url>https://github.com/YunaiV/ruoyi-vue-pro</url>
 
     <properties>
-        <revision>2.3.0-jdk8-SNAPSHOT</revision>
+        <revision>2.4.0-jdk8-SNAPSHOT</revision>
         <flatten-maven-plugin.version>1.6.0</flatten-maven-plugin.version>
         <!-- 统一依赖管理 -->
         <spring.framework.version>5.3.39</spring.framework.version>
@@ -52,11 +52,11 @@
         <!-- 工具类相关 -->
         <captcha-plus.version>1.0.10</captcha-plus.version>
         <jsoup.version>1.18.3</jsoup.version>
-        <lombok.version>1.18.34</lombok.version>
+        <lombok.version>1.18.36</lombok.version>
         <mapstruct.version>1.6.3</mapstruct.version>
         <hutool.version>5.8.35</hutool.version>
         <easyexcel.verion>4.0.3</easyexcel.verion>
-        <velocity.version>2.4.1</velocity.version>
+        <velocity.version>2.4</velocity.version> <!-- JDK8 不能从 2.4 升级到 2.4.1，会报包不存在！！！！ -->
         <fastjson.version>1.2.83</fastjson.version>
         <guava.version>33.4.0-jre</guava.version>
         <transmittable-thread-local.version>2.14.5</transmittable-thread-local.version>
@@ -263,7 +263,7 @@
                     <exclusion>
                         <groupId>org.redisson</groupId>
                         <!-- 使用 redisson-spring-data-27 替代，解决 Tuple NoClassDefFoundError 报错 -->
-                        <artifactId>redisson-spring-data-33</artifactId>
+                        <artifactId>redisson-spring-data-34</artifactId>
                     </exclusion>
                 </exclusions>
             </dependency>
