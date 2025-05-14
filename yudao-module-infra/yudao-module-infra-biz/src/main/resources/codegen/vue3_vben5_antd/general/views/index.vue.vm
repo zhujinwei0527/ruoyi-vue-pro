@@ -1,18 +1,18 @@
 <script lang="ts" setup>
 import type { ${simpleClassName}Api } from '#/api/${table.moduleName}/${simpleClassName_strikeCase}';
-import type { VxeTableInstance } from 'vxe-table';
+import type { VxeTableInstance } from '#/adapter/vxe-table';
 
 import { Page, useVbenModal } from '@vben/common-ui';
 import { cloneDeep, formatDateTime } from '@vben/utils';
 import { Button, message,Tabs,Pagination,Form,RangePicker,DatePicker,Select,Input } from 'ant-design-vue';
 import { DictTag } from '#/components/dict-tag';
-import { DICT_TYPE, getDictOptions } from '#/utils/dict';
+import { DICT_TYPE, getDictOptions, getRangePickerDefaultProps } from '#/utils';
 import ${simpleClassName}Form from './modules/form.vue';
 import { Download, Plus, RefreshCw, Search } from '@vben/icons';
-import { ContentWrap } from "#/components/content-wrap";
-import { VxeColumn, VxeTable } from 'vxe-table';
+import { ContentWrap } from '#/components/content-wrap';
+import { VxeColumn, VxeTable } from '#/adapter/vxe-table';
 import { TableToolbar } from '#/components/table-toolbar';
-import { getRangePickerDefaultProps } from '#/utils/date';
+import { useTableToolbar } from '#/hooks';
 
 ## 特殊：主子表专属逻辑
 #if ( $table.templateType == 11 || $table.templateType == 12 )
@@ -31,7 +31,7 @@ import { get${simpleClassName}List, delete${simpleClassName}, export${simpleClas
 #else## 标准表接口
 import { get${simpleClassName}Page, delete${simpleClassName}, export${simpleClassName} } from '#/api/${table.moduleName}/${simpleClassName_strikeCase}';
 #end
-import { downloadByData } from '#/utils/download';
+import { downloadFileFromBlobPart } from '@vben/utils';
 
 #if ($table.templateType == 12 || $table.templateType == 11) ## 内嵌和erp情况
 /** 子表的列表 */
@@ -162,16 +162,11 @@ async function onExport() {
 try {
   exportLoading.value = true;
   const data = await export${simpleClassName}(queryParams);
-  downloadByData(data, '${table.classComment}.xls');
+  downloadFileFromBlobPart({ fileName: '${table.classComment}.xls', source: data });
 }finally {
   exportLoading.value = false;
 }
 }
-
-/** 隐藏搜索栏 */
-const hiddenSearchBar = ref(false);
-const tableToolbarRef = ref<InstanceType<typeof TableToolbar>>();
-const tableRef = ref<VxeTableInstance>();
 
 #if (${table.templateType} == 2)
 /** 切换树形展开/收缩状态 */
@@ -183,15 +178,9 @@ function toggleExpand() {
 #end
 
 /** 初始化 */
-onMounted(async () => {
-  await getList();
-  await nextTick();
-  // 挂载 toolbar 工具栏
-  const table = tableRef.value;
-  const tableToolbar = tableToolbarRef.value;
-  if (table && tableToolbar) {
-    await table.connect(tableToolbar.getToolbarRef()!);
-  }
+const { hiddenSearchBar, tableToolbarRef, tableRef } = useTableToolbar();
+onMounted(() => {
+  getList();
 });
 </script>
 
@@ -281,7 +270,7 @@ onMounted(async () => {
         </Form.Item>
       </Form>
     </ContentWrap>
-    
+
     <!-- 列表 -->
     <ContentWrap title="${table.classComment}">
       <template #extra>

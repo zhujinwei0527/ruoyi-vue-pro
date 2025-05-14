@@ -1,6 +1,9 @@
 package cn.iocoder.yudao.module.pay.api.notify.dto;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
@@ -11,9 +14,11 @@ import javax.validation.constraints.NotNull;
  * @author jason
  */
 @Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class PayTransferNotifyReqDTO {
 
-    // TODO 芋艿：要不要改成 orderId 待定；
     /**
      * 商户转账单号
      */

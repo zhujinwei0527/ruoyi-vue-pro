@@ -1,8 +1,9 @@
 package cn.iocoder.yudao.module.pay.api.refund;
 
+import cn.iocoder.yudao.framework.common.util.object.BeanUtils;
 import cn.iocoder.yudao.module.pay.api.refund.dto.PayRefundCreateReqDTO;
 import cn.iocoder.yudao.module.pay.api.refund.dto.PayRefundRespDTO;
-import cn.iocoder.yudao.module.pay.convert.refund.PayRefundConvert;
+import cn.iocoder.yudao.module.pay.dal.dataobject.refund.PayRefundDO;
 import cn.iocoder.yudao.module.pay.service.refund.PayRefundService;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
@@ -23,12 +24,13 @@ public class PayRefundApiImpl implements PayRefundApi {
 
     @Override
     public Long createRefund(PayRefundCreateReqDTO reqDTO) {
-        return payRefundService.createPayRefund(reqDTO);
+        return payRefundService.createRefund(reqDTO);
     }
 
     @Override
     public PayRefundRespDTO getRefund(Long id) {
-        return PayRefundConvert.INSTANCE.convert02(payRefundService.getRefund(id));
+        PayRefundDO refund = payRefundService.getRefund(id);
+        return BeanUtils.toBean(refund, PayRefundRespDTO.class);
     }
 
 }
