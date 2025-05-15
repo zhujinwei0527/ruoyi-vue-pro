@@ -1,6 +1,6 @@
-package cn.iocoder.yudao.module.infra.api.logger;
+package cn.iocoder.yudao.framework.common.biz.infra.logger;
 
-import cn.iocoder.yudao.module.infra.api.logger.dto.ApiErrorLogCreateReqDTO;
+import cn.iocoder.yudao.framework.common.biz.infra.logger.dto.ApiErrorLogCreateReqDTO;
 import org.springframework.scheduling.annotation.Async;
 
 import javax.validation.Valid;
@@ -10,7 +10,7 @@ import javax.validation.Valid;
  *
  * @author 芋道源码
  */
-public interface ApiErrorLogApi {
+public interface ApiErrorLogCommonApi {
 
     /**
      * 创建 API 错误日志
