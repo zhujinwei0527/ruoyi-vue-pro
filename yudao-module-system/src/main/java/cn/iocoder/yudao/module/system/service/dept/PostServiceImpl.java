@@ -58,8 +58,13 @@ public class PostServiceImpl implements PostService {
     public void deletePost(Long id) {
         // 校验是否存在
         validatePostExists(id);
-        // 删除部门
+        // 删除岗位
         postMapper.deleteById(id);
+    }
+
+    @Override
+    public void deletePostList(List<Long> ids) {
+        postMapper.deleteByIds(ids);
     }
 
     private void validatePostForCreateOrUpdate(Long id, String name, String code) {
