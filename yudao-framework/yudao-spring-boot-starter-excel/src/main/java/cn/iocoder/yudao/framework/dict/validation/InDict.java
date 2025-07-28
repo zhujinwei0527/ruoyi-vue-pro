@@ -1,13 +1,8 @@
 package cn.iocoder.yudao.framework.dict.validation;
 
-import jakarta.validation.Constraint;
-import jakarta.validation.Payload;
-
-import java.lang.annotation.Documented;
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import javax.validation.Constraint;
+import javax.validation.Payload;
+import java.lang.annotation.*;
 
 @Target({
         ElementType.METHOD,
@@ -25,7 +20,7 @@ import java.lang.annotation.Target;
 public @interface InDict {
 
     /**
-     * 数据字典type
+     * 数据字典 type
      */
     String type();
 
