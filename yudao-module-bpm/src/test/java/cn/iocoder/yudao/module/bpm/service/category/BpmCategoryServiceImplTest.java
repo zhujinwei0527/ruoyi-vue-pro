@@ -8,7 +8,9 @@ import cn.iocoder.yudao.module.bpm.controller.admin.definition.vo.category.BpmCa
 import cn.iocoder.yudao.module.bpm.dal.dataobject.definition.BpmCategoryDO;
 import cn.iocoder.yudao.module.bpm.dal.mysql.category.BpmCategoryMapper;
 import cn.iocoder.yudao.module.bpm.service.definition.BpmCategoryServiceImpl;
+import cn.iocoder.yudao.module.bpm.service.definition.BpmModelService;
 import org.junit.jupiter.api.Test;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 
 import javax.annotation.Resource;
@@ -32,6 +34,9 @@ public class BpmCategoryServiceImplTest extends BaseDbUnitTest {
 
     @Resource
     private BpmCategoryServiceImpl categoryService;
+
+    @MockBean
+    private BpmModelService modelService;
 
     @Resource
     private BpmCategoryMapper categoryMapper;
