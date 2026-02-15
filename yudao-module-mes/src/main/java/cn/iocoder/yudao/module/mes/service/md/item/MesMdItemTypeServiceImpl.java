@@ -1,5 +1,6 @@
 package cn.iocoder.yudao.module.mes.service.md.item;
 
+import cn.hutool.core.util.ObjUtil;
 import cn.iocoder.yudao.framework.common.util.object.BeanUtils;
 import cn.iocoder.yudao.module.mes.controller.admin.md.item.vo.type.MesMdItemTypeListReqVO;
 import cn.iocoder.yudao.module.mes.controller.admin.md.item.vo.type.MesMdItemTypeSaveReqVO;
@@ -10,9 +11,7 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception;
 import static cn.iocoder.yudao.module.mes.enums.ErrorCodeConstants.*;
@@ -45,7 +44,6 @@ public class MesMdItemTypeServiceImpl implements MesMdItemTypeService {
         // 插入
         MesMdItemTypeDO itemType = BeanUtils.toBean(createReqVO, MesMdItemTypeDO.class);
         itemTypeMapper.insert(itemType);
-        // 返回
         return itemType.getId();
     }
 
@@ -77,6 +75,7 @@ public class MesMdItemTypeServiceImpl implements MesMdItemTypeService {
         if (itemService.getItemCountByItemTypeId(id) > 0) {
             throw exception(MD_ITEM_TYPE_EXITS_ITEM);
         }
+
         // 2. 删除
         itemTypeMapper.deleteById(id);
     }
@@ -126,11 +125,7 @@ public class MesMdItemTypeServiceImpl implements MesMdItemTypeService {
         if (itemType == null) {
             return;
         }
-        // 如果 id 为空，说明不用比较是否为相同 id 的分类
-        if (id == null) {
-            throw exception(MD_ITEM_TYPE_NAME_DUPLICATE);
-        }
-        if (!Objects.equals(itemType.getId(), id)) {
+        if (ObjUtil.notEqual(itemType.getId(), id)) {
             throw exception(MD_ITEM_TYPE_NAME_DUPLICATE);
         }
     }
@@ -140,11 +135,7 @@ public class MesMdItemTypeServiceImpl implements MesMdItemTypeService {
         if (itemType == null) {
             return;
         }
-        // 如果 id 为空，说明不用比较是否为相同 id 的分类
-        if (id == null) {
-            throw exception(MD_ITEM_TYPE_CODE_DUPLICATE);
-        }
-        if (!Objects.equals(itemType.getId(), id)) {
+        if (ObjUtil.notEqual(itemType.getId(), id)) {
             throw exception(MD_ITEM_TYPE_CODE_DUPLICATE);
         }
     }
@@ -162,6 +153,27 @@ public class MesMdItemTypeServiceImpl implements MesMdItemTypeService {
     @Override
     public List<MesMdItemTypeDO> getItemTypeList(Collection<Long> ids) {
         return itemTypeMapper.selectByIds(ids);
+    }
+
+    @Override
+    public List<MesMdItemTypeDO> getItemTypeChildrenList(Long parentId) {
+        List<MesMdItemTypeDO> allList = itemTypeMapper.selectList(); // 分类总量小，全量查
+        // 递归收集所有子分类
+        List<MesMdItemTypeDO> result = new ArrayList<>();
+        collectItemTypeChildren(result, parentId, allList);
+        return result;
+    }
+
+    /**
+     * 递归收集所有子分类
+     */
+    private void collectItemTypeChildren(List<MesMdItemTypeDO> result, Long parentId, List<MesMdItemTypeDO> allList) {
+        for (MesMdItemTypeDO itemType : allList) {
+            if (Objects.equals(itemType.getParentId(), parentId)) {
+                result.add(itemType);
+                collectItemTypeChildren(result, itemType.getId(), allList);
+            }
+        }
     }
 
 }

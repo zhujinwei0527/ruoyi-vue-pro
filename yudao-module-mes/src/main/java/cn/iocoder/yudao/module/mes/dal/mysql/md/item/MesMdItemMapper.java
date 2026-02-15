@@ -7,6 +7,7 @@ import cn.iocoder.yudao.module.mes.controller.admin.md.item.vo.MesMdItemPageReqV
 import cn.iocoder.yudao.module.mes.dal.dataobject.md.item.MesMdItemDO;
 import org.apache.ibatis.annotations.Mapper;
 
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -17,11 +18,11 @@ import java.util.List;
 @Mapper
 public interface MesMdItemMapper extends BaseMapperX<MesMdItemDO> {
 
-    default PageResult<MesMdItemDO> selectPage(MesMdItemPageReqVO reqVO) {
+    default PageResult<MesMdItemDO> selectPage(MesMdItemPageReqVO reqVO, Collection<Long> itemTypeIds) {
         return selectPage(reqVO, new LambdaQueryWrapperX<MesMdItemDO>()
                 .likeIfPresent(MesMdItemDO::getCode, reqVO.getCode())
                 .likeIfPresent(MesMdItemDO::getName, reqVO.getName())
-                .eqIfPresent(MesMdItemDO::getItemTypeId, reqVO.getItemTypeId())
+                .inIfPresent(MesMdItemDO::getItemTypeId, itemTypeIds)
                 .eqIfPresent(MesMdItemDO::getStatus, reqVO.getStatus())
                 .betweenIfPresent(MesMdItemDO::getCreateTime, reqVO.getCreateTime())
                 .orderByDesc(MesMdItemDO::getId));

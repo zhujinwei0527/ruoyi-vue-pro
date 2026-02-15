@@ -74,4 +74,12 @@ public interface MesMdItemTypeService {
         return convertMap(getItemTypeList(ids), MesMdItemTypeDO::getId);
     }
 
+    /**
+     * 获得指定分类的所有子分类列表（递归）
+     *
+     * @param parentId 父分类编号
+     * @return 子分类列表
+     */
+    List<MesMdItemTypeDO> getItemTypeChildrenList(Long parentId);
+
 }

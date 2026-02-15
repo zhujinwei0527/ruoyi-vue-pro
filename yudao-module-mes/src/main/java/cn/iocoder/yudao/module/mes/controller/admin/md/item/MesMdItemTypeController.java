@@ -1,10 +1,8 @@
 package cn.iocoder.yudao.module.mes.controller.admin.md.item;
 
-import cn.iocoder.yudao.framework.apilog.core.annotation.ApiAccessLog;
 import cn.iocoder.yudao.framework.common.enums.CommonStatusEnum;
 import cn.iocoder.yudao.framework.common.pojo.CommonResult;
 import cn.iocoder.yudao.framework.common.util.object.BeanUtils;
-import cn.iocoder.yudao.framework.excel.core.util.ExcelUtils;
 import cn.iocoder.yudao.module.mes.controller.admin.md.item.vo.type.MesMdItemTypeListReqVO;
 import cn.iocoder.yudao.module.mes.controller.admin.md.item.vo.type.MesMdItemTypeRespVO;
 import cn.iocoder.yudao.module.mes.controller.admin.md.item.vo.type.MesMdItemTypeSaveReqVO;
@@ -14,16 +12,13 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
-import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import java.io.IOException;
 import java.util.List;
 
-import static cn.iocoder.yudao.framework.apilog.core.enums.OperateTypeEnum.EXPORT;
 import static cn.iocoder.yudao.framework.common.pojo.CommonResult.success;
 import static cn.iocoder.yudao.framework.common.util.collection.CollectionUtils.convertList;
 
@@ -84,19 +79,6 @@ public class MesMdItemTypeController {
                 new MesMdItemTypeListReqVO().setStatus(CommonStatusEnum.ENABLE.getStatus()));
         return success(convertList(list, itemType -> new MesMdItemTypeRespVO()
                 .setId(itemType.getId()).setName(itemType.getName()).setParentId(itemType.getParentId())));
-    }
-
-    // TODO @AI：不需要导出；
-    @GetMapping("/export-excel")
-    @Operation(summary = "导出物料产品分类 Excel")
-    @PreAuthorize("@ss.hasPermission('mes:md-item-type:export')")
-    @ApiAccessLog(operateType = EXPORT)
-    public void exportItemTypeExcel(@Valid MesMdItemTypeListReqVO listReqVO,
-              HttpServletResponse response) throws IOException {
-        List<MesMdItemTypeDO> list = itemTypeService.getItemTypeList(listReqVO);
-        // 导出 Excel
-        ExcelUtils.write(response, "物料产品分类.xls", "数据", MesMdItemTypeRespVO.class,
-                        BeanUtils.toBean(list, MesMdItemTypeRespVO.class));
     }
 
 }
