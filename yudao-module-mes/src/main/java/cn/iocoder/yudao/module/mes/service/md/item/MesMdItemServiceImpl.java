@@ -9,6 +9,8 @@ import cn.iocoder.yudao.module.mes.controller.admin.md.item.vo.MesMdItemImportEx
 import cn.iocoder.yudao.module.mes.controller.admin.md.item.vo.MesMdItemImportRespVO;
 import cn.iocoder.yudao.module.mes.controller.admin.md.item.vo.MesMdItemPageReqVO;
 import cn.iocoder.yudao.module.mes.controller.admin.md.item.vo.MesMdItemSaveReqVO;
+import cn.iocoder.yudao.framework.common.enums.CommonStatusEnum;
+import cn.iocoder.yudao.module.mes.dal.dataobject.md.item.MesMdItemBatchConfigDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.md.item.MesMdItemDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.md.item.MesMdItemTypeDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.md.unitmeasure.MesMdUnitMeasureDO;
@@ -45,6 +47,9 @@ public class MesMdItemServiceImpl implements MesMdItemService {
     @Resource
     private MesMdUnitMeasureService unitMeasureService;
 
+    @Resource
+    private MesMdItemBatchConfigService itemBatchConfigService;
+
     @Override
     public Long createItem(MesMdItemSaveReqVO createReqVO) {
         // 校验物料编码的唯一性
@@ -76,6 +81,9 @@ public class MesMdItemServiceImpl implements MesMdItemService {
         // 校验计量单位存在
         validateUnitMeasureExists(updateReqVO.getUnitMeasureId());
 
+        // 如果启用了批次管理且状态为开启，校验批次属性配置
+        validateBatchConfigIfNeeded(updateReqVO);
+
         // 更新
         MesMdItemDO updateObj = BeanUtils.toBean(updateReqVO, MesMdItemDO.class);
         clearStockIfNotSafe(updateObj); // 如果未启用安全库存，清零库存上下限
@@ -86,6 +94,8 @@ public class MesMdItemServiceImpl implements MesMdItemService {
     public void deleteItem(Long id) {
         // 校验存在
         validateItemExists(id);
+        // 级联删除批次属性配置
+        itemBatchConfigService.deleteItemBatchConfigByItemId(id);
         // 删除
         itemMapper.deleteById(id);
     }
@@ -142,6 +152,39 @@ public class MesMdItemServiceImpl implements MesMdItemService {
             return;
         }
         item.setMinStock(BigDecimal.ZERO).setMaxStock(BigDecimal.ZERO);
+    }
+
+    /**
+     * 如果启用了批次管理且状态为开启，校验批次属性配置是否存在且至少一个属性为 true
+     */
+    private void validateBatchConfigIfNeeded(MesMdItemSaveReqVO reqVO) {
+        if (!Boolean.TRUE.equals(reqVO.getBatchFlag())) {
+            return;
+        }
+        if (!CommonStatusEnum.ENABLE.getStatus().equals(reqVO.getStatus())) {
+            return;
+        }
+        MesMdItemBatchConfigDO config = itemBatchConfigService.getItemBatchConfigByItemId(reqVO.getId());
+        if (config == null) {
+            throw exception(MD_ITEM_BATCH_CONFIG_NOT_EXISTS);
+        }
+        boolean hasAnyFlag = Boolean.TRUE.equals(config.getProduceDateFlag())
+                || Boolean.TRUE.equals(config.getExpireDateFlag())
+                || Boolean.TRUE.equals(config.getReceiptDateFlag())
+                || Boolean.TRUE.equals(config.getVendorFlag())
+                || Boolean.TRUE.equals(config.getClientFlag())
+                || Boolean.TRUE.equals(config.getSalesOrderCodeFlag())
+                || Boolean.TRUE.equals(config.getPurchaseOrderCodeFlag())
+                || Boolean.TRUE.equals(config.getWorkorderFlag())
+                || Boolean.TRUE.equals(config.getTaskFlag())
+                || Boolean.TRUE.equals(config.getWorkstationFlag())
+                || Boolean.TRUE.equals(config.getToolFlag())
+                || Boolean.TRUE.equals(config.getMoldFlag())
+                || Boolean.TRUE.equals(config.getLotNumberFlag())
+                || Boolean.TRUE.equals(config.getQualityStatusFlag());
+        if (!hasAnyFlag) {
+            throw exception(MD_ITEM_BATCH_CONFIG_AT_LEAST_ONE_FLAG);
+        }
     }
 
     @Override
