@@ -25,9 +25,9 @@ public class MesMdItemSaveReqVO {
     @Schema(description = "规格型号", example = "M6*20")
     private String specification;
 
-    @Schema(description = "单位编码", requiredMode = Schema.RequiredMode.REQUIRED, example = "pcs")
-    @NotEmpty(message = "单位编码不能为空")
-    private String unitOfMeasure;
+    @Schema(description = "计量单位编号", requiredMode = Schema.RequiredMode.REQUIRED, example = "202")
+    @NotNull(message = "计量单位不能为空")
+    private Long unitMeasureId;
 
     @Schema(description = "物料分类编号", requiredMode = Schema.RequiredMode.REQUIRED, example = "1")
     @NotNull(message = "物料分类编号不能为空")
@@ -56,15 +56,15 @@ public class MesMdItemSaveReqVO {
     private String remark;
 
     @Schema(description = "预留字段1")
-    private String attr1;
+    private String attribute1;
 
     @Schema(description = "预留字段2")
-    private String attr2;
+    private String attribute2;
 
     @Schema(description = "预留字段3")
-    private Integer attr3;
+    private Integer attribute3;
 
     @Schema(description = "预留字段4")
-    private Integer attr4;
+    private Integer attribute4;
 
 }

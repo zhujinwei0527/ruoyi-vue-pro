@@ -1,4 +1,4 @@
-package cn.iocoder.yudao.module.mes.controller.admin.md.item.vo.type;
+package cn.iocoder.yudao.module.mes.controller.admin.md.unitmeasure.vo;
 
 import cn.iocoder.yudao.framework.excel.core.annotations.DictFormat;
 import cn.iocoder.yudao.framework.excel.core.convert.DictConvert;
@@ -8,36 +8,37 @@ import cn.idev.excel.annotation.ExcelProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
-@Schema(description = "管理后台 - MES 物料产品分类 Response VO")
+@Schema(description = "管理后台 - MES 计量单位 Response VO")
 @Data
 @ExcelIgnoreUnannotated
-public class MesMdItemTypeRespVO {
+public class MesMdUnitMeasureRespVO {
 
-    @Schema(description = "分类编号", requiredMode = Schema.RequiredMode.REQUIRED, example = "1024")
-    @ExcelProperty("分类编号")
+    @Schema(description = "单位编号", requiredMode = Schema.RequiredMode.REQUIRED, example = "1024")
+    @ExcelProperty("单位编号")
     private Long id;
 
-    @Schema(description = "父分类编号", requiredMode = Schema.RequiredMode.REQUIRED, example = "0")
-    @ExcelProperty("父分类编号")
-    private Long parentId;
-
-    @Schema(description = "分类编码", requiredMode = Schema.RequiredMode.REQUIRED, example = "RAW")
-    @ExcelProperty("分类编码")
+    @Schema(description = "单位编码", requiredMode = Schema.RequiredMode.REQUIRED, example = "KG")
+    @ExcelProperty("单位编码")
     private String code;
 
-    @Schema(description = "分类名称", requiredMode = Schema.RequiredMode.REQUIRED, example = "原材料")
-    @ExcelProperty("分类名称")
+    @Schema(description = "单位名称", requiredMode = Schema.RequiredMode.REQUIRED, example = "公斤")
+    @ExcelProperty("单位名称")
     private String name;
 
-    @Schema(description = "物料/产品标识", requiredMode = Schema.RequiredMode.REQUIRED, example = "ITEM")
-    @ExcelProperty("物料/产品标识")
-    private String itemOrProduct;
+    @Schema(description = "是否主单位", requiredMode = Schema.RequiredMode.REQUIRED, example = "true")
+    @ExcelProperty("是否主单位")
+    private Boolean primaryFlag;
 
-    @Schema(description = "显示排序", example = "0")
-    @ExcelProperty("显示排序")
-    private Integer sort;
+    @Schema(description = "主单位编号", example = "200")
+    @ExcelProperty("主单位编号")
+    private Long primaryId;
+
+    @Schema(description = "与主单位换算比例", example = "1000.0000")
+    @ExcelProperty("与主单位换算比例")
+    private BigDecimal changeRate;
 
     @Schema(description = "状态", requiredMode = Schema.RequiredMode.REQUIRED, example = "0")
     @ExcelProperty(value = "状态", converter = DictConvert.class)

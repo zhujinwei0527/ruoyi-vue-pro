@@ -16,8 +16,10 @@ import cn.iocoder.yudao.module.mes.controller.admin.md.item.vo.MesMdItemRespVO;
 import cn.iocoder.yudao.module.mes.controller.admin.md.item.vo.MesMdItemSaveReqVO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.md.item.MesMdItemDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.md.item.MesMdItemTypeDO;
+import cn.iocoder.yudao.module.mes.dal.dataobject.md.unitmeasure.MesMdUnitMeasureDO;
 import cn.iocoder.yudao.module.mes.service.md.item.MesMdItemService;
 import cn.iocoder.yudao.module.mes.service.md.item.MesMdItemTypeService;
+import cn.iocoder.yudao.module.mes.service.md.unitmeasure.MesMdUnitMeasureService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.Parameters;
@@ -51,6 +53,9 @@ public class MesMdItemController {
 
     @Resource
     private MesMdItemTypeService itemTypeService;
+
+    @Resource
+    private MesMdUnitMeasureService unitMeasureService;
 
     @PostMapping("/create")
     @Operation(summary = "创建物料产品")
@@ -100,7 +105,7 @@ public class MesMdItemController {
         return success(convertList(buildItemVOList(list), item -> new MesMdItemRespVO()
                 .setId(item.getId()).setName(item.getName()).setCode(item.getCode())
                 .setItemTypeId(item.getItemTypeId()).setItemTypeName(item.getItemTypeName())
-                .setUnitOfMeasure(item.getUnitOfMeasure())));
+                .setUnitMeasureId(item.getUnitMeasureId()).setUnitMeasureName(item.getUnitMeasureName())));
     }
 
     @GetMapping("/export-excel")
@@ -122,7 +127,7 @@ public class MesMdItemController {
         // 手动创建导出 demo
         List<MesMdItemImportExcelVO> list = Collections.singletonList(
                 MesMdItemImportExcelVO.builder().code("ITEM001").name("螺丝").specification("M6*20")
-                        .unitOfMeasure("PCS").itemTypeId(1L).status(0).build()
+                        .unitMeasureCode("PCS").itemTypeId(1L).status(0).build()
         );
         // 输出
         ExcelUtils.write(response, "物料导入模板.xls", "物料列表", MesMdItemImportExcelVO.class, list);
@@ -134,7 +139,7 @@ public class MesMdItemController {
             @Parameter(name = "file", description = "Excel 文件", required = true),
             @Parameter(name = "updateSupport", description = "是否支持更新，默认为 false", example = "true")
     })
-    @PreAuthorize("@ss.hasPermission('mes:md-item:create')")
+    @PreAuthorize("@ss.hasPermission('mes:md-item:import')")
     public CommonResult<MesMdItemImportRespVO> importExcel(@RequestParam("file") MultipartFile file,
                                                            @RequestParam(value = "updateSupport", required = false,
                                                                    defaultValue = "false") Boolean updateSupport) throws Exception {
@@ -150,12 +155,17 @@ public class MesMdItemController {
         }
         Map<Long, MesMdItemTypeDO> itemTypeMap = itemTypeService.getItemTypeMap(
                 convertSet(list, MesMdItemDO::getItemTypeId));
-        return BeanUtils.toBean(list, MesMdItemRespVO.class, item ->
-                MapUtils.findAndThen(itemTypeMap, item.getItemTypeId(),
-                        itemType -> {
-                            item.setItemTypeName(itemType.getName());
-                            item.setItemOrProduct(itemType.getItemOrProduct());
-                        }));
+        Map<Long, MesMdUnitMeasureDO> unitMeasureMap = unitMeasureService.getUnitMeasureMap(
+                convertSet(list, MesMdItemDO::getUnitMeasureId));
+        return BeanUtils.toBean(list, MesMdItemRespVO.class, item -> {
+            MapUtils.findAndThen(itemTypeMap, item.getItemTypeId(),
+                    itemType -> {
+                        item.setItemTypeName(itemType.getName());
+                        item.setItemOrProduct(itemType.getItemOrProduct());
+                    });
+            MapUtils.findAndThen(unitMeasureMap, item.getUnitMeasureId(),
+                    unitMeasure -> item.setUnitMeasureName(unitMeasure.getName()));
+        });
     }
 
 }

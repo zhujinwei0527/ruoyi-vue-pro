@@ -44,4 +44,8 @@ public interface MesMdItemMapper extends BaseMapperX<MesMdItemDO> {
         return selectList(MesMdItemDO::getStatus, status);
     }
 
+    default Long selectCountByUnitMeasureId(Long unitMeasureId) {
+        return selectCount(MesMdItemDO::getUnitMeasureId, unitMeasureId);
+    }
+
 }

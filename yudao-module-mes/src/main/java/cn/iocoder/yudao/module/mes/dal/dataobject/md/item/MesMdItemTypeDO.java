@@ -61,18 +61,18 @@ public class MesMdItemTypeDO extends BaseDO {
     /**
      * 预留字段1
      */
-    private String attr1;
+    private String attribute1;
     /**
      * 预留字段2
      */
-    private String attr2;
+    private String attribute2;
     /**
      * 预留字段3
      */
-    private Integer attr3;
+    private Integer attribute3;
     /**
      * 预留字段4
      */
-    private Integer attr4;
+    private Integer attribute4;
 
 }

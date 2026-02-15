@@ -32,9 +32,11 @@ public class MesMdItemRespVO {
     @ExcelProperty("规格型号")
     private String specification;
 
-    @Schema(description = "单位编码", requiredMode = Schema.RequiredMode.REQUIRED, example = "pcs")
-    @ExcelProperty("单位编码")
-    private String unitOfMeasure;
+    @Schema(description = "计量单位编号", requiredMode = Schema.RequiredMode.REQUIRED, example = "202")
+    private Long unitMeasureId;
+    @Schema(description = "计量单位名称", example = "个")
+    @ExcelProperty("计量单位")
+    private String unitMeasureName;
 
     @Schema(description = "物料分类编号", requiredMode = Schema.RequiredMode.REQUIRED, example = "1")
     private Long itemTypeId;
@@ -76,16 +78,16 @@ public class MesMdItemRespVO {
     private String remark;
 
     @Schema(description = "预留字段1")
-    private String attr1;
+    private String attribute1;
 
     @Schema(description = "预留字段2")
-    private String attr2;
+    private String attribute2;
 
     @Schema(description = "预留字段3")
-    private Integer attr3;
+    private Integer attribute3;
 
     @Schema(description = "预留字段4")
-    private Integer attr4;
+    private Integer attribute4;
 
     @Schema(description = "创建时间", requiredMode = Schema.RequiredMode.REQUIRED)
     @ExcelProperty("创建时间")

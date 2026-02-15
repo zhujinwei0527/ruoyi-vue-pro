@@ -40,15 +40,15 @@ public class MesMdItemTypeSaveReqVO {
     private String remark;
 
     @Schema(description = "预留字段1")
-    private String attr1;
+    private String attribute1;
 
     @Schema(description = "预留字段2")
-    private String attr2;
+    private String attribute2;
 
     @Schema(description = "预留字段3")
-    private Integer attr3;
+    private Integer attribute3;
 
     @Schema(description = "预留字段4")
-    private Integer attr4;
+    private Integer attribute4;
 
 }

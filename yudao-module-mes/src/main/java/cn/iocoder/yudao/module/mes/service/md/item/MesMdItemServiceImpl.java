@@ -11,7 +11,9 @@ import cn.iocoder.yudao.module.mes.controller.admin.md.item.vo.MesMdItemPageReqV
 import cn.iocoder.yudao.module.mes.controller.admin.md.item.vo.MesMdItemSaveReqVO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.md.item.MesMdItemDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.md.item.MesMdItemTypeDO;
+import cn.iocoder.yudao.module.mes.dal.dataobject.md.unitmeasure.MesMdUnitMeasureDO;
 import cn.iocoder.yudao.module.mes.dal.mysql.md.item.MesMdItemMapper;
+import cn.iocoder.yudao.module.mes.service.md.unitmeasure.MesMdUnitMeasureService;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -40,6 +42,9 @@ public class MesMdItemServiceImpl implements MesMdItemService {
     @Resource
     private MesMdItemTypeService itemTypeService;
 
+    @Resource
+    private MesMdUnitMeasureService unitMeasureService;
+
     @Override
     public Long createItem(MesMdItemSaveReqVO createReqVO) {
         // 校验物料编码的唯一性
@@ -48,6 +53,8 @@ public class MesMdItemServiceImpl implements MesMdItemService {
         validateItemNameUnique(null, createReqVO.getName());
         // 校验物料分类存在
         validateItemTypeExists(createReqVO.getItemTypeId());
+        // 校验计量单位存在
+        validateUnitMeasureExists(createReqVO.getUnitMeasureId());
 
         // 插入
         MesMdItemDO item = BeanUtils.toBean(createReqVO, MesMdItemDO.class);
@@ -66,6 +73,8 @@ public class MesMdItemServiceImpl implements MesMdItemService {
         validateItemNameUnique(updateReqVO.getId(), updateReqVO.getName());
         // 校验物料分类存在
         validateItemTypeExists(updateReqVO.getItemTypeId());
+        // 校验计量单位存在
+        validateUnitMeasureExists(updateReqVO.getUnitMeasureId());
 
         // 更新
         MesMdItemDO updateObj = BeanUtils.toBean(updateReqVO, MesMdItemDO.class);
@@ -116,6 +125,12 @@ public class MesMdItemServiceImpl implements MesMdItemService {
     private void validateItemTypeExists(Long itemTypeId) {
         if (itemTypeService.getItemType(itemTypeId) == null) {
             throw exception(MD_ITEM_TYPE_NOT_EXISTS);
+        }
+    }
+
+    private void validateUnitMeasureExists(Long unitMeasureId) {
+        if (unitMeasureService.getUnitMeasure(unitMeasureId) == null) {
+            throw exception(MD_UNIT_MEASURE_NOT_EXISTS);
         }
     }
 
@@ -191,8 +206,14 @@ public class MesMdItemServiceImpl implements MesMdItemService {
                 respVO.getFailureCodes().put(key, "物料名称不能为空");
                 return;
             }
-            if (StrUtil.isBlank(importItem.getUnitOfMeasure())) {
+            if (StrUtil.isBlank(importItem.getUnitMeasureCode())) {
                 respVO.getFailureCodes().put(key, "单位编码不能为空");
+                return;
+            }
+            // 将单位编码转换为单位 ID
+            MesMdUnitMeasureDO unitMeasure = unitMeasureService.getUnitMeasureByCode(importItem.getUnitMeasureCode());
+            if (unitMeasure == null) {
+                respVO.getFailureCodes().put(key, "单位编码[" + importItem.getUnitMeasureCode() + "]不存在");
                 return;
             }
             if (importItem.getItemTypeId() == null) {
@@ -218,6 +239,7 @@ public class MesMdItemServiceImpl implements MesMdItemService {
                     return;
                 }
                 MesMdItemDO item = BeanUtils.toBean(importItem, MesMdItemDO.class);
+                item.setUnitMeasureId(unitMeasure.getId());
                 clearStockIfNotSafe(item);
                 itemMapper.insert(item);
                 respVO.getCreateCodes().add(importItem.getCode());
@@ -231,6 +253,7 @@ public class MesMdItemServiceImpl implements MesMdItemService {
                 }
                 MesMdItemDO updateObj = BeanUtils.toBean(importItem, MesMdItemDO.class);
                 updateObj.setId(existItem.getId());
+                updateObj.setUnitMeasureId(unitMeasure.getId());
                 clearStockIfNotSafe(updateObj);
                 itemMapper.updateById(updateObj);
                 respVO.getUpdateCodes().add(importItem.getCode());

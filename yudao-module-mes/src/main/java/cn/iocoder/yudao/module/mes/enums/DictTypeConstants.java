@@ -7,4 +7,6 @@ package cn.iocoder.yudao.module.mes.enums;
  */
 public interface DictTypeConstants {
 
+    String MES_CLIENT_TYPE = "mes_client_type"; // MES 客户类型
+
 }
