@@ -1,0 +1,200 @@
+package cn.iocoder.yudao.module.mes.service.md;
+
+import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.util.ObjUtil;
+import cn.hutool.core.util.StrUtil;
+import cn.iocoder.yudao.framework.common.exception.ServiceException;
+import cn.iocoder.yudao.framework.common.pojo.PageResult;
+import cn.iocoder.yudao.framework.common.util.object.BeanUtils;
+import cn.iocoder.yudao.module.mes.controller.admin.md.vo.vendor.MesMdVendorImportExcelVO;
+import cn.iocoder.yudao.module.mes.controller.admin.md.vo.vendor.MesMdVendorImportRespVO;
+import cn.iocoder.yudao.module.mes.controller.admin.md.vo.vendor.MesMdVendorPageReqVO;
+import cn.iocoder.yudao.module.mes.controller.admin.md.vo.vendor.MesMdVendorSaveReqVO;
+import cn.iocoder.yudao.module.mes.dal.dataobject.md.MesMdVendorDO;
+import cn.iocoder.yudao.module.mes.dal.mysql.md.MesMdVendorMapper;
+import jakarta.annotation.Resource;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.validation.annotation.Validated;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
+
+import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception;
+import static cn.iocoder.yudao.module.mes.enums.ErrorCodeConstants.*;
+
+/**
+ * MES 供应商 Service 实现类
+ *
+ * @author 芋道源码
+ */
+@Service
+@Validated
+public class MesMdVendorServiceImpl implements MesMdVendorService {
+
+    @Resource
+    private MesMdVendorMapper vendorMapper;
+
+    @Override
+    public Long createVendor(MesMdVendorSaveReqVO createReqVO) {
+        // 校验编码唯一
+        validateVendorCodeUnique(null, createReqVO.getCode());
+        // 校验名称唯一
+        validateVendorNameUnique(null, createReqVO.getName());
+        // 校验简称唯一
+        validateVendorNicknameUnique(null, createReqVO.getNickname());
+
+        // 插入
+        MesMdVendorDO vendor = BeanUtils.toBean(createReqVO, MesMdVendorDO.class);
+        vendorMapper.insert(vendor);
+        return vendor.getId();
+    }
+
+    @Override
+    public void updateVendor(MesMdVendorSaveReqVO updateReqVO) {
+        // 校验存在
+        validateVendorExists(updateReqVO.getId());
+        // 校验编码唯一
+        validateVendorCodeUnique(updateReqVO.getId(), updateReqVO.getCode());
+        // 校验名称唯一
+        validateVendorNameUnique(updateReqVO.getId(), updateReqVO.getName());
+        // 校验简称唯一
+        validateVendorNicknameUnique(updateReqVO.getId(), updateReqVO.getNickname());
+
+        // 更新
+        MesMdVendorDO updateObj = BeanUtils.toBean(updateReqVO, MesMdVendorDO.class);
+        vendorMapper.updateById(updateObj);
+    }
+
+    @Override
+    public void deleteVendor(Long id) {
+        // 校验存在
+        validateVendorExists(id);
+        // 删除
+        vendorMapper.deleteById(id);
+    }
+
+    private void validateVendorExists(Long id) {
+        if (vendorMapper.selectById(id) == null) {
+            throw exception(MD_VENDOR_NOT_EXISTS);
+        }
+    }
+
+    private void validateVendorCodeUnique(Long id, String code) {
+        MesMdVendorDO vendor = vendorMapper.selectByCode(code);
+        if (vendor == null) {
+            return;
+        }
+        if (ObjUtil.notEqual(vendor.getId(), id)) {
+            throw exception(MD_VENDOR_CODE_DUPLICATE);
+        }
+    }
+
+    private void validateVendorNameUnique(Long id, String name) {
+        MesMdVendorDO vendor = vendorMapper.selectByName(name);
+        if (vendor == null) {
+            return;
+        }
+        if (ObjUtil.notEqual(vendor.getId(), id)) {
+            throw exception(MD_VENDOR_NAME_DUPLICATE);
+        }
+    }
+
+    private void validateVendorNicknameUnique(Long id, String nickname) {
+        if (StrUtil.isEmpty(nickname)) {
+            return;
+        }
+        MesMdVendorDO vendor = vendorMapper.selectByNickname(nickname);
+        if (vendor == null) {
+            return;
+        }
+        if (ObjUtil.notEqual(vendor.getId(), id)) {
+            throw exception(MD_VENDOR_NICKNAME_DUPLICATE);
+        }
+    }
+
+    @Override
+    public MesMdVendorDO getVendor(Long id) {
+        return vendorMapper.selectById(id);
+    }
+
+    @Override
+    public PageResult<MesMdVendorDO> getVendorPage(MesMdVendorPageReqVO pageReqVO) {
+        return vendorMapper.selectPage(pageReqVO);
+    }
+
+    @Override
+    public List<MesMdVendorDO> getVendorListByStatus(Integer status) {
+        return vendorMapper.selectListByStatus(status);
+    }
+
+    @Override
+    public List<MesMdVendorDO> getVendorList(Collection<Long> ids) {
+        return vendorMapper.selectByIds(ids);
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public MesMdVendorImportRespVO importVendorList(List<MesMdVendorImportExcelVO> importVendors, boolean updateSupport) {
+        // 1. 参数校验
+        if (CollUtil.isEmpty(importVendors)) {
+            throw exception(MD_VENDOR_IMPORT_LIST_IS_EMPTY);
+        }
+
+        // 2. 遍历，逐个创建 or 更新
+        MesMdVendorImportRespVO respVO = MesMdVendorImportRespVO.builder()
+                .createCodes(new ArrayList<>()).updateCodes(new ArrayList<>())
+                .failureCodes(new LinkedHashMap<>()).build();
+        AtomicInteger index = new AtomicInteger(1);
+        importVendors.forEach(importVendor -> {
+            int currentIndex = index.getAndIncrement();
+            // 2.1 校验字段
+            String key = StrUtil.blankToDefault(importVendor.getCode(), "第 " + currentIndex + " 行");
+            if (StrUtil.isBlank(importVendor.getCode())) {
+                respVO.getFailureCodes().put(key, "供应商编码不能为空");
+                return;
+            }
+            if (StrUtil.isBlank(importVendor.getName())) {
+                respVO.getFailureCodes().put(key, "供应商名称不能为空");
+                return;
+            }
+
+            // 2.2 判断：创建 or 更新
+            MesMdVendorDO existVendor = vendorMapper.selectByCode(importVendor.getCode());
+            if (existVendor == null) {
+                // 2.2.1 创建
+                try {
+                    validateVendorNameUnique(null, importVendor.getName());
+                    validateVendorNicknameUnique(null, importVendor.getNickname());
+                } catch (ServiceException ex) {
+                    respVO.getFailureCodes().put(key, ex.getMessage());
+                    return;
+                }
+                MesMdVendorDO vendor = BeanUtils.toBean(importVendor, MesMdVendorDO.class);
+                vendorMapper.insert(vendor);
+                respVO.getCreateCodes().add(importVendor.getCode());
+            } else if (updateSupport) {
+                // 2.2.2 更新
+                try {
+                    validateVendorNameUnique(existVendor.getId(), importVendor.getName());
+                    validateVendorNicknameUnique(existVendor.getId(), importVendor.getNickname());
+                } catch (ServiceException ex) {
+                    respVO.getFailureCodes().put(key, ex.getMessage());
+                    return;
+                }
+                MesMdVendorDO updateObj = BeanUtils.toBean(importVendor, MesMdVendorDO.class);
+                updateObj.setId(existVendor.getId());
+                vendorMapper.updateById(updateObj);
+                respVO.getUpdateCodes().add(importVendor.getCode());
+            } else {
+                // 不支持更新
+                respVO.getFailureCodes().put(key, "供应商编码已存在");
+            }
+        });
+        return respVO;
+    }
+
+}
