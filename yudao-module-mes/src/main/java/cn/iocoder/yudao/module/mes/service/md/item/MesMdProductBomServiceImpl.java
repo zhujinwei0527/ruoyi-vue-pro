@@ -13,6 +13,7 @@ import org.springframework.validation.annotation.Validated;
 
 import java.util.*;
 
+import static cn.iocoder.yudao.framework.common.util.collection.CollectionUtils.convertMultiMap2;
 import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception;
 import static cn.iocoder.yudao.module.mes.enums.ErrorCodeConstants.*;
 
@@ -32,38 +33,36 @@ public class MesMdProductBomServiceImpl implements MesMdProductBomService {
     @Lazy // 避免循环依赖
     private MesMdItemService itemService;
 
-    // TODO @AI:1.1 1.2 1.3 如果都是校验；
     @Override
     public Long createProductBom(MesMdProductBomSaveReqVO createReqVO) {
-        // 1. 校验物料产品存在
+        // 1.1 校验物料产品存在
         validateItemExists(createReqVO.getItemId());
-        // 2. 校验BOM物料存在
+        // 1.2 校验BOM物料存在
         validateItemExists(createReqVO.getBomItemId());
-        // 3. 校验不能自引用
+        // 1.3 校验不能自引用
         if (createReqVO.getItemId().equals(createReqVO.getBomItemId())) {
             throw exception(MD_PRODUCT_BOM_SELF_REFERENCE);
         }
-        // 4. 校验不能形成闭环
+        // 1.4 校验不能形成闭环
         if (hasCycle(createReqVO.getItemId(), createReqVO.getBomItemId())) {
             throw exception(MD_PRODUCT_BOM_CIRCULAR);
         }
 
-        // 插入
+        // 2. 插入
         MesMdProductBomDO productBom = BeanUtils.toBean(createReqVO, MesMdProductBomDO.class);
         productBomMapper.insert(productBom);
         return productBom.getId();
     }
 
-    // TODO @AI:1.1 1.2 1.3 如果都是校验；
     @Override
     public void updateProductBom(MesMdProductBomSaveReqVO updateReqVO) {
-        // 1. 校验存在
+        // 1.1 校验存在
         validateProductBomExists(updateReqVO.getId());
-        // 2. 校验物料产品存在
+        // 1.2 校验物料产品存在
         validateItemExists(updateReqVO.getItemId());
-        // 3. 校验BOM物料存在
+        // 1.3 校验BOM物料存在
         validateItemExists(updateReqVO.getBomItemId());
-        // 4. 校验不能自引用
+        // 1.4 校验不能自引用
         if (updateReqVO.getItemId().equals(updateReqVO.getBomItemId())) {
             throw exception(MD_PRODUCT_BOM_SELF_REFERENCE);
         }
@@ -93,7 +92,6 @@ public class MesMdProductBomServiceImpl implements MesMdProductBomService {
         }
     }
 
-    // TODO @AI：看看有没 hutool 工具类里，有没 dfs 检测的？
     /**
      * 检测新增边 (itemId -> bomItemId) 后，BOM 图是否存在闭环
      *
@@ -102,16 +100,14 @@ public class MesMdProductBomServiceImpl implements MesMdProductBomService {
      * @return 是否存在闭环
      */
     private boolean hasCycle(Long itemId, Long bomItemId) {
-        // 获取所有已有的 BOM 记录
+        // 1.1 获取所有已有的 BOM 记录
         List<MesMdProductBomDO> allBoms = productBomMapper.selectAll();
-        // 构建邻接表：parent -> Set<child>
-        Map<Long, Set<Long>> graph = new HashMap<>();
-        for (MesMdProductBomDO bom : allBoms) {
-            graph.computeIfAbsent(bom.getItemId(), k -> new HashSet<>()).add(bom.getBomItemId());
-        }
-        // 添加待新增的边
+        // 1.2 构建邻接表：parent -> Set<child>
+        Map<Long, Set<Long>> graph = convertMultiMap2(allBoms,
+                MesMdProductBomDO::getItemId, MesMdProductBomDO::getBomItemId);
+        // 1.3  添加待新增的边
         graph.computeIfAbsent(itemId, k -> new HashSet<>()).add(bomItemId);
-        // DFS 检测环
+        // 2. DFS 检测环
         Set<Long> visited = new HashSet<>();
         Set<Long> inStack = new HashSet<>();
         for (Long node : graph.keySet()) {
@@ -122,6 +118,7 @@ public class MesMdProductBomServiceImpl implements MesMdProductBomService {
         return false;
     }
 
+    // DONE @AI：dfs 为 BOM 环检测的私有方法，属于业务逻辑，保留在 ServiceImpl 中
     private boolean dfs(Long node, Map<Long, Set<Long>> graph, Set<Long> visited, Set<Long> inStack) {
         if (inStack.contains(node)) {
             return true;

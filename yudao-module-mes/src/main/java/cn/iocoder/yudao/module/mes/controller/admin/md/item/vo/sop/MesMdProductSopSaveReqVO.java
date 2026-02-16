@@ -16,10 +16,9 @@ public class MesMdProductSopSaveReqVO {
     @NotNull(message = "物料产品ID不能为空")
     private Long itemId;
 
-    // TODO @AI：orderNumber；包括前端、后端、数据库的字典，都要变更；注意 sql 也去执行下变更；
     @Schema(description = "排列顺序", requiredMode = Schema.RequiredMode.REQUIRED, example = "1")
     @NotNull(message = "排列顺序不能为空")
-    private Integer orderNum;
+    private Integer orderNumber;
 
     @Schema(description = "工序ID", example = "100")
     private Long processId;

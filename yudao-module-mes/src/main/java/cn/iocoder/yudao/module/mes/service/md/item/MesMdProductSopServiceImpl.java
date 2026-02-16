@@ -30,7 +30,7 @@ public class MesMdProductSopServiceImpl implements MesMdProductSopService {
     @Override
     public Long createProductSop(MesMdProductSopSaveReqVO createReqVO) {
         // 校验排列顺序的唯一性
-        validateOrderNumUnique(createReqVO.getItemId(), createReqVO.getOrderNum(), null);
+        validateOrderNumberUnique(createReqVO.getItemId(), createReqVO.getOrderNumber(), null);
 
         // 插入
         MesMdProductSopDO sop = BeanUtils.toBean(createReqVO, MesMdProductSopDO.class);
@@ -43,7 +43,7 @@ public class MesMdProductSopServiceImpl implements MesMdProductSopService {
         // 校验存在
         validateProductSopExists(updateReqVO.getId());
         // 校验排列顺序的唯一性
-        validateOrderNumUnique(updateReqVO.getItemId(), updateReqVO.getOrderNum(), updateReqVO.getId());
+        validateOrderNumberUnique(updateReqVO.getItemId(), updateReqVO.getOrderNumber(), updateReqVO.getId());
 
         // 更新
         MesMdProductSopDO updateObj = BeanUtils.toBean(updateReqVO, MesMdProductSopDO.class);
@@ -64,10 +64,10 @@ public class MesMdProductSopServiceImpl implements MesMdProductSopService {
         }
     }
 
-    private void validateOrderNumUnique(Long itemId, Integer orderNum, Long excludeId) {
-        Long count = productSopMapper.selectCountByItemIdAndOrderNum(itemId, orderNum, excludeId);
+    private void validateOrderNumberUnique(Long itemId, Integer orderNumber, Long excludeId) {
+        Long count = productSopMapper.selectCountByItemIdAndOrderNumber(itemId, orderNumber, excludeId);
         if (count > 0) {
-            throw exception(MD_PRODUCT_SOP_ORDER_NUM_DUPLICATE);
+            throw exception(MD_PRODUCT_SOP_ORDER_NUMBER_DUPLICATE);
         }
     }
 

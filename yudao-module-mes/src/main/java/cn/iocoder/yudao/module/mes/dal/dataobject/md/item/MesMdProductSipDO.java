@@ -35,11 +35,11 @@ public class MesMdProductSipDO extends BaseDO {
     /**
      * 排列顺序
      */
-    private Integer orderNum;
+    private Integer orderNumber;
     /**
      * 工序编号
      */
-    // TODO @AI：关联 {@link MesMdProcessDO#getId()}，但是目前还没有实现工序模块，所以先不写；后续工序模块实现后，再补上关联关系；
+    // TODO @芋艿：等 pro 工序模块实现后，补上 {@link} 关联
     private Long processId;
     /**
      * 标题

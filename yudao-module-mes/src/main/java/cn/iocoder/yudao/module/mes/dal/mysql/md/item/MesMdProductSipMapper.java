@@ -21,19 +21,19 @@ public interface MesMdProductSipMapper extends BaseMapperX<MesMdProductSipDO> {
         return selectPage(reqVO, new LambdaQueryWrapperX<MesMdProductSipDO>()
                 .eq(MesMdProductSipDO::getItemId, reqVO.getItemId())
                 .likeIfPresent(MesMdProductSipDO::getTitle, reqVO.getTitle())
-                .orderByAsc(MesMdProductSipDO::getOrderNum));
+                .orderByAsc(MesMdProductSipDO::getOrderNumber));
     }
 
     default List<MesMdProductSipDO> selectByItemId(Long itemId) {
         return selectList(new LambdaQueryWrapperX<MesMdProductSipDO>()
                 .eq(MesMdProductSipDO::getItemId, itemId)
-                .orderByAsc(MesMdProductSipDO::getOrderNum));
+                .orderByAsc(MesMdProductSipDO::getOrderNumber));
     }
 
-    default Long selectCountByItemIdAndOrderNum(Long itemId, Integer orderNum, Long excludeId) {
+    default Long selectCountByItemIdAndOrderNumber(Long itemId, Integer orderNumber, Long excludeId) {
         return selectCount(new LambdaQueryWrapperX<MesMdProductSipDO>()
                 .eq(MesMdProductSipDO::getItemId, itemId)
-                .eq(MesMdProductSipDO::getOrderNum, orderNum)
+                .eq(MesMdProductSipDO::getOrderNumber, orderNumber)
                 .neIfPresent(MesMdProductSipDO::getId, excludeId));
     }
 
