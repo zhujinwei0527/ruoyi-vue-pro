@@ -31,21 +31,13 @@ public class MesCalHolidayDO extends BaseDO {
     /**
      * 日期
      */
-    private LocalDateTime theDay;
+    private LocalDateTime day;
     /**
      * 日期类型
      *
      * 字典 {@link cn.iocoder.yudao.module.mes.enums.DictTypeConstants#MES_CAL_HOLIDAY_TYPE}
      */
-    private String type;
-    /**
-     * 开始时间
-     */
-    private LocalDateTime startTime;
-    /**
-     * 结束时间
-     */
-    private LocalDateTime endTime;
+    private Integer type;
     /**
      * 备注
      */
