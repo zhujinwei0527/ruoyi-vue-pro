@@ -1,5 +1,6 @@
 package cn.iocoder.yudao.module.mes.service.md.unitmeasure;
 
+import cn.hutool.core.collection.CollUtil;
 import cn.iocoder.yudao.framework.common.pojo.PageResult;
 import cn.iocoder.yudao.framework.common.util.object.BeanUtils;
 import cn.iocoder.yudao.module.mes.controller.admin.md.unitmeasure.vo.MesMdUnitMeasurePageReqVO;
@@ -12,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
@@ -105,6 +107,9 @@ public class MesMdUnitMeasureServiceImpl implements MesMdUnitMeasureService {
 
     @Override
     public List<MesMdUnitMeasureDO> getUnitMeasureList(Collection<Long> ids) {
+        if (CollUtil.isEmpty(ids)) {
+            return Collections.emptyList();
+        }
         return unitMeasureMapper.selectByIds(ids);
     }
 

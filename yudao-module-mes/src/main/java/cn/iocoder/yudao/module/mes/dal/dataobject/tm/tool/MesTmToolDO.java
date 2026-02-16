@@ -1,6 +1,8 @@
 package cn.iocoder.yudao.module.mes.dal.dataobject.tm.tool;
 
 import cn.iocoder.yudao.framework.mybatis.core.dataobject.BaseDO;
+import cn.iocoder.yudao.module.mes.enums.tm.MesTmToolStatusEnum;
+import cn.iocoder.yudao.module.mes.enums.tm.MesTmMaintenTypeEnum;
 import com.baomidou.mybatisplus.annotation.KeySequence;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
@@ -58,11 +60,10 @@ public class MesTmToolDO extends BaseDO {
      * 可用数量
      */
     private Integer quantityAvailable;
-    // TODO @AI：枚举类
     /**
      * 保养维护类型
      *
-     * 字典 {@link cn.iocoder.yudao.module.mes.enums.DictTypeConstants#MES_TM_MAINTEN_TYPE}
+     * 枚举 {@link MesTmMaintenTypeEnum}
      */
     private Integer maintenType;
     /**
@@ -76,7 +77,7 @@ public class MesTmToolDO extends BaseDO {
     /**
      * 状态
      *
-     * 字典 {@link cn.iocoder.yudao.module.mes.enums.DictTypeConstants#MES_TM_TOOL_STATUS}
+     * 枚举 {@link MesTmToolStatusEnum}
      */
     private Integer status;
     /**

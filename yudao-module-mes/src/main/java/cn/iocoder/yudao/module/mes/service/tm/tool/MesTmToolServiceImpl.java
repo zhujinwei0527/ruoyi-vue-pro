@@ -6,10 +6,13 @@ import cn.iocoder.yudao.module.mes.controller.admin.tm.tool.vo.MesTmToolPageReqV
 import cn.iocoder.yudao.module.mes.controller.admin.tm.tool.vo.MesTmToolSaveReqVO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.tm.tool.MesTmToolDO;
 import cn.iocoder.yudao.module.mes.dal.mysql.tm.tool.MesTmToolMapper;
+import cn.iocoder.yudao.module.mes.enums.tm.MesTmMaintenTypeEnum;
 import jakarta.annotation.Resource;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
+
+import cn.hutool.core.util.ObjUtil;
 
 import java.util.Objects;
 
@@ -55,10 +58,9 @@ public class MesTmToolServiceImpl implements MesTmToolService {
         validateToolCodeUnique(updateReqVO.getId(), updateReqVO.getCode());
 
         // 更新
-        // TODO @AI：枚举类维护类型，避免使用魔法值
-        if (Objects.equals(updateReqVO.getMaintenType(), 1)) { // 定期维护
+        if (Objects.equals(updateReqVO.getMaintenType(), MesTmMaintenTypeEnum.REGULAR.getType())) {
             updateReqVO.setNextMaintenPeriod(null);
-        } else if (Objects.equals(updateReqVO.getMaintenType(), 2)) { // 按使用次数维护
+        } else if (Objects.equals(updateReqVO.getMaintenType(), MesTmMaintenTypeEnum.USAGE.getType())) {
             updateReqVO.setNextMaintenDate(null);
         }
         MesTmToolDO updateObj = BeanUtils.toBean(updateReqVO, MesTmToolDO.class);
@@ -87,11 +89,7 @@ public class MesTmToolServiceImpl implements MesTmToolService {
         if (tool == null) {
             return;
         }
-        // TODO @AI：ObjUtil notEquals
-        if (id == null) {
-            throw exception(TM_TOOL_CODE_DUPLICATE);
-        }
-        if (!Objects.equals(tool.getId(), id)) {
+        if (ObjUtil.notEqual(tool.getId(), id)) {
             throw exception(TM_TOOL_CODE_DUPLICATE);
         }
     }

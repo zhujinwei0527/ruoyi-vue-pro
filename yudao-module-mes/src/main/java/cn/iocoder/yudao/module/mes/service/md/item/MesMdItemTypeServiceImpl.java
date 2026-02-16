@@ -1,5 +1,6 @@
 package cn.iocoder.yudao.module.mes.service.md.item;
 
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.ObjUtil;
 import cn.iocoder.yudao.framework.common.util.object.BeanUtils;
 import cn.iocoder.yudao.module.mes.controller.admin.md.item.vo.type.MesMdItemTypeListReqVO;
@@ -152,6 +153,9 @@ public class MesMdItemTypeServiceImpl implements MesMdItemTypeService {
 
     @Override
     public List<MesMdItemTypeDO> getItemTypeList(Collection<Long> ids) {
+        if (CollUtil.isEmpty(ids)) {
+            return Collections.emptyList();
+        }
         return itemTypeMapper.selectByIds(ids);
     }
 

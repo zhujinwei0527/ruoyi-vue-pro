@@ -23,7 +23,11 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import cn.hutool.core.collection.CollUtil;
+import cn.iocoder.yudao.framework.common.util.collection.MapUtils;
+
 import java.io.IOException;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -89,17 +93,7 @@ public class MesTmToolController {
     @PreAuthorize("@ss.hasPermission('mes:tm-tool:query')")
     public CommonResult<PageResult<MesTmToolRespVO>> getToolPage(@Valid MesTmToolPageReqVO pageReqVO) {
         PageResult<MesTmToolDO> pageResult = toolService.getToolPage(pageReqVO);
-        PageResult<MesTmToolRespVO> voPageResult = BeanUtils.toBean(pageResult, MesTmToolRespVO.class);
-        // 拼接工具类型名称
-        Map<Long, MesTmToolTypeDO> toolTypeMap = toolTypeService.getToolTypeMap(
-                convertSet(voPageResult.getList(), MesTmToolRespVO::getToolTypeId));
-        voPageResult.getList().forEach(vo -> {
-            MesTmToolTypeDO toolType = toolTypeMap.get(vo.getToolTypeId());
-            if (toolType != null) {
-                vo.setToolTypeName(toolType.getName());
-            }
-        });
-        return success(voPageResult);
+        return success(new PageResult<>(buildToolRespVOList(pageResult.getList()), pageResult.getTotal()));
     }
 
     @GetMapping("/export-excel")
@@ -110,20 +104,26 @@ public class MesTmToolController {
                                 HttpServletResponse response) throws IOException {
         pageReqVO.setPageSize(PageParam.PAGE_SIZE_NONE);
         List<MesTmToolDO> list = toolService.getToolPage(pageReqVO).getList();
-        List<MesTmToolRespVO> voList = BeanUtils.toBean(list, MesTmToolRespVO.class);
-        // 拼接工具类型名称
-        Map<Long, MesTmToolTypeDO> toolTypeMap = toolTypeService.getToolTypeMap(
-                convertSet(voList, MesTmToolRespVO::getToolTypeId));
-        voList.forEach(vo -> {
-            MesTmToolTypeDO toolType = toolTypeMap.get(vo.getToolTypeId());
-            if (toolType != null) {
-                vo.setToolTypeName(toolType.getName());
-            }
-        });
+        List<MesTmToolRespVO> voList = buildToolRespVOList(list);
         // 导出 Excel
         ExcelUtils.write(response, "工具台账.xls", "数据", MesTmToolRespVO.class, voList);
     }
 
-    // TODO @AI：page、export 都有拼接；可以参考别的模块的出列方式， 抽 build 公用方法；
+    // ==================== 拼接 VO ====================
+
+    @SuppressWarnings("CodeBlock2Expr")
+    private List<MesTmToolRespVO> buildToolRespVOList(List<MesTmToolDO> list) {
+        if (CollUtil.isEmpty(list)) {
+            return Collections.emptyList();
+        }
+        // 1. 批量获取工具类型信息
+        Map<Long, MesTmToolTypeDO> toolTypeMap = toolTypeService.getToolTypeMap(
+                convertSet(list, MesTmToolDO::getToolTypeId));
+        // 2. 拼接 VO
+        return BeanUtils.toBean(list, MesTmToolRespVO.class, vo -> {
+            MapUtils.findAndThen(toolTypeMap, vo.getToolTypeId(),
+                    toolType -> vo.setToolTypeName(toolType.getName()));
+        });
+    }
 
 }

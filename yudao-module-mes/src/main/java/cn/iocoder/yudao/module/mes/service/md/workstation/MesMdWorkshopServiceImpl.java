@@ -1,5 +1,6 @@
 package cn.iocoder.yudao.module.mes.service.md.workstation;
 
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.ObjUtil;
 import cn.iocoder.yudao.framework.common.pojo.PageResult;
 import cn.iocoder.yudao.framework.common.util.object.BeanUtils;
@@ -15,6 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception;
@@ -115,6 +117,9 @@ public class MesMdWorkshopServiceImpl implements MesMdWorkshopService {
 
     @Override
     public List<MesMdWorkshopDO> getWorkshopList(Collection<Long> ids) {
+        if (CollUtil.isEmpty(ids)) {
+            return Collections.emptyList();
+        }
         return workshopMapper.selectByIds(ids);
     }
 

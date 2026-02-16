@@ -1,5 +1,6 @@
 package cn.iocoder.yudao.module.mes.service.tm.tool;
 
+import cn.hutool.core.collection.CollUtil;
 import cn.iocoder.yudao.framework.common.pojo.PageResult;
 import cn.iocoder.yudao.framework.common.util.object.BeanUtils;
 import cn.iocoder.yudao.module.mes.controller.admin.tm.tool.vo.type.MesTmToolTypePageReqVO;
@@ -11,9 +12,11 @@ import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 
+import cn.hutool.core.util.ObjUtil;
+
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
 
 import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception;
 import static cn.iocoder.yudao.module.mes.enums.ErrorCodeConstants.*;
@@ -84,11 +87,7 @@ public class MesTmToolTypeServiceImpl implements MesTmToolTypeService {
         if (toolType == null) {
             return;
         }
-        // TODO @AI：ObjUtil notEquals
-        if (id == null) {
-            throw exception(TM_TOOL_TYPE_CODE_DUPLICATE);
-        }
-        if (!Objects.equals(toolType.getId(), id)) {
+        if (ObjUtil.notEqual(toolType.getId(), id)) {
             throw exception(TM_TOOL_TYPE_CODE_DUPLICATE);
         }
     }
@@ -98,11 +97,7 @@ public class MesTmToolTypeServiceImpl implements MesTmToolTypeService {
         if (toolType == null) {
             return;
         }
-        // TODO @AI：ObjUtil notEquals
-        if (id == null) {
-            throw exception(TM_TOOL_TYPE_NAME_DUPLICATE);
-        }
-        if (!Objects.equals(toolType.getId(), id)) {
+        if (ObjUtil.notEqual(toolType.getId(), id)) {
             throw exception(TM_TOOL_TYPE_NAME_DUPLICATE);
         }
     }
@@ -124,6 +119,9 @@ public class MesTmToolTypeServiceImpl implements MesTmToolTypeService {
 
     @Override
     public List<MesTmToolTypeDO> getToolTypeList(Collection<Long> ids) {
+        if (CollUtil.isEmpty(ids)) {
+            return Collections.emptyList();
+        }
         return toolTypeMapper.selectByIds(ids);
     }
 

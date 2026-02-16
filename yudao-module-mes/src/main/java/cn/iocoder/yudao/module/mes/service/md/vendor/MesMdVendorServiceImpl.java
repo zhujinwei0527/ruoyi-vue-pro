@@ -19,6 +19,7 @@ import org.springframework.validation.annotation.Validated;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -133,6 +134,9 @@ public class MesMdVendorServiceImpl implements MesMdVendorService {
 
     @Override
     public List<MesMdVendorDO> getVendorList(Collection<Long> ids) {
+        if (CollUtil.isEmpty(ids)) {
+            return Collections.emptyList();
+        }
         return vendorMapper.selectByIds(ids);
     }
 

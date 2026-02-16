@@ -83,12 +83,21 @@ public interface ErrorCodeConstants {
 
     // ========== MES 日历排班-班次（1-040-200-000） ==========
     ErrorCode CAL_SHIFT_NOT_EXISTS = new ErrorCode(1_040_200_000, "班次不存在");
+    ErrorCode CAL_SHIFT_COUNT_EXCEED_SINGLE = new ErrorCode(1_040_200_001, "轮班方式为白班时只能有一个班次");
+    ErrorCode CAL_SHIFT_COUNT_EXCEED_TWO = new ErrorCode(1_040_200_002, "轮班方式为两班倒时只能有两个班次");
+    ErrorCode CAL_SHIFT_COUNT_EXCEED_THREE = new ErrorCode(1_040_200_003, "轮班方式为三班倒时只能有三个班次");
 
     // ========== MES 日历排班-班组（1-040-201-000） ==========
     ErrorCode CAL_TEAM_NOT_EXISTS = new ErrorCode(1_040_201_000, "班组不存在");
 
     // ========== MES 日历排班-排班计划（1-040-202-000） ==========
     ErrorCode CAL_PLAN_NOT_EXISTS = new ErrorCode(1_040_202_000, "排班计划不存在");
+    ErrorCode CAL_PLAN_CODE_DUPLICATE = new ErrorCode(1_040_202_001, "排班计划编码已存在");
+    ErrorCode CAL_PLAN_NOT_PREPARE = new ErrorCode(1_040_202_002, "只能删除草稿状态的排班计划");
+    ErrorCode CAL_PLAN_TEAM_COUNT_NOT_MATCH = new ErrorCode(1_040_202_003, "确认排班计划时，分配的班组数量与轮班方式不匹配");
+    // ========== MES 日历排班-计划班组关联（1-040-202-100） ==========
+    ErrorCode CAL_PLAN_TEAM_NOT_EXISTS = new ErrorCode(1_040_202_100, "计划班组关联不存在");
+    ErrorCode CAL_PLAN_TEAM_DUPLICATE = new ErrorCode(1_040_202_101, "该班组已分配到此计划");
 
     // ========== MES 日历排班-假期设置（1-040-203-000） ==========
     ErrorCode CAL_HOLIDAY_NOT_EXISTS = new ErrorCode(1_040_203_000, "假期设置不存在");
