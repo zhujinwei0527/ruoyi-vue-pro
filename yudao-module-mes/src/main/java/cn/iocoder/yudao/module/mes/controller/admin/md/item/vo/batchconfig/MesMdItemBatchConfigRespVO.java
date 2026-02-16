@@ -42,7 +42,7 @@ public class MesMdItemBatchConfigRespVO {
     @Schema(description = "批次属性-生产任务", example = "false")
     private Boolean taskFlag;
 
-    @Schema(description = "批次属性-工位", example = "false")
+    @Schema(description = "批次属性-工作站", example = "false")
     private Boolean workstationFlag;
 
     @Schema(description = "批次属性-工具", example = "false")

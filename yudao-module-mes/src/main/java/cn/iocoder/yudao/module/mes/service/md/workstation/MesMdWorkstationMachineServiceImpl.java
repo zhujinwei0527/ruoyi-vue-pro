@@ -1,7 +1,7 @@
 package cn.iocoder.yudao.module.mes.service.md.workstation;
 
 import cn.iocoder.yudao.framework.common.util.object.BeanUtils;
-import cn.iocoder.yudao.module.mes.controller.admin.md.workstation.vo.MesMdWorkstationMachineSaveReqVO;
+import cn.iocoder.yudao.module.mes.controller.admin.md.workstation.vo.machine.MesMdWorkstationMachineSaveReqVO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.md.workstation.MesMdWorkstationMachineDO;
 import cn.iocoder.yudao.module.mes.dal.mysql.md.workstation.MesMdWorkstationMachineMapper;
 import jakarta.annotation.Resource;
@@ -14,7 +14,7 @@ import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionU
 import static cn.iocoder.yudao.module.mes.enums.ErrorCodeConstants.*;
 
 /**
- * MES 工位设备 Service 实现类
+ * MES 设备资源 Service 实现类
  *
  * @author 芋道源码
  */
@@ -27,7 +27,7 @@ public class MesMdWorkstationMachineServiceImpl implements MesMdWorkstationMachi
 
     @Override
     public Long createWorkstationMachine(MesMdWorkstationMachineSaveReqVO createReqVO) {
-        // 校验该设备是否已分配到其他工位
+        // 校验该设备是否已分配到其他工作站
         MesMdWorkstationMachineDO existing = workstationMachineMapper.selectByMachineryId(createReqVO.getMachineryId());
         if (existing != null) {
             throw exception(MD_WORKSTATION_MACHINE_EXISTS);

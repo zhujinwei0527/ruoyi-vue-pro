@@ -21,7 +21,7 @@ import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionU
 import static cn.iocoder.yudao.module.mes.enums.ErrorCodeConstants.*;
 
 /**
- * MES 工位 Service 实现类
+ * MES 工作站 Service 实现类
  *
  * @author 芋道源码
  */
@@ -46,12 +46,12 @@ public class MesMdWorkstationServiceImpl implements MesMdWorkstationService {
 
     @Override
     public Long createWorkstation(MesMdWorkstationSaveReqVO createReqVO) {
-        // TODO @AI：注释
+        // 校验编码唯一
         validateWorkstationCodeUnique(null, createReqVO.getCode());
-        // TODO @AI：注释
+        // 校验名称唯一
         validateWorkstationNameUnique(null, createReqVO.getName());
         // 校验车间存在
-        workshopService.getWorkshop(createReqVO.getWorkshopId()); // validateWorkshopExists via getWorkshop
+        workshopService.getWorkshop(createReqVO.getWorkshopId());
 
         // 插入
         MesMdWorkstationDO workstation = BeanUtils.toBean(createReqVO, MesMdWorkstationDO.class);
@@ -61,11 +61,11 @@ public class MesMdWorkstationServiceImpl implements MesMdWorkstationService {
 
     @Override
     public void updateWorkstation(MesMdWorkstationSaveReqVO updateReqVO) {
-        // TODO @AI：注释
+        // 校验存在
         validateWorkstationExists(updateReqVO.getId());
-        // TODO @AI：注释
+        // 校验编码唯一
         validateWorkstationCodeUnique(updateReqVO.getId(), updateReqVO.getCode());
-        // TODO @AI：注释
+        // 校验名称唯一
         validateWorkstationNameUnique(updateReqVO.getId(), updateReqVO.getName());
         // 校验车间存在
         workshopService.getWorkshop(updateReqVO.getWorkshopId());
@@ -78,14 +78,14 @@ public class MesMdWorkstationServiceImpl implements MesMdWorkstationService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void deleteWorkstation(Long id) {
-        // TODO @AI：注释
+        // 校验存在
         validateWorkstationExists(id);
 
         // 级联删除子资源
         workstationMachineMapper.deleteByWorkstationId(id);
         workstationToolMapper.deleteByWorkstationId(id);
         workstationWorkerMapper.deleteByWorkstationId(id);
-        // 删除工位
+        // 删除工作站
         workstationMapper.deleteById(id);
     }
 

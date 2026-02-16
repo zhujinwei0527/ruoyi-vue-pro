@@ -5,14 +5,14 @@ import lombok.Data;
 
 import java.time.LocalDateTime;
 
-@Schema(description = "管理后台 - MES 工位工具 Response VO")
+@Schema(description = "管理后台 - MES 工装夹具资源 Response VO")
 @Data
 public class MesMdWorkstationToolRespVO {
 
     @Schema(description = "编号", requiredMode = Schema.RequiredMode.REQUIRED, example = "1024")
     private Long id;
 
-    @Schema(description = "工位编号", requiredMode = Schema.RequiredMode.REQUIRED, example = "1")
+    @Schema(description = "工作站编号", requiredMode = Schema.RequiredMode.REQUIRED, example = "1")
     private Long workstationId;
 
     @Schema(description = "工具类型编号", requiredMode = Schema.RequiredMode.REQUIRED, example = "1")

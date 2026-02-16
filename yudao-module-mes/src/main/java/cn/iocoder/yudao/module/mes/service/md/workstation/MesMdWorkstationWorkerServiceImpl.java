@@ -14,7 +14,7 @@ import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionU
 import static cn.iocoder.yudao.module.mes.enums.ErrorCodeConstants.*;
 
 /**
- * MES 工位人员 Service 实现类
+ * MES 人力资源 Service 实现类
  *
  * @author 芋道源码
  */
@@ -27,7 +27,7 @@ public class MesMdWorkstationWorkerServiceImpl implements MesMdWorkstationWorker
 
     @Override
     public Long createWorkstationWorker(MesMdWorkstationWorkerSaveReqVO createReqVO) {
-        // 校验同一工位下岗位不重复
+        // 校验同一工作站下岗位不重复
         MesMdWorkstationWorkerDO existing = workstationWorkerMapper.selectByWorkstationIdAndPostId(
                 createReqVO.getWorkstationId(), createReqVO.getPostId());
         if (existing != null) {
@@ -42,10 +42,8 @@ public class MesMdWorkstationWorkerServiceImpl implements MesMdWorkstationWorker
 
     @Override
     public void updateWorkstationWorker(MesMdWorkstationWorkerSaveReqVO updateReqVO) {
-        // TODO @AI：抽个方法，参考别的模块
-        if (workstationWorkerMapper.selectById(updateReqVO.getId()) == null) {
-            throw exception(MD_WORKSTATION_WORKER_NOT_EXISTS);
-        }
+        // 校验存在
+        validateWorkstationWorkerExists(updateReqVO.getId());
 
         // 更新
         MesMdWorkstationWorkerDO updateObj = BeanUtils.toBean(updateReqVO, MesMdWorkstationWorkerDO.class);
@@ -54,13 +52,17 @@ public class MesMdWorkstationWorkerServiceImpl implements MesMdWorkstationWorker
 
     @Override
     public void deleteWorkstationWorker(Long id) {
-        // TODO @AI：抽个方法，参考别的模块
-        if (workstationWorkerMapper.selectById(id) == null) {
-            throw exception(MD_WORKSTATION_WORKER_NOT_EXISTS);
-        }
+        // 校验存在
+        validateWorkstationWorkerExists(id);
 
         // 删除
         workstationWorkerMapper.deleteById(id);
+    }
+
+    private void validateWorkstationWorkerExists(Long id) {
+        if (workstationWorkerMapper.selectById(id) == null) {
+            throw exception(MD_WORKSTATION_WORKER_NOT_EXISTS);
+        }
     }
 
     @Override

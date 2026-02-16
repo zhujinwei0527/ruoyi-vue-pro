@@ -2,8 +2,8 @@ package cn.iocoder.yudao.module.mes.controller.admin.md.workstation;
 
 import cn.iocoder.yudao.framework.common.pojo.CommonResult;
 import cn.iocoder.yudao.framework.common.util.object.BeanUtils;
-import cn.iocoder.yudao.module.mes.controller.admin.md.workstation.vo.MesMdWorkstationMachineRespVO;
-import cn.iocoder.yudao.module.mes.controller.admin.md.workstation.vo.MesMdWorkstationMachineSaveReqVO;
+import cn.iocoder.yudao.module.mes.controller.admin.md.workstation.vo.machine.MesMdWorkstationMachineRespVO;
+import cn.iocoder.yudao.module.mes.controller.admin.md.workstation.vo.machine.MesMdWorkstationMachineSaveReqVO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.md.workstation.MesMdWorkstationMachineDO;
 import cn.iocoder.yudao.module.mes.service.md.workstation.MesMdWorkstationMachineService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -19,7 +19,7 @@ import java.util.List;
 
 import static cn.iocoder.yudao.framework.common.pojo.CommonResult.success;
 
-@Tag(name = "管理后台 - MES 工位设备")
+@Tag(name = "管理后台 - MES 设备资源")
 @RestController
 @RequestMapping("/mes/md-workstation-machine")
 @Validated
@@ -29,14 +29,14 @@ public class MesMdWorkstationMachineController {
     private MesMdWorkstationMachineService workstationMachineService;
 
     @PostMapping("/create")
-    @Operation(summary = "创建工位设备")
+    @Operation(summary = "创建设备资源")
     @PreAuthorize("@ss.hasPermission('mes:md-workstation:update')")
     public CommonResult<Long> createWorkstationMachine(@Valid @RequestBody MesMdWorkstationMachineSaveReqVO createReqVO) {
         return success(workstationMachineService.createWorkstationMachine(createReqVO));
     }
 
     @DeleteMapping("/delete")
-    @Operation(summary = "删除工位设备")
+    @Operation(summary = "删除设备资源")
     @Parameter(name = "id", description = "编号", required = true)
     @PreAuthorize("@ss.hasPermission('mes:md-workstation:update')")
     public CommonResult<Boolean> deleteWorkstationMachine(@RequestParam("id") Long id) {
@@ -45,8 +45,8 @@ public class MesMdWorkstationMachineController {
     }
 
     @GetMapping("/list-by-workstation")
-    @Operation(summary = "获得工位设备列表")
-    @Parameter(name = "workstationId", description = "工位编号", required = true)
+    @Operation(summary = "获得设备资源列表")
+    @Parameter(name = "workstationId", description = "工作站编号", required = true)
     @PreAuthorize("@ss.hasPermission('mes:md-workstation:query')")
     public CommonResult<List<MesMdWorkstationMachineRespVO>> getWorkstationMachineList(
             @RequestParam("workstationId") Long workstationId) {

@@ -69,7 +69,7 @@ public class MesMdItemBatchConfigDO extends BaseDO {
      */
     private Boolean taskFlag;
     /**
-     * 批次属性-工位
+     * 批次属性-工作站
      */
     private Boolean workstationFlag;
     /**

@@ -6,8 +6,9 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.*;
 
+// DONE @AI：设备资源表；已修正所有中文注释
 /**
- * MES 工位设备 DO
+ * MES 设备资源 DO
  *
  * @author 芋道源码
  */
@@ -26,14 +27,16 @@ public class MesMdWorkstationMachineDO extends BaseDO {
      */
     @TableId
     private Long id;
-    // TODO @AI：通过 @ 去关联，按照别的模块
     /**
-     * 工位编号，关联 {@link MesMdWorkstationDO#id}
+     * 工作站编号
+     *
+     * 关联 {@link MesMdWorkstationDO#getId()}
      */
     private Long workstationId;
-    // TODO @AI：通过 @ 去关联，按照别的模块
     /**
      * 设备编号
+     *
+     * TODO @芋艿：等 dv 模块，关联设备表
      */
     private Long machineryId;
     /**

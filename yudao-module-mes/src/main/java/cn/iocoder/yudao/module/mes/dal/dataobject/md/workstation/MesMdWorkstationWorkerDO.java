@@ -6,8 +6,9 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.*;
 
+// DONE @AI：人力资源表；已修正所有中文注释
 /**
- * MES 工位人员 DO
+ * MES 人力资源 DO
  *
  * @author 芋道源码
  */
@@ -26,14 +27,16 @@ public class MesMdWorkstationWorkerDO extends BaseDO {
      */
     @TableId
     private Long id;
-    // TODO @AI：通过 @ 去关联，按照别的模块
     /**
-     * 工位编号，关联 {@link MesMdWorkstationDO#id}
+     * 工作站编号
+     *
+     * 关联 {@link MesMdWorkstationDO#getId()}
      */
     private Long workstationId;
-    // TODO @AI：通过 @ 去关联，按照别的模块
     /**
-     * 岗位编号，关联 system_post 表的 id
+     * 岗位编号
+     *
+     * 关联 system_post 的 id
      */
     private Long postId;
     /**

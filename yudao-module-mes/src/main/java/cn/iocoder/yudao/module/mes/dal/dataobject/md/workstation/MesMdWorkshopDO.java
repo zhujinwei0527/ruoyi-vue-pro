@@ -40,14 +40,18 @@ public class MesMdWorkshopDO extends BaseDO {
      * 面积（平方米）
      */
     private BigDecimal area;
-    // TODO @AI：通过 @ 去关联
+    // DONE @AI：通过 @ 去关联
     /**
-     * 负责人用户编号，关联 system_users 表的 id
+     * 负责人用户编号
+     *
+     * 关联 AdminUserDO 的 id
      */
     private Long chargeUserId;
-    // TODO @AI：通过 @ 去关联
+    // DONE @AI：通过 @ 去关联
     /**
-     * 状态，参见 CommonStatusEnum 枚举
+     * 状态
+     *
+     * 枚举 {@link cn.iocoder.yudao.framework.common.enums.CommonStatusEnum}
      */
     private Integer status;
     /**

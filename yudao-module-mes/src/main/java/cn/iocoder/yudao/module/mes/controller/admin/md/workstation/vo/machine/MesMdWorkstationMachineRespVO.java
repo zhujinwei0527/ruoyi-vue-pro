@@ -1,18 +1,18 @@
-package cn.iocoder.yudao.module.mes.controller.admin.md.workstation.vo;
+package cn.iocoder.yudao.module.mes.controller.admin.md.workstation.vo.machine;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
 import java.time.LocalDateTime;
 
-@Schema(description = "管理后台 - MES 工位设备 Response VO")
+@Schema(description = "管理后台 - MES 设备资源 Response VO")
 @Data
 public class MesMdWorkstationMachineRespVO {
 
     @Schema(description = "编号", requiredMode = Schema.RequiredMode.REQUIRED, example = "1024")
     private Long id;
 
-    @Schema(description = "工位编号", requiredMode = Schema.RequiredMode.REQUIRED, example = "1")
+    @Schema(description = "工作站编号", requiredMode = Schema.RequiredMode.REQUIRED, example = "1")
     private Long workstationId;
 
     @Schema(description = "设备编号", requiredMode = Schema.RequiredMode.REQUIRED, example = "1")

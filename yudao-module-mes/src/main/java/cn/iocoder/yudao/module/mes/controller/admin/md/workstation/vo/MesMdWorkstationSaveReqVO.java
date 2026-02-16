@@ -5,22 +5,22 @@ import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
-@Schema(description = "管理后台 - MES 工位新增/修改 Request VO")
+@Schema(description = "管理后台 - MES 工作站新增/修改 Request VO")
 @Data
 public class MesMdWorkstationSaveReqVO {
 
-    @Schema(description = "工位编号", requiredMode = Schema.RequiredMode.REQUIRED, example = "1024")
+    @Schema(description = "工作站编号", requiredMode = Schema.RequiredMode.REQUIRED, example = "1024")
     private Long id;
 
-    @Schema(description = "工位编码", requiredMode = Schema.RequiredMode.REQUIRED, example = "WK001")
-    @NotEmpty(message = "工位编码不能为空")
+    @Schema(description = "工作站编码", requiredMode = Schema.RequiredMode.REQUIRED, example = "WK001")
+    @NotEmpty(message = "工作站编码不能为空")
     private String code;
 
-    @Schema(description = "工位名称", requiredMode = Schema.RequiredMode.REQUIRED, example = "一号工位")
-    @NotEmpty(message = "工位名称不能为空")
+    @Schema(description = "工作站名称", requiredMode = Schema.RequiredMode.REQUIRED, example = "一号工作站")
+    @NotEmpty(message = "工作站名称不能为空")
     private String name;
 
-    @Schema(description = "工位地点", example = "A区1号线")
+    @Schema(description = "工作站地点", example = "A区1号线")
     private String address;
 
     @Schema(description = "所在车间编号", requiredMode = Schema.RequiredMode.REQUIRED, example = "1")

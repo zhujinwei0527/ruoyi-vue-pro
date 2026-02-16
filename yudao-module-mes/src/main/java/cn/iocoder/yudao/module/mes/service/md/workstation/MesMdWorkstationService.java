@@ -9,24 +9,56 @@ import jakarta.validation.Valid;
 import java.util.List;
 
 /**
- * MES 工位 Service 接口
+ * MES 工作站 Service 接口
  *
  * @author 芋道源码
  */
 public interface MesMdWorkstationService {
 
-    // TODO @AI：方法注释？
-
+    /**
+     * 创建工作站
+     *
+     * @param createReqVO 创建信息
+     * @return 编号
+     */
     Long createWorkstation(@Valid MesMdWorkstationSaveReqVO createReqVO);
 
+    /**
+     * 更新工作站
+     *
+     * @param updateReqVO 更新信息
+     */
     void updateWorkstation(@Valid MesMdWorkstationSaveReqVO updateReqVO);
 
+    /**
+     * 删除工作站
+     *
+     * @param id 编号
+     */
     void deleteWorkstation(Long id);
 
+    /**
+     * 获得工作站
+     *
+     * @param id 编号
+     * @return 工作站
+     */
     MesMdWorkstationDO getWorkstation(Long id);
 
+    /**
+     * 获得工作站分页
+     *
+     * @param pageReqVO 分页查询
+     * @return 工作站分页
+     */
     PageResult<MesMdWorkstationDO> getWorkstationPage(MesMdWorkstationPageReqVO pageReqVO);
 
+    /**
+     * 获得指定状态的工作站列表
+     *
+     * @param status 状态
+     * @return 工作站列表
+     */
     List<MesMdWorkstationDO> getWorkstationListByStatus(Integer status);
 
 }

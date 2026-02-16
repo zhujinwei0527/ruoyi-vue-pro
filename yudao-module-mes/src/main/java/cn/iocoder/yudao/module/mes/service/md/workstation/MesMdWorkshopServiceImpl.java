@@ -37,9 +37,9 @@ public class MesMdWorkshopServiceImpl implements MesMdWorkshopService {
 
     @Override
     public Long createWorkshop(MesMdWorkshopSaveReqVO createReqVO) {
-        // TODO @AI：注释
+        // 校验编码唯一
         validateWorkshopCodeUnique(null, createReqVO.getCode());
-        // TODO @AI：注释
+        // 校验名称唯一
         validateWorkshopNameUnique(null, createReqVO.getName());
 
         // 插入
@@ -50,11 +50,11 @@ public class MesMdWorkshopServiceImpl implements MesMdWorkshopService {
 
     @Override
     public void updateWorkshop(MesMdWorkshopSaveReqVO updateReqVO) {
-        // TODO @AI：注释
+        // 校验存在
         validateWorkshopExists(updateReqVO.getId());
-        // TODO @AI：注释
+        // 校验编码唯一
         validateWorkshopCodeUnique(updateReqVO.getId(), updateReqVO.getCode());
-        // TODO @AI：注释
+        // 校验名称唯一
         validateWorkshopNameUnique(updateReqVO.getId(), updateReqVO.getName());
 
         // 更新
@@ -64,9 +64,9 @@ public class MesMdWorkshopServiceImpl implements MesMdWorkshopService {
 
     @Override
     public void deleteWorkshop(Long id) {
-        // TODO @AI：注释
+        // 校验存在
         validateWorkshopExists(id);
-        // 校验车间下是否存在工位
+        // 校验车间下是否存在工作站
         Long count = workstationMapper.selectCount(MesMdWorkstationDO::getWorkshopId, id);
         if (count > 0) {
             throw exception(MD_WORKSHOP_HAS_WORKSTATION);

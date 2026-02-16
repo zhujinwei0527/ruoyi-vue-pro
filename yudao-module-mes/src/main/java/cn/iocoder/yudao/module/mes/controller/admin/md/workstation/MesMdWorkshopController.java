@@ -1,10 +1,12 @@
 package cn.iocoder.yudao.module.mes.controller.admin.md.workstation;
 
+import cn.hutool.core.collection.CollUtil;
 import cn.iocoder.yudao.framework.apilog.core.annotation.ApiAccessLog;
 import cn.iocoder.yudao.framework.common.enums.CommonStatusEnum;
 import cn.iocoder.yudao.framework.common.pojo.CommonResult;
 import cn.iocoder.yudao.framework.common.pojo.PageParam;
 import cn.iocoder.yudao.framework.common.pojo.PageResult;
+import cn.iocoder.yudao.framework.common.util.collection.MapUtils;
 import cn.iocoder.yudao.framework.common.util.object.BeanUtils;
 import cn.iocoder.yudao.framework.excel.core.util.ExcelUtils;
 import cn.iocoder.yudao.module.mes.controller.admin.md.workstation.vo.workshop.MesMdWorkshopPageReqVO;
@@ -25,14 +27,13 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
 import static cn.iocoder.yudao.framework.apilog.core.enums.OperateTypeEnum.EXPORT;
 import static cn.iocoder.yudao.framework.common.pojo.CommonResult.success;
-import static cn.iocoder.yudao.framework.common.util.collection.CollectionUtils.convertList;
-import static cn.iocoder.yudao.framework.common.util.collection.CollectionUtils.convertSet;
-import static cn.iocoder.yudao.framework.common.util.collection.MapUtils.findAndThen;
+import static cn.iocoder.yudao.framework.common.util.collection.CollectionUtils.*;
 
 @Tag(name = "管理后台 - MES 车间")
 @RestController
@@ -76,14 +77,7 @@ public class MesMdWorkshopController {
     @PreAuthorize("@ss.hasPermission('mes:md-workshop:query')")
     public CommonResult<MesMdWorkshopRespVO> getWorkshop(@RequestParam("id") Long id) {
         MesMdWorkshopDO workshop = workshopService.getWorkshop(id);
-        MesMdWorkshopRespVO respVO = BeanUtils.toBean(workshop, MesMdWorkshopRespVO.class);
-        if (respVO != null && respVO.getChargeUserId() != null) {
-            AdminUserRespDTO user = adminUserApi.getUser(respVO.getChargeUserId());
-            if (user != null) {
-                respVO.setChargeUserName(user.getNickname());
-            }
-        }
-        return success(respVO);
+        return success(BeanUtils.toBean(workshop, MesMdWorkshopRespVO.class));
     }
 
     @GetMapping("/page")
@@ -91,13 +85,7 @@ public class MesMdWorkshopController {
     @PreAuthorize("@ss.hasPermission('mes:md-workshop:query')")
     public CommonResult<PageResult<MesMdWorkshopRespVO>> getWorkshopPage(@Valid MesMdWorkshopPageReqVO pageReqVO) {
         PageResult<MesMdWorkshopDO> pageResult = workshopService.getWorkshopPage(pageReqVO);
-        PageResult<MesMdWorkshopRespVO> voPageResult = BeanUtils.toBean(pageResult, MesMdWorkshopRespVO.class);
-        // 拼装负责人名称
-        Map<Long, AdminUserRespDTO> userMap = adminUserApi.getUserMap(
-                convertSet(voPageResult.getList(), MesMdWorkshopRespVO::getChargeUserId));
-        voPageResult.getList().forEach(vo -> findAndThen(userMap, vo.getChargeUserId(),
-                user -> vo.setChargeUserName(user.getNickname())));
-        return success(voPageResult);
+        return success(new PageResult<>(buildWorkshopRespVOList(pageResult.getList()), pageResult.getTotal()));
     }
 
     @GetMapping("/simple-list")
@@ -116,15 +104,24 @@ public class MesMdWorkshopController {
                                      HttpServletResponse response) throws IOException {
         pageReqVO.setPageSize(PageParam.PAGE_SIZE_NONE);
         List<MesMdWorkshopDO> list = workshopService.getWorkshopPage(pageReqVO).getList();
-        // 拼装负责人名称
-        List<MesMdWorkshopRespVO> voList = BeanUtils.toBean(list, MesMdWorkshopRespVO.class);
-        Map<Long, AdminUserRespDTO> userMap = adminUserApi.getUserMap(
-                convertSet(voList, MesMdWorkshopRespVO::getChargeUserId));
-        voList.forEach(vo -> findAndThen(userMap, vo.getChargeUserId(),
-                user -> vo.setChargeUserName(user.getNickname())));
+        List<MesMdWorkshopRespVO> voList = buildWorkshopRespVOList(list);
         ExcelUtils.write(response, "车间.xls", "数据", MesMdWorkshopRespVO.class, voList);
     }
 
-    // TODO @AI：是不是要搞个方法，类似 private List<MesMdProductBomRespVO> buildProductBomRespVOList(List<MesMdProductBomDO> list) {
+    // ==================== 拼接 VO ====================
+
+    private List<MesMdWorkshopRespVO> buildWorkshopRespVOList(List<MesMdWorkshopDO> list) {
+        if (CollUtil.isEmpty(list)) {
+            return Collections.emptyList();
+        }
+        // 1. 批量获取负责人信息
+        Map<Long, AdminUserRespDTO> userMap = adminUserApi.getUserMap(
+                convertSet(list, MesMdWorkshopDO::getChargeUserId));
+        // 2. 拼接 VO
+        return BeanUtils.toBean(list, MesMdWorkshopRespVO.class, vo -> {
+            MapUtils.findAndThen(userMap, vo.getChargeUserId(),
+                    user -> vo.setChargeUserName(user.getNickname()));
+        });
+    }
 
 }

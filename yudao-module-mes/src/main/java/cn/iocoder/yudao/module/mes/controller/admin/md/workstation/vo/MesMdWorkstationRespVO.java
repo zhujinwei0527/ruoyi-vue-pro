@@ -7,25 +7,25 @@ import lombok.Data;
 
 import java.time.LocalDateTime;
 
-@Schema(description = "管理后台 - MES 工位 Response VO")
+@Schema(description = "管理后台 - MES 工作站 Response VO")
 @Data
 @ExcelIgnoreUnannotated
 public class MesMdWorkstationRespVO {
 
-    @Schema(description = "工位编号", requiredMode = Schema.RequiredMode.REQUIRED, example = "1024")
-    @ExcelProperty("工位编号")
+    @Schema(description = "工作站编号", requiredMode = Schema.RequiredMode.REQUIRED, example = "1024")
+    @ExcelProperty("工作站编号")
     private Long id;
 
-    @Schema(description = "工位编码", requiredMode = Schema.RequiredMode.REQUIRED, example = "WK001")
-    @ExcelProperty("工位编码")
+    @Schema(description = "工作站编码", requiredMode = Schema.RequiredMode.REQUIRED, example = "WK001")
+    @ExcelProperty("工作站编码")
     private String code;
 
-    @Schema(description = "工位名称", requiredMode = Schema.RequiredMode.REQUIRED, example = "一号工位")
-    @ExcelProperty("工位名称")
+    @Schema(description = "工作站名称", requiredMode = Schema.RequiredMode.REQUIRED, example = "一号工作站")
+    @ExcelProperty("工作站名称")
     private String name;
 
-    @Schema(description = "工位地点", example = "A区1号线")
-    @ExcelProperty("工位地点")
+    @Schema(description = "工作站地点", example = "A区1号线")
+    @ExcelProperty("工作站地点")
     private String address;
 
     @Schema(description = "所在车间编号", requiredMode = Schema.RequiredMode.REQUIRED, example = "1")

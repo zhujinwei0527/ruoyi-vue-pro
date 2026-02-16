@@ -8,7 +8,7 @@ import jakarta.validation.Valid;
 
 import java.util.List;
 
-// TODO @AI：方法注释？
+// DONE @AI：方法注释
 /**
  * MES 车间 Service 接口
  *
@@ -16,16 +16,50 @@ import java.util.List;
  */
 public interface MesMdWorkshopService {
 
+    /**
+     * 创建车间
+     *
+     * @param createReqVO 创建信息
+     * @return 编号
+     */
     Long createWorkshop(@Valid MesMdWorkshopSaveReqVO createReqVO);
 
+    /**
+     * 更新车间
+     *
+     * @param updateReqVO 更新信息
+     */
     void updateWorkshop(@Valid MesMdWorkshopSaveReqVO updateReqVO);
 
+    /**
+     * 删除车间
+     *
+     * @param id 编号
+     */
     void deleteWorkshop(Long id);
 
+    /**
+     * 获得车间
+     *
+     * @param id 编号
+     * @return 车间
+     */
     MesMdWorkshopDO getWorkshop(Long id);
 
+    /**
+     * 获得车间分页
+     *
+     * @param pageReqVO 分页查询
+     * @return 车间分页
+     */
     PageResult<MesMdWorkshopDO> getWorkshopPage(MesMdWorkshopPageReqVO pageReqVO);
 
+    /**
+     * 获得指定状态的车间列表
+     *
+     * @param status 状态
+     * @return 车间列表
+     */
     List<MesMdWorkshopDO> getWorkshopListByStatus(Integer status);
 
 }

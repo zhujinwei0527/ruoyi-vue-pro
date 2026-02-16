@@ -8,7 +8,7 @@ import org.apache.ibatis.annotations.Mapper;
 import java.util.List;
 
 /**
- * MES 工位人员 Mapper
+ * MES 人力资源 Mapper
  *
  * @author 芋道源码
  */

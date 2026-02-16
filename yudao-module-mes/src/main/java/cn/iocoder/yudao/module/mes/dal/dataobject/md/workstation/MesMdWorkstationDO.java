@@ -7,7 +7,7 @@ import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.*;
 
 /**
- * MES 工位 DO
+ * MES 工作站 DO
  *
  * @author 芋道源码
  */
@@ -27,44 +27,56 @@ public class MesMdWorkstationDO extends BaseDO {
     @TableId
     private Long id;
     /**
-     * 工位编码
+     * 工作站编码
      */
     private String code;
     /**
-     * 工位名称
+     * 工作站名称
      */
     private String name;
     /**
-     * 工位地点
+     * 工作站地点
      */
     private String address;
-    // TODO @AI：通过 @ 去关联，按照别的模块
+    // DONE @AI：通过 @ 去关联，按照别的模块
     /**
-     * 所在车间编号，关联 {@link MesMdWorkshopDO#getId()}
+     * 所在车间编号
+     *
+     * 关联 {@link MesMdWorkshopDO#getId()}
      */
     private Long workshopId;
-    // TODO @AI：通过 @ 去关联，按照别的模块
+    // DONE @AI：通过 @ 去关联，按照别的模块
     /**
      * 工序编号
+     *
+     * TODO @芋艿：等 pro 模块，关联工序表
      */
     private Long processId;
-    // TODO @AI：通过 @ 去关联，按照别的模块
+    // DONE @AI：通过 @ 去关联，按照别的模块
     /**
      * 线边库编号
+     *
+     * TODO @芋艿：等 wm 模块，关联仓库表
      */
     private Long warehouseId;
-    // TODO @AI：通过 @ 去关联，按照别的模块
+    // DONE @AI：通过 @ 去关联，按照别的模块
     /**
      * 库区编号
+     *
+     * TODO @芋艿：等 wm 模块，关联库区表
      */
     private Long locationId;
     /**
      * 库位编号
+     *
+     * TODO @芋艿：等 wm 模块，关联库位表
      */
     private Long areaId;
-    // TODO @AI：通过 @ 去关联，按照别的模块
+    // DONE @AI：通过 @ 去关联，按照别的模块
     /**
-     * 状态，参见 CommonStatusEnum 枚举
+     * 状态
+     *
+     * 枚举 {@link cn.iocoder.yudao.framework.common.enums.CommonStatusEnum}
      */
     private Integer status;
     /**

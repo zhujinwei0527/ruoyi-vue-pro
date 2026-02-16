@@ -52,21 +52,21 @@ public interface ErrorCodeConstants {
     ErrorCode MD_WORKSHOP_NOT_EXISTS = new ErrorCode(1_040_105_000, "车间不存在");
     ErrorCode MD_WORKSHOP_CODE_DUPLICATE = new ErrorCode(1_040_105_001, "车间编码已存在");
     ErrorCode MD_WORKSHOP_NAME_DUPLICATE = new ErrorCode(1_040_105_002, "车间名称已存在");
-    ErrorCode MD_WORKSHOP_HAS_WORKSTATION = new ErrorCode(1_040_105_003, "车间下存在工位，无法删除");
+    ErrorCode MD_WORKSHOP_HAS_WORKSTATION = new ErrorCode(1_040_105_003, "车间下存在工作站，无法删除");
 
-    // ========== MES 基础数据-工位（1-040-106-000） ==========
-    ErrorCode MD_WORKSTATION_NOT_EXISTS = new ErrorCode(1_040_106_000, "工位不存在");
-    ErrorCode MD_WORKSTATION_CODE_DUPLICATE = new ErrorCode(1_040_106_001, "工位编码已存在");
-    ErrorCode MD_WORKSTATION_NAME_DUPLICATE = new ErrorCode(1_040_106_002, "工位名称已存在");
-    // ========== MES 基础数据-工位设备（1-040-106-100） ==========
-    ErrorCode MD_WORKSTATION_MACHINE_NOT_EXISTS = new ErrorCode(1_040_106_100, "工位设备记录不存在");
-    ErrorCode MD_WORKSTATION_MACHINE_EXISTS = new ErrorCode(1_040_106_101, "该设备已分配到其他工位");
-    // ========== MES 基础数据-工位工具（1-040-106-200） ==========
-    ErrorCode MD_WORKSTATION_TOOL_NOT_EXISTS = new ErrorCode(1_040_106_200, "工位工具记录不存在");
-    ErrorCode MD_WORKSTATION_TOOL_TYPE_EXISTS = new ErrorCode(1_040_106_201, "该工具类型已在此工位中存在");
-    // ========== MES 基础数据-工位人员（1-040-106-300） ==========
-    ErrorCode MD_WORKSTATION_WORKER_NOT_EXISTS = new ErrorCode(1_040_106_300, "工位人员记录不存在");
-    ErrorCode MD_WORKSTATION_WORKER_POST_EXISTS = new ErrorCode(1_040_106_301, "该岗位已在此工位中存在");
+    // ========== MES 基础数据-工作站（1-040-106-000） ==========
+    ErrorCode MD_WORKSTATION_NOT_EXISTS = new ErrorCode(1_040_106_000, "工作站不存在");
+    ErrorCode MD_WORKSTATION_CODE_DUPLICATE = new ErrorCode(1_040_106_001, "工作站编码已存在");
+    ErrorCode MD_WORKSTATION_NAME_DUPLICATE = new ErrorCode(1_040_106_002, "工作站名称已存在");
+    // ========== MES 基础数据-设备资源（1-040-106-100） ==========
+    ErrorCode MD_WORKSTATION_MACHINE_NOT_EXISTS = new ErrorCode(1_040_106_100, "设备资源记录不存在");
+    ErrorCode MD_WORKSTATION_MACHINE_EXISTS = new ErrorCode(1_040_106_101, "该设备已分配到其他工作站");
+    // ========== MES 基础数据-工装夹具资源（1-040-106-200） ==========
+    ErrorCode MD_WORKSTATION_TOOL_NOT_EXISTS = new ErrorCode(1_040_106_200, "工装夹具资源记录不存在");
+    ErrorCode MD_WORKSTATION_TOOL_TYPE_EXISTS = new ErrorCode(1_040_106_201, "该工具类型已在此工作站中存在");
+    // ========== MES 基础数据-人力资源（1-040-106-300） ==========
+    ErrorCode MD_WORKSTATION_WORKER_NOT_EXISTS = new ErrorCode(1_040_106_300, "人力资源记录不存在");
+    ErrorCode MD_WORKSTATION_WORKER_POST_EXISTS = new ErrorCode(1_040_106_301, "该岗位已在此工作站中存在");
 
     // ========== MES 基础数据-产品BOM（1-040-107-000） ==========
     ErrorCode MD_PRODUCT_BOM_NOT_EXISTS = new ErrorCode(1_040_107_000, "产品BOM不存在");
@@ -75,11 +75,11 @@ public interface ErrorCodeConstants {
 
     // ========== MES 基础数据-产品SOP（1-040-108-000） ==========
     ErrorCode MD_PRODUCT_SOP_NOT_EXISTS = new ErrorCode(1_040_108_000, "产品SOP不存在");
-    ErrorCode MD_PRODUCT_SOP_ORDER_NUM_DUPLICATE = new ErrorCode(1_040_108_001, "该展示序号已存在");
+    ErrorCode MD_PRODUCT_SOP_ORDER_NUMBER_DUPLICATE = new ErrorCode(1_040_108_001, "该展示序号已存在");
 
     // ========== MES 基础数据-产品SIP（1-040-109-000） ==========
     ErrorCode MD_PRODUCT_SIP_NOT_EXISTS = new ErrorCode(1_040_109_000, "产品SIP不存在");
-    ErrorCode MD_PRODUCT_SIP_ORDER_NUM_DUPLICATE = new ErrorCode(1_040_109_001, "该展示序号已存在");
+    ErrorCode MD_PRODUCT_SIP_ORDER_NUMBER_DUPLICATE = new ErrorCode(1_040_109_001, "该展示序号已存在");
 
     // ========== MES 日历排班-班次（1-040-200-000） ==========
     ErrorCode CAL_SHIFT_NOT_EXISTS = new ErrorCode(1_040_200_000, "班次不存在");

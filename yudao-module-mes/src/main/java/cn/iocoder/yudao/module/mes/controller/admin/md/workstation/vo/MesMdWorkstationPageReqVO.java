@@ -6,16 +6,16 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
-@Schema(description = "管理后台 - MES 工位分页 Request VO")
+@Schema(description = "管理后台 - MES 工作站分页 Request VO")
 @Data
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
 public class MesMdWorkstationPageReqVO extends PageParam {
 
-    @Schema(description = "工位编码", example = "WK001")
+    @Schema(description = "工作站编码", example = "WK001")
     private String code;
 
-    @Schema(description = "工位名称", example = "一号工位")
+    @Schema(description = "工作站名称", example = "一号工作站")
     private String name;
 
     @Schema(description = "所在车间编号", example = "1")
