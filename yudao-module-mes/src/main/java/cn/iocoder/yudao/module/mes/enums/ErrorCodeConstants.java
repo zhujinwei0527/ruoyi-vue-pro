@@ -90,6 +90,9 @@ public interface ErrorCodeConstants {
     // ========== MES 日历排班-排班计划（1-040-202-000） ==========
     ErrorCode CAL_PLAN_NOT_EXISTS = new ErrorCode(1_040_202_000, "排班计划不存在");
 
+    // ========== MES 日历排班-假期设置（1-040-203-000） ==========
+    ErrorCode CAL_HOLIDAY_NOT_EXISTS = new ErrorCode(1_040_203_000, "假期设置不存在");
+
     // ========== MES 设备管理-设备类型（1-040-300-000） ==========
     ErrorCode DV_MACHINERY_TYPE_NOT_EXISTS = new ErrorCode(1_040_300_000, "设备类型不存在");
 
