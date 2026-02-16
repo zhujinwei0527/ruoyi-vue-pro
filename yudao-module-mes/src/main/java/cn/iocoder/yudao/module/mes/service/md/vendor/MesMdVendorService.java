@@ -1,11 +1,11 @@
-package cn.iocoder.yudao.module.mes.service.md;
+package cn.iocoder.yudao.module.mes.service.md.vendor;
 
 import cn.iocoder.yudao.framework.common.pojo.PageResult;
-import cn.iocoder.yudao.module.mes.controller.admin.md.vo.vendor.MesMdVendorImportExcelVO;
-import cn.iocoder.yudao.module.mes.controller.admin.md.vo.vendor.MesMdVendorImportRespVO;
-import cn.iocoder.yudao.module.mes.controller.admin.md.vo.vendor.MesMdVendorPageReqVO;
-import cn.iocoder.yudao.module.mes.controller.admin.md.vo.vendor.MesMdVendorSaveReqVO;
-import cn.iocoder.yudao.module.mes.dal.dataobject.md.MesMdVendorDO;
+import cn.iocoder.yudao.module.mes.controller.admin.md.vendor.vo.MesMdVendorImportExcelVO;
+import cn.iocoder.yudao.module.mes.controller.admin.md.vendor.vo.MesMdVendorImportRespVO;
+import cn.iocoder.yudao.module.mes.controller.admin.md.vendor.vo.MesMdVendorPageReqVO;
+import cn.iocoder.yudao.module.mes.controller.admin.md.vendor.vo.MesMdVendorSaveReqVO;
+import cn.iocoder.yudao.module.mes.dal.dataobject.md.vendor.MesMdVendorDO;
 import jakarta.validation.Valid;
 
 import java.util.Collection;

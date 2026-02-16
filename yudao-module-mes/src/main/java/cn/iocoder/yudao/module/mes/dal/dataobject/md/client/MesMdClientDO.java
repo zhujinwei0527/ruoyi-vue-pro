@@ -1,4 +1,4 @@
-package cn.iocoder.yudao.module.mes.dal.dataobject.md;
+package cn.iocoder.yudao.module.mes.dal.dataobject.md.client;
 
 import cn.iocoder.yudao.framework.mybatis.core.dataobject.BaseDO;
 import com.baomidou.mybatisplus.annotation.KeySequence;
@@ -7,73 +7,69 @@ import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.*;
 
 /**
- * MES 供应商 DO
+ * MES 客户 DO
  *
  * @author 芋道源码
  */
-@TableName("mes_md_vendor")
-@KeySequence("mes_md_vendor_seq") // 用于 Oracle、PostgreSQL、Kingbase、DB2、H2 数据库的主键自增。如果是 MySQL 等数据库，可不写。
+@TableName("mes_md_client")
+@KeySequence("mes_md_client_seq") // 用于 Oracle、PostgreSQL、Kingbase、DB2、H2 数据库的主键自增。如果是 MySQL 等数据库，可不写。
 @Data
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class MesMdVendorDO extends BaseDO {
+public class MesMdClientDO extends BaseDO {
 
     /**
-     * 供应商编号
+     * 客户编号
      */
     @TableId
     private Long id;
     /**
-     * 供应商编码
+     * 客户编码
      */
     private String code;
     /**
-     * 供应商名称
+     * 客户名称
      */
     private String name;
     /**
-     * 供应商简称
+     * 客户简称
      */
     private String nickname;
     /**
-     * 供应商英文名称
+     * 客户英文名称
      */
     private String englishName;
     /**
-     * 供应商简介
+     * 客户简介
      */
     private String description;
     /**
-     * 供应商LOGO地址
+     * 客户LOGO地址
      */
     private String logo;
     /**
-     * 供应商等级
+     * 客户类型
      *
-     * 字典 {@link cn.iocoder.yudao.module.mes.enums.DictTypeConstants#MES_VENDOR_LEVEL}
+     * 字典 {@link cn.iocoder.yudao.module.mes.enums.DictTypeConstants#MES_CLIENT_TYPE}
      */
-    private String level;
+    private Integer type;
     /**
-     * 供应商评分
-     */
-    private Integer score;
-    /**
-     * 供应商地址
+     * 客户地址
      */
     private String address;
     /**
-     * 供应商官网地址
+     * 客户官网地址
      */
     private String website;
     /**
-     * 供应商邮箱地址
+     * 客户邮箱地址
      */
     private String email;
     /**
-     * 供应商电话
+     * 客户电话
      */
     private String telephone;
     /**

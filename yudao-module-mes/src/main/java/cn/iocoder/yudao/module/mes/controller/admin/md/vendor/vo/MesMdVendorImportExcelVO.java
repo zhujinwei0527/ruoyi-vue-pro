@@ -1,4 +1,4 @@
-package cn.iocoder.yudao.module.mes.controller.admin.md.vo.client;
+package cn.iocoder.yudao.module.mes.controller.admin.md.vendor.vo;
 
 import cn.idev.excel.annotation.ExcelProperty;
 import cn.iocoder.yudao.framework.excel.core.annotations.DictFormat;
@@ -10,31 +10,31 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 /**
- * 客户 Excel 导入 VO
+ * 供应商 Excel 导入 VO
  */
 @Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class MesMdClientImportExcelVO {
+public class MesMdVendorImportExcelVO {
 
-    @ExcelProperty("客户编码")
+    @ExcelProperty("供应商编码")
     private String code;
 
-    @ExcelProperty("客户名称")
+    @ExcelProperty("供应商名称")
     private String name;
 
-    @ExcelProperty("客户简称")
+    @ExcelProperty("供应商简称")
     private String nickname;
 
-    @ExcelProperty(value = "客户类型", converter = DictConvert.class)
-    @DictFormat(DictTypeConstants.MES_CLIENT_TYPE)
-    private Integer type;
+    @ExcelProperty(value = "供应商等级", converter = DictConvert.class)
+    @DictFormat(DictTypeConstants.MES_VENDOR_LEVEL)
+    private String level;
 
-    @ExcelProperty("客户电话")
+    @ExcelProperty("供应商电话")
     private String telephone;
 
-    @ExcelProperty("客户邮箱地址")
+    @ExcelProperty("供应商邮箱地址")
     private String email;
 
     @ExcelProperty(value = "状态", converter = DictConvert.class)

@@ -1,4 +1,4 @@
-package cn.iocoder.yudao.module.mes.controller.admin.md.vo.vendor;
+package cn.iocoder.yudao.module.mes.controller.admin.md.vendor.vo;
 
 import cn.iocoder.yudao.framework.excel.core.annotations.DictFormat;
 import cn.iocoder.yudao.framework.excel.core.convert.DictConvert;

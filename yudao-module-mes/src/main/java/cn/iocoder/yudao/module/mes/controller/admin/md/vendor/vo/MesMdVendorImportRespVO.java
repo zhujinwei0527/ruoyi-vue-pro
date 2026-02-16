@@ -1,4 +1,4 @@
-package cn.iocoder.yudao.module.mes.controller.admin.md.vo.vendor;
+package cn.iocoder.yudao.module.mes.controller.admin.md.vendor.vo;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;

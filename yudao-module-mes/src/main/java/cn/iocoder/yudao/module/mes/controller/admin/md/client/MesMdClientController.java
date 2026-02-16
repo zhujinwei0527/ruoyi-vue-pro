@@ -1,4 +1,4 @@
-package cn.iocoder.yudao.module.mes.controller.admin.md;
+package cn.iocoder.yudao.module.mes.controller.admin.md.client;
 
 import cn.iocoder.yudao.framework.apilog.core.annotation.ApiAccessLog;
 import cn.iocoder.yudao.framework.common.enums.CommonStatusEnum;
@@ -7,13 +7,13 @@ import cn.iocoder.yudao.framework.common.pojo.PageParam;
 import cn.iocoder.yudao.framework.common.pojo.PageResult;
 import cn.iocoder.yudao.framework.common.util.object.BeanUtils;
 import cn.iocoder.yudao.framework.excel.core.util.ExcelUtils;
-import cn.iocoder.yudao.module.mes.controller.admin.md.vo.client.MesMdClientImportExcelVO;
-import cn.iocoder.yudao.module.mes.controller.admin.md.vo.client.MesMdClientImportRespVO;
-import cn.iocoder.yudao.module.mes.controller.admin.md.vo.client.MesMdClientPageReqVO;
-import cn.iocoder.yudao.module.mes.controller.admin.md.vo.client.MesMdClientRespVO;
-import cn.iocoder.yudao.module.mes.controller.admin.md.vo.client.MesMdClientSaveReqVO;
-import cn.iocoder.yudao.module.mes.dal.dataobject.md.MesMdClientDO;
-import cn.iocoder.yudao.module.mes.service.md.MesMdClientService;
+import cn.iocoder.yudao.module.mes.controller.admin.md.client.vo.MesMdClientImportExcelVO;
+import cn.iocoder.yudao.module.mes.controller.admin.md.client.vo.MesMdClientImportRespVO;
+import cn.iocoder.yudao.module.mes.controller.admin.md.client.vo.MesMdClientPageReqVO;
+import cn.iocoder.yudao.module.mes.controller.admin.md.client.vo.MesMdClientRespVO;
+import cn.iocoder.yudao.module.mes.controller.admin.md.client.vo.MesMdClientSaveReqVO;
+import cn.iocoder.yudao.module.mes.dal.dataobject.md.client.MesMdClientDO;
+import cn.iocoder.yudao.module.mes.service.md.client.MesMdClientService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.Parameters;
