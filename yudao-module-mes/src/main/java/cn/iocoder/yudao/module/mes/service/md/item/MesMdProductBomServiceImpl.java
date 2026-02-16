@@ -1,6 +1,7 @@
 package cn.iocoder.yudao.module.mes.service.md.item;
 
 import cn.iocoder.yudao.framework.common.pojo.PageResult;
+import cn.iocoder.yudao.framework.common.util.collection.CollectionUtils;
 import cn.iocoder.yudao.framework.common.util.object.BeanUtils;
 import cn.iocoder.yudao.module.mes.controller.admin.md.item.vo.bom.MesMdProductBomPageReqVO;
 import cn.iocoder.yudao.module.mes.controller.admin.md.item.vo.bom.MesMdProductBomSaveReqVO;
@@ -92,6 +93,7 @@ public class MesMdProductBomServiceImpl implements MesMdProductBomService {
         }
     }
 
+    // TODO @AI：hasXXXCycle 这样？
     /**
      * 检测新增边 (itemId -> bomItemId) 后，BOM 图是否存在闭环
      *
@@ -108,33 +110,11 @@ public class MesMdProductBomServiceImpl implements MesMdProductBomService {
         // 1.3  添加待新增的边
         graph.computeIfAbsent(itemId, k -> new HashSet<>()).add(bomItemId);
         // 2. DFS 检测环
-        Set<Long> visited = new HashSet<>();
-        Set<Long> inStack = new HashSet<>();
         for (Long node : graph.keySet()) {
-            if (dfs(node, graph, visited, inStack)) {
+            if (CollectionUtils.dfs(node, graph)) {
                 return true;
             }
         }
-        return false;
-    }
-
-    // DONE @AI：dfs 为 BOM 环检测的私有方法，属于业务逻辑，保留在 ServiceImpl 中
-    private boolean dfs(Long node, Map<Long, Set<Long>> graph, Set<Long> visited, Set<Long> inStack) {
-        if (inStack.contains(node)) {
-            return true;
-        }
-        if (visited.contains(node)) {
-            return false;
-        }
-        visited.add(node);
-        inStack.add(node);
-        Set<Long> neighbors = graph.getOrDefault(node, Collections.emptySet());
-        for (Long neighbor : neighbors) {
-            if (dfs(neighbor, graph, visited, inStack)) {
-                return true;
-            }
-        }
-        inStack.remove(node);
         return false;
     }
 

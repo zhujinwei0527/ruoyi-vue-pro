@@ -14,6 +14,7 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 
+import java.util.Collection;
 import java.util.List;
 
 import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception;
@@ -110,6 +111,11 @@ public class MesMdWorkshopServiceImpl implements MesMdWorkshopService {
     @Override
     public PageResult<MesMdWorkshopDO> getWorkshopPage(MesMdWorkshopPageReqVO pageReqVO) {
         return workshopMapper.selectPage(pageReqVO);
+    }
+
+    @Override
+    public List<MesMdWorkshopDO> getWorkshopList(Collection<Long> ids) {
+        return workshopMapper.selectByIds(ids);
     }
 
     @Override

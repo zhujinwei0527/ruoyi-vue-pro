@@ -38,28 +38,24 @@ public class MesMdWorkstationDO extends BaseDO {
      * 工作站地点
      */
     private String address;
-    // DONE @AI：通过 @ 去关联，按照别的模块
     /**
      * 所在车间编号
      *
      * 关联 {@link MesMdWorkshopDO#getId()}
      */
     private Long workshopId;
-    // DONE @AI：通过 @ 去关联，按照别的模块
     /**
      * 工序编号
      *
      * TODO @芋艿：等 pro 模块，关联工序表
      */
     private Long processId;
-    // DONE @AI：通过 @ 去关联，按照别的模块
     /**
      * 线边库编号
      *
      * TODO @芋艿：等 wm 模块，关联仓库表
      */
     private Long warehouseId;
-    // DONE @AI：通过 @ 去关联，按照别的模块
     /**
      * 库区编号
      *
@@ -72,7 +68,6 @@ public class MesMdWorkstationDO extends BaseDO {
      * TODO @芋艿：等 wm 模块，关联库位表
      */
     private Long areaId;
-    // DONE @AI：通过 @ 去关联，按照别的模块
     /**
      * 状态
      *

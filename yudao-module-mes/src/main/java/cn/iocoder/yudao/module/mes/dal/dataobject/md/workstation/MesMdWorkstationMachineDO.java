@@ -6,7 +6,6 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.*;
 
-// DONE @AI：设备资源表；已修正所有中文注释
 /**
  * MES 设备资源 DO
  *

@@ -6,7 +6,6 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.*;
 
-// DONE @AI：工装夹具资源表；已修正所有中文注释
 /**
  * MES 工装夹具资源 DO
  *

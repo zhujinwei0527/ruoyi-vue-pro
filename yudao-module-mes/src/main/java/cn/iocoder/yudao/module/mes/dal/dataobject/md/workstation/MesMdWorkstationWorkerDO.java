@@ -6,7 +6,6 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.*;
 
-// DONE @AI：人力资源表；已修正所有中文注释
 /**
  * MES 人力资源 DO
  *

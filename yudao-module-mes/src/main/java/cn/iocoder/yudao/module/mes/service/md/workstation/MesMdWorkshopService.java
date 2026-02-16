@@ -6,9 +6,12 @@ import cn.iocoder.yudao.module.mes.controller.admin.md.workstation.vo.workshop.M
 import cn.iocoder.yudao.module.mes.dal.dataobject.md.workstation.MesMdWorkshopDO;
 import jakarta.validation.Valid;
 
+import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
-// DONE @AI：方法注释
+import static cn.iocoder.yudao.framework.common.util.collection.CollectionUtils.convertMap;
+
 /**
  * MES 车间 Service 接口
  *
@@ -53,6 +56,24 @@ public interface MesMdWorkshopService {
      * @return 车间分页
      */
     PageResult<MesMdWorkshopDO> getWorkshopPage(MesMdWorkshopPageReqVO pageReqVO);
+
+    /**
+     * 获得车间列表
+     *
+     * @param ids 编号列表
+     * @return 车间列表
+     */
+    List<MesMdWorkshopDO> getWorkshopList(Collection<Long> ids);
+
+    /**
+     * 获得车间 Map
+     *
+     * @param ids 编号列表
+     * @return 车间 Map
+     */
+    default Map<Long, MesMdWorkshopDO> getWorkshopMap(Collection<Long> ids) {
+        return convertMap(getWorkshopList(ids), MesMdWorkshopDO::getId);
+    }
 
     /**
      * 获得指定状态的车间列表

@@ -30,6 +30,7 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import static cn.iocoder.yudao.framework.apilog.core.enums.OperateTypeEnum.EXPORT;
 import static cn.iocoder.yudao.framework.common.pojo.CommonResult.success;
@@ -110,14 +111,14 @@ public class MesMdWorkstationController {
 
     // ==================== 拼接 VO ====================
 
+    @SuppressWarnings("CodeBlock2Expr")
     private List<MesMdWorkstationRespVO> buildWorkstationRespVOList(List<MesMdWorkstationDO> list) {
         if (CollUtil.isEmpty(list)) {
             return Collections.emptyList();
         }
         // 1. 批量获取车间信息
-        Map<Long, MesMdWorkshopDO> workshopMap = convertMap(
-                workshopService.getWorkshopListByStatus(null),
-                MesMdWorkshopDO::getId);
+        Map<Long, MesMdWorkshopDO> workshopMap = workshopService.getWorkshopMap(
+                convertSet(list, MesMdWorkstationDO::getWorkshopId));
         // 2. 拼接 VO
         return BeanUtils.toBean(list, MesMdWorkstationRespVO.class, vo -> {
             MapUtils.findAndThen(workshopMap, vo.getWorkshopId(),
