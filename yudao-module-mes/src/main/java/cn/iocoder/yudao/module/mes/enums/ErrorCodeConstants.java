@@ -70,6 +70,16 @@ public interface ErrorCodeConstants {
 
     // ========== MES 基础数据-产品BOM（1-040-107-000） ==========
     ErrorCode MD_PRODUCT_BOM_NOT_EXISTS = new ErrorCode(1_040_107_000, "产品BOM不存在");
+    ErrorCode MD_PRODUCT_BOM_SELF_REFERENCE = new ErrorCode(1_040_107_001, "产品不能作为自身的BOM物料");
+    ErrorCode MD_PRODUCT_BOM_CIRCULAR = new ErrorCode(1_040_107_002, "BOM物料存在闭环，无法新增");
+
+    // ========== MES 基础数据-产品SOP（1-040-108-000） ==========
+    ErrorCode MD_PRODUCT_SOP_NOT_EXISTS = new ErrorCode(1_040_108_000, "产品SOP不存在");
+    ErrorCode MD_PRODUCT_SOP_ORDER_NUM_DUPLICATE = new ErrorCode(1_040_108_001, "该展示序号已存在");
+
+    // ========== MES 基础数据-产品SIP（1-040-109-000） ==========
+    ErrorCode MD_PRODUCT_SIP_NOT_EXISTS = new ErrorCode(1_040_109_000, "产品SIP不存在");
+    ErrorCode MD_PRODUCT_SIP_ORDER_NUM_DUPLICATE = new ErrorCode(1_040_109_001, "该展示序号已存在");
 
     // ========== MES 日历排班-班次（1-040-200-000） ==========
     ErrorCode CAL_SHIFT_NOT_EXISTS = new ErrorCode(1_040_200_000, "班次不存在");

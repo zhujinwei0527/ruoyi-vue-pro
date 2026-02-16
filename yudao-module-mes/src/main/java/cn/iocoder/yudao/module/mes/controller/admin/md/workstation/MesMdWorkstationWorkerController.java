@@ -60,8 +60,10 @@ public class MesMdWorkstationWorkerController {
             @RequestParam("workstationId") Long workstationId) {
         List<MesMdWorkstationWorkerDO> list = workstationWorkerService.getWorkstationWorkerListByWorkstationId(workstationId);
         // TODO @芋艿：拼装岗位名称，等前端从 system_post 获取岗位下拉列表
-        // TODO @AI：拼接下！
+        // TODO @AI：后端拼接下返回；postApi？
         return success(BeanUtils.toBean(list, MesMdWorkstationWorkerRespVO.class));
     }
+
+    // TODO @AI：是不是要搞个方法，类似 private List<MesMdProductBomRespVO> buildProductBomRespVOList(List<MesMdProductBomDO> list) {
 
 }

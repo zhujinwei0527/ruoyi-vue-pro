@@ -19,7 +19,11 @@ import java.util.List;
 import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception;
 import static cn.iocoder.yudao.module.mes.enums.ErrorCodeConstants.*;
 
-// TODO @AI：注释；
+/**
+ * MES 车间 Service 实现类
+ *
+ * @author 芋道源码
+ */
 @Service
 @Validated
 public class MesMdWorkshopServiceImpl implements MesMdWorkshopService {
@@ -33,9 +37,12 @@ public class MesMdWorkshopServiceImpl implements MesMdWorkshopService {
 
     @Override
     public Long createWorkshop(MesMdWorkshopSaveReqVO createReqVO) {
+        // TODO @AI：注释
         validateWorkshopCodeUnique(null, createReqVO.getCode());
+        // TODO @AI：注释
         validateWorkshopNameUnique(null, createReqVO.getName());
 
+        // 插入
         MesMdWorkshopDO workshop = BeanUtils.toBean(createReqVO, MesMdWorkshopDO.class);
         workshopMapper.insert(workshop);
         return workshop.getId();
@@ -43,22 +50,29 @@ public class MesMdWorkshopServiceImpl implements MesMdWorkshopService {
 
     @Override
     public void updateWorkshop(MesMdWorkshopSaveReqVO updateReqVO) {
+        // TODO @AI：注释
         validateWorkshopExists(updateReqVO.getId());
+        // TODO @AI：注释
         validateWorkshopCodeUnique(updateReqVO.getId(), updateReqVO.getCode());
+        // TODO @AI：注释
         validateWorkshopNameUnique(updateReqVO.getId(), updateReqVO.getName());
 
+        // 更新
         MesMdWorkshopDO updateObj = BeanUtils.toBean(updateReqVO, MesMdWorkshopDO.class);
         workshopMapper.updateById(updateObj);
     }
 
     @Override
     public void deleteWorkshop(Long id) {
+        // TODO @AI：注释
         validateWorkshopExists(id);
         // 校验车间下是否存在工位
         Long count = workstationMapper.selectCount(MesMdWorkstationDO::getWorkshopId, id);
         if (count > 0) {
             throw exception(MD_WORKSHOP_HAS_WORKSTATION);
         }
+
+        // 删除
         workshopMapper.deleteById(id);
     }
 

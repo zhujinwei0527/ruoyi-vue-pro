@@ -13,7 +13,11 @@ import java.util.List;
 import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception;
 import static cn.iocoder.yudao.module.mes.enums.ErrorCodeConstants.*;
 
-// TODO @AI：注释；
+/**
+ * MES 工位设备 Service 实现类
+ *
+ * @author 芋道源码
+ */
 @Service
 @Validated
 public class MesMdWorkstationMachineServiceImpl implements MesMdWorkstationMachineService {
@@ -29,6 +33,7 @@ public class MesMdWorkstationMachineServiceImpl implements MesMdWorkstationMachi
             throw exception(MD_WORKSTATION_MACHINE_EXISTS);
         }
 
+        // 插入
         MesMdWorkstationMachineDO machine = BeanUtils.toBean(createReqVO, MesMdWorkstationMachineDO.class);
         workstationMachineMapper.insert(machine);
         return machine.getId();

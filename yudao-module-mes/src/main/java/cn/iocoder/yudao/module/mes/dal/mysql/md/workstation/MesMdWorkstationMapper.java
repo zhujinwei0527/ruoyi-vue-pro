@@ -9,7 +9,11 @@ import org.apache.ibatis.annotations.Mapper;
 
 import java.util.List;
 
-// TODO @AI：注释；
+/**
+ * MES 工位 Mapper
+ *
+ * @author 芋道源码
+ */
 @Mapper
 public interface MesMdWorkstationMapper extends BaseMapperX<MesMdWorkstationDO> {
 

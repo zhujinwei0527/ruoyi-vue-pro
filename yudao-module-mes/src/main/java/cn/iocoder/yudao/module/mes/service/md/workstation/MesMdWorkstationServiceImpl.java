@@ -20,7 +20,11 @@ import java.util.List;
 import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception;
 import static cn.iocoder.yudao.module.mes.enums.ErrorCodeConstants.*;
 
-// TODO @AI：注释；
+/**
+ * MES 工位 Service 实现类
+ *
+ * @author 芋道源码
+ */
 @Service
 @Validated
 public class MesMdWorkstationServiceImpl implements MesMdWorkstationService {
@@ -42,11 +46,14 @@ public class MesMdWorkstationServiceImpl implements MesMdWorkstationService {
 
     @Override
     public Long createWorkstation(MesMdWorkstationSaveReqVO createReqVO) {
+        // TODO @AI：注释
         validateWorkstationCodeUnique(null, createReqVO.getCode());
+        // TODO @AI：注释
         validateWorkstationNameUnique(null, createReqVO.getName());
         // 校验车间存在
         workshopService.getWorkshop(createReqVO.getWorkshopId()); // validateWorkshopExists via getWorkshop
 
+        // 插入
         MesMdWorkstationDO workstation = BeanUtils.toBean(createReqVO, MesMdWorkstationDO.class);
         workstationMapper.insert(workstation);
         return workstation.getId();
@@ -54,12 +61,16 @@ public class MesMdWorkstationServiceImpl implements MesMdWorkstationService {
 
     @Override
     public void updateWorkstation(MesMdWorkstationSaveReqVO updateReqVO) {
+        // TODO @AI：注释
         validateWorkstationExists(updateReqVO.getId());
+        // TODO @AI：注释
         validateWorkstationCodeUnique(updateReqVO.getId(), updateReqVO.getCode());
+        // TODO @AI：注释
         validateWorkstationNameUnique(updateReqVO.getId(), updateReqVO.getName());
         // 校验车间存在
         workshopService.getWorkshop(updateReqVO.getWorkshopId());
 
+        // 更新
         MesMdWorkstationDO updateObj = BeanUtils.toBean(updateReqVO, MesMdWorkstationDO.class);
         workstationMapper.updateById(updateObj);
     }
@@ -67,7 +78,9 @@ public class MesMdWorkstationServiceImpl implements MesMdWorkstationService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void deleteWorkstation(Long id) {
+        // TODO @AI：注释
         validateWorkstationExists(id);
+
         // 级联删除子资源
         workstationMachineMapper.deleteByWorkstationId(id);
         workstationToolMapper.deleteByWorkstationId(id);

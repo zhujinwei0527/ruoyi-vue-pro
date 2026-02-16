@@ -43,12 +43,16 @@ public class MesMdItemServiceImpl implements MesMdItemService {
 
     @Resource
     private MesMdItemTypeService itemTypeService;
-
     @Resource
     private MesMdUnitMeasureService unitMeasureService;
-
     @Resource
     private MesMdItemBatchConfigService itemBatchConfigService;
+    @Resource
+    private MesMdProductBomService productBomService;
+    @Resource
+    private MesMdProductSopService productSopService;
+    @Resource
+    private MesMdProductSipService productSipService;
 
     @Override
     public Long createItem(MesMdItemSaveReqVO createReqVO) {
@@ -91,11 +95,19 @@ public class MesMdItemServiceImpl implements MesMdItemService {
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public void deleteItem(Long id) {
         // 校验存在
         validateItemExists(id);
+
         // 级联删除批次属性配置
         itemBatchConfigService.deleteItemBatchConfigByItemId(id);
+        // 级联删除产品BOM
+        productBomService.deleteProductBomByItemId(id);
+        // 级联删除产品SOP
+        productSopService.deleteProductSopByItemId(id);
+        // 级联删除产品SIP
+        productSipService.deleteProductSipByItemId(id);
         // 删除
         itemMapper.deleteById(id);
     }

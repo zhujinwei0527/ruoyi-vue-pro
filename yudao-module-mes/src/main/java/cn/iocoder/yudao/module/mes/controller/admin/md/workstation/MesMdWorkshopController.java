@@ -116,9 +116,15 @@ public class MesMdWorkshopController {
                                      HttpServletResponse response) throws IOException {
         pageReqVO.setPageSize(PageParam.PAGE_SIZE_NONE);
         List<MesMdWorkshopDO> list = workshopService.getWorkshopPage(pageReqVO).getList();
-        // TODO @AI：导出是不是也要拼接关联字段？
-        ExcelUtils.write(response, "车间.xls", "数据", MesMdWorkshopRespVO.class,
-                BeanUtils.toBean(list, MesMdWorkshopRespVO.class));
+        // 拼装负责人名称
+        List<MesMdWorkshopRespVO> voList = BeanUtils.toBean(list, MesMdWorkshopRespVO.class);
+        Map<Long, AdminUserRespDTO> userMap = adminUserApi.getUserMap(
+                convertSet(voList, MesMdWorkshopRespVO::getChargeUserId));
+        voList.forEach(vo -> findAndThen(userMap, vo.getChargeUserId(),
+                user -> vo.setChargeUserName(user.getNickname())));
+        ExcelUtils.write(response, "车间.xls", "数据", MesMdWorkshopRespVO.class, voList);
     }
+
+    // TODO @AI：是不是要搞个方法，类似 private List<MesMdProductBomRespVO> buildProductBomRespVOList(List<MesMdProductBomDO> list) {
 
 }

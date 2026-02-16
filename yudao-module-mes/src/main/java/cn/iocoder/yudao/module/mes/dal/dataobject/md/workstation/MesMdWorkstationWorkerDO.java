@@ -6,7 +6,11 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.*;
 
-// TODO @AI：注释；以及关联；
+/**
+ * MES 工位人员 DO
+ *
+ * @author 芋道源码
+ */
 @TableName("mes_md_workstation_worker")
 @KeySequence("mes_md_workstation_worker_seq")
 @Data
@@ -17,15 +21,44 @@ import lombok.*;
 @AllArgsConstructor
 public class MesMdWorkstationWorkerDO extends BaseDO {
 
+    /**
+     * 编号
+     */
     @TableId
     private Long id;
+    // TODO @AI：通过 @ 去关联，按照别的模块
+    /**
+     * 工位编号，关联 {@link MesMdWorkstationDO#id}
+     */
     private Long workstationId;
+    // TODO @AI：通过 @ 去关联，按照别的模块
+    /**
+     * 岗位编号，关联 system_post 表的 id
+     */
     private Long postId;
+    /**
+     * 数量
+     */
     private Integer quantity;
+    /**
+     * 备注
+     */
     private String remark;
+    /**
+     * 预留字段1
+     */
     private String attribute1;
+    /**
+     * 预留字段2
+     */
     private String attribute2;
+    /**
+     * 预留字段3
+     */
     private Integer attribute3;
+    /**
+     * 预留字段4
+     */
     private Integer attribute4;
 
 }

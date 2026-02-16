@@ -8,8 +8,14 @@ import jakarta.validation.Valid;
 
 import java.util.List;
 
-// TODO @AI：注释；
+/**
+ * MES 工位 Service 接口
+ *
+ * @author 芋道源码
+ */
 public interface MesMdWorkstationService {
+
+    // TODO @AI：方法注释？
 
     Long createWorkstation(@Valid MesMdWorkstationSaveReqVO createReqVO);
 

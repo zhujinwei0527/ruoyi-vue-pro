@@ -116,10 +116,17 @@ public class MesMdWorkstationController {
     public void exportWorkstationExcel(@Valid MesMdWorkstationPageReqVO pageReqVO,
                                         HttpServletResponse response) throws IOException {
         pageReqVO.setPageSize(PageParam.PAGE_SIZE_NONE);
-        // TODO @AI：导出是不是也要处理下关联字段？比如车间名称。
         List<MesMdWorkstationDO> list = workstationService.getWorkstationPage(pageReqVO).getList();
-        ExcelUtils.write(response, "工位.xls", "数据", MesMdWorkstationRespVO.class,
-                BeanUtils.toBean(list, MesMdWorkstationRespVO.class));
+        // 拼装车间名称
+        List<MesMdWorkstationRespVO> voList = BeanUtils.toBean(list, MesMdWorkstationRespVO.class);
+        Map<Long, MesMdWorkshopDO> workshopMap = cn.iocoder.yudao.framework.common.util.collection.CollectionUtils.convertMap(
+                workshopService.getWorkshopListByStatus(null),
+                MesMdWorkshopDO::getId);
+        voList.forEach(vo -> findAndThen(workshopMap, vo.getWorkshopId(),
+                workshop -> vo.setWorkshopName(workshop.getName())));
+        ExcelUtils.write(response, "工位.xls", "数据", MesMdWorkstationRespVO.class, voList);
     }
+
+    // TODO @AI：是不是要搞个方法，类似 private List<MesMdProductBomRespVO> buildProductBomRespVOList(List<MesMdProductBomDO> list) {
 
 }

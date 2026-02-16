@@ -13,7 +13,11 @@ import java.util.List;
 import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception;
 import static cn.iocoder.yudao.module.mes.enums.ErrorCodeConstants.*;
 
-// TODO @AI：注释；
+/**
+ * MES 工位工具 Service 实现类
+ *
+ * @author 芋道源码
+ */
 @Service
 @Validated
 public class MesMdWorkstationToolServiceImpl implements MesMdWorkstationToolService {
@@ -30,6 +34,7 @@ public class MesMdWorkstationToolServiceImpl implements MesMdWorkstationToolServ
             throw exception(MD_WORKSTATION_TOOL_TYPE_EXISTS);
         }
 
+        // 插入
         MesMdWorkstationToolDO tool = BeanUtils.toBean(createReqVO, MesMdWorkstationToolDO.class);
         workstationToolMapper.insert(tool);
         return tool.getId();
@@ -37,18 +42,25 @@ public class MesMdWorkstationToolServiceImpl implements MesMdWorkstationToolServ
 
     @Override
     public void updateWorkstationTool(MesMdWorkstationToolSaveReqVO updateReqVO) {
+        // 校验存在
+        // TODO @AI：要不要抽个方法，参考别的模块
         if (workstationToolMapper.selectById(updateReqVO.getId()) == null) {
             throw exception(MD_WORKSTATION_TOOL_NOT_EXISTS);
         }
+
+        // 更新
         MesMdWorkstationToolDO updateObj = BeanUtils.toBean(updateReqVO, MesMdWorkstationToolDO.class);
         workstationToolMapper.updateById(updateObj);
     }
 
     @Override
     public void deleteWorkstationTool(Long id) {
+        // 校验存在
         if (workstationToolMapper.selectById(id) == null) {
             throw exception(MD_WORKSTATION_TOOL_NOT_EXISTS);
         }
+
+        // 删除
         workstationToolMapper.deleteById(id);
     }
 
