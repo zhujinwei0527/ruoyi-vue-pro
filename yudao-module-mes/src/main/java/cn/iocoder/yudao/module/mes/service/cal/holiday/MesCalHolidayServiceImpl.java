@@ -8,6 +8,7 @@ import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 /**
@@ -42,6 +43,11 @@ public class MesCalHolidayServiceImpl implements MesCalHolidayService {
     @Override
     public List<MesCalHolidayDO> getHolidayList() {
         return holidayMapper.selectList();
+    }
+
+    @Override
+    public MesCalHolidayDO getHolidayByDay(LocalDateTime day) {
+        return holidayMapper.selectByDay(day);
     }
 
 }
