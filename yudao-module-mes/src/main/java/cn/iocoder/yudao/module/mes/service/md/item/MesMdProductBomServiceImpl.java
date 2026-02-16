@@ -45,7 +45,7 @@ public class MesMdProductBomServiceImpl implements MesMdProductBomService {
             throw exception(MD_PRODUCT_BOM_SELF_REFERENCE);
         }
         // 1.4 校验不能形成闭环
-        if (hasCycle(createReqVO.getItemId(), createReqVO.getBomItemId())) {
+        if (hasBomCycle(createReqVO.getItemId(), createReqVO.getBomItemId())) {
             throw exception(MD_PRODUCT_BOM_CIRCULAR);
         }
 
@@ -93,7 +93,6 @@ public class MesMdProductBomServiceImpl implements MesMdProductBomService {
         }
     }
 
-    // TODO @AI：hasXXXCycle 这样？
     /**
      * 检测新增边 (itemId -> bomItemId) 后，BOM 图是否存在闭环
      *
@@ -101,7 +100,7 @@ public class MesMdProductBomServiceImpl implements MesMdProductBomService {
      * @param bomItemId BOM子物料编号
      * @return 是否存在闭环
      */
-    private boolean hasCycle(Long itemId, Long bomItemId) {
+    private boolean hasBomCycle(Long itemId, Long bomItemId) {
         // 1.1 获取所有已有的 BOM 记录
         List<MesMdProductBomDO> allBoms = productBomMapper.selectAll();
         // 1.2 构建邻接表：parent -> Set<child>

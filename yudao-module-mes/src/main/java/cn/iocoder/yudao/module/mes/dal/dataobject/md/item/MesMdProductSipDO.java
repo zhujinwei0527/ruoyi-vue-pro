@@ -35,7 +35,7 @@ public class MesMdProductSipDO extends BaseDO {
     /**
      * 排列顺序
      */
-    private Integer orderNumber;
+    private Integer sort;
     /**
      * 工序编号
      */

@@ -18,7 +18,7 @@ public class MesMdProductSipSaveReqVO {
 
     @Schema(description = "排列顺序", requiredMode = Schema.RequiredMode.REQUIRED, example = "1")
     @NotNull(message = "排列顺序不能为空")
-    private Integer orderNumber;
+    private Integer sort;
 
     @Schema(description = "工序ID", example = "100")
     private Long processId;

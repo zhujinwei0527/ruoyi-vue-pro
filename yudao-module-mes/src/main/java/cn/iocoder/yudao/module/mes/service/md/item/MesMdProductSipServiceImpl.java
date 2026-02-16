@@ -30,7 +30,7 @@ public class MesMdProductSipServiceImpl implements MesMdProductSipService {
     @Override
     public Long createProductSip(MesMdProductSipSaveReqVO createReqVO) {
         // 校验排列顺序的唯一性
-        validateOrderNumberUnique(createReqVO.getItemId(), createReqVO.getOrderNumber(), null);
+        validateSortUnique(createReqVO.getItemId(), createReqVO.getSort(), null);
 
         // 插入
         MesMdProductSipDO sip = BeanUtils.toBean(createReqVO, MesMdProductSipDO.class);
@@ -43,7 +43,7 @@ public class MesMdProductSipServiceImpl implements MesMdProductSipService {
         // 校验存在
         validateProductSipExists(updateReqVO.getId());
         // 校验排列顺序的唯一性
-        validateOrderNumberUnique(updateReqVO.getItemId(), updateReqVO.getOrderNumber(), updateReqVO.getId());
+        validateSortUnique(updateReqVO.getItemId(), updateReqVO.getSort(), updateReqVO.getId());
 
         // 更新
         MesMdProductSipDO updateObj = BeanUtils.toBean(updateReqVO, MesMdProductSipDO.class);
@@ -64,10 +64,10 @@ public class MesMdProductSipServiceImpl implements MesMdProductSipService {
         }
     }
 
-    private void validateOrderNumberUnique(Long itemId, Integer orderNumber, Long excludeId) {
-        Long count = productSipMapper.selectCountByItemIdAndOrderNumber(itemId, orderNumber, excludeId);
+    private void validateSortUnique(Long itemId, Integer sort, Long excludeId) {
+        Long count = productSipMapper.selectCountByItemIdAndSort(itemId, sort, excludeId);
         if (count > 0) {
-            throw exception(MD_PRODUCT_SIP_ORDER_NUMBER_DUPLICATE);
+            throw exception(MD_PRODUCT_SIP_SORT_DUPLICATE);
         }
     }
 

@@ -108,16 +108,16 @@ public class MesMdProductBomController {
         if (CollUtil.isEmpty(list)) {
             return Collections.emptyList();
         }
-        // 1. 批量获取 BOM 物料信息
+        // 1.1 批量获取 BOM 物料信息
         Map<Long, MesMdItemDO> itemMap = itemService.getItemMap(
                 convertSet(list, MesMdProductBomDO::getBomItemId));
-        // 2. 批量获取计量单位信息
+        // 1.2 批量获取计量单位信息
         Map<Long, MesMdUnitMeasureDO> unitMeasureMap = unitMeasureService.getUnitMeasureMap(
                 convertSet(itemMap.values(), MesMdItemDO::getUnitMeasureId));
-        // 3. 批量获取物料分类信息（用于 itemOrProduct）
+        // 1.3 批量获取物料分类信息（用于 itemOrProduct）
         Map<Long, MesMdItemTypeDO> itemTypeMap = itemTypeService.getItemTypeMap(
                 convertSet(itemMap.values(), MesMdItemDO::getItemTypeId));
-        // 4. 拼接 VO
+        // 2. 拼接 VO
         return BeanUtils.toBean(list, MesMdProductBomRespVO.class, vo -> {
             MapUtils.findAndThen(itemMap, vo.getBomItemId(), item -> {
                 vo.setBomItemCode(item.getCode());

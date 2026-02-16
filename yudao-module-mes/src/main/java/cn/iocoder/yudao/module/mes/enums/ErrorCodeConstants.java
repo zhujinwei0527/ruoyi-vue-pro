@@ -75,11 +75,11 @@ public interface ErrorCodeConstants {
 
     // ========== MES 基础数据-产品SOP（1-040-108-000） ==========
     ErrorCode MD_PRODUCT_SOP_NOT_EXISTS = new ErrorCode(1_040_108_000, "产品SOP不存在");
-    ErrorCode MD_PRODUCT_SOP_ORDER_NUMBER_DUPLICATE = new ErrorCode(1_040_108_001, "该展示序号已存在");
+    ErrorCode MD_PRODUCT_SOP_SORT_DUPLICATE = new ErrorCode(1_040_108_001, "该展示序号已存在");
 
     // ========== MES 基础数据-产品SIP（1-040-109-000） ==========
     ErrorCode MD_PRODUCT_SIP_NOT_EXISTS = new ErrorCode(1_040_109_000, "产品SIP不存在");
-    ErrorCode MD_PRODUCT_SIP_ORDER_NUMBER_DUPLICATE = new ErrorCode(1_040_109_001, "该展示序号已存在");
+    ErrorCode MD_PRODUCT_SIP_SORT_DUPLICATE = new ErrorCode(1_040_109_001, "该展示序号已存在");
 
     // ========== MES 日历排班-班次（1-040-200-000） ==========
     ErrorCode CAL_SHIFT_NOT_EXISTS = new ErrorCode(1_040_200_000, "班次不存在");

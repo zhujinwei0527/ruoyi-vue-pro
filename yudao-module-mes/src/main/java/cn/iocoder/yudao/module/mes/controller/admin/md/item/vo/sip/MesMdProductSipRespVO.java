@@ -16,7 +16,7 @@ public class MesMdProductSipRespVO {
     private Long itemId;
 
     @Schema(description = "排列顺序", requiredMode = Schema.RequiredMode.REQUIRED, example = "1")
-    private Integer orderNumber;
+    private Integer sort;
 
     @Schema(description = "工序ID", example = "100")
     private Long processId;
