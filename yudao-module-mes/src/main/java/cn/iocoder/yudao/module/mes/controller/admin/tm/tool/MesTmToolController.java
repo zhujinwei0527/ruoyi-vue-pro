@@ -1,0 +1,129 @@
+package cn.iocoder.yudao.module.mes.controller.admin.tm.tool;
+
+import cn.iocoder.yudao.framework.apilog.core.annotation.ApiAccessLog;
+import cn.iocoder.yudao.framework.common.pojo.CommonResult;
+import cn.iocoder.yudao.framework.common.pojo.PageParam;
+import cn.iocoder.yudao.framework.common.pojo.PageResult;
+import cn.iocoder.yudao.framework.common.util.object.BeanUtils;
+import cn.iocoder.yudao.framework.excel.core.util.ExcelUtils;
+import cn.iocoder.yudao.module.mes.controller.admin.tm.tool.vo.MesTmToolPageReqVO;
+import cn.iocoder.yudao.module.mes.controller.admin.tm.tool.vo.MesTmToolRespVO;
+import cn.iocoder.yudao.module.mes.controller.admin.tm.tool.vo.MesTmToolSaveReqVO;
+import cn.iocoder.yudao.module.mes.dal.dataobject.tm.tool.MesTmToolDO;
+import cn.iocoder.yudao.module.mes.dal.dataobject.tm.tool.MesTmToolTypeDO;
+import cn.iocoder.yudao.module.mes.service.tm.tool.MesTmToolService;
+import cn.iocoder.yudao.module.mes.service.tm.tool.MesTmToolTypeService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.annotation.Resource;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Valid;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.*;
+
+import java.io.IOException;
+import java.util.List;
+import java.util.Map;
+
+import static cn.iocoder.yudao.framework.apilog.core.enums.OperateTypeEnum.EXPORT;
+import static cn.iocoder.yudao.framework.common.pojo.CommonResult.success;
+import static cn.iocoder.yudao.framework.common.util.collection.CollectionUtils.convertSet;
+
+@Tag(name = "管理后台 - MES 工具台账")
+@RestController
+@RequestMapping("/mes/tm/tool")
+@Validated
+public class MesTmToolController {
+
+    @Resource
+    private MesTmToolService toolService;
+
+    @Resource
+    private MesTmToolTypeService toolTypeService;
+
+    @PostMapping("/create")
+    @Operation(summary = "创建工具")
+    @PreAuthorize("@ss.hasPermission('mes:tm-tool:create')")
+    public CommonResult<Long> createTool(@Valid @RequestBody MesTmToolSaveReqVO createReqVO) {
+        return success(toolService.createTool(createReqVO));
+    }
+
+    @PutMapping("/update")
+    @Operation(summary = "更新工具")
+    @PreAuthorize("@ss.hasPermission('mes:tm-tool:update')")
+    public CommonResult<Boolean> updateTool(@Valid @RequestBody MesTmToolSaveReqVO updateReqVO) {
+        toolService.updateTool(updateReqVO);
+        return success(true);
+    }
+
+    @DeleteMapping("/delete")
+    @Operation(summary = "删除工具")
+    @Parameter(name = "id", description = "编号", required = true)
+    @PreAuthorize("@ss.hasPermission('mes:tm-tool:delete')")
+    public CommonResult<Boolean> deleteTool(@RequestParam("id") Long id) {
+        toolService.deleteTool(id);
+        return success(true);
+    }
+
+    @GetMapping("/get")
+    @Operation(summary = "获得工具")
+    @Parameter(name = "id", description = "编号", required = true, example = "1024")
+    @PreAuthorize("@ss.hasPermission('mes:tm-tool:query')")
+    public CommonResult<MesTmToolRespVO> getTool(@RequestParam("id") Long id) {
+        MesTmToolDO tool = toolService.getTool(id);
+        MesTmToolRespVO respVO = BeanUtils.toBean(tool, MesTmToolRespVO.class);
+        // 拼接工具类型名称
+        if (respVO != null && respVO.getToolTypeId() != null) {
+            MesTmToolTypeDO toolType = toolTypeService.getToolType(respVO.getToolTypeId());
+            if (toolType != null) {
+                respVO.setToolTypeName(toolType.getName());
+            }
+        }
+        return success(respVO);
+    }
+
+    @GetMapping("/page")
+    @Operation(summary = "获得工具分页")
+    @PreAuthorize("@ss.hasPermission('mes:tm-tool:query')")
+    public CommonResult<PageResult<MesTmToolRespVO>> getToolPage(@Valid MesTmToolPageReqVO pageReqVO) {
+        PageResult<MesTmToolDO> pageResult = toolService.getToolPage(pageReqVO);
+        PageResult<MesTmToolRespVO> voPageResult = BeanUtils.toBean(pageResult, MesTmToolRespVO.class);
+        // 拼接工具类型名称
+        Map<Long, MesTmToolTypeDO> toolTypeMap = toolTypeService.getToolTypeMap(
+                convertSet(voPageResult.getList(), MesTmToolRespVO::getToolTypeId));
+        voPageResult.getList().forEach(vo -> {
+            MesTmToolTypeDO toolType = toolTypeMap.get(vo.getToolTypeId());
+            if (toolType != null) {
+                vo.setToolTypeName(toolType.getName());
+            }
+        });
+        return success(voPageResult);
+    }
+
+    @GetMapping("/export-excel")
+    @Operation(summary = "导出工具 Excel")
+    @PreAuthorize("@ss.hasPermission('mes:tm-tool:export')")
+    @ApiAccessLog(operateType = EXPORT)
+    public void exportToolExcel(@Valid MesTmToolPageReqVO pageReqVO,
+                                HttpServletResponse response) throws IOException {
+        pageReqVO.setPageSize(PageParam.PAGE_SIZE_NONE);
+        List<MesTmToolDO> list = toolService.getToolPage(pageReqVO).getList();
+        List<MesTmToolRespVO> voList = BeanUtils.toBean(list, MesTmToolRespVO.class);
+        // 拼接工具类型名称
+        Map<Long, MesTmToolTypeDO> toolTypeMap = toolTypeService.getToolTypeMap(
+                convertSet(voList, MesTmToolRespVO::getToolTypeId));
+        voList.forEach(vo -> {
+            MesTmToolTypeDO toolType = toolTypeMap.get(vo.getToolTypeId());
+            if (toolType != null) {
+                vo.setToolTypeName(toolType.getName());
+            }
+        });
+        // 导出 Excel
+        ExcelUtils.write(response, "工具台账.xls", "数据", MesTmToolRespVO.class, voList);
+    }
+
+    // TODO @AI：page、export 都有拼接；可以参考别的模块的出列方式， 抽 build 公用方法；
+
+}
