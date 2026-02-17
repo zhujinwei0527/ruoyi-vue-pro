@@ -27,6 +27,7 @@ public class MesCalPlanTeamServiceImpl implements MesCalPlanTeamService {
 
     @Override
     public Long createPlanTeam(MesCalPlanTeamSaveReqVO createReqVO) {
+        // TODO @AI：需要校验下，plan 未确定；（确认后，不允许编辑）
         // 校验排班计划存在
         validatePlanTeamDuplicate(createReqVO.getPlanId(), createReqVO.getTeamId());
 
@@ -38,6 +39,7 @@ public class MesCalPlanTeamServiceImpl implements MesCalPlanTeamService {
 
     @Override
     public void deletePlanTeam(Long id) {
+        // TODO @AI：需要校验下，plan 未确定；（确认后，不允许编辑）
         // 校验存在
         validatePlanTeamExists(id);
         // 删除

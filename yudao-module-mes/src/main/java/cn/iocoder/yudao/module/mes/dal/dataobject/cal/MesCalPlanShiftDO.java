@@ -11,15 +11,15 @@ import lombok.*;
  *
  * @author 芋道源码
  */
-@TableName("mes_cal_shift")
-@KeySequence("mes_cal_shift_seq")
+@TableName("mes_cal_plan_shift")
+@KeySequence("mes_cal_plan_shift_seq")
 @Data
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class MesCalShiftDO extends BaseDO {
+public class MesCalPlanShiftDO extends BaseDO {
 
     /**
      * 班次编号

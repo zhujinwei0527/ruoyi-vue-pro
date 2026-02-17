@@ -1,6 +1,7 @@
 package cn.iocoder.yudao.module.mes.dal.dataobject.cal;
 
 import cn.iocoder.yudao.framework.mybatis.core.dataobject.BaseDO;
+import cn.iocoder.yudao.module.mes.enums.cal.MesCalCalendarTypeEnum;
 import cn.iocoder.yudao.module.mes.enums.cal.MesCalPlanStatusEnum;
 import cn.iocoder.yudao.module.mes.enums.cal.MesCalShiftMethodEnum;
 import cn.iocoder.yudao.module.mes.enums.cal.MesCalShiftTypeEnum;
@@ -39,11 +40,10 @@ public class MesCalPlanDO extends BaseDO {
      * 计划名称
      */
     private String name;
-    // TODO @AI：增加一个枚举值（类），好一点；
     /**
      * 班组类型
      *
-     * 枚举 mes_cal_calendar_type（1=分组轮班, 2=固定班组）
+     * 枚举 {@link MesCalCalendarTypeEnum}
      */
     private Integer calendarType;
     /**

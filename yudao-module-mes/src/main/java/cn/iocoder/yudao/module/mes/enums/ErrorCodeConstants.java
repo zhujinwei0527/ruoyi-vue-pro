@@ -81,11 +81,9 @@ public interface ErrorCodeConstants {
     ErrorCode MD_PRODUCT_SIP_NOT_EXISTS = new ErrorCode(1_040_109_000, "产品SIP不存在");
     ErrorCode MD_PRODUCT_SIP_SORT_DUPLICATE = new ErrorCode(1_040_109_001, "该展示序号已存在");
 
-    // ========== MES 日历排班-班次（1-040-200-000） ==========
-    ErrorCode CAL_SHIFT_NOT_EXISTS = new ErrorCode(1_040_200_000, "班次不存在");
-    ErrorCode CAL_SHIFT_COUNT_EXCEED_SINGLE = new ErrorCode(1_040_200_001, "轮班方式为白班时只能有一个班次");
-    ErrorCode CAL_SHIFT_COUNT_EXCEED_TWO = new ErrorCode(1_040_200_002, "轮班方式为两班倒时只能有两个班次");
-    ErrorCode CAL_SHIFT_COUNT_EXCEED_THREE = new ErrorCode(1_040_200_003, "轮班方式为三班倒时只能有三个班次");
+    // ========== MES 日历排班-计划班次（1-040-200-000） ==========
+    ErrorCode CAL_PLAN_SHIFT_NOT_EXISTS = new ErrorCode(1_040_200_000, "计划班次不存在");
+    ErrorCode CAL_PLAN_SHIFT_COUNT_EXCEED = new ErrorCode(1_040_200_001, "班次数量已达到轮班方式的上限");
 
     // ========== MES 日历排班-班组（1-040-201-000） ==========
     ErrorCode CAL_TEAM_NOT_EXISTS = new ErrorCode(1_040_201_000, "班组不存在");
@@ -140,6 +138,9 @@ public interface ErrorCodeConstants {
 
     // ========== MES 生产管理-生产工单（1-040-502-000） ==========
     ErrorCode PRO_WORKORDER_NOT_EXISTS = new ErrorCode(1_040_502_000, "生产工单不存在");
+    ErrorCode PRO_WORKORDER_CODE_DUPLICATE = new ErrorCode(1_040_502_001, "生产工单编码已存在");
+    ErrorCode PRO_WORKORDER_NOT_PREPARE = new ErrorCode(1_040_502_002, "只能删除草稿状态的工单");
+    ErrorCode PRO_WORKORDER_BOM_NOT_EXISTS = new ErrorCode(1_040_502_100, "生产工单BOM不存在");
 
     // ========== MES 生产管理-生产任务（1-040-503-000） ==========
     ErrorCode PRO_TASK_NOT_EXISTS = new ErrorCode(1_040_503_000, "生产任务不存在");

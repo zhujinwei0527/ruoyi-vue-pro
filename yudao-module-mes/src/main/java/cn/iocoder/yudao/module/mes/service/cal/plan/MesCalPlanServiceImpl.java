@@ -8,6 +8,7 @@ import cn.iocoder.yudao.module.mes.dal.dataobject.cal.MesCalPlanDO;
 import cn.iocoder.yudao.module.mes.dal.mysql.cal.plan.MesCalPlanMapper;
 import cn.iocoder.yudao.module.mes.enums.cal.MesCalPlanStatusEnum;
 import cn.iocoder.yudao.module.mes.enums.cal.MesCalShiftTypeEnum;
+import cn.hutool.core.util.ObjUtil;
 import jakarta.annotation.Resource;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
@@ -30,7 +31,7 @@ public class MesCalPlanServiceImpl implements MesCalPlanService {
     private MesCalPlanMapper planMapper;
     @Resource
     @Lazy
-    private MesCalShiftService shiftService;
+    private MesCalPlanShiftService planShiftService;
     @Resource
     @Lazy
     private MesCalPlanTeamService planTeamService;
@@ -48,7 +49,7 @@ public class MesCalPlanServiceImpl implements MesCalPlanService {
 
         // 3. 自动生成默认班次
         if (plan.getShiftType() != null) {
-            shiftService.addDefaultShift(plan.getId(), plan.getShiftType());
+            planShiftService.addDefaultPlanShift(plan.getId(), plan.getShiftType());
         }
         return plan.getId();
     }
@@ -56,6 +57,7 @@ public class MesCalPlanServiceImpl implements MesCalPlanService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void updatePlan(MesCalPlanSaveReqVO updateReqVO) {
+        // TODO @AI：需要校验下，plan 未确定；（确认后，不允许编辑）
         // 1.1 校验存在
         MesCalPlanDO existPlan = validatePlanExists(updateReqVO.getId());
         // 1.2 校验编码唯一
@@ -79,13 +81,13 @@ public class MesCalPlanServiceImpl implements MesCalPlanService {
         // 1.1 校验存在
         MesCalPlanDO plan = validatePlanExists(id);
         // 1.2 校验状态为草稿
-        // TODO @AI：notEquals 更好一点；
-        if (!MesCalPlanStatusEnum.PREPARE.getStatus().equals(plan.getStatus())) {
+        // TODO @AI：需要校验下，plan 未确定；（确认后，不允许编辑）【最好抽成一个方法，各个地方可以调用】
+        if (ObjUtil.notEqual(MesCalPlanStatusEnum.PREPARE.getStatus(), plan.getStatus())) {
             throw exception(CAL_PLAN_NOT_PREPARE);
         }
 
         // 2.1 级联删除班次 + 班组关联
-        shiftService.deleteShiftByPlanId(id);
+        planShiftService.deletePlanShiftByPlanId(id);
         planTeamService.deleteByPlanId(id);
         // 2.2 删除计划
         planMapper.deleteById(id);
@@ -124,13 +126,10 @@ public class MesCalPlanServiceImpl implements MesCalPlanService {
      */
     private void validateTeamCountForConfirm(Long planId, Integer shiftType) {
         Long teamCount = planTeamService.getPlanTeamCountByPlanId(planId);
-        // TODO @AI：startTime、endTime 可以放到枚举类里么？List<hutool Pair>；这样就可以判断数量；
-        if (MesCalShiftTypeEnum.TWO.getType().equals(shiftType) && teamCount < 2) {
-            throw exception(CAL_PLAN_TEAM_COUNT_NOT_MATCH);
-        } else if (MesCalShiftTypeEnum.THREE.getType().equals(shiftType) && teamCount < 3) {
+        MesCalShiftTypeEnum shiftTypeEnum = MesCalShiftTypeEnum.valueOf(shiftType);
+        if (teamCount < shiftTypeEnum.getRequiredTeamCount()) {
             throw exception(CAL_PLAN_TEAM_COUNT_NOT_MATCH);
         }
-        // TODO @AI：兜底下，其它，则抛出异常参数 IllegalArgumentException，提示不支持的轮班方式；
     }
 
 }

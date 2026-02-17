@@ -10,7 +10,7 @@ import lombok.ToString;
 @Data
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
-public class MesCalShiftPageReqVO extends PageParam {
+public class MesCalPlanShiftPageReqVO extends PageParam {
 
     @Schema(description = "排班计划编号", example = "1")
     private Long planId;

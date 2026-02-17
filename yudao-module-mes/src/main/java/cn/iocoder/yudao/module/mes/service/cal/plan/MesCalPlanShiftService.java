@@ -1,9 +1,9 @@
 package cn.iocoder.yudao.module.mes.service.cal.plan;
 
 import cn.iocoder.yudao.framework.common.pojo.PageResult;
-import cn.iocoder.yudao.module.mes.controller.admin.cal.plan.vo.shift.MesCalShiftPageReqVO;
-import cn.iocoder.yudao.module.mes.controller.admin.cal.plan.vo.shift.MesCalShiftSaveReqVO;
-import cn.iocoder.yudao.module.mes.dal.dataobject.cal.MesCalShiftDO;
+import cn.iocoder.yudao.module.mes.controller.admin.cal.plan.vo.shift.MesCalPlanShiftPageReqVO;
+import cn.iocoder.yudao.module.mes.controller.admin.cal.plan.vo.shift.MesCalPlanShiftSaveReqVO;
+import cn.iocoder.yudao.module.mes.dal.dataobject.cal.MesCalPlanShiftDO;
 import jakarta.validation.Valid;
 
 import java.util.List;
@@ -13,7 +13,7 @@ import java.util.List;
  *
  * @author 芋道源码
  */
-public interface MesCalShiftService {
+public interface MesCalPlanShiftService {
 
     /**
      * 创建计划班次
@@ -21,21 +21,21 @@ public interface MesCalShiftService {
      * @param createReqVO 创建信息
      * @return 编号
      */
-    Long createShift(@Valid MesCalShiftSaveReqVO createReqVO);
+    Long createPlanShift(@Valid MesCalPlanShiftSaveReqVO createReqVO);
 
     /**
      * 更新计划班次
      *
      * @param updateReqVO 更新信息
      */
-    void updateShift(@Valid MesCalShiftSaveReqVO updateReqVO);
+    void updatePlanShift(@Valid MesCalPlanShiftSaveReqVO updateReqVO);
 
     /**
      * 删除计划班次
      *
      * @param id 编号
      */
-    void deleteShift(Long id);
+    void deletePlanShift(Long id);
 
     /**
      * 获得计划班次
@@ -43,7 +43,7 @@ public interface MesCalShiftService {
      * @param id 编号
      * @return 计划班次
      */
-    MesCalShiftDO getShift(Long id);
+    MesCalPlanShiftDO getPlanShift(Long id);
 
     /**
      * 获得计划班次分页
@@ -51,7 +51,7 @@ public interface MesCalShiftService {
      * @param pageReqVO 分页查询
      * @return 计划班次分页
      */
-    PageResult<MesCalShiftDO> getShiftPage(MesCalShiftPageReqVO pageReqVO);
+    PageResult<MesCalPlanShiftDO> getPlanShiftPage(MesCalPlanShiftPageReqVO pageReqVO);
 
     /**
      * 获得指定排班计划的班次列表
@@ -59,7 +59,7 @@ public interface MesCalShiftService {
      * @param planId 排班计划编号
      * @return 班次列表
      */
-    List<MesCalShiftDO> getShiftListByPlanId(Long planId);
+    List<MesCalPlanShiftDO> getPlanShiftListByPlanId(Long planId);
 
     /**
      * 获得指定排班计划的班次数量
@@ -67,7 +67,7 @@ public interface MesCalShiftService {
      * @param planId 排班计划编号
      * @return 班次数量
      */
-    Long getShiftCountByPlanId(Long planId);
+    Long getPlanShiftCountByPlanId(Long planId);
 
     /**
      * 根据轮班方式添加默认班次
@@ -75,13 +75,13 @@ public interface MesCalShiftService {
      * @param planId    排班计划编号
      * @param shiftType 轮班方式
      */
-    void addDefaultShift(Long planId, Integer shiftType);
+    void addDefaultPlanShift(Long planId, Integer shiftType);
 
     /**
      * 根据排班计划编号删除所有班次
      *
      * @param planId 排班计划编号
      */
-    void deleteShiftByPlanId(Long planId);
+    void deletePlanShiftByPlanId(Long planId);
 
 }
