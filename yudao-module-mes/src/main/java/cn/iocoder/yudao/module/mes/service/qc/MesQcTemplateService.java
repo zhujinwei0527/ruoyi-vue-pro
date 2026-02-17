@@ -2,14 +2,15 @@ package cn.iocoder.yudao.module.mes.service.qc;
 
 import cn.iocoder.yudao.framework.common.pojo.PageResult;
 import cn.iocoder.yudao.module.mes.controller.admin.qc.template.vo.MesQcTemplatePageReqVO;
+import cn.iocoder.yudao.module.mes.controller.admin.qc.template.vo.MesQcTemplateRespVO;
 import cn.iocoder.yudao.module.mes.controller.admin.qc.template.vo.MesQcTemplateSaveReqVO;
 import cn.iocoder.yudao.module.mes.controller.admin.qc.template.vo.indicator.MesQcTemplateIndicatorPageReqVO;
+import cn.iocoder.yudao.module.mes.controller.admin.qc.template.vo.indicator.MesQcTemplateIndicatorRespVO;
 import cn.iocoder.yudao.module.mes.controller.admin.qc.template.vo.indicator.MesQcTemplateIndicatorSaveReqVO;
 import cn.iocoder.yudao.module.mes.controller.admin.qc.template.vo.item.MesQcTemplateItemPageReqVO;
+import cn.iocoder.yudao.module.mes.controller.admin.qc.template.vo.item.MesQcTemplateItemRespVO;
 import cn.iocoder.yudao.module.mes.controller.admin.qc.template.vo.item.MesQcTemplateItemSaveReqVO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.qc.MesQcTemplateDO;
-import cn.iocoder.yudao.module.mes.dal.dataobject.qc.MesQcTemplateIndicatorDO;
-import cn.iocoder.yudao.module.mes.dal.dataobject.qc.MesQcTemplateItemDO;
 import jakarta.validation.Valid;
 
 import java.util.Collection;
@@ -53,9 +54,9 @@ public interface MesQcTemplateService {
      * 获得质检方案
      *
      * @param id 编号
-     * @return 质检方案
+     * @return 质检方案 RespVO（含 types List、enableFlag Boolean）
      */
-    MesQcTemplateDO getTemplate(Long id);
+    MesQcTemplateRespVO getTemplate(Long id);
 
     /**
      * 获得质检方案分页
@@ -63,12 +64,12 @@ public interface MesQcTemplateService {
      * @param pageReqVO 分页查询
      * @return 质检方案分页
      */
-    PageResult<MesQcTemplateDO> getTemplatePage(MesQcTemplatePageReqVO pageReqVO);
+    PageResult<MesQcTemplateRespVO> getTemplatePage(MesQcTemplatePageReqVO pageReqVO);
 
     /**
      * 获得质检方案列表（用于下拉选择）
      *
-     * @return 质检方案列表
+     * @return 质检方案列表（DO，简单列表场景）
      */
     List<MesQcTemplateDO> getTemplateList();
 
@@ -118,17 +119,17 @@ public interface MesQcTemplateService {
      * 获得检测指标项
      *
      * @param id 编号
-     * @return 检测指标项
+     * @return 检测指标项（含 JOIN 的指标信息）
      */
-    MesQcTemplateIndicatorDO getTemplateIndicator(Long id);
+    MesQcTemplateIndicatorRespVO getTemplateIndicator(Long id);
 
     /**
      * 获得检测指标项分页
      *
      * @param pageReqVO 分页查询
-     * @return 检测指标项分页
+     * @return 检测指标项分页（含 JOIN 的指标信息）
      */
-    PageResult<MesQcTemplateIndicatorDO> getTemplateIndicatorPage(MesQcTemplateIndicatorPageReqVO pageReqVO);
+    PageResult<MesQcTemplateIndicatorRespVO> getTemplateIndicatorPage(MesQcTemplateIndicatorPageReqVO pageReqVO);
 
     // ========== 质检方案-产品关联 ==========
 
@@ -158,16 +159,16 @@ public interface MesQcTemplateService {
      * 获得产品关联
      *
      * @param id 编号
-     * @return 产品关联
+     * @return 产品关联（含 JOIN 的物料信息）
      */
-    MesQcTemplateItemDO getTemplateItem(Long id);
+    MesQcTemplateItemRespVO getTemplateItem(Long id);
 
     /**
      * 获得产品关联分页
      *
      * @param pageReqVO 分页查询
-     * @return 产品关联分页
+     * @return 产品关联分页（含 JOIN 的物料信息）
      */
-    PageResult<MesQcTemplateItemDO> getTemplateItemPage(MesQcTemplateItemPageReqVO pageReqVO);
+    PageResult<MesQcTemplateItemRespVO> getTemplateItemPage(MesQcTemplateItemPageReqVO pageReqVO);
 
 }
