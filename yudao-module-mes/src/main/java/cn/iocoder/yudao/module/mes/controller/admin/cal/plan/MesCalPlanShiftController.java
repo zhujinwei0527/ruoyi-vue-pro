@@ -1,11 +1,8 @@
 package cn.iocoder.yudao.module.mes.controller.admin.cal.plan;
 
-import cn.iocoder.yudao.framework.apilog.core.annotation.ApiAccessLog;
 import cn.iocoder.yudao.framework.common.pojo.CommonResult;
-import cn.iocoder.yudao.framework.common.pojo.PageParam;
 import cn.iocoder.yudao.framework.common.pojo.PageResult;
 import cn.iocoder.yudao.framework.common.util.object.BeanUtils;
-import cn.iocoder.yudao.framework.excel.core.util.ExcelUtils;
 import cn.iocoder.yudao.module.mes.controller.admin.cal.plan.vo.shift.MesCalPlanShiftPageReqVO;
 import cn.iocoder.yudao.module.mes.controller.admin.cal.plan.vo.shift.MesCalPlanShiftRespVO;
 import cn.iocoder.yudao.module.mes.controller.admin.cal.plan.vo.shift.MesCalPlanShiftSaveReqVO;
@@ -15,16 +12,13 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
-import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import java.io.IOException;
 import java.util.List;
 
-import static cn.iocoder.yudao.framework.apilog.core.enums.OperateTypeEnum.EXPORT;
 import static cn.iocoder.yudao.framework.common.pojo.CommonResult.success;
 
 @Tag(name = "管理后台 - MES 计划班次")
@@ -84,20 +78,6 @@ public class MesCalPlanShiftController {
     public CommonResult<List<MesCalPlanShiftRespVO>> getPlanShiftListByPlan(@RequestParam("planId") Long planId) {
         List<MesCalPlanShiftDO> list = planShiftService.getPlanShiftListByPlanId(planId);
         return success(BeanUtils.toBean(list, MesCalPlanShiftRespVO.class));
-    }
-
-// TODO @AI：是不是不要导出
-    @GetMapping("/export-excel")
-    @Operation(summary = "导出计划班次 Excel")
-    @PreAuthorize("@ss.hasPermission('mes:cal-plan:export')")
-    @ApiAccessLog(operateType = EXPORT)
-    public void exportPlanShiftExcel(@Valid MesCalPlanShiftPageReqVO pageReqVO,
-                                     HttpServletResponse response) throws IOException {
-        pageReqVO.setPageSize(PageParam.PAGE_SIZE_NONE);
-        List<MesCalPlanShiftDO> list = planShiftService.getPlanShiftPage(pageReqVO).getList();
-        // 导出 Excel
-        ExcelUtils.write(response, "计划班次.xls", "数据", MesCalPlanShiftRespVO.class,
-                BeanUtils.toBean(list, MesCalPlanShiftRespVO.class));
     }
 
 }
