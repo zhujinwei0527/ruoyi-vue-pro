@@ -5,6 +5,7 @@ import cn.iocoder.yudao.module.mes.controller.admin.cal.plan.vo.team.MesCalPlanT
 import cn.iocoder.yudao.module.mes.dal.dataobject.cal.MesCalPlanTeamDO;
 import cn.iocoder.yudao.module.mes.dal.mysql.cal.plan.MesCalPlanTeamMapper;
 import jakarta.annotation.Resource;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 
@@ -24,11 +25,15 @@ public class MesCalPlanTeamServiceImpl implements MesCalPlanTeamService {
 
     @Resource
     private MesCalPlanTeamMapper planTeamMapper;
+    @Resource
+    @Lazy
+    private MesCalPlanService planService;
 
     @Override
     public Long createPlanTeam(MesCalPlanTeamSaveReqVO createReqVO) {
-        // TODO @AI：需要校验下，plan 未确定；（确认后，不允许编辑）
-        // 校验排班计划存在
+        // 校验计划未确认
+        planService.validatePlanPrepare(createReqVO.getPlanId());
+        // 校验班组不重复
         validatePlanTeamDuplicate(createReqVO.getPlanId(), createReqVO.getTeamId());
 
         // 插入
@@ -39,17 +44,20 @@ public class MesCalPlanTeamServiceImpl implements MesCalPlanTeamService {
 
     @Override
     public void deletePlanTeam(Long id) {
-        // TODO @AI：需要校验下，plan 未确定；（确认后，不允许编辑）
         // 校验存在
-        validatePlanTeamExists(id);
+        MesCalPlanTeamDO existPlanTeam = validatePlanTeamExists(id);
+        // 校验计划未确认
+        planService.validatePlanPrepare(existPlanTeam.getPlanId());
         // 删除
         planTeamMapper.deleteById(id);
     }
 
-    private void validatePlanTeamExists(Long id) {
-        if (planTeamMapper.selectById(id) == null) {
+    private MesCalPlanTeamDO validatePlanTeamExists(Long id) {
+        MesCalPlanTeamDO planTeam = planTeamMapper.selectById(id);
+        if (planTeam == null) {
             throw exception(CAL_PLAN_TEAM_NOT_EXISTS);
         }
+        return planTeam;
     }
 
     private void validatePlanTeamDuplicate(Long planId, Long teamId) {
