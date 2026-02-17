@@ -1,0 +1,57 @@
+package cn.iocoder.yudao.module.mes.controller.admin.cal.plan;
+
+import cn.iocoder.yudao.framework.common.pojo.CommonResult;
+import cn.iocoder.yudao.framework.common.util.object.BeanUtils;
+import cn.iocoder.yudao.module.mes.controller.admin.cal.plan.vo.team.MesCalPlanTeamRespVO;
+import cn.iocoder.yudao.module.mes.controller.admin.cal.plan.vo.team.MesCalPlanTeamSaveReqVO;
+import cn.iocoder.yudao.module.mes.dal.dataobject.cal.MesCalPlanTeamDO;
+import cn.iocoder.yudao.module.mes.service.cal.plan.MesCalPlanTeamService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.annotation.Resource;
+import jakarta.validation.Valid;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+import static cn.iocoder.yudao.framework.common.pojo.CommonResult.success;
+
+@Tag(name = "管理后台 - MES 计划班组关联")
+@RestController
+@RequestMapping("/mes/cal/plan-team")
+@Validated
+public class MesCalPlanTeamController {
+
+    @Resource
+    private MesCalPlanTeamService planTeamService;
+
+    @PostMapping("/create")
+    @Operation(summary = "创建计划班组关联")
+    @PreAuthorize("@ss.hasPermission('mes:cal-plan:update')")
+    public CommonResult<Long> createPlanTeam(@Valid @RequestBody MesCalPlanTeamSaveReqVO createReqVO) {
+        return success(planTeamService.createPlanTeam(createReqVO));
+    }
+
+    @DeleteMapping("/delete")
+    @Operation(summary = "删除计划班组关联")
+    @Parameter(name = "id", description = "编号", required = true)
+    @PreAuthorize("@ss.hasPermission('mes:cal-plan:update')")
+    public CommonResult<Boolean> deletePlanTeam(@RequestParam("id") Long id) {
+        planTeamService.deletePlanTeam(id);
+        return success(true);
+    }
+
+    @GetMapping("/list-by-plan")
+    @Operation(summary = "获得指定排班计划的班组列表")
+    @Parameter(name = "planId", description = "排班计划编号", required = true)
+    @PreAuthorize("@ss.hasPermission('mes:cal-plan:query')")
+    public CommonResult<List<MesCalPlanTeamRespVO>> getPlanTeamListByPlan(@RequestParam("planId") Long planId) {
+        List<MesCalPlanTeamDO> list = planTeamService.getPlanTeamListByPlanId(planId);
+        // TODO @芋艿：拼装班组编码/名称，等 cal_team 迁移后对接
+        return success(BeanUtils.toBean(list, MesCalPlanTeamRespVO.class));
+    }
+
+}

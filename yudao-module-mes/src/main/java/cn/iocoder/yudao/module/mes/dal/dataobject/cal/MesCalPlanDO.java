@@ -1,0 +1,100 @@
+package cn.iocoder.yudao.module.mes.dal.dataobject.cal;
+
+import cn.iocoder.yudao.framework.mybatis.core.dataobject.BaseDO;
+import cn.iocoder.yudao.module.mes.enums.cal.MesCalPlanStatusEnum;
+import cn.iocoder.yudao.module.mes.enums.cal.MesCalShiftMethodEnum;
+import cn.iocoder.yudao.module.mes.enums.cal.MesCalShiftTypeEnum;
+import com.baomidou.mybatisplus.annotation.KeySequence;
+import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.TableName;
+import lombok.*;
+
+import java.time.LocalDateTime;
+
+/**
+ * MES 排班计划 DO
+ *
+ * @author 芋道源码
+ */
+@TableName("mes_cal_plan")
+@KeySequence("mes_cal_plan_seq")
+@Data
+@EqualsAndHashCode(callSuper = true)
+@ToString(callSuper = true)
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+public class MesCalPlanDO extends BaseDO {
+
+    /**
+     * 计划编号
+     */
+    @TableId
+    private Long id;
+    /**
+     * 计划编码
+     */
+    private String code;
+    /**
+     * 计划名称
+     */
+    private String name;
+    // TODO @AI：增加一个枚举值（类），好一点；
+    /**
+     * 班组类型
+     *
+     * 枚举 mes_cal_calendar_type（1=分组轮班, 2=固定班组）
+     */
+    private Integer calendarType;
+    /**
+     * 开始日期
+     */
+    private LocalDateTime startDate;
+    /**
+     * 结束日期
+     */
+    private LocalDateTime endDate;
+    /**
+     * 轮班方式
+     *
+     * 枚举 {@link MesCalShiftTypeEnum}
+     */
+    private Integer shiftType;
+    /**
+     * 倒班方式
+     *
+     * 枚举 {@link MesCalShiftMethodEnum}
+     */
+    private Integer shiftMethod;
+    /**
+     * 倒班天数
+     */
+    private Integer shiftCount;
+    /**
+     * 状态
+     *
+     * 枚举 {@link MesCalPlanStatusEnum}
+     */
+    private Integer status;
+    /**
+     * 备注
+     */
+    private String remark;
+    /**
+     * 预留字段1
+     */
+    private String attribute1;
+    /**
+     * 预留字段2
+     */
+    private String attribute2;
+    /**
+     * 预留字段3
+     */
+    private Integer attribute3;
+    /**
+     * 预留字段4
+     */
+    private Integer attribute4;
+
+}
