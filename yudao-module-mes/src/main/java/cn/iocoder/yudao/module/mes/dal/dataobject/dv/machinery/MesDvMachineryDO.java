@@ -56,11 +56,10 @@ public class MesDvMachineryDO extends BaseDO {
      * 关联 {@link cn.iocoder.yudao.module.mes.dal.dataobject.md.workstation.MesMdWorkshopDO#getId()}
      */
     private Long workshopId;
-    // TODO @AI：搞个枚举类，然后 @下；
     /**
      * 设备状态
      *
-     * 字典 mes_dv_machinery_status
+     * 枚举 {@link cn.iocoder.yudao.module.mes.enums.dv.MesDvMachineryStatusEnum}
      */
     private Integer status;
     /**
