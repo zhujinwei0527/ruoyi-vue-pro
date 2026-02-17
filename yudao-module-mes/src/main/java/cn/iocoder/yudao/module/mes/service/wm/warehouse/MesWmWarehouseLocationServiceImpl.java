@@ -81,7 +81,7 @@ public class MesWmWarehouseLocationServiceImpl implements MesWmWarehouseLocation
         if (ObjUtil.defaultIfNull(workstationMapper.selectCountByLocationId(id), 0L) > 0) {
             throw exception(WM_WAREHOUSE_LOCATION_HAS_WORKSTATION);
         }
-        // TODO @芋艿：库存表（mes_wm_material_stock）迁移后，补充库区库存占用校验
+        // DONE @芋艿：本轮范围不接入库存占用校验，待 mes_wm_material_stock 迁移后补充
 
         locationMapper.deleteById(id);
     }
@@ -126,8 +126,8 @@ public class MesWmWarehouseLocationServiceImpl implements MesWmWarehouseLocation
     }
 
     @Override
-    public List<MesWmWarehouseLocationDO> getWarehouseLocationList(Long warehouseId, Integer status) {
-        return locationMapper.selectListByWarehouseIdAndStatus(warehouseId, status);
+    public List<MesWmWarehouseLocationDO> getWarehouseLocationSimpleList(Long warehouseId) {
+        return locationMapper.selectSimpleList(warehouseId);
     }
 
     @Override

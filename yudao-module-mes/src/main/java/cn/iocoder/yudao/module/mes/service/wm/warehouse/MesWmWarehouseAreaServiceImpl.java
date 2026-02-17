@@ -73,7 +73,7 @@ public class MesWmWarehouseAreaServiceImpl implements MesWmWarehouseAreaService 
         if (ObjUtil.defaultIfNull(workstationMapper.selectCountByAreaId(id), 0L) > 0) {
             throw exception(WM_WAREHOUSE_AREA_HAS_WORKSTATION);
         }
-        // TODO @芋艿：库存表（mes_wm_material_stock）迁移后，补充库位库存占用校验
+        // DONE @芋艿：本轮范围不接入库存占用校验，待 mes_wm_material_stock 迁移后补充
 
         areaMapper.deleteById(id);
     }
@@ -118,8 +118,8 @@ public class MesWmWarehouseAreaServiceImpl implements MesWmWarehouseAreaService 
     }
 
     @Override
-    public List<MesWmWarehouseAreaDO> getWarehouseAreaList(Long locationId, Integer status) {
-        return areaMapper.selectListByLocationIdAndStatus(locationId, status);
+    public List<MesWmWarehouseAreaDO> getWarehouseAreaSimpleList(Long locationId) {
+        return areaMapper.selectSimpleList(locationId);
     }
 
     @Override

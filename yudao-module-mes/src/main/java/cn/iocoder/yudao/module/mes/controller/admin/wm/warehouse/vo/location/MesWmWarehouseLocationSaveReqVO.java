@@ -33,10 +33,6 @@ public class MesWmWarehouseLocationSaveReqVO {
     @NotNull(message = "是否启用库位管理不能为空")
     private Boolean areaEnabled;
 
-    @Schema(description = "状态", requiredMode = Schema.RequiredMode.REQUIRED, example = "0")
-    @NotNull(message = "状态不能为空")
-    private Integer status;
-
     @Schema(description = "是否冻结", requiredMode = Schema.RequiredMode.REQUIRED, example = "false")
     @NotNull(message = "是否冻结不能为空")
     private Boolean frozen;

@@ -21,13 +21,13 @@ public class MesWmWarehouseAreaPageReqVO extends PageParam {
     @Schema(description = "库区编号", example = "1")
     private Long locationId;
 
-    @Schema(description = "是否启用", example = "true")
-    private Boolean enabled;
+    @Schema(description = "位置 X", example = "1")
+    private Integer positionX;
 
-    @Schema(description = "状态", example = "0")
-    private Integer status;
+    @Schema(description = "位置 Y", example = "1")
+    private Integer positionY;
 
-    @Schema(description = "是否冻结", example = "false")
-    private Boolean frozen;
+    @Schema(description = "位置 Z", example = "1")
+    private Integer positionZ;
 
 }

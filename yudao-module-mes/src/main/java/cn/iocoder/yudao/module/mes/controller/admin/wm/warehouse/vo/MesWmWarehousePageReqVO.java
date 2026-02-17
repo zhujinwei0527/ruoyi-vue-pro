@@ -18,9 +18,6 @@ public class MesWmWarehousePageReqVO extends PageParam {
     @Schema(description = "仓库名称", example = "原料仓")
     private String name;
 
-    @Schema(description = "状态", example = "0")
-    private Integer status;
-
     @Schema(description = "是否冻结", example = "false")
     private Boolean frozen;
 

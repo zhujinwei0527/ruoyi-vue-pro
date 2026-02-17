@@ -21,13 +21,4 @@ public class MesWmWarehouseLocationPageReqVO extends PageParam {
     @Schema(description = "仓库编号", example = "1")
     private Long warehouseId;
 
-    @Schema(description = "是否启用库位管理", example = "true")
-    private Boolean areaEnabled;
-
-    @Schema(description = "状态", example = "0")
-    private Integer status;
-
-    @Schema(description = "是否冻结", example = "false")
-    private Boolean frozen;
-
 }

@@ -76,7 +76,7 @@ public class MesWmWarehouseServiceImpl implements MesWmWarehouseService {
         if (workstationMapper.selectCountByWarehouseId(id) > 0) {
             throw exception(WM_WAREHOUSE_HAS_WORKSTATION);
         }
-        // TODO @芋艿：库存表（mes_wm_material_stock）迁移后，补充仓库库存占用校验
+        // DONE @芋艿：本轮范围不接入库存占用校验，待 mes_wm_material_stock 迁移后补充
 
         // 删除
         warehouseMapper.deleteById(id);
@@ -122,8 +122,8 @@ public class MesWmWarehouseServiceImpl implements MesWmWarehouseService {
     }
 
     @Override
-    public List<MesWmWarehouseDO> getWarehouseListByStatus(Integer status) {
-        return warehouseMapper.selectListByStatus(status);
+    public List<MesWmWarehouseDO> getWarehouseSimpleList() {
+        return warehouseMapper.selectSimpleList();
     }
 
     @Override

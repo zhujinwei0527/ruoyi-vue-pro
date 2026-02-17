@@ -36,10 +36,6 @@ public class MesWmWarehouseRespVO {
     @Schema(description = "负责人用户编号", example = "1")
     private Long chargeUserId;
 
-    @Schema(description = "状态", requiredMode = Schema.RequiredMode.REQUIRED, example = "0")
-    @ExcelProperty("状态")
-    private Integer status;
-
     @Schema(description = "是否冻结", requiredMode = Schema.RequiredMode.REQUIRED, example = "false")
     @ExcelProperty("是否冻结")
     private Boolean frozen;

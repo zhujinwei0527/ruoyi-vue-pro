@@ -20,7 +20,6 @@ public interface MesWmWarehouseMapper extends BaseMapperX<MesWmWarehouseDO> {
         return selectPage(reqVO, new LambdaQueryWrapperX<MesWmWarehouseDO>()
                 .likeIfPresent(MesWmWarehouseDO::getCode, reqVO.getCode())
                 .likeIfPresent(MesWmWarehouseDO::getName, reqVO.getName())
-                .eqIfPresent(MesWmWarehouseDO::getStatus, reqVO.getStatus())
                 .eqIfPresent(MesWmWarehouseDO::getFrozen, reqVO.getFrozen())
                 .orderByDesc(MesWmWarehouseDO::getId));
     }
@@ -33,9 +32,8 @@ public interface MesWmWarehouseMapper extends BaseMapperX<MesWmWarehouseDO> {
         return selectOne(MesWmWarehouseDO::getName, name);
     }
 
-    default List<MesWmWarehouseDO> selectListByStatus(Integer status) {
+    default List<MesWmWarehouseDO> selectSimpleList() {
         return selectList(new LambdaQueryWrapperX<MesWmWarehouseDO>()
-                .eqIfPresent(MesWmWarehouseDO::getStatus, status)
                 .orderByDesc(MesWmWarehouseDO::getId));
     }
 

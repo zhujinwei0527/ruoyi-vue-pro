@@ -34,9 +34,10 @@ public class MesWmWarehouseLocationDO extends BaseDO {
      * 库区名称
      */
     private String name;
-    // TODO @AI：需要关联下 mes_wm_warehouse 表；
     /**
      * 仓库编号
+     *
+     * 关联 {@link MesWmWarehouseDO#getId()}
      */
     private Long warehouseId;
     /**
@@ -47,12 +48,6 @@ public class MesWmWarehouseLocationDO extends BaseDO {
      * 是否启用库位管理
      */
     private Boolean areaEnabled;
-    /**
-     * 状态
-     *
-     * 枚举 {@link cn.iocoder.yudao.framework.common.enums.CommonStatusEnum}
-     */
-    private Integer status;
     /**
      * 是否冻结
      */

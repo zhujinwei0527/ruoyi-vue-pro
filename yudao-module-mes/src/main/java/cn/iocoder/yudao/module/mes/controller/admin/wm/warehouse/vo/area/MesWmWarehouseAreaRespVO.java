@@ -47,25 +47,21 @@ public class MesWmWarehouseAreaRespVO {
     @ExcelProperty("最大载重")
     private BigDecimal maxLoad;
 
-    @Schema(description = "坐标 X", example = "1")
-    @ExcelProperty("坐标 X")
+    @Schema(description = "位置 X", example = "1")
+    @ExcelProperty("位置 X")
     private Integer positionX;
 
-    @Schema(description = "坐标 Y", example = "1")
-    @ExcelProperty("坐标 Y")
+    @Schema(description = "位置 Y", example = "1")
+    @ExcelProperty("位置 Y")
     private Integer positionY;
 
-    @Schema(description = "坐标 Z", example = "1")
-    @ExcelProperty("坐标 Z")
+    @Schema(description = "位置 Z", example = "1")
+    @ExcelProperty("位置 Z")
     private Integer positionZ;
 
     @Schema(description = "是否启用", requiredMode = Schema.RequiredMode.REQUIRED, example = "true")
     @ExcelProperty("是否启用")
     private Boolean enabled;
-
-    @Schema(description = "状态", requiredMode = Schema.RequiredMode.REQUIRED, example = "0")
-    @ExcelProperty("状态")
-    private Integer status;
 
     @Schema(description = "是否冻结", requiredMode = Schema.RequiredMode.REQUIRED, example = "false")
     @ExcelProperty("是否冻结")

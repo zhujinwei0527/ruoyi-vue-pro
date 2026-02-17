@@ -42,17 +42,12 @@ public class MesWmWarehouseDO extends BaseDO {
      * 面积
      */
     private BigDecimal area;
-    // TODO @AI：需要关联下 system_users 表；
     /**
      * 负责人用户编号
+     *
+     * 关联 system_users 表的 id 字段
      */
     private Long chargeUserId;
-    /**
-     * 状态
-     *
-     * 枚举 {@link cn.iocoder.yudao.framework.common.enums.CommonStatusEnum}
-     */
-    private Integer status;
     /**
      * 是否冻结
      */

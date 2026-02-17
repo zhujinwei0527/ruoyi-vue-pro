@@ -21,9 +21,9 @@ public interface MesWmWarehouseAreaMapper extends BaseMapperX<MesWmWarehouseArea
                 .likeIfPresent(MesWmWarehouseAreaDO::getCode, reqVO.getCode())
                 .likeIfPresent(MesWmWarehouseAreaDO::getName, reqVO.getName())
                 .eqIfPresent(MesWmWarehouseAreaDO::getLocationId, reqVO.getLocationId())
-                .eqIfPresent(MesWmWarehouseAreaDO::getEnabled, reqVO.getEnabled())
-                .eqIfPresent(MesWmWarehouseAreaDO::getStatus, reqVO.getStatus())
-                .eqIfPresent(MesWmWarehouseAreaDO::getFrozen, reqVO.getFrozen())
+                .eqIfPresent(MesWmWarehouseAreaDO::getPositionX, reqVO.getPositionX())
+                .eqIfPresent(MesWmWarehouseAreaDO::getPositionY, reqVO.getPositionY())
+                .eqIfPresent(MesWmWarehouseAreaDO::getPositionZ, reqVO.getPositionZ())
                 .orderByDesc(MesWmWarehouseAreaDO::getId));
     }
 
@@ -39,10 +39,9 @@ public interface MesWmWarehouseAreaMapper extends BaseMapperX<MesWmWarehouseArea
                 .eq(MesWmWarehouseAreaDO::getName, name));
     }
 
-    default List<MesWmWarehouseAreaDO> selectListByLocationIdAndStatus(Long locationId, Integer status) {
+    default List<MesWmWarehouseAreaDO> selectSimpleList(Long locationId) {
         return selectList(new LambdaQueryWrapperX<MesWmWarehouseAreaDO>()
                 .eqIfPresent(MesWmWarehouseAreaDO::getLocationId, locationId)
-                .eqIfPresent(MesWmWarehouseAreaDO::getStatus, status)
                 .orderByDesc(MesWmWarehouseAreaDO::getId));
     }
 
