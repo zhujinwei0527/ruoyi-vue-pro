@@ -1,44 +1,46 @@
-package cn.iocoder.yudao.module.mes.dal.dataobject.cal.plan;
+package cn.iocoder.yudao.module.mes.dal.dataobject.cal.team;
 
 import cn.iocoder.yudao.framework.mybatis.core.dataobject.BaseDO;
-import cn.iocoder.yudao.module.mes.dal.dataobject.cal.team.MesCalTeamDO;
+import cn.iocoder.yudao.module.mes.enums.cal.MesCalCalendarTypeEnum;
 import com.baomidou.mybatisplus.annotation.KeySequence;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.*;
 
 /**
- * MES 计划班组关联 DO
+ * MES 班组 DO
  *
  * @author 芋道源码
  */
-@TableName("mes_cal_plan_team")
-@KeySequence("mes_cal_plan_team_seq")
+@TableName("mes_cal_team")
+@KeySequence("mes_cal_team_seq")
 @Data
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class MesCalPlanTeamDO extends BaseDO {
+public class MesCalTeamDO extends BaseDO {
 
     /**
-     * 编号
+     * 班组编号
      */
     @TableId
     private Long id;
     /**
-     * 排班计划编号
-     *
-     * 关联 {@link MesCalPlanDO#getId()}
+     * 班组编码
      */
-    private Long planId;
+    private String code;
     /**
-     * 班组编号
-     *
-     * 关联 {@link MesCalTeamDO#getId()}
+     * 班组名称
      */
-    private Long teamId;
+    private String name;
+    /**
+     * 班组类型
+     *
+     * 枚举 {@link MesCalCalendarTypeEnum}
+     */
+    private Integer calendarType;
     /**
      * 备注
      */

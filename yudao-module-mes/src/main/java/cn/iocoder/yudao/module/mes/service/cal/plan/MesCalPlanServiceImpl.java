@@ -8,6 +8,7 @@ import cn.iocoder.yudao.module.mes.dal.dataobject.cal.plan.MesCalPlanDO;
 import cn.iocoder.yudao.module.mes.dal.mysql.cal.plan.MesCalPlanMapper;
 import cn.iocoder.yudao.module.mes.enums.cal.MesCalPlanStatusEnum;
 import cn.iocoder.yudao.module.mes.enums.cal.MesCalShiftTypeEnum;
+import cn.iocoder.yudao.module.mes.service.cal.team.MesCalTeamShiftService;
 import cn.hutool.core.util.ObjUtil;
 import jakarta.annotation.Resource;
 import org.springframework.context.annotation.Lazy;
@@ -35,6 +36,9 @@ public class MesCalPlanServiceImpl implements MesCalPlanService {
     @Resource
     @Lazy
     private MesCalPlanTeamService planTeamService;
+    @Resource
+    @Lazy
+    private MesCalTeamShiftService teamShiftService;
 
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -85,7 +89,10 @@ public class MesCalPlanServiceImpl implements MesCalPlanService {
         updateObj.setId(id);
         updateObj.setStatus(MesCalPlanStatusEnum.CONFIRMED.getStatus());
         planMapper.updateById(updateObj);
-        // TODO @芋艿：确认时调用 calTeamshiftService.genRecords(planId) 生成排班记录，等 cal_team_shift 迁移后
+
+        // 3. 生成班组排班记录
+        // TODO @AI：方法名，不要缩写；
+        teamShiftService.genRecords(id);
     }
 
     @Override

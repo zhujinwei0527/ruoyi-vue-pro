@@ -18,11 +18,9 @@ public class MesCalPlanTeamRespVO {
     @Schema(description = "班组编号", requiredMode = Schema.RequiredMode.REQUIRED, example = "1")
     private Long teamId;
 
-    // TODO @芋艿：等 cal_team 迁移后，通过 teamId 关联查询填充
     @Schema(description = "班组编码", example = "T001")
     private String teamCode;
 
-    // TODO @芋艿：等 cal_team 迁移后，通过 teamId 关联查询填充
     @Schema(description = "班组名称", example = "A组")
     private String teamName;
 

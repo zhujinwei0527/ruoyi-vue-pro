@@ -1,11 +1,15 @@
 package cn.iocoder.yudao.module.mes.controller.admin.cal.plan;
 
+import cn.hutool.core.collection.CollUtil;
 import cn.iocoder.yudao.framework.common.pojo.CommonResult;
+import cn.iocoder.yudao.framework.common.util.collection.CollectionUtils;
 import cn.iocoder.yudao.framework.common.util.object.BeanUtils;
 import cn.iocoder.yudao.module.mes.controller.admin.cal.plan.vo.team.MesCalPlanTeamRespVO;
 import cn.iocoder.yudao.module.mes.controller.admin.cal.plan.vo.team.MesCalPlanTeamSaveReqVO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.cal.plan.MesCalPlanTeamDO;
+import cn.iocoder.yudao.module.mes.dal.dataobject.cal.team.MesCalTeamDO;
 import cn.iocoder.yudao.module.mes.service.cal.plan.MesCalPlanTeamService;
+import cn.iocoder.yudao.module.mes.service.cal.team.MesCalTeamService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -16,6 +20,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 import static cn.iocoder.yudao.framework.common.pojo.CommonResult.success;
 
@@ -27,6 +32,8 @@ public class MesCalPlanTeamController {
 
     @Resource
     private MesCalPlanTeamService planTeamService;
+    @Resource
+    private MesCalTeamService teamService;
 
     @PostMapping("/create")
     @Operation(summary = "创建计划班组关联")
@@ -50,8 +57,22 @@ public class MesCalPlanTeamController {
     @PreAuthorize("@ss.hasPermission('mes:cal-plan:query')")
     public CommonResult<List<MesCalPlanTeamRespVO>> getPlanTeamListByPlan(@RequestParam("planId") Long planId) {
         List<MesCalPlanTeamDO> list = planTeamService.getPlanTeamListByPlanId(planId);
-        // TODO @芋艿：拼装班组编码/名称，等 cal_team 迁移后对接
-        return success(BeanUtils.toBean(list, MesCalPlanTeamRespVO.class));
+        List<MesCalPlanTeamRespVO> respList = BeanUtils.toBean(list, MesCalPlanTeamRespVO.class);
+        // 拼装班组编码/名称
+        if (CollUtil.isNotEmpty(respList)) {
+            // TODO @AI：teamService.getTeamMap(ids)，里面调用 teamService.getTeamList(ids)
+            List<Long> teamIds = CollectionUtils.convertList(respList, MesCalPlanTeamRespVO::getTeamId);
+            Map<Long, MesCalTeamDO> teamMap = CollectionUtils.convertMap(
+                    teamService.getTeamList(), MesCalTeamDO::getId);
+            respList.forEach(resp -> {
+                MesCalTeamDO team = teamMap.get(resp.getTeamId());
+                if (team != null) {
+                    resp.setTeamCode(team.getCode());
+                    resp.setTeamName(team.getName());
+                }
+            });
+        }
+        return success(respList);
     }
 
 }
