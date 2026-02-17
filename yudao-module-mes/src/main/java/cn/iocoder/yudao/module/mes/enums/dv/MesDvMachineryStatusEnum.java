@@ -15,9 +15,9 @@ import java.util.Arrays;
 @AllArgsConstructor
 public enum MesDvMachineryStatusEnum implements ArrayValuable<Integer> {
 
-    RUNNING(1, "运行中"),
-    STOP(2, "停机"),
-    FAULT(3, "故障");
+    STOP(1, "停机"),
+    PRODUCING(2, "生产中"),
+    MAINTENANCE(3, "维护中");
 
     public static final Integer[] ARRAYS = Arrays.stream(values()).map(MesDvMachineryStatusEnum::getStatus).toArray(Integer[]::new);
 

@@ -152,6 +152,8 @@ public interface ErrorCodeConstants {
 
     // ========== MES 质量管理-缺陷类型（1-040-602-000） ==========
     ErrorCode QC_DEFECT_NOT_EXISTS = new ErrorCode(1_040_602_000, "缺陷类型不存在");
+    ErrorCode QC_DEFECT_CODE_DUPLICATE = new ErrorCode(1_040_602_001, "缺陷类型编码已存在");
+    ErrorCode QC_DEFECT_NAME_DUPLICATE = new ErrorCode(1_040_602_002, "缺陷类型名称已存在");
 
     // ========== MES 仓库管理-仓库（1-040-700-000） ==========
     ErrorCode WM_WAREHOUSE_NOT_EXISTS = new ErrorCode(1_040_700_000, "仓库不存在");

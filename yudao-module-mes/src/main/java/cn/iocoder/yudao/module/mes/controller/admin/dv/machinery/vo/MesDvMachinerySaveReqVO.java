@@ -5,6 +5,8 @@ import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
+import java.time.LocalDateTime;
+
 @Schema(description = "管理后台 - MES 设备台账新增/修改 Request VO")
 @Data
 public class MesDvMachinerySaveReqVO {
@@ -37,6 +39,12 @@ public class MesDvMachinerySaveReqVO {
     @Schema(description = "设备状态", requiredMode = Schema.RequiredMode.REQUIRED, example = "1")
     @NotNull(message = "设备状态不能为空")
     private Integer status;
+
+    @Schema(description = "最近保养时间")
+    private LocalDateTime lastMaintenTime;
+
+    @Schema(description = "最近点检时间")
+    private LocalDateTime lastCheckTime;
 
     @Schema(description = "备注", example = "备注")
     private String remark;

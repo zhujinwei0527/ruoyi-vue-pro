@@ -17,5 +17,7 @@ public interface DictTypeConstants {
     String MES_CAL_CALENDAR_TYPE = "mes_cal_calendar_type"; // MES 班组类型
     String MES_CAL_PLAN_STATUS = "mes_cal_plan_status"; // MES 排班计划状态
     String MES_DV_MACHINERY_STATUS = "mes_dv_machinery_status"; // MES 设备状态
+    String MES_INDEX_TYPE = "mes_index_type"; // MES 检测项类型
+    String MES_DEFECT_LEVEL = "mes_defect_level"; // MES 缺陷等级
 
 }

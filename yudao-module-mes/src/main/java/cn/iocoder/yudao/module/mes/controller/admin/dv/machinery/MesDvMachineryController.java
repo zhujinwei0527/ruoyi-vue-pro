@@ -84,9 +84,7 @@ public class MesDvMachineryController {
         if (machinery == null) {
             return success(null);
         }
-        // 复用 buildMachineryRespVOList 拼接设备类型名称和车间名称
-        List<MesDvMachineryRespVO> list = buildMachineryRespVOList(Collections.singletonList(machinery));
-        return success(list.get(0));
+        return success(buildMachineryRespVOList(Collections.singletonList(machinery)).get(0));
     }
 
     @GetMapping("/page")
