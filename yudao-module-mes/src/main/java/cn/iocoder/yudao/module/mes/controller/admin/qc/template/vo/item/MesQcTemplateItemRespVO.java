@@ -21,25 +21,21 @@ public class MesQcTemplateItemRespVO {
     private Long templateId;
 
     @Schema(description = "产品物料ID", requiredMode = Schema.RequiredMode.REQUIRED, example = "1")
-    @ExcelProperty("产品物料ID")
     private Long itemId;
 
     @Schema(description = "最低检测数", example = "5")
     @ExcelProperty("最低检测数")
     private Integer quantityCheck;
 
-    // TODO @AI：VO 里，（0=不启用） 去掉
-    @Schema(description = "最大不合格数（0=不启用）", example = "0")
+    @Schema(description = "最大不合格数", example = "0")
     @ExcelProperty("最大不合格数")
     private Integer quantityUnqualified;
 
-    // TODO @AI：VO 里，（0=不允许） 去掉
-    @Schema(description = "最大致命缺陷率（%，0=不允许）", example = "0")
+    @Schema(description = "最大致命缺陷率（%）", example = "0")
     @ExcelProperty("致命缺陷率%")
     private BigDecimal criticalRate;
 
-    // TODO @AI：VO 里，（0=不允许） 去掉
-    @Schema(description = "最大严重缺陷率（%，0=不允许）", example = "0")
+    @Schema(description = "最大严重缺陷率（%）", example = "0")
     @ExcelProperty("严重缺陷率%")
     private BigDecimal majorRate;
 
@@ -54,5 +50,23 @@ public class MesQcTemplateItemRespVO {
     @Schema(description = "创建时间", requiredMode = Schema.RequiredMode.REQUIRED)
     @ExcelProperty("创建时间")
     private LocalDateTime createTime;
+
+    // ========== JOIN mes_md_item ==========
+
+    @Schema(description = "物料编码", example = "ITEM001")
+    @ExcelProperty("物料编码")
+    private String itemCode;
+
+    @Schema(description = "物料名称", example = "螺丝")
+    @ExcelProperty("物料名称")
+    private String itemName;
+
+    @Schema(description = "规格型号", example = "M3x10")
+    @ExcelProperty("规格型号")
+    private String specification;
+
+    @Schema(description = "计量单位名称", example = "个")
+    @ExcelProperty("计量单位")
+    private String unitMeasureName;
 
 }

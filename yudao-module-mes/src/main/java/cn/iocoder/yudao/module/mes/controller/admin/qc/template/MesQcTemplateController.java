@@ -16,8 +16,6 @@ import cn.iocoder.yudao.module.mes.controller.admin.qc.template.vo.item.MesQcTem
 import cn.iocoder.yudao.module.mes.controller.admin.qc.template.vo.item.MesQcTemplateItemRespVO;
 import cn.iocoder.yudao.module.mes.controller.admin.qc.template.vo.item.MesQcTemplateItemSaveReqVO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.qc.MesQcTemplateDO;
-import cn.iocoder.yudao.module.mes.dal.dataobject.qc.MesQcTemplateIndicatorDO;
-import cn.iocoder.yudao.module.mes.dal.dataobject.qc.MesQcTemplateItemDO;
 import cn.iocoder.yudao.module.mes.service.qc.MesQcTemplateService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -75,16 +73,16 @@ public class MesQcTemplateController {
     @Parameter(name = "id", description = "编号", required = true, example = "1024")
     @PreAuthorize("@ss.hasPermission('mes:qc-template:query')")
     public CommonResult<MesQcTemplateRespVO> getTemplate(@RequestParam("id") Long id) {
-        MesQcTemplateDO template = templateService.getTemplate(id);
-        return success(BeanUtils.toBean(template, MesQcTemplateRespVO.class));
+        // TODO @AI：service 只返回 do；数据拼接放在 controller 里；
+        return success(templateService.getTemplate(id));
     }
 
     @GetMapping("/page")
     @Operation(summary = "获得质检方案分页")
     @PreAuthorize("@ss.hasPermission('mes:qc-template:query')")
     public CommonResult<PageResult<MesQcTemplateRespVO>> getTemplatePage(@Valid MesQcTemplatePageReqVO pageReqVO) {
-        PageResult<MesQcTemplateDO> pageResult = templateService.getTemplatePage(pageReqVO);
-        return success(BeanUtils.toBean(pageResult, MesQcTemplateRespVO.class));
+        // TODO @AI：service 只返回 do；数据拼接放在 controller 里；
+        return success(templateService.getTemplatePage(pageReqVO));
     }
 
     @GetMapping("/simple-list")
@@ -101,9 +99,9 @@ public class MesQcTemplateController {
     public void exportTemplateExcel(@Valid MesQcTemplatePageReqVO pageReqVO,
                                     HttpServletResponse response) throws IOException {
         pageReqVO.setPageSize(PageParam.PAGE_SIZE_NONE);
-        List<MesQcTemplateDO> list = templateService.getTemplatePage(pageReqVO).getList();
-        ExcelUtils.write(response, "质检方案.xls", "数据", MesQcTemplateRespVO.class,
-                BeanUtils.toBean(list, MesQcTemplateRespVO.class));
+        List<MesQcTemplateRespVO> list = templateService.getTemplatePage(pageReqVO).getList();
+        // TODO @AI：service 只返回 do；数据拼接放在 controller 里；
+        ExcelUtils.write(response, "质检方案.xls", "数据", MesQcTemplateRespVO.class, list);
     }
 
     // ========== 质检方案-检测指标项 ==========
@@ -139,8 +137,8 @@ public class MesQcTemplateController {
     @Parameter(name = "id", description = "编号", required = true, example = "1024")
     @PreAuthorize("@ss.hasPermission('mes:qc-template:query')")
     public CommonResult<MesQcTemplateIndicatorRespVO> getTemplateIndicator(@RequestParam("id") Long id) {
-        MesQcTemplateIndicatorDO indicator = templateService.getTemplateIndicator(id);
-        return success(BeanUtils.toBean(indicator, MesQcTemplateIndicatorRespVO.class));
+        // TODO @AI：service 只返回 do；数据拼接放在 controller 里；
+        return success(templateService.getTemplateIndicator(id));
     }
 
     @GetMapping("/indicator/page")
@@ -148,8 +146,8 @@ public class MesQcTemplateController {
     @PreAuthorize("@ss.hasPermission('mes:qc-template:query')")
     public CommonResult<PageResult<MesQcTemplateIndicatorRespVO>> getTemplateIndicatorPage(
             @Valid MesQcTemplateIndicatorPageReqVO pageReqVO) {
-        PageResult<MesQcTemplateIndicatorDO> pageResult = templateService.getTemplateIndicatorPage(pageReqVO);
-        return success(BeanUtils.toBean(pageResult, MesQcTemplateIndicatorRespVO.class));
+        // TODO @AI：service 只返回 do；数据拼接放在 controller 里；
+        return success(templateService.getTemplateIndicatorPage(pageReqVO));
     }
 
     // ========== 质检方案-产品关联 ==========
@@ -185,8 +183,8 @@ public class MesQcTemplateController {
     @Parameter(name = "id", description = "编号", required = true, example = "1024")
     @PreAuthorize("@ss.hasPermission('mes:qc-template:query')")
     public CommonResult<MesQcTemplateItemRespVO> getTemplateItem(@RequestParam("id") Long id) {
-        MesQcTemplateItemDO item = templateService.getTemplateItem(id);
-        return success(BeanUtils.toBean(item, MesQcTemplateItemRespVO.class));
+        // TODO @AI：service 只返回 do；数据拼接放在 controller 里；
+        return success(templateService.getTemplateItem(id));
     }
 
     @GetMapping("/item/page")
@@ -194,8 +192,8 @@ public class MesQcTemplateController {
     @PreAuthorize("@ss.hasPermission('mes:qc-template:query')")
     public CommonResult<PageResult<MesQcTemplateItemRespVO>> getTemplateItemPage(
             @Valid MesQcTemplateItemPageReqVO pageReqVO) {
-        PageResult<MesQcTemplateItemDO> pageResult = templateService.getTemplateItemPage(pageReqVO);
-        return success(BeanUtils.toBean(pageResult, MesQcTemplateItemRespVO.class));
+        // TODO @AI：service 只返回 do；数据拼接放在 controller 里；
+        return success(templateService.getTemplateItemPage(pageReqVO));
     }
 
 }

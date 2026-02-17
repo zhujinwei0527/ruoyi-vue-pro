@@ -21,10 +21,9 @@ public class MesQcTemplateIndicatorRespVO {
     private Long templateId;
 
     @Schema(description = "质检指标ID", requiredMode = Schema.RequiredMode.REQUIRED, example = "1")
-    @ExcelProperty("质检指标ID")
     private Long indicatorId;
 
-    @Schema(description = "检测方法/检测要求", example = "目视检查外观")
+    @Schema(description = "检测方法", example = "目视检查外观")
     @ExcelProperty("检测方法")
     private String checkMethod;
 
@@ -54,5 +53,23 @@ public class MesQcTemplateIndicatorRespVO {
     @Schema(description = "创建时间", requiredMode = Schema.RequiredMode.REQUIRED)
     @ExcelProperty("创建时间")
     private LocalDateTime createTime;
+
+    // ========== JOIN mes_qc_indicator ==========
+
+    @Schema(description = "检测项编码", example = "QI001")
+    @ExcelProperty("检测项编码")
+    private String indicatorCode;
+
+    @Schema(description = "检测项名称", example = "长度")
+    @ExcelProperty("检测项名称")
+    private String indicatorName;
+
+    @Schema(description = "检测项类型（字典 mes_index_type）", example = "SIZE")
+    @ExcelProperty("检测项类型")
+    private String indicatorType;
+
+    @Schema(description = "检测工具", example = "卡尺")
+    @ExcelProperty("检测工具")
+    private String indicatorTool;
 
 }

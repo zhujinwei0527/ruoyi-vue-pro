@@ -6,6 +6,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Schema(description = "管理后台 - MES 质检方案 Response VO")
 @Data
@@ -24,15 +25,13 @@ public class MesQcTemplateRespVO {
     @ExcelProperty("方案名称")
     private String name;
 
-    // TODO @AI：会用 List<String>；这里不用 （逗号分隔：IQC,IPQC,OQC,RQC） 注释；
-    @Schema(description = "检测种类（逗号分隔：IQC,IPQC,OQC,RQC）", requiredMode = Schema.RequiredMode.REQUIRED, example = "IQC,OQC")
+    @Schema(description = "检测种类", requiredMode = Schema.RequiredMode.REQUIRED, example = "[1, 3]")
     @ExcelProperty("检测种类")
-    private String types;
+    private List<Integer> types;
 
-    // TODO @AI：Boolean；
-    @Schema(description = "是否启用（Y/N）", requiredMode = Schema.RequiredMode.REQUIRED, example = "Y")
+    @Schema(description = "是否启用", requiredMode = Schema.RequiredMode.REQUIRED, example = "true")
     @ExcelProperty("是否启用")
-    private String enableFlag;
+    private Boolean enableFlag;
 
     @Schema(description = "备注", example = "备注")
     @ExcelProperty("备注")

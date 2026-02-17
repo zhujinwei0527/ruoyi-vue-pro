@@ -6,6 +6,8 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
+import java.util.List;
+
 @Schema(description = "管理后台 - MES 质检方案分页 Request VO")
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -18,12 +20,10 @@ public class MesQcTemplatePageReqVO extends PageParam {
     @Schema(description = "方案名称", example = "出货检验")
     private String name;
 
-    // TODO @AI：会用 List<String>
-    @Schema(description = "检测种类（模糊匹配）", example = "IQC")
-    private String types;
+    @Schema(description = "检测种类", example = "[1, 3]")
+    private List<Integer> types;
 
-    // TODO @AI：使用 Boolean；
-    @Schema(description = "是否启用（Y/N）", example = "Y")
-    private String enableFlag;
+    @Schema(description = "是否启用", example = "true")
+    private Boolean enableFlag;
 
 }

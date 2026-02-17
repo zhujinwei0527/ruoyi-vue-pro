@@ -87,6 +87,12 @@ public interface ErrorCodeConstants {
 
     // ========== MES 日历排班-班组（1-040-201-000） ==========
     ErrorCode CAL_TEAM_NOT_EXISTS = new ErrorCode(1_040_201_000, "班组不存在");
+    ErrorCode CAL_TEAM_CODE_DUPLICATE = new ErrorCode(1_040_201_001, "班组编码已存在");
+    // ========== MES 日历排班-班组成员（1-040-201-100） ==========
+    ErrorCode CAL_TEAM_MEMBER_NOT_EXISTS = new ErrorCode(1_040_201_100, "班组成员不存在");
+    ErrorCode CAL_TEAM_MEMBER_USER_DUPLICATE = new ErrorCode(1_040_201_101, "该用户已分配到其他班组");
+    // ========== MES 日历排班-班组排班（1-040-201-200） ==========
+    ErrorCode CAL_TEAM_SHIFT_NOT_EXISTS = new ErrorCode(1_040_201_200, "班组排班记录不存在");
 
     // ========== MES 日历排班-排班计划（1-040-202-000） ==========
     ErrorCode CAL_PLAN_NOT_EXISTS = new ErrorCode(1_040_202_000, "排班计划不存在");
@@ -132,15 +138,16 @@ public interface ErrorCodeConstants {
 
     // ========== MES 生产管理-工序（1-040-500-000） ==========
     ErrorCode PRO_PROCESS_NOT_EXISTS = new ErrorCode(1_040_500_000, "工序不存在");
+    ErrorCode PRO_PROCESS_CODE_EXISTS = new ErrorCode(1_040_500_001, "工序编码已存在");
 
     // ========== MES 生产管理-工艺路线（1-040-501-000） ==========
     ErrorCode PRO_ROUTE_NOT_EXISTS = new ErrorCode(1_040_501_000, "工艺路线不存在");
 
     // ========== MES 生产管理-生产工单（1-040-502-000） ==========
-    ErrorCode PRO_WORKORDER_NOT_EXISTS = new ErrorCode(1_040_502_000, "生产工单不存在");
-    ErrorCode PRO_WORKORDER_CODE_DUPLICATE = new ErrorCode(1_040_502_001, "生产工单编码已存在");
-    ErrorCode PRO_WORKORDER_NOT_PREPARE = new ErrorCode(1_040_502_002, "只能删除草稿状态的工单");
-    ErrorCode PRO_WORKORDER_BOM_NOT_EXISTS = new ErrorCode(1_040_502_100, "生产工单BOM不存在");
+    ErrorCode PRO_WORK_ORDER_NOT_EXISTS = new ErrorCode(1_040_502_000, "生产工单不存在");
+    ErrorCode PRO_WORK_ORDER_CODE_DUPLICATE = new ErrorCode(1_040_502_001, "生产工单编码已存在");
+    ErrorCode PRO_WORK_ORDER_NOT_PREPARE = new ErrorCode(1_040_502_002, "只能删除草稿状态的工单");
+    ErrorCode PRO_WORK_ORDER_BOM_NOT_EXISTS = new ErrorCode(1_040_502_100, "生产工单BOM不存在");
 
     // ========== MES 生产管理-生产任务（1-040-503-000） ==========
     ErrorCode PRO_TASK_NOT_EXISTS = new ErrorCode(1_040_503_000, "生产任务不存在");
@@ -166,14 +173,33 @@ public interface ErrorCodeConstants {
 
     // ========== MES 仓库管理-仓库（1-040-700-000） ==========
     ErrorCode WM_WAREHOUSE_NOT_EXISTS = new ErrorCode(1_040_700_000, "仓库不存在");
+    ErrorCode WM_WAREHOUSE_CODE_DUPLICATE = new ErrorCode(1_040_700_001, "仓库编码已存在");
+    ErrorCode WM_WAREHOUSE_NAME_DUPLICATE = new ErrorCode(1_040_700_002, "仓库名称已存在");
+    ErrorCode WM_WAREHOUSE_HAS_LOCATION = new ErrorCode(1_040_700_003, "仓库下存在库区，无法删除");
+    ErrorCode WM_WAREHOUSE_HAS_WORKSTATION = new ErrorCode(1_040_700_004, "仓库已被工作站引用，无法删除");
 
     // ========== MES 仓库管理-库区（1-040-701-000） ==========
-    ErrorCode WM_STORAGE_AREA_NOT_EXISTS = new ErrorCode(1_040_701_000, "库区不存在");
+    ErrorCode WM_WAREHOUSE_LOCATION_NOT_EXISTS = new ErrorCode(1_040_701_000, "库区不存在");
+    ErrorCode WM_WAREHOUSE_LOCATION_CODE_DUPLICATE = new ErrorCode(1_040_701_001, "同一仓库下库区编码已存在");
+    ErrorCode WM_WAREHOUSE_LOCATION_NAME_DUPLICATE = new ErrorCode(1_040_701_002, "同一仓库下库区名称已存在");
+    ErrorCode WM_WAREHOUSE_LOCATION_HAS_AREA = new ErrorCode(1_040_701_003, "库区下存在库位，无法删除");
+    ErrorCode WM_WAREHOUSE_LOCATION_HAS_WORKSTATION = new ErrorCode(1_040_701_004, "库区已被工作站引用，无法删除");
+    ErrorCode WM_WAREHOUSE_REQUIRED = new ErrorCode(1_040_701_005, "选择库区时，仓库不能为空");
+    ErrorCode WM_WAREHOUSE_LOCATION_RELATION_INVALID = new ErrorCode(1_040_701_006, "库区不属于所选仓库");
 
     // ========== MES 仓库管理-库位（1-040-702-000） ==========
-    ErrorCode WM_STORAGE_LOCATION_NOT_EXISTS = new ErrorCode(1_040_702_000, "库位不存在");
+    ErrorCode WM_WAREHOUSE_AREA_NOT_EXISTS = new ErrorCode(1_040_702_000, "库位不存在");
+    ErrorCode WM_WAREHOUSE_AREA_CODE_DUPLICATE = new ErrorCode(1_040_702_001, "同一库区下库位编码已存在");
+    ErrorCode WM_WAREHOUSE_AREA_NAME_DUPLICATE = new ErrorCode(1_040_702_002, "同一库区下库位名称已存在");
+    ErrorCode WM_WAREHOUSE_AREA_HAS_WORKSTATION = new ErrorCode(1_040_702_003, "库位已被工作站引用，无法删除");
+    ErrorCode WM_WAREHOUSE_LOCATION_REQUIRED = new ErrorCode(1_040_702_004, "选择库位时，库区不能为空");
+    ErrorCode WM_WAREHOUSE_AREA_RELATION_INVALID = new ErrorCode(1_040_702_005, "库位不属于所选库区");
 
     // ========== MES 仓库管理-库存（1-040-703-000） ==========
     ErrorCode WM_MATERIAL_STOCK_NOT_EXISTS = new ErrorCode(1_040_703_000, "库存记录不存在");
+
+    // ========== 兼容旧命名（storage_area=库区，storage_location=库位） ==========
+    ErrorCode WM_STORAGE_AREA_NOT_EXISTS = WM_WAREHOUSE_LOCATION_NOT_EXISTS;
+    ErrorCode WM_STORAGE_LOCATION_NOT_EXISTS = WM_WAREHOUSE_AREA_NOT_EXISTS;
 
 }

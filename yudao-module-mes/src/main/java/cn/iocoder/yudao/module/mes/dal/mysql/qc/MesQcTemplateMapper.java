@@ -18,12 +18,21 @@ import java.util.List;
 public interface MesQcTemplateMapper extends BaseMapperX<MesQcTemplateDO> {
 
     default PageResult<MesQcTemplateDO> selectPage(MesQcTemplatePageReqVO reqVO) {
-        return selectPage(reqVO, new LambdaQueryWrapperX<MesQcTemplateDO>()
+        LambdaQueryWrapperX<MesQcTemplateDO> query = new LambdaQueryWrapperX<MesQcTemplateDO>()
                 .likeIfPresent(MesQcTemplateDO::getCode, reqVO.getCode())
                 .likeIfPresent(MesQcTemplateDO::getName, reqVO.getName())
-                .likeIfPresent(MesQcTemplateDO::getTypes, reqVO.getTypes())
-                .eqIfPresent(MesQcTemplateDO::getEnableFlag, reqVO.getEnableFlag())
-                .orderByDesc(MesQcTemplateDO::getId));
+                .orderByDesc(MesQcTemplateDO::getId);
+        // types: 取第一个值做 LIKE 匹配（简单实现，支持单值过滤）
+        // TODO @AI：find in set；你看看 mybatisutils 有类似的；
+        if (reqVO.getTypes() != null && !reqVO.getTypes().isEmpty()) {
+            query.like(MesQcTemplateDO::getTypes, String.valueOf(reqVO.getTypes().get(0)));
+        }
+        // TODO @AI：是不是里面就是 boolean
+        // enableFlag: 转为 Y/N 已经改成 boolean 了，数据库里也是 boolean
+        if (reqVO.getEnableFlag() != null) {
+            query.eq(MesQcTemplateDO::getEnableFlag, Boolean.TRUE.equals(reqVO.getEnableFlag()) ? "Y" : "N");
+        }
+        return selectPage(reqVO, query);
     }
 
     default MesQcTemplateDO selectByCode(String code) {
