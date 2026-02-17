@@ -81,24 +81,12 @@ public class MesDvMachineryController {
     @PreAuthorize("@ss.hasPermission('mes:dv-machinery:query')")
     public CommonResult<MesDvMachineryRespVO> getMachinery(@RequestParam("id") Long id) {
         MesDvMachineryDO machinery = machineryService.getMachinery(id);
-        MesDvMachineryRespVO respVO = BeanUtils.toBean(machinery, MesDvMachineryRespVO.class);
-        // 拼接设备类型名称和车间名称
-        // TODO @AI：复用下 buildMachineryRespVOList 方法；
-        if (respVO != null) {
-            if (respVO.getMachineryTypeId() != null) {
-                MesDvMachineryTypeDO machineryType = machineryTypeService.getMachineryType(respVO.getMachineryTypeId());
-                if (machineryType != null) {
-                    respVO.setMachineryTypeName(machineryType.getName());
-                }
-            }
-            if (respVO.getWorkshopId() != null) {
-                MesMdWorkshopDO workshop = workshopService.getWorkshop(respVO.getWorkshopId());
-                if (workshop != null) {
-                    respVO.setWorkshopName(workshop.getName());
-                }
-            }
+        if (machinery == null) {
+            return success(null);
         }
-        return success(respVO);
+        // 复用 buildMachineryRespVOList 拼接设备类型名称和车间名称
+        List<MesDvMachineryRespVO> list = buildMachineryRespVOList(Collections.singletonList(machinery));
+        return success(list.get(0));
     }
 
     @GetMapping("/page")
