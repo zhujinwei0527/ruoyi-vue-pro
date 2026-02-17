@@ -39,7 +39,7 @@ public class MesWmWarehouseAreaServiceImpl implements MesWmWarehouseAreaService 
     @Override
     public Long createWarehouseArea(MesWmWarehouseAreaSaveReqVO createReqVO) {
         // 校验库区存在
-        validateWarehouseLocationExists(createReqVO.getLocationId());
+        locationService.validateWarehouseLocationExists(createReqVO.getLocationId());
         // 校验编码唯一
         validateWarehouseAreaCodeUnique(null, createReqVO.getLocationId(), createReqVO.getCode());
         // 校验名称唯一
@@ -55,7 +55,7 @@ public class MesWmWarehouseAreaServiceImpl implements MesWmWarehouseAreaService 
         // 校验存在
         validateWarehouseAreaExists(updateReqVO.getId());
         // 校验库区存在
-        validateWarehouseLocationExists(updateReqVO.getLocationId());
+        locationService.validateWarehouseLocationExists(updateReqVO.getLocationId());
         // 校验编码唯一
         validateWarehouseAreaCodeUnique(updateReqVO.getId(), updateReqVO.getLocationId(), updateReqVO.getCode());
         // 校验名称唯一
@@ -78,17 +78,13 @@ public class MesWmWarehouseAreaServiceImpl implements MesWmWarehouseAreaService 
         areaMapper.deleteById(id);
     }
 
-    // TODO @AI: locationService 抽个类似的方法被调用；
-    private void validateWarehouseLocationExists(Long locationId) {
-        if (locationService.getWarehouseLocation(locationId) == null) {
-            throw exception(WM_WAREHOUSE_LOCATION_NOT_EXISTS);
-        }
-    }
-
-    private void validateWarehouseAreaExists(Long id) {
-        if (areaMapper.selectById(id) == null) {
+    @Override
+    public MesWmWarehouseAreaDO validateWarehouseAreaExists(Long id) {
+        MesWmWarehouseAreaDO area = areaMapper.selectById(id);
+        if (area == null) {
             throw exception(WM_WAREHOUSE_AREA_NOT_EXISTS);
         }
+        return area;
     }
 
     private void validateWarehouseAreaCodeUnique(Long id, Long locationId, String code) {

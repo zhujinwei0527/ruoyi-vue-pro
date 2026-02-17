@@ -12,24 +12,72 @@ import java.util.Map;
 
 import static cn.iocoder.yudao.framework.common.util.collection.CollectionUtils.convertMap;
 
-// TODO @AI：方法注释；
 /**
  * MES 库区 Service 接口
  */
 public interface MesWmWarehouseLocationService {
 
+    /**
+     * 创建库区
+     *
+     * @param createReqVO 创建信息
+     * @return 编号
+     */
     Long createWarehouseLocation(@Valid MesWmWarehouseLocationSaveReqVO createReqVO);
 
+    /**
+     * 更新库区
+     *
+     * @param updateReqVO 更新信息
+     */
     void updateWarehouseLocation(@Valid MesWmWarehouseLocationSaveReqVO updateReqVO);
 
+    /**
+     * 删除库区
+     *
+     * @param id 编号
+     */
     void deleteWarehouseLocation(Long id);
 
+    /**
+     * 校验库区存在
+     *
+     * @param id 编号
+     * @return 库区
+     */
+    MesWmWarehouseLocationDO validateWarehouseLocationExists(Long id);
+
+    /**
+     * 获得库区
+     *
+     * @param id 编号
+     * @return 库区
+     */
     MesWmWarehouseLocationDO getWarehouseLocation(Long id);
 
+    /**
+     * 获得库区分页
+     *
+     * @param pageReqVO 分页参数
+     * @return 库区分页
+     */
     PageResult<MesWmWarehouseLocationDO> getWarehouseLocationPage(MesWmWarehouseLocationPageReqVO pageReqVO);
 
+    /**
+     * 按仓库与状态获得库区列表
+     *
+     * @param warehouseId 仓库编号
+     * @param status 状态
+     * @return 库区列表
+     */
     List<MesWmWarehouseLocationDO> getWarehouseLocationList(Long warehouseId, Integer status);
 
+    /**
+     * 按编号集合获得库区列表
+     *
+     * @param ids 编号集合
+     * @return 库区列表
+     */
     List<MesWmWarehouseLocationDO> getWarehouseLocationList(Collection<Long> ids);
 
     default Map<Long, MesWmWarehouseLocationDO> getWarehouseLocationMap(Collection<Long> ids) {

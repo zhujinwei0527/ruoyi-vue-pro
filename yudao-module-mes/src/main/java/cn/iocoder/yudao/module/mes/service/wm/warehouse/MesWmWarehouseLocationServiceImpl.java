@@ -43,7 +43,7 @@ public class MesWmWarehouseLocationServiceImpl implements MesWmWarehouseLocation
     @Override
     public Long createWarehouseLocation(MesWmWarehouseLocationSaveReqVO createReqVO) {
         // 校验仓库存在
-        validateWarehouseExists(createReqVO.getWarehouseId());
+        warehouseService.validateWarehouseExists(createReqVO.getWarehouseId());
         // 校验编码唯一
         validateWarehouseLocationCodeUnique(null, createReqVO.getWarehouseId(), createReqVO.getCode());
         // 校验名称唯一
@@ -59,7 +59,7 @@ public class MesWmWarehouseLocationServiceImpl implements MesWmWarehouseLocation
         // 校验存在
         validateWarehouseLocationExists(updateReqVO.getId());
         // 校验仓库存在
-        validateWarehouseExists(updateReqVO.getWarehouseId());
+        warehouseService.validateWarehouseExists(updateReqVO.getWarehouseId());
         // 校验编码唯一
         validateWarehouseLocationCodeUnique(updateReqVO.getId(), updateReqVO.getWarehouseId(), updateReqVO.getCode());
         // 校验名称唯一
@@ -86,18 +86,13 @@ public class MesWmWarehouseLocationServiceImpl implements MesWmWarehouseLocation
         locationMapper.deleteById(id);
     }
 
-    // TODO @AI：使用 warehouseService 里的；抽过去；
-    private void validateWarehouseExists(Long warehouseId) {
-        if (warehouseService.getWarehouse(warehouseId) == null) {
-            throw exception(WM_WAREHOUSE_NOT_EXISTS);
-        }
-    }
-
-    // TODO @AI：使用 warehouseLocationService 里的；抽过去；
-    private void validateWarehouseLocationExists(Long id) {
-        if (locationMapper.selectById(id) == null) {
+    @Override
+    public MesWmWarehouseLocationDO validateWarehouseLocationExists(Long id) {
+        MesWmWarehouseLocationDO location = locationMapper.selectById(id);
+        if (location == null) {
             throw exception(WM_WAREHOUSE_LOCATION_NOT_EXISTS);
         }
+        return location;
     }
 
     private void validateWarehouseLocationCodeUnique(Long id, Long warehouseId, String code) {

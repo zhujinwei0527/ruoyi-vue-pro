@@ -12,24 +12,72 @@ import java.util.Map;
 
 import static cn.iocoder.yudao.framework.common.util.collection.CollectionUtils.convertMap;
 
-// TODO @AI：方法注释；
 /**
  * MES 库位 Service 接口
  */
 public interface MesWmWarehouseAreaService {
 
+    /**
+     * 创建库位
+     *
+     * @param createReqVO 创建信息
+     * @return 编号
+     */
     Long createWarehouseArea(@Valid MesWmWarehouseAreaSaveReqVO createReqVO);
 
+    /**
+     * 更新库位
+     *
+     * @param updateReqVO 更新信息
+     */
     void updateWarehouseArea(@Valid MesWmWarehouseAreaSaveReqVO updateReqVO);
 
+    /**
+     * 删除库位
+     *
+     * @param id 编号
+     */
     void deleteWarehouseArea(Long id);
 
+    /**
+     * 校验库位存在
+     *
+     * @param id 编号
+     * @return 库位
+     */
+    MesWmWarehouseAreaDO validateWarehouseAreaExists(Long id);
+
+    /**
+     * 获得库位
+     *
+     * @param id 编号
+     * @return 库位
+     */
     MesWmWarehouseAreaDO getWarehouseArea(Long id);
 
+    /**
+     * 获得库位分页
+     *
+     * @param pageReqVO 分页参数
+     * @return 库位分页
+     */
     PageResult<MesWmWarehouseAreaDO> getWarehouseAreaPage(MesWmWarehouseAreaPageReqVO pageReqVO);
 
+    /**
+     * 按库区与状态获得库位列表
+     *
+     * @param locationId 库区编号
+     * @param status 状态
+     * @return 库位列表
+     */
     List<MesWmWarehouseAreaDO> getWarehouseAreaList(Long locationId, Integer status);
 
+    /**
+     * 按编号集合获得库位列表
+     *
+     * @param ids 编号集合
+     * @return 库位列表
+     */
     List<MesWmWarehouseAreaDO> getWarehouseAreaList(Collection<Long> ids);
 
     default Map<Long, MesWmWarehouseAreaDO> getWarehouseAreaMap(Collection<Long> ids) {

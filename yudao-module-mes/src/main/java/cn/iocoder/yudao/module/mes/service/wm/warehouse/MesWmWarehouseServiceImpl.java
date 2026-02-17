@@ -82,10 +82,13 @@ public class MesWmWarehouseServiceImpl implements MesWmWarehouseService {
         warehouseMapper.deleteById(id);
     }
 
-    private void validateWarehouseExists(Long id) {
-        if (warehouseMapper.selectById(id) == null) {
+    @Override
+    public MesWmWarehouseDO validateWarehouseExists(Long id) {
+        MesWmWarehouseDO warehouse = warehouseMapper.selectById(id);
+        if (warehouse == null) {
             throw exception(WM_WAREHOUSE_NOT_EXISTS);
         }
+        return warehouse;
     }
 
     private void validateWarehouseCodeUnique(Long id, String code) {

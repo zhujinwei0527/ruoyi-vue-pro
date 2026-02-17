@@ -49,14 +49,14 @@ public class MesWmWarehouseLocationController {
 
     @PostMapping("/create")
     @Operation(summary = "创建库区")
-    @PreAuthorize("@ss.hasPermission('mes:wm-warehouse-location:create')")
+    @PreAuthorize("@ss.hasPermission('mes:wm-warehouse:create')")
     public CommonResult<Long> createWarehouseLocation(@Valid @RequestBody MesWmWarehouseLocationSaveReqVO createReqVO) {
         return success(locationService.createWarehouseLocation(createReqVO));
     }
 
     @PutMapping("/update")
     @Operation(summary = "更新库区")
-    @PreAuthorize("@ss.hasPermission('mes:wm-warehouse-location:update')")
+    @PreAuthorize("@ss.hasPermission('mes:wm-warehouse:update')")
     public CommonResult<Boolean> updateWarehouseLocation(@Valid @RequestBody MesWmWarehouseLocationSaveReqVO updateReqVO) {
         locationService.updateWarehouseLocation(updateReqVO);
         return success(true);
@@ -65,7 +65,7 @@ public class MesWmWarehouseLocationController {
     @DeleteMapping("/delete")
     @Operation(summary = "删除库区")
     @Parameter(name = "id", description = "编号", required = true)
-    @PreAuthorize("@ss.hasPermission('mes:wm-warehouse-location:delete')")
+    @PreAuthorize("@ss.hasPermission('mes:wm-warehouse:delete')")
     public CommonResult<Boolean> deleteWarehouseLocation(@RequestParam("id") Long id) {
         locationService.deleteWarehouseLocation(id);
         return success(true);
@@ -74,15 +74,18 @@ public class MesWmWarehouseLocationController {
     @GetMapping("/get")
     @Operation(summary = "获得库区")
     @Parameter(name = "id", description = "编号", required = true, example = "1024")
-    @PreAuthorize("@ss.hasPermission('mes:wm-warehouse-location:query')")
+    @PreAuthorize("@ss.hasPermission('mes:wm-warehouse:query')")
     public CommonResult<MesWmWarehouseLocationRespVO> getWarehouseLocation(@RequestParam("id") Long id) {
         MesWmWarehouseLocationDO location = locationService.getWarehouseLocation(id);
-        return success(buildWarehouseLocationRespVO(location));
+        if (location == null) {
+            return success(null);
+        }
+        return success(buildWarehouseLocationRespVOList(Collections.singletonList(location)).get(0));
     }
 
     @GetMapping("/page")
     @Operation(summary = "获得库区分页")
-    @PreAuthorize("@ss.hasPermission('mes:wm-warehouse-location:query')")
+    @PreAuthorize("@ss.hasPermission('mes:wm-warehouse:query')")
     public CommonResult<PageResult<MesWmWarehouseLocationRespVO>> getWarehouseLocationPage(@Valid MesWmWarehouseLocationPageReqVO pageReqVO) {
         PageResult<MesWmWarehouseLocationDO> pageResult = locationService.getWarehouseLocationPage(pageReqVO);
         return success(new PageResult<>(buildWarehouseLocationRespVOList(pageResult.getList()), pageResult.getTotal()));
@@ -96,9 +99,11 @@ public class MesWmWarehouseLocationController {
         return success(buildWarehouseLocationRespVOList(list));
     }
 
+    // TODO @AI：不需要导出功能；前端也可以去掉；
+
     @GetMapping("/export-excel")
     @Operation(summary = "导出库区 Excel")
-    @PreAuthorize("@ss.hasPermission('mes:wm-warehouse-location:export')")
+    @PreAuthorize("@ss.hasPermission('mes:wm-warehouse:export')")
     @ApiAccessLog(operateType = EXPORT)
     public void exportWarehouseLocationExcel(@Valid MesWmWarehouseLocationPageReqVO pageReqVO,
                                              HttpServletResponse response) throws IOException {
@@ -108,22 +113,21 @@ public class MesWmWarehouseLocationController {
                 buildWarehouseLocationRespVOList(list));
     }
 
-    // TODO @AI：这里有个注释块，参考别的方法；
+    // ==================== 拼接 VO ====================
 
-    // TODO @AI：下面这个，就不用愁方法了；直接 get 那处理下 get 0；
-    private MesWmWarehouseLocationRespVO buildWarehouseLocationRespVO(MesWmWarehouseLocationDO location) {
-        if (location == null) {
-            return null;
-        }
-        List<MesWmWarehouseLocationRespVO> list = buildWarehouseLocationRespVOList(Collections.singletonList(location));
-        return CollUtil.isEmpty(list) ? null : CollUtil.getFirst(list);
-    }
-
+    /**
+     * 批量构建库区响应 VO 列表（填充仓库名称）
+     *
+     * @param list 库区列表
+     * @return 响应 VO 列表
+     */
     private List<MesWmWarehouseLocationRespVO> buildWarehouseLocationRespVOList(List<MesWmWarehouseLocationDO> list) {
         if (CollUtil.isEmpty(list)) {
             return Collections.emptyList();
         }
+        // 1. 获得仓库信息
         Map<Long, MesWmWarehouseDO> warehouseMap = warehouseService.getWarehouseMap(convertSet(list, MesWmWarehouseLocationDO::getWarehouseId));
+        // 2. 构建结果
         return BeanUtils.toBean(list, MesWmWarehouseLocationRespVO.class, vo ->
                 MapUtils.findAndThen(warehouseMap, vo.getWarehouseId(), warehouse -> vo.setWarehouseName(warehouse.getName())));
     }
