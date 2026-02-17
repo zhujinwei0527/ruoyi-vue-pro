@@ -1,0 +1,81 @@
+package cn.iocoder.yudao.module.mes.dal.dataobject.pro.workorder;
+
+import cn.iocoder.yudao.framework.mybatis.core.dataobject.BaseDO;
+import cn.iocoder.yudao.module.mes.dal.dataobject.md.item.MesMdItemDO;
+import cn.iocoder.yudao.module.mes.dal.dataobject.md.unitmeasure.MesMdUnitMeasureDO;
+import com.baomidou.mybatisplus.annotation.KeySequence;
+import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.TableName;
+import lombok.*;
+
+import java.math.BigDecimal;
+
+/**
+ * MES 生产工单 BOM DO
+ *
+ * @author 芋道源码
+ */
+@TableName("mes_pro_workorder_bom")
+@KeySequence("mes_pro_workorder_bom_seq") // 用于 Oracle、PostgreSQL、Kingbase、DB2、H2 数据库的主键自增。如果是 MySQL 等数据库，可不写。
+@Data
+@EqualsAndHashCode(callSuper = true)
+@ToString(callSuper = true)
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+public class MesProWorkorderBomDO extends BaseDO {
+
+    /**
+     * 编号
+     */
+    @TableId
+    private Long id;
+    /**
+     * 生产工单编号
+     *
+     * 关联 {@link MesProWorkorderDO#getId()}
+     */
+    private Long workorderId;
+    /**
+     * BOM 物料编号
+     *
+     * 关联 {@link MesMdItemDO#getId()}
+     */
+    private Long itemId;
+    /**
+     * 单位编号
+     *
+     * 关联 {@link MesMdUnitMeasureDO#getId()}
+     */
+    private Long unitMeasureId;
+    // TODO @AI：需要存储么？还是使用 itemId 的冗余？
+    /**
+     * 物料产品标识
+     */
+    private String itemOrProduct;
+    /**
+     * 预计使用量
+     */
+    private BigDecimal quantity;
+    /**
+     * 备注
+     */
+    private String remark;
+    /**
+     * 预留字段1
+     */
+    private String attribute1;
+    /**
+     * 预留字段2
+     */
+    private String attribute2;
+    /**
+     * 预留字段3
+     */
+    private Integer attribute3;
+    /**
+     * 预留字段4
+     */
+    private Integer attribute4;
+
+}
