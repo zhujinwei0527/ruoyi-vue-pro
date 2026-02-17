@@ -149,7 +149,9 @@ public interface ErrorCodeConstants {
     ErrorCode QC_TEMPLATE_NOT_EXISTS = new ErrorCode(1_040_600_000, "检验模板不存在");
 
     // ========== MES 质量管理-质检指标（1-040-601-000） ==========
-    ErrorCode QC_INDEX_NOT_EXISTS = new ErrorCode(1_040_601_000, "质检指标不存在");
+    ErrorCode QC_INDICATOR_NOT_EXISTS = new ErrorCode(1_040_601_000, "质检指标不存在");
+    ErrorCode QC_INDICATOR_CODE_DUPLICATE = new ErrorCode(1_040_601_001, "质检指标编码已存在");
+    ErrorCode QC_INDICATOR_NAME_DUPLICATE = new ErrorCode(1_040_601_002, "质检指标名称已存在");
 
     // ========== MES 质量管理-缺陷类型（1-040-602-000） ==========
     ErrorCode QC_DEFECT_NOT_EXISTS = new ErrorCode(1_040_602_000, "缺陷类型不存在");
