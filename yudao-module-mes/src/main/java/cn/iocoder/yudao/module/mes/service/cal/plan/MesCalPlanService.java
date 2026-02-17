@@ -36,6 +36,13 @@ public interface MesCalPlanService {
     void deletePlan(Long id);
 
     /**
+     * 校验排班计划为草稿状态（确认后不允许编辑）
+     *
+     * @param planId 计划编号
+     */
+    void validatePlanPrepare(Long planId);
+
+    /**
      * 获得排班计划
      *
      * @param id 编号

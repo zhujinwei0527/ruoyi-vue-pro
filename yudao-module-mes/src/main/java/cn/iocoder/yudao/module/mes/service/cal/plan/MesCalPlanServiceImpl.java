@@ -57,14 +57,16 @@ public class MesCalPlanServiceImpl implements MesCalPlanService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void updatePlan(MesCalPlanSaveReqVO updateReqVO) {
-        // TODO @AI：需要校验下，plan 未确定；（确认后，不允许编辑）
         // 1.1 校验存在
         MesCalPlanDO existPlan = validatePlanExists(updateReqVO.getId());
-        // 1.2 校验编码唯一
+        // 1.2 校验计划未确认（已确认不允许编辑）
+        if (MesCalPlanStatusEnum.CONFIRMED.getStatus().equals(existPlan.getStatus())) {
+            throw exception(CAL_PLAN_NOT_PREPARE);
+        }
+        // 1.3 校验编码唯一
         validatePlanCodeUnique(updateReqVO.getId(), updateReqVO.getCode());
-        // 1.3 若 status 变为 CONFIRMED，校验班组数量
-        if (MesCalPlanStatusEnum.CONFIRMED.getStatus().equals(updateReqVO.getStatus())
-                && !MesCalPlanStatusEnum.CONFIRMED.getStatus().equals(existPlan.getStatus())) {
+        // 1.4 若 status 变为 CONFIRMED，校验班组数量
+        if (MesCalPlanStatusEnum.CONFIRMED.getStatus().equals(updateReqVO.getStatus())) {
             validateTeamCountForConfirm(updateReqVO.getId(), updateReqVO.getShiftType());
         }
 
@@ -78,13 +80,8 @@ public class MesCalPlanServiceImpl implements MesCalPlanService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void deletePlan(Long id) {
-        // 1.1 校验存在
-        MesCalPlanDO plan = validatePlanExists(id);
-        // 1.2 校验状态为草稿
-        // TODO @AI：需要校验下，plan 未确定；（确认后，不允许编辑）【最好抽成一个方法，各个地方可以调用】
-        if (ObjUtil.notEqual(MesCalPlanStatusEnum.PREPARE.getStatus(), plan.getStatus())) {
-            throw exception(CAL_PLAN_NOT_PREPARE);
-        }
+        // 1.1 校验存在 + 校验状态为草稿
+        validatePlanPrepare(id);
 
         // 2.1 级联删除班次 + 班组关联
         planShiftService.deletePlanShiftByPlanId(id);
@@ -101,6 +98,14 @@ public class MesCalPlanServiceImpl implements MesCalPlanService {
     @Override
     public PageResult<MesCalPlanDO> getPlanPage(MesCalPlanPageReqVO pageReqVO) {
         return planMapper.selectPage(pageReqVO);
+    }
+
+    @Override
+    public void validatePlanPrepare(Long planId) {
+        MesCalPlanDO plan = validatePlanExists(planId);
+        if (ObjUtil.notEqual(MesCalPlanStatusEnum.PREPARE.getStatus(), plan.getStatus())) {
+            throw exception(CAL_PLAN_NOT_PREPARE);
+        }
     }
 
     private MesCalPlanDO validatePlanExists(Long id) {

@@ -91,7 +91,7 @@ public interface ErrorCodeConstants {
     // ========== MES 日历排班-排班计划（1-040-202-000） ==========
     ErrorCode CAL_PLAN_NOT_EXISTS = new ErrorCode(1_040_202_000, "排班计划不存在");
     ErrorCode CAL_PLAN_CODE_DUPLICATE = new ErrorCode(1_040_202_001, "排班计划编码已存在");
-    ErrorCode CAL_PLAN_NOT_PREPARE = new ErrorCode(1_040_202_002, "只能删除草稿状态的排班计划");
+    ErrorCode CAL_PLAN_NOT_PREPARE = new ErrorCode(1_040_202_002, "排班计划已确认，不允许修改或删除");
     ErrorCode CAL_PLAN_TEAM_COUNT_NOT_MATCH = new ErrorCode(1_040_202_003, "确认排班计划时，分配的班组数量与轮班方式不匹配");
     // ========== MES 日历排班-计划班组关联（1-040-202-100） ==========
     ErrorCode CAL_PLAN_TEAM_NOT_EXISTS = new ErrorCode(1_040_202_100, "计划班组关联不存在");
