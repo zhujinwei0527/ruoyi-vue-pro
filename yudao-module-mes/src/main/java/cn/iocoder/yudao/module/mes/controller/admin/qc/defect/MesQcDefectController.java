@@ -1,4 +1,4 @@
-package cn.iocoder.yudao.module.mes.controller.admin.qc;
+package cn.iocoder.yudao.module.mes.controller.admin.qc.defect;
 
 import cn.iocoder.yudao.framework.apilog.core.annotation.ApiAccessLog;
 import cn.iocoder.yudao.framework.common.pojo.CommonResult;
@@ -6,9 +6,9 @@ import cn.iocoder.yudao.framework.common.pojo.PageParam;
 import cn.iocoder.yudao.framework.common.pojo.PageResult;
 import cn.iocoder.yudao.framework.common.util.object.BeanUtils;
 import cn.iocoder.yudao.framework.excel.core.util.ExcelUtils;
-import cn.iocoder.yudao.module.mes.controller.admin.qc.vo.MesQcDefectPageReqVO;
-import cn.iocoder.yudao.module.mes.controller.admin.qc.vo.MesQcDefectRespVO;
-import cn.iocoder.yudao.module.mes.controller.admin.qc.vo.MesQcDefectSaveReqVO;
+import cn.iocoder.yudao.module.mes.controller.admin.qc.defect.vo.MesQcDefectPageReqVO;
+import cn.iocoder.yudao.module.mes.controller.admin.qc.defect.vo.MesQcDefectRespVO;
+import cn.iocoder.yudao.module.mes.controller.admin.qc.defect.vo.MesQcDefectSaveReqVO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.qc.MesQcDefectDO;
 import cn.iocoder.yudao.module.mes.service.qc.MesQcDefectService;
 import io.swagger.v3.oas.annotations.Operation;

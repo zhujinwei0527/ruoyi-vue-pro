@@ -15,7 +15,7 @@ import static cn.iocoder.yudao.framework.common.util.date.DateUtils.FORMAT_YEAR_
 @Data
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
-public class MesProWorkorderPageReqVO extends PageParam {
+public class MesProWorkOrderPageReqVO extends PageParam {
 
     @Schema(description = "工单编码", example = "WO-001")
     private String code;

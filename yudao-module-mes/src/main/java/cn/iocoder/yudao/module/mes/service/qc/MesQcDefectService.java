@@ -1,8 +1,8 @@
 package cn.iocoder.yudao.module.mes.service.qc;
 
 import cn.iocoder.yudao.framework.common.pojo.PageResult;
-import cn.iocoder.yudao.module.mes.controller.admin.qc.vo.MesQcDefectPageReqVO;
-import cn.iocoder.yudao.module.mes.controller.admin.qc.vo.MesQcDefectSaveReqVO;
+import cn.iocoder.yudao.module.mes.controller.admin.qc.defect.vo.MesQcDefectPageReqVO;
+import cn.iocoder.yudao.module.mes.controller.admin.qc.defect.vo.MesQcDefectSaveReqVO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.qc.MesQcDefectDO;
 import jakarta.validation.Valid;
 

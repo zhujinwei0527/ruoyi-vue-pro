@@ -1,0 +1,45 @@
+package cn.iocoder.yudao.module.mes.controller.admin.qc.defect.vo;
+
+import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.NotEmpty;
+import lombok.Data;
+
+@Schema(description = "管理后台 - MES 缺陷类型新增/修改 Request VO")
+@Data
+public class MesQcDefectSaveReqVO {
+
+    @Schema(description = "编号", requiredMode = Schema.RequiredMode.REQUIRED, example = "1024")
+    private Long id;
+
+    @Schema(description = "缺陷编码", requiredMode = Schema.RequiredMode.REQUIRED, example = "DF001")
+    @NotEmpty(message = "缺陷编码不能为空")
+    private String code;
+
+    @Schema(description = "缺陷描述", requiredMode = Schema.RequiredMode.REQUIRED, example = "外观缺陷")
+    @NotEmpty(message = "缺陷描述不能为空")
+    private String name;
+
+    @Schema(description = "检测项类型", requiredMode = Schema.RequiredMode.REQUIRED, example = "APPEARANCE")
+    @NotEmpty(message = "检测项类型不能为空")
+    private String type;
+
+    @Schema(description = "缺陷等级", requiredMode = Schema.RequiredMode.REQUIRED, example = "MIN")
+    @NotEmpty(message = "缺陷等级不能为空")
+    private String level;
+
+    @Schema(description = "备注", example = "备注")
+    private String remark;
+
+    @Schema(description = "预留字段1")
+    private String attribute1;
+
+    @Schema(description = "预留字段2")
+    private String attribute2;
+
+    @Schema(description = "预留字段3")
+    private Integer attribute3;
+
+    @Schema(description = "预留字段4")
+    private Integer attribute4;
+
+}

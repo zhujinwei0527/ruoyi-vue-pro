@@ -52,6 +52,14 @@ public interface MesMdItemService {
     MesMdItemDO getItem(Long id);
 
     /**
+     * 校验物料产品存在
+     *
+     * @param id 编号
+     * @return 物料产品
+     */
+    MesMdItemDO validateItemExists(Long id);
+
+    /**
      * 获得物料产品分页
      *
      * @param pageReqVO 分页查询

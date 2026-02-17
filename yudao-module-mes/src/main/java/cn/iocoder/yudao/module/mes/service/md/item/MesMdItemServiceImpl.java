@@ -112,10 +112,13 @@ public class MesMdItemServiceImpl implements MesMdItemService {
         itemMapper.deleteById(id);
     }
 
-    private void validateItemExists(Long id) {
-        if (itemMapper.selectById(id) == null) {
+    @Override
+    public MesMdItemDO validateItemExists(Long id) {
+        MesMdItemDO item = itemMapper.selectById(id);
+        if (item == null) {
             throw exception(MD_ITEM_NOT_EXISTS);
         }
+        return item;
     }
 
     private void validateItemCodeUnique(Long id, String code) {

@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
 @Schema(description = "管理后台 - MES 生产工单 Response VO")
 @Data
 @ExcelIgnoreUnannotated
-public class MesProWorkorderRespVO {
+public class MesProWorkOrderRespVO {
 
     @Schema(description = "编号", requiredMode = Schema.RequiredMode.REQUIRED, example = "1024")
     @ExcelProperty("编号")
@@ -30,12 +30,12 @@ public class MesProWorkorderRespVO {
 
     @Schema(description = "工单类型", example = "1")
     @ExcelProperty(value = "工单类型", converter = DictConvert.class)
-    @DictFormat(DictTypeConstants.MES_PRO_WORKORDER_TYPE)
+    @DictFormat(DictTypeConstants.MES_PRO_WORK_ORDER_TYPE)
     private Integer type;
 
     @Schema(description = "来源类型", example = "1")
     @ExcelProperty(value = "来源类型", converter = DictConvert.class)
-    @DictFormat(DictTypeConstants.MES_PRO_WORKORDER_SOURCE_TYPE)
+    @DictFormat(DictTypeConstants.MES_PRO_WORK_ORDER_SOURCE_TYPE)
     private Integer orderSourceType;
 
     @Schema(description = "来源单据编号", example = "SO-001")
@@ -105,9 +105,6 @@ public class MesProWorkorderRespVO {
     @Schema(description = "父工单编号", example = "0")
     private Long parentId;
 
-    @Schema(description = "所有父节点编号", example = "0")
-    private String ancestors;
-
     @Schema(description = "完成时间")
     @ExcelProperty("完成时间")
     private LocalDateTime finishDate;
@@ -118,7 +115,7 @@ public class MesProWorkorderRespVO {
 
     @Schema(description = "工单状态", example = "0")
     @ExcelProperty(value = "工单状态", converter = DictConvert.class)
-    @DictFormat(DictTypeConstants.MES_PRO_WORKORDER_STATUS)
+    @DictFormat(DictTypeConstants.MES_PRO_WORK_ORDER_STATUS)
     private Integer status;
 
     @Schema(description = "备注", example = "备注")

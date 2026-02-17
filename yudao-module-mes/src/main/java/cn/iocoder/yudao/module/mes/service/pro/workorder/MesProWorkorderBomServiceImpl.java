@@ -2,18 +2,19 @@ package cn.iocoder.yudao.module.mes.service.pro.workorder;
 
 import cn.iocoder.yudao.framework.common.pojo.PageResult;
 import cn.iocoder.yudao.framework.common.util.object.BeanUtils;
-import cn.iocoder.yudao.module.mes.controller.admin.pro.workorder.vo.bom.MesProWorkorderBomPageReqVO;
-import cn.iocoder.yudao.module.mes.controller.admin.pro.workorder.vo.bom.MesProWorkorderBomSaveReqVO;
-import cn.iocoder.yudao.module.mes.dal.dataobject.pro.workorder.MesProWorkorderBomDO;
-import cn.iocoder.yudao.module.mes.dal.mysql.pro.workorder.MesProWorkorderBomMapper;
+import cn.iocoder.yudao.module.mes.controller.admin.pro.workorder.vo.bom.MesProWorkOrderBomPageReqVO;
+import cn.iocoder.yudao.module.mes.controller.admin.pro.workorder.vo.bom.MesProWorkOrderBomSaveReqVO;
+import cn.iocoder.yudao.module.mes.dal.dataobject.pro.workorder.MesProWorkOrderBomDO;
+import cn.iocoder.yudao.module.mes.dal.mysql.pro.workorder.MesProWorkOrderBomMapper;
 import jakarta.annotation.Resource;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 
 import java.util.List;
 
 import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception;
-import static cn.iocoder.yudao.module.mes.enums.ErrorCodeConstants.PRO_WORKORDER_BOM_NOT_EXISTS;
+import static cn.iocoder.yudao.module.mes.enums.ErrorCodeConstants.PRO_WORK_ORDER_BOM_NOT_EXISTS;
 
 /**
  * MES 生产工单 BOM Service 实现类
@@ -22,60 +23,65 @@ import static cn.iocoder.yudao.module.mes.enums.ErrorCodeConstants.PRO_WORKORDER
  */
 @Service
 @Validated
-public class MesProWorkorderBomServiceImpl implements MesProWorkorderBomService {
+public class MesProWorkOrderBomServiceImpl implements MesProWorkOrderBomService {
 
     @Resource
-    private MesProWorkorderBomMapper workorderBomMapper;
+    private MesProWorkOrderBomMapper workOrderBomMapper;
+
+    @Resource
+    @Lazy // 延迟加载，避免循环依赖
+    private MesProWorkOrderService workOrderService;
 
     @Override
-    public Long createWorkorderBom(MesProWorkorderBomSaveReqVO createReqVO) {
-        // TODO @AI：是不是要校验 workorder 存在？另外，大小写应该是 workOrder？
-        MesProWorkorderBomDO workorderBom = BeanUtils.toBean(createReqVO, MesProWorkorderBomDO.class);
-        workorderBomMapper.insert(workorderBom);
-        return workorderBom.getId();
+    public Long createWorkOrderBom(MesProWorkOrderBomSaveReqVO createReqVO) {
+        // 校验工单存在
+        workOrderService.validateWorkOrderExists(createReqVO.getWorkOrderId());
+        MesProWorkOrderBomDO workOrderBom = BeanUtils.toBean(createReqVO, MesProWorkOrderBomDO.class);
+        workOrderBomMapper.insert(workOrderBom);
+        return workOrderBom.getId();
     }
 
     @Override
-    public void updateWorkorderBom(MesProWorkorderBomSaveReqVO updateReqVO) {
+    public void updateWorkOrderBom(MesProWorkOrderBomSaveReqVO updateReqVO) {
         // 校验存在
-        validateWorkorderBomExists(updateReqVO.getId());
+        validateWorkOrderBomExists(updateReqVO.getId());
         // 更新
-        MesProWorkorderBomDO updateObj = BeanUtils.toBean(updateReqVO, MesProWorkorderBomDO.class);
-        workorderBomMapper.updateById(updateObj);
+        MesProWorkOrderBomDO updateObj = BeanUtils.toBean(updateReqVO, MesProWorkOrderBomDO.class);
+        workOrderBomMapper.updateById(updateObj);
     }
 
     @Override
-    public void deleteWorkorderBom(Long id) {
+    public void deleteWorkOrderBom(Long id) {
         // 校验存在
-        validateWorkorderBomExists(id);
+        validateWorkOrderBomExists(id);
         // 删除
-        workorderBomMapper.deleteById(id);
+        workOrderBomMapper.deleteById(id);
     }
 
-    private void validateWorkorderBomExists(Long id) {
-        if (workorderBomMapper.selectById(id) == null) {
-            throw exception(PRO_WORKORDER_BOM_NOT_EXISTS);
+    private void validateWorkOrderBomExists(Long id) {
+        if (workOrderBomMapper.selectById(id) == null) {
+            throw exception(PRO_WORK_ORDER_BOM_NOT_EXISTS);
         }
     }
 
     @Override
-    public MesProWorkorderBomDO getWorkorderBom(Long id) {
-        return workorderBomMapper.selectById(id);
+    public MesProWorkOrderBomDO getWorkOrderBom(Long id) {
+        return workOrderBomMapper.selectById(id);
     }
 
     @Override
-    public PageResult<MesProWorkorderBomDO> getWorkorderBomPage(MesProWorkorderBomPageReqVO pageReqVO) {
-        return workorderBomMapper.selectPage(pageReqVO);
+    public PageResult<MesProWorkOrderBomDO> getWorkOrderBomPage(MesProWorkOrderBomPageReqVO pageReqVO) {
+        return workOrderBomMapper.selectPage(pageReqVO);
     }
 
     @Override
-    public List<MesProWorkorderBomDO> getWorkorderBomListByWorkorderId(Long workorderId) {
-        return workorderBomMapper.selectListByWorkorderId(workorderId);
+    public List<MesProWorkOrderBomDO> getWorkOrderBomListByWorkOrderId(Long workOrderId) {
+        return workOrderBomMapper.selectListByWorkOrderId(workOrderId);
     }
 
     @Override
-    public void deleteWorkorderBomByWorkorderId(Long workorderId) {
-        workorderBomMapper.deleteByWorkorderId(workorderId);
+    public void deleteWorkOrderBomByWorkOrderId(Long workOrderId) {
+        workOrderBomMapper.deleteByWorkOrderId(workOrderId);
     }
 
 }

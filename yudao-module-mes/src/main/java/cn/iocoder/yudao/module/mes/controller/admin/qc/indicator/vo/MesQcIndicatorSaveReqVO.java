@@ -1,4 +1,4 @@
-package cn.iocoder.yudao.module.mes.controller.admin.qc.vo;
+package cn.iocoder.yudao.module.mes.controller.admin.qc.indicator.vo;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotEmpty;

@@ -13,14 +13,14 @@ import java.util.Arrays;
  */
 @Getter
 @AllArgsConstructor
-public enum MesProWorkorderStatusEnum implements ArrayValuable<Integer> {
+public enum MesProWorkOrderStatusEnum implements ArrayValuable<Integer> {
 
     PREPARE(0, "草稿"),
     CONFIRMED(1, "已确认"),
     FINISHED(2, "已完成"),
     CANCELED(3, "已取消");
 
-    public static final Integer[] ARRAYS = Arrays.stream(values()).map(MesProWorkorderStatusEnum::getStatus).toArray(Integer[]::new);
+    public static final Integer[] ARRAYS = Arrays.stream(values()).map(MesProWorkOrderStatusEnum::getStatus).toArray(Integer[]::new);
 
     /**
      * 状态值

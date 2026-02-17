@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 
 @Schema(description = "管理后台 - MES 生产工单新增/修改 Request VO")
 @Data
-public class MesProWorkorderSaveReqVO {
+public class MesProWorkOrderSaveReqVO {
 
     @Schema(description = "编号", requiredMode = Schema.RequiredMode.REQUIRED, example = "1024")
     private Long id;
@@ -70,9 +70,6 @@ public class MesProWorkorderSaveReqVO {
 
     @Schema(description = "父工单编号", example = "0")
     private Long parentId;
-
-    @Schema(description = "所有父节点编号", example = "0")
-    private String ancestors;
 
     @Schema(description = "备注", example = "备注")
     private String remark;

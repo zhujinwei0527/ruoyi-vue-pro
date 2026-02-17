@@ -1,7 +1,7 @@
 package cn.iocoder.yudao.module.mes.service.cal.plan;
 
 import cn.iocoder.yudao.module.mes.controller.admin.cal.plan.vo.team.MesCalPlanTeamSaveReqVO;
-import cn.iocoder.yudao.module.mes.dal.dataobject.cal.MesCalPlanTeamDO;
+import cn.iocoder.yudao.module.mes.dal.dataobject.cal.plan.MesCalPlanTeamDO;
 import jakarta.validation.Valid;
 
 import java.util.List;

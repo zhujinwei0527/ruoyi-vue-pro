@@ -3,8 +3,8 @@ package cn.iocoder.yudao.module.mes.dal.mysql.pro.workorder;
 import cn.iocoder.yudao.framework.common.pojo.PageResult;
 import cn.iocoder.yudao.framework.mybatis.core.mapper.BaseMapperX;
 import cn.iocoder.yudao.framework.mybatis.core.query.LambdaQueryWrapperX;
-import cn.iocoder.yudao.module.mes.controller.admin.pro.workorder.vo.bom.MesProWorkorderBomPageReqVO;
-import cn.iocoder.yudao.module.mes.dal.dataobject.pro.workorder.MesProWorkorderBomDO;
+import cn.iocoder.yudao.module.mes.controller.admin.pro.workorder.vo.bom.MesProWorkOrderBomPageReqVO;
+import cn.iocoder.yudao.module.mes.dal.dataobject.pro.workorder.MesProWorkOrderBomDO;
 import org.apache.ibatis.annotations.Mapper;
 
 import java.util.List;
@@ -15,20 +15,20 @@ import java.util.List;
  * @author 芋道源码
  */
 @Mapper
-public interface MesProWorkorderBomMapper extends BaseMapperX<MesProWorkorderBomDO> {
+public interface MesProWorkOrderBomMapper extends BaseMapperX<MesProWorkOrderBomDO> {
 
-    default PageResult<MesProWorkorderBomDO> selectPage(MesProWorkorderBomPageReqVO reqVO) {
-        return selectPage(reqVO, new LambdaQueryWrapperX<MesProWorkorderBomDO>()
-                .eqIfPresent(MesProWorkorderBomDO::getWorkorderId, reqVO.getWorkorderId())
-                .orderByDesc(MesProWorkorderBomDO::getId));
+    default PageResult<MesProWorkOrderBomDO> selectPage(MesProWorkOrderBomPageReqVO reqVO) {
+        return selectPage(reqVO, new LambdaQueryWrapperX<MesProWorkOrderBomDO>()
+                .eqIfPresent(MesProWorkOrderBomDO::getWorkOrderId, reqVO.getWorkOrderId())
+                .orderByDesc(MesProWorkOrderBomDO::getId));
     }
 
-    default List<MesProWorkorderBomDO> selectListByWorkorderId(Long workorderId) {
-        return selectList(MesProWorkorderBomDO::getWorkorderId, workorderId);
+    default List<MesProWorkOrderBomDO> selectListByWorkOrderId(Long workOrderId) {
+        return selectList(MesProWorkOrderBomDO::getWorkOrderId, workOrderId);
     }
 
-    default void deleteByWorkorderId(Long workorderId) {
-        delete(MesProWorkorderBomDO::getWorkorderId, workorderId);
+    default void deleteByWorkOrderId(Long workOrderId) {
+        delete(MesProWorkOrderBomDO::getWorkOrderId, workOrderId);
     }
 
 }

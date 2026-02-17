@@ -5,15 +5,15 @@ import cn.iocoder.yudao.framework.common.pojo.CommonResult;
 import cn.iocoder.yudao.framework.common.pojo.PageResult;
 import cn.iocoder.yudao.framework.common.util.collection.MapUtils;
 import cn.iocoder.yudao.framework.common.util.object.BeanUtils;
-import cn.iocoder.yudao.module.mes.controller.admin.pro.workorder.vo.bom.MesProWorkorderBomPageReqVO;
-import cn.iocoder.yudao.module.mes.controller.admin.pro.workorder.vo.bom.MesProWorkorderBomRespVO;
-import cn.iocoder.yudao.module.mes.controller.admin.pro.workorder.vo.bom.MesProWorkorderBomSaveReqVO;
+import cn.iocoder.yudao.module.mes.controller.admin.pro.workorder.vo.bom.MesProWorkOrderBomPageReqVO;
+import cn.iocoder.yudao.module.mes.controller.admin.pro.workorder.vo.bom.MesProWorkOrderBomRespVO;
+import cn.iocoder.yudao.module.mes.controller.admin.pro.workorder.vo.bom.MesProWorkOrderBomSaveReqVO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.md.item.MesMdItemDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.md.unitmeasure.MesMdUnitMeasureDO;
-import cn.iocoder.yudao.module.mes.dal.dataobject.pro.workorder.MesProWorkorderBomDO;
+import cn.iocoder.yudao.module.mes.dal.dataobject.pro.workorder.MesProWorkOrderBomDO;
 import cn.iocoder.yudao.module.mes.service.md.item.MesMdItemService;
 import cn.iocoder.yudao.module.mes.service.md.unitmeasure.MesMdUnitMeasureService;
-import cn.iocoder.yudao.module.mes.service.pro.workorder.MesProWorkorderBomService;
+import cn.iocoder.yudao.module.mes.service.pro.workorder.MesProWorkOrderBomService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -32,12 +32,12 @@ import static cn.iocoder.yudao.framework.common.util.collection.CollectionUtils.
 
 @Tag(name = "管理后台 - MES 生产工单 BOM")
 @RestController
-@RequestMapping("/mes/pro/workorder-bom")
+@RequestMapping("/mes/pro/work-order-bom")
 @Validated
-public class MesProWorkorderBomController {
+public class MesProWorkOrderBomController {
 
     @Resource
-    private MesProWorkorderBomService workorderBomService;
+    private MesProWorkOrderBomService workOrderBomService;
 
     @Resource
     private MesMdItemService itemService;
@@ -47,67 +47,64 @@ public class MesProWorkorderBomController {
 
     @PostMapping("/create")
     @Operation(summary = "创建工单 BOM")
-    @PreAuthorize("@ss.hasPermission('mes:pro-workorder:update')")
-    public CommonResult<Long> createWorkorderBom(@Valid @RequestBody MesProWorkorderBomSaveReqVO createReqVO) {
-        return success(workorderBomService.createWorkorderBom(createReqVO));
+    @PreAuthorize("@ss.hasPermission('mes:pro-work-order:update')")
+    public CommonResult<Long> createWorkOrderBom(@Valid @RequestBody MesProWorkOrderBomSaveReqVO createReqVO) {
+        return success(workOrderBomService.createWorkOrderBom(createReqVO));
     }
 
     @PutMapping("/update")
     @Operation(summary = "更新工单 BOM")
-    @PreAuthorize("@ss.hasPermission('mes:pro-workorder:update')")
-    public CommonResult<Boolean> updateWorkorderBom(@Valid @RequestBody MesProWorkorderBomSaveReqVO updateReqVO) {
-        workorderBomService.updateWorkorderBom(updateReqVO);
+    @PreAuthorize("@ss.hasPermission('mes:pro-work-order:update')")
+    public CommonResult<Boolean> updateWorkOrderBom(@Valid @RequestBody MesProWorkOrderBomSaveReqVO updateReqVO) {
+        workOrderBomService.updateWorkOrderBom(updateReqVO);
         return success(true);
     }
 
     @DeleteMapping("/delete")
     @Operation(summary = "删除工单 BOM")
     @Parameter(name = "id", description = "编号", required = true)
-    @PreAuthorize("@ss.hasPermission('mes:pro-workorder:update')")
-    public CommonResult<Boolean> deleteWorkorderBom(@RequestParam("id") Long id) {
-        workorderBomService.deleteWorkorderBom(id);
+    @PreAuthorize("@ss.hasPermission('mes:pro-work-order:update')")
+    public CommonResult<Boolean> deleteWorkOrderBom(@RequestParam("id") Long id) {
+        workOrderBomService.deleteWorkOrderBom(id);
         return success(true);
     }
 
     @GetMapping("/get")
     @Operation(summary = "获得工单 BOM")
     @Parameter(name = "id", description = "编号", required = true, example = "1024")
-    @PreAuthorize("@ss.hasPermission('mes:pro-workorder:query')")
-    public CommonResult<MesProWorkorderBomRespVO> getWorkorderBom(@RequestParam("id") Long id) {
-        MesProWorkorderBomDO workorderBom = workorderBomService.getWorkorderBom(id);
-        if (workorderBom == null) {
+    @PreAuthorize("@ss.hasPermission('mes:pro-work-order:query')")
+    public CommonResult<MesProWorkOrderBomRespVO> getWorkOrderBom(@RequestParam("id") Long id) {
+        MesProWorkOrderBomDO workOrderBom = workOrderBomService.getWorkOrderBom(id);
+        if (workOrderBom == null) {
             return success(null);
         }
-        return success(buildWorkorderBomRespVOList(List.of(workorderBom)).get(0));
+        return success(buildWorkOrderBomRespVOList(List.of(workOrderBom)).get(0));
     }
 
     @GetMapping("/page")
     @Operation(summary = "获得工单 BOM 分页")
-    @PreAuthorize("@ss.hasPermission('mes:pro-workorder:query')")
-    public CommonResult<PageResult<MesProWorkorderBomRespVO>> getWorkorderBomPage(@Valid MesProWorkorderBomPageReqVO pageReqVO) {
-        PageResult<MesProWorkorderBomDO> pageResult = workorderBomService.getWorkorderBomPage(pageReqVO);
-        return success(new PageResult<>(buildWorkorderBomRespVOList(pageResult.getList()), pageResult.getTotal()));
+    @PreAuthorize("@ss.hasPermission('mes:pro-work-order:query')")
+    public CommonResult<PageResult<MesProWorkOrderBomRespVO>> getWorkOrderBomPage(@Valid MesProWorkOrderBomPageReqVO pageReqVO) {
+        PageResult<MesProWorkOrderBomDO> pageResult = workOrderBomService.getWorkOrderBomPage(pageReqVO);
+        return success(new PageResult<>(buildWorkOrderBomRespVOList(pageResult.getList()), pageResult.getTotal()));
     }
 
     // ==================== 拼接 VO ====================
 
-    private List<MesProWorkorderBomRespVO> buildWorkorderBomRespVOList(List<MesProWorkorderBomDO> list) {
+    private List<MesProWorkOrderBomRespVO> buildWorkOrderBomRespVOList(List<MesProWorkOrderBomDO> list) {
         if (CollUtil.isEmpty(list)) {
             return Collections.emptyList();
         }
         // 1. 批量获取关联数据
         Map<Long, MesMdItemDO> itemMap = itemService.getItemMap(
-                convertSet(list, MesProWorkorderBomDO::getItemId));
+                convertSet(list, MesProWorkOrderBomDO::getItemId));
         Map<Long, MesMdUnitMeasureDO> unitMeasureMap = unitMeasureService.getUnitMeasureMap(
-                convertSet(list, MesProWorkorderBomDO::getUnitMeasureId));
+                convertSet(list, MesProWorkOrderBomDO::getUnitMeasureId));
         // 2. 拼接 VO
-        return BeanUtils.toBean(list, MesProWorkorderBomRespVO.class, vo -> {
-            MapUtils.findAndThen(itemMap, vo.getItemId(), item -> {
-                // TODO @AI：少了 spec 字段？另外，改成链式调用；
-                vo.setItemName(item.getName());
-                vo.setItemCode(item.getCode());
-                vo.setItemSpec(item.getSpec());
-            });
+        return BeanUtils.toBean(list, MesProWorkOrderBomRespVO.class, vo -> {
+            MapUtils.findAndThen(itemMap, vo.getItemId(), item ->
+                    vo.setItemName(item.getName()).setItemCode(item.getCode())
+                            .setItemSpec(item.getSpecification()));
             MapUtils.findAndThen(unitMeasureMap, vo.getUnitMeasureId(),
                     unitMeasure -> vo.setUnitMeasureName(unitMeasure.getName()));
         });

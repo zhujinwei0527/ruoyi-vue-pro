@@ -11,10 +11,10 @@ import lombok.ToString;
 @Data
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
-public class MesProWorkorderBomPageReqVO extends PageParam {
+public class MesProWorkOrderBomPageReqVO extends PageParam {
 
     @Schema(description = "生产工单编号", requiredMode = Schema.RequiredMode.REQUIRED, example = "100")
     @NotNull(message = "生产工单编号不能为空")
-    private Long workorderId;
+    private Long workOrderId;
 
 }

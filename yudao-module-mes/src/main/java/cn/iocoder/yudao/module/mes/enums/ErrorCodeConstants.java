@@ -145,8 +145,14 @@ public interface ErrorCodeConstants {
     // ========== MES 生产管理-生产任务（1-040-503-000） ==========
     ErrorCode PRO_TASK_NOT_EXISTS = new ErrorCode(1_040_503_000, "生产任务不存在");
 
-    // ========== MES 质量管理-检验模板（1-040-600-000） ==========
-    ErrorCode QC_TEMPLATE_NOT_EXISTS = new ErrorCode(1_040_600_000, "检验模板不存在");
+    // ========== MES 质量管理-质检方案（1-040-600-000） ==========
+    ErrorCode QC_TEMPLATE_NOT_EXISTS = new ErrorCode(1_040_600_000, "质检方案不存在");
+    ErrorCode QC_TEMPLATE_CODE_DUPLICATE = new ErrorCode(1_040_600_001, "质检方案编号已存在");
+    // ========== MES 质量管理-质检方案检测指标项（1-040-600-100） ==========
+    ErrorCode QC_TEMPLATE_INDICATOR_NOT_EXISTS = new ErrorCode(1_040_600_100, "质检方案检测指标项不存在");
+    // ========== MES 质量管理-质检方案产品关联（1-040-600-200） ==========
+    ErrorCode QC_TEMPLATE_ITEM_NOT_EXISTS = new ErrorCode(1_040_600_200, "质检方案产品关联不存在");
+    ErrorCode QC_TEMPLATE_ITEM_DUPLICATE = new ErrorCode(1_040_600_201, "该产品已关联此质检方案");
 
     // ========== MES 质量管理-质检指标（1-040-601-000） ==========
     ErrorCode QC_INDICATOR_NOT_EXISTS = new ErrorCode(1_040_601_000, "质检指标不存在");

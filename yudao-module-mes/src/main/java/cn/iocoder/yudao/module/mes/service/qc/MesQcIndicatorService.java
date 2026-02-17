@@ -1,8 +1,8 @@
 package cn.iocoder.yudao.module.mes.service.qc;
 
 import cn.iocoder.yudao.framework.common.pojo.PageResult;
-import cn.iocoder.yudao.module.mes.controller.admin.qc.vo.MesQcIndicatorPageReqVO;
-import cn.iocoder.yudao.module.mes.controller.admin.qc.vo.MesQcIndicatorSaveReqVO;
+import cn.iocoder.yudao.module.mes.controller.admin.qc.indicator.vo.MesQcIndicatorPageReqVO;
+import cn.iocoder.yudao.module.mes.controller.admin.qc.indicator.vo.MesQcIndicatorSaveReqVO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.qc.MesQcIndicatorDO;
 import jakarta.validation.Valid;
 

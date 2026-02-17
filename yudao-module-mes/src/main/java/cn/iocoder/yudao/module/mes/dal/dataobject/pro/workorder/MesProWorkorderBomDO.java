@@ -15,15 +15,15 @@ import java.math.BigDecimal;
  *
  * @author 芋道源码
  */
-@TableName("mes_pro_workorder_bom")
-@KeySequence("mes_pro_workorder_bom_seq") // 用于 Oracle、PostgreSQL、Kingbase、DB2、H2 数据库的主键自增。如果是 MySQL 等数据库，可不写。
+@TableName("mes_pro_work_order_bom")
+@KeySequence("mes_pro_work_order_bom_seq") // 用于 Oracle、PostgreSQL、Kingbase、DB2、H2 数据库的主键自增。如果是 MySQL 等数据库，可不写。
 @Data
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class MesProWorkorderBomDO extends BaseDO {
+public class MesProWorkOrderBomDO extends BaseDO {
 
     /**
      * 编号
@@ -33,9 +33,9 @@ public class MesProWorkorderBomDO extends BaseDO {
     /**
      * 生产工单编号
      *
-     * 关联 {@link MesProWorkorderDO#getId()}
+     * 关联 {@link MesProWorkOrderDO#getId()}
      */
-    private Long workorderId;
+    private Long workOrderId;
     /**
      * BOM 物料编号
      *
@@ -48,11 +48,6 @@ public class MesProWorkorderBomDO extends BaseDO {
      * 关联 {@link MesMdUnitMeasureDO#getId()}
      */
     private Long unitMeasureId;
-    // TODO @AI：需要存储么？还是使用 itemId 的冗余？
-    /**
-     * 物料产品标识
-     */
-    private String itemOrProduct;
     /**
      * 预计使用量
      */

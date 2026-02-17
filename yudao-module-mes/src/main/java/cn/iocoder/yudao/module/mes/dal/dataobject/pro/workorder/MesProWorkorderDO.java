@@ -5,9 +5,9 @@ import cn.iocoder.yudao.module.mes.dal.dataobject.md.client.MesMdClientDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.md.item.MesMdItemDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.md.unitmeasure.MesMdUnitMeasureDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.md.vendor.MesMdVendorDO;
-import cn.iocoder.yudao.module.mes.enums.pro.MesProWorkorderSourceTypeEnum;
-import cn.iocoder.yudao.module.mes.enums.pro.MesProWorkorderStatusEnum;
-import cn.iocoder.yudao.module.mes.enums.pro.MesProWorkorderTypeEnum;
+import cn.iocoder.yudao.module.mes.enums.pro.MesProWorkOrderSourceTypeEnum;
+import cn.iocoder.yudao.module.mes.enums.pro.MesProWorkOrderStatusEnum;
+import cn.iocoder.yudao.module.mes.enums.pro.MesProWorkOrderTypeEnum;
 import com.baomidou.mybatisplus.annotation.KeySequence;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
@@ -21,15 +21,15 @@ import java.time.LocalDateTime;
  *
  * @author 芋道源码
  */
-@TableName("mes_pro_workorder")
-@KeySequence("mes_pro_workorder_seq") // 用于 Oracle、PostgreSQL、Kingbase、DB2、H2 数据库的主键自增。如果是 MySQL 等数据库，可不写。
+@TableName("mes_pro_work_order")
+@KeySequence("mes_pro_work_order_seq") // 用于 Oracle、PostgreSQL、Kingbase、DB2、H2 数据库的主键自增。如果是 MySQL 等数据库，可不写。
 @Data
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class MesProWorkorderDO extends BaseDO {
+public class MesProWorkOrderDO extends BaseDO {
 
     /**
      * 编号
@@ -47,13 +47,13 @@ public class MesProWorkorderDO extends BaseDO {
     /**
      * 工单类型
      *
-     * 枚举 {@link MesProWorkorderTypeEnum}
+     * 枚举 {@link MesProWorkOrderTypeEnum}
      */
     private Integer type;
     /**
      * 来源类型
      *
-     * 枚举 {@link MesProWorkorderSourceTypeEnum}
+     * 枚举 {@link MesProWorkOrderSourceTypeEnum}
      */
     private Integer orderSourceType;
     /**
@@ -111,14 +111,9 @@ public class MesProWorkorderDO extends BaseDO {
     /**
      * 父工单编号
      *
-     * 关联 {@link MesProWorkorderDO#getId()}
+     * 关联 {@link MesProWorkOrderDO#getId()}
      */
     private Long parentId;
-    // TODO @AI：panrentId？不用父节点编号；
-    /**
-     * 所有父节点编号
-     */
-    private String ancestors;
     /**
      * 完成时间
      */
@@ -130,7 +125,7 @@ public class MesProWorkorderDO extends BaseDO {
     /**
      * 工单状态
      *
-     * 枚举 {@link MesProWorkorderStatusEnum}
+     * 枚举 {@link MesProWorkOrderStatusEnum}
      */
     private Integer status;
     /**

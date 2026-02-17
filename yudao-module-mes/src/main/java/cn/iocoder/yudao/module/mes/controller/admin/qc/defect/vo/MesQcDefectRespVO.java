@@ -1,33 +1,44 @@
-package cn.iocoder.yudao.module.mes.controller.admin.qc.vo;
+package cn.iocoder.yudao.module.mes.controller.admin.qc.defect.vo;
 
+import cn.iocoder.yudao.framework.excel.core.annotations.DictFormat;
+import cn.iocoder.yudao.framework.excel.core.convert.DictConvert;
+import cn.iocoder.yudao.module.mes.enums.DictTypeConstants;
+import cn.idev.excel.annotation.ExcelIgnoreUnannotated;
+import cn.idev.excel.annotation.ExcelProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.NotEmpty;
 import lombok.Data;
 
-@Schema(description = "管理后台 - MES 缺陷类型新增/修改 Request VO")
+import java.time.LocalDateTime;
+
+@Schema(description = "管理后台 - MES 缺陷类型 Response VO")
 @Data
-public class MesQcDefectSaveReqVO {
+@ExcelIgnoreUnannotated
+public class MesQcDefectRespVO {
 
     @Schema(description = "编号", requiredMode = Schema.RequiredMode.REQUIRED, example = "1024")
+    @ExcelProperty("编号")
     private Long id;
 
     @Schema(description = "缺陷编码", requiredMode = Schema.RequiredMode.REQUIRED, example = "DF001")
-    @NotEmpty(message = "缺陷编码不能为空")
+    @ExcelProperty("缺陷编码")
     private String code;
 
     @Schema(description = "缺陷描述", requiredMode = Schema.RequiredMode.REQUIRED, example = "外观缺陷")
-    @NotEmpty(message = "缺陷描述不能为空")
+    @ExcelProperty("缺陷描述")
     private String name;
 
     @Schema(description = "检测项类型", requiredMode = Schema.RequiredMode.REQUIRED, example = "APPEARANCE")
-    @NotEmpty(message = "检测项类型不能为空")
+    @ExcelProperty(value = "检测项类型", converter = DictConvert.class)
+    @DictFormat(DictTypeConstants.MES_INDEX_TYPE)
     private String type;
 
     @Schema(description = "缺陷等级", requiredMode = Schema.RequiredMode.REQUIRED, example = "MIN")
-    @NotEmpty(message = "缺陷等级不能为空")
+    @ExcelProperty(value = "缺陷等级", converter = DictConvert.class)
+    @DictFormat(DictTypeConstants.MES_DEFECT_LEVEL)
     private String level;
 
     @Schema(description = "备注", example = "备注")
+    @ExcelProperty("备注")
     private String remark;
 
     @Schema(description = "预留字段1")
@@ -41,5 +52,9 @@ public class MesQcDefectSaveReqVO {
 
     @Schema(description = "预留字段4")
     private Integer attribute4;
+
+    @Schema(description = "创建时间", requiredMode = Schema.RequiredMode.REQUIRED)
+    @ExcelProperty("创建时间")
+    private LocalDateTime createTime;
 
 }

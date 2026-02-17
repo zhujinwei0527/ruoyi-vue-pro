@@ -1,4 +1,4 @@
-package cn.iocoder.yudao.module.mes.dal.dataobject.cal;
+package cn.iocoder.yudao.module.mes.dal.dataobject.cal.plan;
 
 import cn.iocoder.yudao.framework.mybatis.core.dataobject.BaseDO;
 import cn.iocoder.yudao.module.mes.enums.cal.MesCalCalendarTypeEnum;

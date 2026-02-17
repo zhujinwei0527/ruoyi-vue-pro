@@ -2,7 +2,7 @@ package cn.iocoder.yudao.module.mes.dal.mysql.cal.plan;
 
 import cn.iocoder.yudao.framework.mybatis.core.mapper.BaseMapperX;
 import cn.iocoder.yudao.framework.mybatis.core.query.LambdaQueryWrapperX;
-import cn.iocoder.yudao.module.mes.dal.dataobject.cal.MesCalPlanTeamDO;
+import cn.iocoder.yudao.module.mes.dal.dataobject.cal.plan.MesCalPlanTeamDO;
 import org.apache.ibatis.annotations.Mapper;
 
 import java.util.List;

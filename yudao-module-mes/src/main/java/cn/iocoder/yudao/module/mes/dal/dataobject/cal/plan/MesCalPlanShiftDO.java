@@ -1,4 +1,4 @@
-package cn.iocoder.yudao.module.mes.dal.dataobject.cal;
+package cn.iocoder.yudao.module.mes.dal.dataobject.cal.plan;
 
 import cn.iocoder.yudao.framework.mybatis.core.dataobject.BaseDO;
 import com.baomidou.mybatisplus.annotation.KeySequence;
@@ -7,22 +7,22 @@ import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.*;
 
 /**
- * MES 计划班组关联 DO
+ * MES 计划班次 DO
  *
  * @author 芋道源码
  */
-@TableName("mes_cal_plan_team")
-@KeySequence("mes_cal_plan_team_seq")
+@TableName("mes_cal_plan_shift")
+@KeySequence("mes_cal_plan_shift_seq")
 @Data
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class MesCalPlanTeamDO extends BaseDO {
+public class MesCalPlanShiftDO extends BaseDO {
 
     /**
-     * 编号
+     * 班次编号
      */
     @TableId
     private Long id;
@@ -33,11 +33,21 @@ public class MesCalPlanTeamDO extends BaseDO {
      */
     private Long planId;
     /**
-     * 班组编号
-     *
-     * TODO @芋艿：关联 cal_team 表，等 cal_team 迁移后补充
+     * 显示顺序
      */
-    private Long teamId;
+    private Integer sort;
+    /**
+     * 班次名称
+     */
+    private String name;
+    /**
+     * 开始时间（HH:mm 格式）
+     */
+    private String startTime;
+    /**
+     * 结束时间（HH:mm 格式）
+     */
+    private String endTime;
     /**
      * 备注
      */

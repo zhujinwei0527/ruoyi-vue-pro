@@ -1,0 +1,58 @@
+package cn.iocoder.yudao.module.mes.controller.admin.qc.template.vo.indicator;
+
+import cn.idev.excel.annotation.ExcelIgnoreUnannotated;
+import cn.idev.excel.annotation.ExcelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.Data;
+
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+
+@Schema(description = "管理后台 - MES 质检方案-检测指标项 Response VO")
+@Data
+@ExcelIgnoreUnannotated
+public class MesQcTemplateIndicatorRespVO {
+
+    @Schema(description = "编号", requiredMode = Schema.RequiredMode.REQUIRED, example = "1024")
+    @ExcelProperty("编号")
+    private Long id;
+
+    @Schema(description = "质检方案ID", requiredMode = Schema.RequiredMode.REQUIRED, example = "1")
+    private Long templateId;
+
+    @Schema(description = "质检指标ID", requiredMode = Schema.RequiredMode.REQUIRED, example = "1")
+    @ExcelProperty("质检指标ID")
+    private Long indicatorId;
+
+    @Schema(description = "检测方法/检测要求", example = "目视检查外观")
+    @ExcelProperty("检测方法")
+    private String checkMethod;
+
+    @Schema(description = "标准值", example = "10.0000")
+    @ExcelProperty("标准值")
+    private BigDecimal standardValue;
+
+    @Schema(description = "单位", example = "mm")
+    @ExcelProperty("单位")
+    private String unit;
+
+    @Schema(description = "误差上限", example = "10.5000")
+    @ExcelProperty("误差上限")
+    private BigDecimal thresholdMax;
+
+    @Schema(description = "误差下限", example = "9.5000")
+    @ExcelProperty("误差下限")
+    private BigDecimal thresholdMin;
+
+    @Schema(description = "说明图URL", example = "https://example.com/doc.png")
+    private String docUrl;
+
+    @Schema(description = "备注", example = "备注")
+    @ExcelProperty("备注")
+    private String remark;
+
+    @Schema(description = "创建时间", requiredMode = Schema.RequiredMode.REQUIRED)
+    @ExcelProperty("创建时间")
+    private LocalDateTime createTime;
+
+}

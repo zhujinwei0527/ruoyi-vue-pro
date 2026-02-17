@@ -11,14 +11,14 @@ import java.time.LocalDateTime;
 @Schema(description = "管理后台 - MES 生产工单 BOM Response VO")
 @Data
 @ExcelIgnoreUnannotated
-public class MesProWorkorderBomRespVO {
+public class MesProWorkOrderBomRespVO {
 
     @Schema(description = "编号", requiredMode = Schema.RequiredMode.REQUIRED, example = "1024")
     @ExcelProperty("编号")
     private Long id;
 
     @Schema(description = "生产工单编号", example = "100")
-    private Long workorderId;
+    private Long workOrderId;
 
     @Schema(description = "BOM 物料编号", example = "200")
     private Long itemId;
@@ -41,10 +41,6 @@ public class MesProWorkorderBomRespVO {
     @Schema(description = "单位名称", example = "个")
     @ExcelProperty("单位")
     private String unitMeasureName;
-
-    @Schema(description = "物料产品标识", example = "ITEM")
-    @ExcelProperty("物料产品标识")
-    private String itemOrProduct;
 
     @Schema(description = "预计使用量", example = "10.00")
     @ExcelProperty("预计使用量")

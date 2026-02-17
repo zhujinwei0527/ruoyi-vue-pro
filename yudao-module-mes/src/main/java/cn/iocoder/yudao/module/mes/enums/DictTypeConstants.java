@@ -23,5 +23,6 @@ public interface DictTypeConstants {
     String MES_PRO_WORKORDER_STATUS = "mes_pro_workorder_status"; // MES 生产工单状态
     String MES_PRO_WORKORDER_SOURCE_TYPE = "mes_pro_workorder_source_type"; // MES 工单来源类型
     String MES_PRO_WORKORDER_TYPE = "mes_pro_workorder_type"; // MES 工单类型
+    String MES_QC_TYPE = "mes_qc_type"; // MES 检测种类（IQC/IPQC/OQC/RQC）
 
 }

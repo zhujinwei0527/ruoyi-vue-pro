@@ -1,4 +1,4 @@
-package cn.iocoder.yudao.module.mes.controller.admin.qc;
+package cn.iocoder.yudao.module.mes.controller.admin.qc.indicator;
 
 import cn.iocoder.yudao.framework.apilog.core.annotation.ApiAccessLog;
 import cn.iocoder.yudao.framework.common.pojo.CommonResult;
@@ -6,9 +6,9 @@ import cn.iocoder.yudao.framework.common.pojo.PageParam;
 import cn.iocoder.yudao.framework.common.pojo.PageResult;
 import cn.iocoder.yudao.framework.common.util.object.BeanUtils;
 import cn.iocoder.yudao.framework.excel.core.util.ExcelUtils;
-import cn.iocoder.yudao.module.mes.controller.admin.qc.vo.MesQcIndicatorPageReqVO;
-import cn.iocoder.yudao.module.mes.controller.admin.qc.vo.MesQcIndicatorRespVO;
-import cn.iocoder.yudao.module.mes.controller.admin.qc.vo.MesQcIndicatorSaveReqVO;
+import cn.iocoder.yudao.module.mes.controller.admin.qc.indicator.vo.MesQcIndicatorPageReqVO;
+import cn.iocoder.yudao.module.mes.controller.admin.qc.indicator.vo.MesQcIndicatorRespVO;
+import cn.iocoder.yudao.module.mes.controller.admin.qc.indicator.vo.MesQcIndicatorSaveReqVO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.qc.MesQcIndicatorDO;
 import cn.iocoder.yudao.module.mes.service.qc.MesQcIndicatorService;
 import io.swagger.v3.oas.annotations.Operation;
