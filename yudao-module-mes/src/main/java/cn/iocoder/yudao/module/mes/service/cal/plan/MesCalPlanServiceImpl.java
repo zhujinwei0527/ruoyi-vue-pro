@@ -65,15 +65,26 @@ public class MesCalPlanServiceImpl implements MesCalPlanService {
         }
         // 1.3 校验编码唯一
         validatePlanCodeUnique(updateReqVO.getId(), updateReqVO.getCode());
-        // 1.4 若 status 变为 CONFIRMED，校验班组数量
-        if (MesCalPlanStatusEnum.CONFIRMED.getStatus().equals(updateReqVO.getStatus())) {
-            validateTeamCountForConfirm(updateReqVO.getId(), updateReqVO.getShiftType());
-        }
 
         // 2. 更新
+        updateReqVO.setStatus(null); // 不允许通过 update 修改状态，状态变更走专用接口
         MesCalPlanDO updateObj = BeanUtils.toBean(updateReqVO, MesCalPlanDO.class);
         planMapper.updateById(updateObj);
+    }
 
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void confirmPlan(Long id) {
+        // 1.1 校验存在 + 校验状态为草稿
+        MesCalPlanDO plan = validatePlanPrepare(id);
+        // 1.2 校验班组数量与轮班方式匹配
+        validateTeamCountForConfirm(id, plan.getShiftType());
+
+        // 2. 更新状态为已确认
+        MesCalPlanDO updateObj = new MesCalPlanDO();
+        updateObj.setId(id);
+        updateObj.setStatus(MesCalPlanStatusEnum.CONFIRMED.getStatus());
+        planMapper.updateById(updateObj);
         // TODO @芋艿：确认时调用 calTeamshiftService.genRecords(planId) 生成排班记录，等 cal_team_shift 迁移后
     }
 
@@ -101,11 +112,12 @@ public class MesCalPlanServiceImpl implements MesCalPlanService {
     }
 
     @Override
-    public void validatePlanPrepare(Long planId) {
+    public MesCalPlanDO validatePlanPrepare(Long planId) {
         MesCalPlanDO plan = validatePlanExists(planId);
         if (ObjUtil.notEqual(MesCalPlanStatusEnum.PREPARE.getStatus(), plan.getStatus())) {
             throw exception(CAL_PLAN_NOT_PREPARE);
         }
+        return plan;
     }
 
     private MesCalPlanDO validatePlanExists(Long id) {

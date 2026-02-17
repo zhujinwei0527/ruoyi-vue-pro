@@ -29,6 +29,13 @@ public interface MesCalPlanService {
     void updatePlan(@Valid MesCalPlanSaveReqVO updateReqVO);
 
     /**
+     * 确认排班计划
+     *
+     * @param id 编号
+     */
+    void confirmPlan(Long id);
+
+    /**
      * 删除排班计划
      *
      * @param id 编号
@@ -39,8 +46,9 @@ public interface MesCalPlanService {
      * 校验排班计划为草稿状态（确认后不允许编辑）
      *
      * @param planId 计划编号
+     * @return 排班计划
      */
-    void validatePlanPrepare(Long planId);
+    MesCalPlanDO validatePlanPrepare(Long planId);
 
     /**
      * 获得排班计划

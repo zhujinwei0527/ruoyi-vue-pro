@@ -51,6 +51,15 @@ public class MesCalPlanController {
         return success(true);
     }
 
+    @PutMapping("/confirm")
+    @Operation(summary = "确认排班计划")
+    @Parameter(name = "id", description = "编号", required = true)
+    @PreAuthorize("@ss.hasPermission('mes:cal-plan:update')")
+    public CommonResult<Boolean> confirmPlan(@RequestParam("id") Long id) {
+        planService.confirmPlan(id);
+        return success(true);
+    }
+
     @DeleteMapping("/delete")
     @Operation(summary = "删除排班计划")
     @Parameter(name = "id", description = "编号", required = true)
