@@ -11,6 +11,7 @@ import cn.iocoder.yudao.module.mes.dal.mysql.cal.plan.MesCalPlanMapper;
 import cn.iocoder.yudao.module.mes.dal.mysql.cal.plan.MesCalPlanShiftMapper;
 import cn.iocoder.yudao.module.mes.enums.cal.MesCalShiftTypeEnum;
 import jakarta.annotation.Resource;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 
@@ -32,10 +33,14 @@ public class MesCalPlanShiftServiceImpl implements MesCalPlanShiftService {
     private MesCalPlanShiftMapper planShiftMapper;
     @Resource
     private MesCalPlanMapper planMapper;
+    @Resource
+    @Lazy
+    private MesCalPlanService planService;
 
     @Override
     public Long createPlanShift(MesCalPlanShiftSaveReqVO createReqVO) {
-        // TODO @AI：需要校验下，plan 未确定；（确认后，不允许编辑）
+        // 校验计划未确认
+        planService.validatePlanPrepare(createReqVO.getPlanId());
         // 校验班次数量限制
         validatePlanShiftCount(createReqVO.getPlanId());
 
@@ -47,9 +52,10 @@ public class MesCalPlanShiftServiceImpl implements MesCalPlanShiftService {
 
     @Override
     public void updatePlanShift(MesCalPlanShiftSaveReqVO updateReqVO) {
-        // TODO @AI：需要校验下，plan 未确定；（确认后，不允许编辑）
         // 校验存在
-        validatePlanShiftExists(updateReqVO.getId());
+        MesCalPlanShiftDO existShift = validatePlanShiftExists(updateReqVO.getId());
+        // 校验计划未确认
+        planService.validatePlanPrepare(existShift.getPlanId());
         // 更新
         MesCalPlanShiftDO updateObj = BeanUtils.toBean(updateReqVO, MesCalPlanShiftDO.class);
         planShiftMapper.updateById(updateObj);
@@ -57,17 +63,20 @@ public class MesCalPlanShiftServiceImpl implements MesCalPlanShiftService {
 
     @Override
     public void deletePlanShift(Long id) {
-        // TODO @AI：需要校验下，plan 未确定；（确认后，不允许编辑）
         // 校验存在
-        validatePlanShiftExists(id);
+        MesCalPlanShiftDO existShift = validatePlanShiftExists(id);
+        // 校验计划未确认
+        planService.validatePlanPrepare(existShift.getPlanId());
         // 删除
         planShiftMapper.deleteById(id);
     }
 
-    private void validatePlanShiftExists(Long id) {
-        if (planShiftMapper.selectById(id) == null) {
+    private MesCalPlanShiftDO validatePlanShiftExists(Long id) {
+        MesCalPlanShiftDO shift = planShiftMapper.selectById(id);
+        if (shift == null) {
             throw exception(CAL_PLAN_SHIFT_NOT_EXISTS);
         }
+        return shift;
     }
 
     /**
