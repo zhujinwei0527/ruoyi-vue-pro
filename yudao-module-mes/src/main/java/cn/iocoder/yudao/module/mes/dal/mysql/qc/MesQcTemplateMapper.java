@@ -22,16 +22,12 @@ public interface MesQcTemplateMapper extends BaseMapperX<MesQcTemplateDO> {
                 .likeIfPresent(MesQcTemplateDO::getCode, reqVO.getCode())
                 .likeIfPresent(MesQcTemplateDO::getName, reqVO.getName())
                 .orderByDesc(MesQcTemplateDO::getId);
-        // types: 取第一个值做 LIKE 匹配（简单实现，支持单值过滤）
-        // TODO @AI：find in set；你看看 mybatisutils 有类似的；
+        // types: 用 FIND_IN_SET 精确匹配逗号分隔字段（取第一个值过滤）
+        // TODO @AI：MyBatisUtils 的 findInSet
         if (reqVO.getTypes() != null && !reqVO.getTypes().isEmpty()) {
-            query.like(MesQcTemplateDO::getTypes, String.valueOf(reqVO.getTypes().get(0)));
+            query.apply("FIND_IN_SET({0}, types) > 0", reqVO.getTypes().get(0));
         }
-        // TODO @AI：是不是里面就是 boolean
-        // enableFlag: 转为 Y/N 已经改成 boolean 了，数据库里也是 boolean
-        if (reqVO.getEnableFlag() != null) {
-            query.eq(MesQcTemplateDO::getEnableFlag, Boolean.TRUE.equals(reqVO.getEnableFlag()) ? "Y" : "N");
-        }
+        query.eqIfPresent(MesQcTemplateDO::getEnableFlag, reqVO.getEnableFlag());
         return selectPage(reqVO, query);
     }
 

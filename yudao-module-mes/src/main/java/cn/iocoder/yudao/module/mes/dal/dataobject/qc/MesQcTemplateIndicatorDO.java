@@ -1,6 +1,7 @@
 package cn.iocoder.yudao.module.mes.dal.dataobject.qc;
 
 import cn.iocoder.yudao.framework.mybatis.core.dataobject.BaseDO;
+import cn.iocoder.yudao.module.mes.dal.dataobject.md.unitmeasure.MesMdUnitMeasureDO;
 import com.baomidou.mybatisplus.annotation.KeySequence;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
@@ -28,31 +29,32 @@ public class MesQcTemplateIndicatorDO extends BaseDO {
      */
     @TableId
     private Long id;
-    // TODO @AI：关联字段
     /**
-     * 质检方案ID
+     * 质检方案编号
+     *
+     * 关联 {@link MesQcTemplateDO#getId()}
      */
     private Long templateId;
-    // TODO @AI：关联字段
     /**
-     * 质检指标ID（关联 mes_qc_indicator，通过 JOIN 查询指标信息）
+     * 质检指标编号
      *
-     * TODO @芋艿：等 qc_indicator 完成后，完善关联查询和前端选择器
+     * 关联 {@link MesQcIndicatorDO#getId()}
      */
     private Long indicatorId;
     /**
-     * 检测方法/检测要求
+     * 检测方法
      */
     private String checkMethod;
     /**
      * 标准值
      */
     private BigDecimal standardValue;
-    // TODO @AI：应该关联单位那个表；
     /**
-     * 单位
+     * 计量单位编号
+     *
+     * 关联 {@link MesMdUnitMeasureDO#getId()}
      */
-    private String unit;
+    private Long unitMeasureId;
     /**
      * 误差上限
      */

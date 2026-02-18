@@ -33,6 +33,7 @@ import java.util.List;
 import static cn.iocoder.yudao.framework.apilog.core.enums.OperateTypeEnum.EXPORT;
 import static cn.iocoder.yudao.framework.common.pojo.CommonResult.success;
 
+// TODO @AI：拆分为多个 controller，和别的模块；
 @Tag(name = "管理后台 - MES 质检方案")
 @RestController
 @RequestMapping("/mes/qc/template")

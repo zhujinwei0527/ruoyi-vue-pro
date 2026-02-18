@@ -31,9 +31,8 @@ public class MesQcTemplateIndicatorRespVO {
     @ExcelProperty("标准值")
     private BigDecimal standardValue;
 
-    @Schema(description = "单位", example = "mm")
-    @ExcelProperty("单位")
-    private String unit;
+    @Schema(description = "计量单位ID", example = "1")
+    private Long unitMeasureId;
 
     @Schema(description = "误差上限", example = "10.5000")
     @ExcelProperty("误差上限")
@@ -71,5 +70,11 @@ public class MesQcTemplateIndicatorRespVO {
     @Schema(description = "检测工具", example = "卡尺")
     @ExcelProperty("检测工具")
     private String indicatorTool;
+
+    // ========== JOIN mes_md_unit_measure ==========
+
+    @Schema(description = "计量单位名称", example = "mm")
+    @ExcelProperty("单位")
+    private String unitMeasureName;
 
 }

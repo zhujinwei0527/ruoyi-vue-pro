@@ -17,21 +17,18 @@ public class MesQcTemplateIndicatorSaveReqVO {
     @NotNull(message = "质检方案ID不能为空")
     private Long templateId;
 
-    /**
-     * TODO @芋艿：等 qc_indicator 完成后，改为选择器，此处改为 @NotNull 强校验
-     */
-    @Schema(description = "质检指标ID（关联 mes_qc_indicator）", requiredMode = Schema.RequiredMode.REQUIRED, example = "1")
-    @NotNull(message = "质检指标ID不能为空")
+    @Schema(description = "质检指标ID", requiredMode = Schema.RequiredMode.REQUIRED, example = "1")
+    @NotNull(message = "质检指标不能为空")
     private Long indicatorId;
 
-    @Schema(description = "检测方法/检测要求", example = "目视检查外观")
+    @Schema(description = "检测方法", example = "目视检查外观")
     private String checkMethod;
 
     @Schema(description = "标准值", example = "10.0000")
     private BigDecimal standardValue;
 
-    @Schema(description = "单位", example = "mm")
-    private String unit;
+    @Schema(description = "计量单位ID", example = "1")
+    private Long unitMeasureId;
 
     @Schema(description = "误差上限", example = "10.5000")
     private BigDecimal thresholdMax;

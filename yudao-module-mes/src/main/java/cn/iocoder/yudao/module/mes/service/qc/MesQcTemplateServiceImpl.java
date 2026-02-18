@@ -2,7 +2,6 @@ package cn.iocoder.yudao.module.mes.service.qc;
 
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.ObjUtil;
-import cn.hutool.core.util.StrUtil;
 import cn.iocoder.yudao.framework.common.pojo.PageResult;
 import cn.iocoder.yudao.framework.common.util.object.BeanUtils;
 import cn.iocoder.yudao.module.mes.controller.admin.qc.template.vo.MesQcTemplatePageReqVO;
@@ -31,7 +30,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -68,11 +66,8 @@ public class MesQcTemplateServiceImpl implements MesQcTemplateService {
     public Long createTemplate(MesQcTemplateSaveReqVO createReqVO) {
         // 校验编码唯一
         validateTemplateCodeUnique(null, createReqVO.getCode());
-
-        // 插入
+        // 插入（types 由 IntegerListTypeHandler 自动做 List↔逗号字符串转换，enableFlag Boolean↔bit 自动映射）
         MesQcTemplateDO template = BeanUtils.toBean(createReqVO, MesQcTemplateDO.class);
-        template.setTypes(convertTypesToString(createReqVO.getTypes()));
-        template.setEnableFlag(Boolean.TRUE.equals(createReqVO.getEnableFlag()) ? "Y" : "N");
         templateMapper.insert(template);
         return template.getId();
     }
@@ -83,11 +78,8 @@ public class MesQcTemplateServiceImpl implements MesQcTemplateService {
         validateTemplateExists(updateReqVO.getId());
         // 校验编码唯一
         validateTemplateCodeUnique(updateReqVO.getId(), updateReqVO.getCode());
-
         // 更新
         MesQcTemplateDO updateObj = BeanUtils.toBean(updateReqVO, MesQcTemplateDO.class);
-        updateObj.setTypes(convertTypesToString(updateReqVO.getTypes()));
-        updateObj.setEnableFlag(Boolean.TRUE.equals(updateReqVO.getEnableFlag()) ? "Y" : "N");
         templateMapper.updateById(updateObj);
     }
 
@@ -96,7 +88,6 @@ public class MesQcTemplateServiceImpl implements MesQcTemplateService {
     public void deleteTemplate(Long id) {
         // 校验存在
         validateTemplateExists(id);
-
         // 删除主表
         templateMapper.deleteById(id);
         // 级联删除检测指标项
@@ -121,20 +112,25 @@ public class MesQcTemplateServiceImpl implements MesQcTemplateService {
         }
     }
 
+    // TODO @AI：返回 DO；交给 controller 拼接
     @Override
     public MesQcTemplateRespVO getTemplate(Long id) {
         MesQcTemplateDO do0 = templateMapper.selectById(id);
         if (do0 == null) {
             return null;
         }
-        return convertTemplateRespVO(do0);
+        // types/enableFlag 由 TypeHandler/MyBatis-Plus 自动映射，直接 toBean 即可
+        return BeanUtils.toBean(do0, MesQcTemplateRespVO.class);
     }
 
+    // TODO @AI：返回 DO；交给 controller 拼接
     @Override
     public PageResult<MesQcTemplateRespVO> getTemplatePage(MesQcTemplatePageReqVO pageReqVO) {
         PageResult<MesQcTemplateDO> pageResult = templateMapper.selectPage(pageReqVO);
         return new PageResult<>(
-                pageResult.getList().stream().map(this::convertTemplateRespVO).collect(Collectors.toList()),
+                pageResult.getList().stream()
+                        .map(do0 -> BeanUtils.toBean(do0, MesQcTemplateRespVO.class))
+                        .collect(Collectors.toList()),
                 pageResult.getTotal()
         );
     }
@@ -152,47 +148,12 @@ public class MesQcTemplateServiceImpl implements MesQcTemplateService {
         return templateMapper.selectByIds(ids);
     }
 
-    /**
-     * DO → RespVO：转换 types（String → List<Integer>）和 enableFlag（Y/N → Boolean）
-     */
-    private MesQcTemplateRespVO convertTemplateRespVO(MesQcTemplateDO do0) {
-        MesQcTemplateRespVO vo = BeanUtils.toBean(do0, MesQcTemplateRespVO.class);
-        vo.setTypes(convertTypesToList(do0.getTypes()));
-        vo.setEnableFlag("Y".equals(do0.getEnableFlag()));
-        return vo;
-    }
-
-    /**
-     * List<Integer> → 逗号分隔字符串（如 [1,3] → "1,3"）
-     */
-    private String convertTypesToString(List<Integer> types) {
-        if (CollUtil.isEmpty(types)) {
-            return null;
-        }
-        return types.stream().map(String::valueOf).collect(Collectors.joining(","));
-    }
-
-    /**
-     * 逗号分隔字符串 → List<Integer>（如 "1,3" → [1,3]）
-     */
-    private List<Integer> convertTypesToList(String types) {
-        if (StrUtil.isBlank(types)) {
-            return Collections.emptyList();
-        }
-        return Arrays.stream(types.split(","))
-                .map(String::trim)
-                .filter(StrUtil::isNotBlank)
-                .map(Integer::parseInt)
-                .collect(Collectors.toList());
-    }
-
     // ========== 质检方案-检测指标项 ==========
 
     @Override
     public Long createTemplateIndicator(MesQcTemplateIndicatorSaveReqVO createReqVO) {
         // 校验方案存在
         validateTemplateExists(createReqVO.getTemplateId());
-
         // 插入
         MesQcTemplateIndicatorDO indicator = BeanUtils.toBean(createReqVO, MesQcTemplateIndicatorDO.class);
         templateIndicatorMapper.insert(indicator);
@@ -203,7 +164,6 @@ public class MesQcTemplateServiceImpl implements MesQcTemplateService {
     public void updateTemplateIndicator(MesQcTemplateIndicatorSaveReqVO updateReqVO) {
         // 校验存在
         validateTemplateIndicatorExists(updateReqVO.getId());
-
         // 更新
         MesQcTemplateIndicatorDO updateObj = BeanUtils.toBean(updateReqVO, MesQcTemplateIndicatorDO.class);
         templateIndicatorMapper.updateById(updateObj);
@@ -242,10 +202,11 @@ public class MesQcTemplateServiceImpl implements MesQcTemplateService {
     }
 
     /**
-     * DO → RespVO：JOIN mes_qc_indicator 补充检测项信息
+     * DO → RespVO：JOIN mes_qc_indicator 补充检测项信息，JOIN mes_md_unit_measure 补充单位名称
      */
     private MesQcTemplateIndicatorRespVO convertIndicatorRespVO(MesQcTemplateIndicatorDO do0) {
         MesQcTemplateIndicatorRespVO vo = BeanUtils.toBean(do0, MesQcTemplateIndicatorRespVO.class);
+        // JOIN 质检指标
         if (do0.getIndicatorId() != null) {
             MesQcIndicatorDO indicator = indicatorMapper.selectById(do0.getIndicatorId());
             if (indicator != null) {
@@ -253,6 +214,13 @@ public class MesQcTemplateServiceImpl implements MesQcTemplateService {
                 vo.setIndicatorName(indicator.getName());
                 vo.setIndicatorType(indicator.getType());
                 vo.setIndicatorTool(indicator.getTool());
+            }
+        }
+        // JOIN 计量单位
+        if (do0.getUnitMeasureId() != null) {
+            MesMdUnitMeasureDO unit = unitMeasureMapper.selectById(do0.getUnitMeasureId());
+            if (unit != null) {
+                vo.setUnitMeasureName(unit.getName());
             }
         }
         return vo;
@@ -266,7 +234,6 @@ public class MesQcTemplateServiceImpl implements MesQcTemplateService {
         validateTemplateExists(createReqVO.getTemplateId());
         // 校验产品在此方案中唯一
         validateTemplateItemNotDuplicate(null, createReqVO.getTemplateId(), createReqVO.getItemId());
-
         // 插入
         MesQcTemplateItemDO item = BeanUtils.toBean(createReqVO, MesQcTemplateItemDO.class);
         templateItemMapper.insert(item);
@@ -279,7 +246,6 @@ public class MesQcTemplateServiceImpl implements MesQcTemplateService {
         validateTemplateItemExists(updateReqVO.getId());
         // 校验产品在此方案中唯一
         validateTemplateItemNotDuplicate(updateReqVO.getId(), updateReqVO.getTemplateId(), updateReqVO.getItemId());
-
         // 更新
         MesQcTemplateItemDO updateObj = BeanUtils.toBean(updateReqVO, MesQcTemplateItemDO.class);
         templateItemMapper.updateById(updateObj);

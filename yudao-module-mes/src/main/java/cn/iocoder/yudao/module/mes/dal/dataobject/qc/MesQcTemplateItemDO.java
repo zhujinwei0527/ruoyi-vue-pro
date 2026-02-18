@@ -1,6 +1,7 @@
 package cn.iocoder.yudao.module.mes.dal.dataobject.qc;
 
 import cn.iocoder.yudao.framework.mybatis.core.dataobject.BaseDO;
+import cn.iocoder.yudao.module.mes.dal.dataobject.md.item.MesMdItemDO;
 import com.baomidou.mybatisplus.annotation.KeySequence;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
@@ -28,14 +29,16 @@ public class MesQcTemplateItemDO extends BaseDO {
      */
     @TableId
     private Long id;
-    // TODO @AI：关联字段
     /**
-     * 质检方案ID
+     * 质检方案编号
+     *
+     * 关联 {@link MesQcTemplateDO#getId()}
      */
     private Long templateId;
-    // TODO @AI：关联字段
     /**
-     * 产品物料ID（关联 mes_md_item，通过 ID 查询物料信息）
+     * 产品物料编号
+     *
+     * 关联 {@link MesMdItemDO#getId()}
      */
     private Long itemId;
     /**
