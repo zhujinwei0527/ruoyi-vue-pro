@@ -1,13 +1,17 @@
 package cn.iocoder.yudao.module.mes.controller.admin.cal.team;
 
+import cn.hutool.core.collection.CollUtil;
 import cn.iocoder.yudao.framework.common.pojo.CommonResult;
 import cn.iocoder.yudao.framework.common.pojo.PageResult;
+import cn.iocoder.yudao.framework.common.util.collection.MapUtils;
 import cn.iocoder.yudao.framework.common.util.object.BeanUtils;
 import cn.iocoder.yudao.module.mes.controller.admin.cal.team.vo.member.MesCalTeamMemberPageReqVO;
 import cn.iocoder.yudao.module.mes.controller.admin.cal.team.vo.member.MesCalTeamMemberRespVO;
 import cn.iocoder.yudao.module.mes.controller.admin.cal.team.vo.member.MesCalTeamMemberSaveReqVO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.cal.team.MesCalTeamMemberDO;
 import cn.iocoder.yudao.module.mes.service.cal.team.MesCalTeamMemberService;
+import cn.iocoder.yudao.module.system.api.user.AdminUserApi;
+import cn.iocoder.yudao.module.system.api.user.dto.AdminUserRespDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -18,9 +22,12 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 import static cn.iocoder.yudao.framework.common.pojo.CommonResult.success;
+import static cn.iocoder.yudao.framework.common.util.collection.CollectionUtils.convertSet;
 
 @Tag(name = "管理后台 - MES 班组成员")
 @RestController
@@ -30,6 +37,8 @@ public class MesCalTeamMemberController {
 
     @Resource
     private MesCalTeamMemberService teamMemberService;
+    @Resource
+    private AdminUserApi adminUserApi;
 
     @PostMapping("/create")
     @Operation(summary = "创建班组成员")
@@ -64,25 +73,36 @@ public class MesCalTeamMemberController {
         return success(BeanUtils.toBean(pageResult, MesCalTeamMemberRespVO.class));
     }
 
-    // TODO @AI：getTeamMemberListByTeam、getTeamMemberListByTeamIds 融合下，允许传递 teamId、teamIds；
-
     @GetMapping("/list-by-team")
-    @Operation(summary = "获得指定班组的成员列表")
-    @Parameter(name = "teamId", description = "班组编号", required = true)
+    @Operation(summary = "获得班组成员列表", description = "支持单个 teamId 或多个 teamIds")
     @PreAuthorize("@ss.hasPermission('mes:cal-team:query')")
-    public CommonResult<List<MesCalTeamMemberRespVO>> getTeamMemberListByTeam(@RequestParam("teamId") Long teamId) {
-        List<MesCalTeamMemberDO> list = teamMemberService.getTeamMemberListByTeamId(teamId);
-        return success(BeanUtils.toBean(list, MesCalTeamMemberRespVO.class));
+    public CommonResult<List<MesCalTeamMemberRespVO>> getTeamMemberListByTeam(
+            @RequestParam(value = "teamId", required = false) Long teamId,
+            @RequestParam(value = "teamIds", required = false) Collection<Long> teamIds) {
+        List<MesCalTeamMemberDO> list;
+        if (CollUtil.isNotEmpty(teamIds)) {
+            list = teamMemberService.getTeamMemberListByTeamIds(teamIds);
+        } else if (teamId != null) {
+            list = teamMemberService.getTeamMemberListByTeamId(teamId);
+        } else {
+            list = Collections.emptyList();
+        }
+        return success(buildMemberRespVOList(list));
     }
 
-    @GetMapping("/list-by-team-ids")
-    @Operation(summary = "获得指定多个班组的成员列表")
-    @Parameter(name = "teamIds", description = "班组编号列表", required = true)
-    @PreAuthorize("@ss.hasPermission('mes:cal-team:query')")
-    public CommonResult<List<MesCalTeamMemberRespVO>> getTeamMemberListByTeamIds(
-            @RequestParam("teamIds") Collection<Long> teamIds) {
-        List<MesCalTeamMemberDO> list = teamMemberService.getTeamMemberListByTeamIds(teamIds);
-        return success(BeanUtils.toBean(list, MesCalTeamMemberRespVO.class));
+    // ==================== 拼接 VO ====================
+
+    private List<MesCalTeamMemberRespVO> buildMemberRespVOList(List<MesCalTeamMemberDO> list) {
+        if (CollUtil.isEmpty(list)) {
+            return Collections.emptyList();
+        }
+        Map<Long, AdminUserRespDTO> userMap = adminUserApi.getUserMap(
+                convertSet(list, MesCalTeamMemberDO::getUserId));
+        return BeanUtils.toBean(list, MesCalTeamMemberRespVO.class, vo ->
+                MapUtils.findAndThen(userMap, vo.getUserId(), user -> {
+                    vo.setNickname(user.getNickname());
+                    vo.setTelephone(user.getMobile());
+                }));
     }
 
 }

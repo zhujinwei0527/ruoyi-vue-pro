@@ -37,7 +37,7 @@ public class MesCalTeamMemberServiceImpl implements MesCalTeamMemberService {
         // 1.1 校验班组存在
         teamService.validateTeamExists(createReqVO.getTeamId());
         // 1.2 校验用户未分配到其他班组
-        validateUserUnique(null, createReqVO.getUserId());
+        validateUserUnique(createReqVO.getUserId());
 
         // 2. 插入
         MesCalTeamMemberDO member = BeanUtils.toBean(createReqVO, MesCalTeamMemberDO.class);
@@ -78,19 +78,14 @@ public class MesCalTeamMemberServiceImpl implements MesCalTeamMemberService {
         teamMemberMapper.deleteByTeamId(teamId);
     }
 
-    // TODO @AI：无需返回；
-    private MesCalTeamMemberDO validateTeamMemberExists(Long id) {
-        MesCalTeamMemberDO member = teamMemberMapper.selectById(id);
-        if (member == null) {
+    private void validateTeamMemberExists(Long id) {
+        if (teamMemberMapper.selectById(id) == null) {
             throw exception(CAL_TEAM_MEMBER_NOT_EXISTS);
         }
-        return member;
     }
 
-    // TODO @AI：这里的 excludeId 可以去掉
-    private void validateUserUnique(Long excludeId, Long userId) {
-        MesCalTeamMemberDO member = teamMemberMapper.selectByUserIdExcludeId(userId, excludeId);
-        if (member != null) {
+    private void validateUserUnique(Long userId) {
+        if (teamMemberMapper.selectByUserId(userId) != null) {
             throw exception(CAL_TEAM_MEMBER_USER_DUPLICATE);
         }
     }

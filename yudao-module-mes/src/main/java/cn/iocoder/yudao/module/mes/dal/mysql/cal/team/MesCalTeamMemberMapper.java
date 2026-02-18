@@ -32,10 +32,8 @@ public interface MesCalTeamMemberMapper extends BaseMapperX<MesCalTeamMemberDO> 
         return selectList(MesCalTeamMemberDO::getTeamId, teamIds);
     }
 
-    default MesCalTeamMemberDO selectByUserIdExcludeId(Long userId, Long excludeId) {
-        return selectOne(new LambdaQueryWrapperX<MesCalTeamMemberDO>()
-                .eq(MesCalTeamMemberDO::getUserId, userId)
-                .neIfPresent(MesCalTeamMemberDO::getId, excludeId));
+    default MesCalTeamMemberDO selectByUserId(Long userId) {
+        return selectOne(MesCalTeamMemberDO::getUserId, userId);
     }
 
     default void deleteByTeamId(Long teamId) {
