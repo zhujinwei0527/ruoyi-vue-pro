@@ -1,6 +1,8 @@
 package cn.iocoder.yudao.module.mes.controller.admin.pro.route;
 
+import cn.hutool.core.collection.CollUtil;
 import cn.iocoder.yudao.framework.common.pojo.CommonResult;
+import cn.iocoder.yudao.framework.common.util.collection.MapUtils;
 import cn.iocoder.yudao.framework.common.util.object.BeanUtils;
 import cn.iocoder.yudao.module.mes.controller.admin.pro.route.vo.process.MesProRouteProcessRespVO;
 import cn.iocoder.yudao.module.mes.controller.admin.pro.route.vo.process.MesProRouteProcessSaveReqVO;
@@ -18,11 +20,14 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import static cn.iocoder.yudao.framework.common.pojo.CommonResult.success;
 import static cn.iocoder.yudao.framework.common.util.collection.CollectionUtils.convertMap;
+import static cn.iocoder.yudao.framework.common.util.collection.CollectionUtils.convertSet;
 
 @Tag(name = "管理后台 - MES 工艺路线工序")
 @RestController
@@ -81,42 +86,23 @@ public class MesProRouteProcessController {
     // ==================== 拼接 VO ====================
 
     private List<MesProRouteProcessRespVO> buildRouteProcessRespVOList(List<MesProRouteProcessDO> list) {
-        // TODO @AI：collutil 去判断空；
-        if (list.isEmpty()) {
-            return List.of();
+        if (CollUtil.isEmpty(list)) {
+            return Collections.emptyList();
         }
-        // 批量查询工序信息
-        // TODO @AI：我记得有 CollUtil 可以搞多个的；
-        List<Long> processIds = new ArrayList<>();
-        for (MesProRouteProcessDO item : list) {
-            processIds.add(item.getProcessId());
-            if (item.getNextProcessId() != null) {
-                processIds.add(item.getNextProcessId());
-            }
-        }
-        // TODO @AI：processService.getProcessMap 直接返回 Map 就好了；
-        List<MesProProcessDO> processList = processService.getProcessList(processIds);
-        Map<Long, MesProProcessDO> processMap = convertMap(processList, MesProProcessDO::getId);
-        // 拼装
-        List<MesProRouteProcessRespVO> result = BeanUtils.toBean(list, MesProRouteProcessRespVO.class);
-        for (MesProRouteProcessRespVO vo : result) {
-            // TODO @AI：MapUtil findMap
-            MesProProcessDO process = processMap.get(vo.getProcessId());
-            if (process != null) {
-                vo.setProcessCode(process.getCode()).setProcessName(process.getName());
-            }
-            // TODO @AI：MapUtil findMap
-            if (vo.getNextProcessId() != null) {
-                MesProProcessDO nextProcess = processMap.get(vo.getNextProcessId());
-                if (nextProcess != null) {
-                    vo.setNextProcessName(nextProcess.getName());
-                }
-            }
-        }
-        return result;
+        // 1. 批量获取关联数据
+        Set<Long> processIds = convertSet(list, MesProRouteProcessDO::getProcessId);
+        list.forEach(item -> { if (item.getNextProcessId() != null) processIds.add(item.getNextProcessId()); });
+        Map<Long, MesProProcessDO> processMap = convertMap(
+                processService.getProcessList(new ArrayList<>(processIds)), MesProProcessDO::getId);
+        // 2. 拼接 VO
+        return BeanUtils.toBean(list, MesProRouteProcessRespVO.class, vo -> {
+            MapUtils.findAndThen(processMap, vo.getProcessId(),
+                    process -> vo.setProcessCode(process.getCode()).setProcessName(process.getName()));
+            MapUtils.findAndThen(processMap, vo.getNextProcessId(),
+                    nextProcess -> vo.setNextProcessName(nextProcess.getName()));
+        });
     }
 
-    // TODO @AI：需要的地方，直接调用 buildRouteProcessRespVOList；
     private MesProRouteProcessRespVO buildRouteProcessRespVO(MesProRouteProcessDO routeProcess) {
         if (routeProcess == null) {
             return null;

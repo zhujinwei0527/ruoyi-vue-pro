@@ -28,14 +28,16 @@ public class MesProRouteProductDO extends BaseDO {
      */
     @TableId
     private Long id;
-    // TODO @AI：外链 @ 加下，参考别的模块
     /**
      * 工艺路线编号
+     *
+     * 关联 {@link MesProRouteDO#getId()}
      */
     private Long routeId;
-    // TODO @AI：外链 @ 加下，参考别的模块
     /**
      * 产品物料编号
+     *
+     * 关联 {@link cn.iocoder.yudao.module.mes.dal.dataobject.md.item.MesMdItemDO#getId()}
      */
     private Long itemId;
     /**
@@ -48,8 +50,10 @@ public class MesProRouteProductDO extends BaseDO {
     private BigDecimal productionTime;
     /**
      * 时间单位
+     *
+     * 字典类型 mes_time_unit_type
      */
-    // TODO @AI：外链 @ 加下，字典 + 枚举类；
+    // TODO @AI：外链 @ 加下，字典 + 枚举类；（需要枚举出来。在 dictconstants 里）
     private String timeUnitType;
     /**
      * 备注

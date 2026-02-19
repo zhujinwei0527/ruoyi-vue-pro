@@ -14,6 +14,7 @@ import cn.iocoder.yudao.module.mes.dal.dataobject.pro.route.MesProRouteDO;
 import cn.iocoder.yudao.module.mes.service.pro.route.MesProRouteService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.Parameters;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletResponse;
@@ -50,6 +51,19 @@ public class MesProRouteController {
     @PreAuthorize("@ss.hasPermission('mes:pro-route:update')")
     public CommonResult<Boolean> updateRoute(@Valid @RequestBody MesProRouteSaveReqVO updateReqVO) {
         routeService.updateRoute(updateReqVO);
+        return success(true);
+    }
+
+    @PutMapping("/update-status")
+    @Operation(summary = "更新工艺路线状态")
+    @Parameters({
+            @Parameter(name = "id", description = "编号", required = true),
+            @Parameter(name = "status", description = "状态", required = true)
+    })
+    @PreAuthorize("@ss.hasPermission('mes:pro-route:update')")
+    public CommonResult<Boolean> updateRouteStatus(@RequestParam("id") Long id,
+                                                    @RequestParam("status") Integer status) {
+        routeService.updateRouteStatus(id, status);
         return success(true);
     }
 

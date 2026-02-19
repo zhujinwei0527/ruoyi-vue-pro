@@ -38,4 +38,11 @@ public interface MesProRouteProcessService {
      */
     List<MesProRouteProcessDO> getRouteProcessListByRouteId(Long routeId);
 
+    /**
+     * 按工艺路线删除工序（级联删除使用）
+     *
+     * @param routeId 工艺路线编号
+     */
+    void deleteRouteProcessByRouteId(Long routeId);
+
 }

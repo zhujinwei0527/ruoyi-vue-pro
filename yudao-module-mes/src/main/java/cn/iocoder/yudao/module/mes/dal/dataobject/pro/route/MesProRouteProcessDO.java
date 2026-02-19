@@ -26,23 +26,26 @@ public class MesProRouteProcessDO extends BaseDO {
      */
     @TableId
     private Long id;
-    // TODO @AI：外链 @ 加下，参考别的模块
     /**
      * 工艺路线编号
+     *
+     * 关联 {@link MesProRouteDO#getId()}
      */
     private Long routeId;
-    // TODO @AI：外链 @ 加下，参考别的模块
     /**
      * 工序编号
+     *
+     * 关联 {@link cn.iocoder.yudao.module.mes.dal.dataobject.pro.MesProProcessDO#getId()}
      */
     private Long processId;
     /**
      * 序号
      */
     private Integer sort;
-    // TODO @AI：外链 @ 加下，参考别的模块
     /**
      * 下一道工序编号
+     *
+     * 关联 {@link cn.iocoder.yudao.module.mes.dal.dataobject.pro.MesProProcessDO#getId()}
      */
     private Long nextProcessId;
     /**

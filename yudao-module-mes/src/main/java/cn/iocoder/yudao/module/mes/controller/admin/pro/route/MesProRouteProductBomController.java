@@ -1,6 +1,8 @@
 package cn.iocoder.yudao.module.mes.controller.admin.pro.route;
 
+import cn.hutool.core.collection.CollUtil;
 import cn.iocoder.yudao.framework.common.pojo.CommonResult;
+import cn.iocoder.yudao.framework.common.util.collection.MapUtils;
 import cn.iocoder.yudao.framework.common.util.object.BeanUtils;
 import cn.iocoder.yudao.module.mes.controller.admin.pro.route.vo.productbom.MesProRouteProductBomRespVO;
 import cn.iocoder.yudao.module.mes.controller.admin.pro.route.vo.productbom.MesProRouteProductBomSaveReqVO;
@@ -20,11 +22,12 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
 import static cn.iocoder.yudao.framework.common.pojo.CommonResult.success;
-import static cn.iocoder.yudao.framework.common.util.collection.CollectionUtils.convertList;
+import static cn.iocoder.yudao.framework.common.util.collection.CollectionUtils.convertSet;
 import static cn.iocoder.yudao.framework.common.util.collection.CollectionUtils.convertMap;
 
 @Tag(name = "管理后台 - MES 工艺路线产品 BOM")
@@ -93,35 +96,24 @@ public class MesProRouteProductBomController {
 
     // ==================== 拼接 VO ====================
 
-    // TODO @AI：参考 /Users/yunai/Java/yudao-all-in-one/ruoyi-vue-pro/yudao-module-mes/src/main/java/cn/iocoder/yudao/module/mes/controller/admin/pro/route/MesProRouteProcessController.java 的 todo；
-
     private List<MesProRouteProductBomRespVO> buildRouteProductBomRespVOList(List<MesProRouteProductBomDO> list) {
-        if (list.isEmpty()) {
-            return List.of();
+        if (CollUtil.isEmpty(list)) {
+            return Collections.emptyList();
         }
-        // 批量查询物料信息
-        List<Long> itemIds = convertList(list, MesProRouteProductBomDO::getItemId);
-        List<MesMdItemDO> itemList = itemService.getItemList(itemIds);
-        Map<Long, MesMdItemDO> itemMap = convertMap(itemList, MesMdItemDO::getId);
-        // 批量查询单位信息
-        List<Long> unitMeasureIds = convertList(itemList, MesMdItemDO::getUnitMeasureId);
-        Map<Long, MesMdUnitMeasureDO> unitMap = convertMap(
-                unitMeasureService.getUnitMeasureList(unitMeasureIds), MesMdUnitMeasureDO::getId);
-        // 拼装
-        List<MesProRouteProductBomRespVO> result = BeanUtils.toBean(list, MesProRouteProductBomRespVO.class);
-        for (MesProRouteProductBomRespVO vo : result) {
-            MesMdItemDO item = itemMap.get(vo.getItemId());
-            if (item != null) {
-                vo.setItemCode(item.getCode());
-                vo.setItemName(item.getName());
-                vo.setSpecification(item.getSpecification());
-                MesMdUnitMeasureDO unit = unitMap.get(item.getUnitMeasureId());
-                if (unit != null) {
-                    vo.setUnitName(unit.getName());
-                }
-            }
-        }
-        return result;
+        // 1. 批量获取关联数据
+        Map<Long, MesMdItemDO> itemMap = itemService.getItemMap(
+                convertSet(list, MesProRouteProductBomDO::getItemId));
+        Map<Long, MesMdUnitMeasureDO> unitMap = unitMeasureService.getUnitMeasureMap(
+                convertSet(itemMap.values(), MesMdItemDO::getUnitMeasureId));
+        // 2. 拼接 VO
+        return BeanUtils.toBean(list, MesProRouteProductBomRespVO.class, vo -> {
+            MapUtils.findAndThen(itemMap, vo.getItemId(), item -> {
+                vo.setItemCode(item.getCode()).setItemName(item.getName())
+                        .setSpecification(item.getSpecification());
+                MapUtils.findAndThen(unitMap, item.getUnitMeasureId(),
+                        unit -> vo.setUnitName(unit.getName()));
+            });
+        });
     }
 
     private MesProRouteProductBomRespVO buildRouteProductBomRespVO(MesProRouteProductBomDO routeProductBom) {

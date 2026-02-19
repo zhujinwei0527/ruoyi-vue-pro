@@ -53,7 +53,8 @@ public class MesQcTemplateServiceImpl implements MesQcTemplateService {
     public Long createTemplate(MesQcTemplateSaveReqVO createReqVO) {
         // 校验编码唯一
         validateTemplateCodeUnique(null, createReqVO.getCode());
-        // 插入（types 由 IntegerListTypeHandler 自动做 List↔逗号字符串转换，enableFlag Boolean↔bit 自动映射）
+
+        // 插入
         MesQcTemplateDO template = BeanUtils.toBean(createReqVO, MesQcTemplateDO.class);
         templateMapper.insert(template);
         return template.getId();

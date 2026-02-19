@@ -26,6 +26,14 @@ public interface MesProRouteService {
     void updateRoute(@Valid MesProRouteSaveReqVO updateReqVO);
 
     /**
+     * 更新工艺路线状态（启用/禁用）
+     *
+     * @param id 编号
+     * @param status 状态
+     */
+    void updateRouteStatus(Long id, Integer status);
+
+    /**
      * 删除工艺路线
      */
     void deleteRoute(Long id);

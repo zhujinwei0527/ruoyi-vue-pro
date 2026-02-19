@@ -38,4 +38,19 @@ public interface MesProRouteProductBomService {
      */
     List<MesProRouteProductBomDO> getRouteProductBomList(Long routeId, Long processId, Long productId);
 
+    /**
+     * 按工艺路线删除产品 BOM（级联删除使用）
+     *
+     * @param routeId 工艺路线编号
+     */
+    void deleteRouteProductBomByRouteId(Long routeId);
+
+    /**
+     * 按工艺路线和产品删除 BOM（产品删除时级联使用）
+     *
+     * @param routeId 工艺路线编号
+     * @param productId 产品物料编号
+     */
+    void deleteRouteProductBomByRouteIdAndProductId(Long routeId, Long productId);
+
 }

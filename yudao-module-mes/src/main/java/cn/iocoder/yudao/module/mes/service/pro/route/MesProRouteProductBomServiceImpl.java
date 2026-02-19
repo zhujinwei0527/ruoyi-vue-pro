@@ -1,5 +1,6 @@
 package cn.iocoder.yudao.module.mes.service.pro.route;
 
+import cn.hutool.core.util.ObjUtil;
 import cn.iocoder.yudao.framework.common.util.object.BeanUtils;
 import cn.iocoder.yudao.module.mes.controller.admin.pro.route.vo.productbom.MesProRouteProductBomSaveReqVO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.pro.route.MesProRouteProductBomDO;
@@ -65,7 +66,7 @@ public class MesProRouteProductBomServiceImpl implements MesProRouteProductBomSe
         if (existing == null) {
             return;
         }
-        if (id == null || !existing.getId().equals(id)) {
+        if (ObjUtil.notEqual(existing.getId(), id)) {
             throw exception(PRO_ROUTE_PRODUCT_BOM_DUPLICATE);
         }
     }
@@ -78,6 +79,16 @@ public class MesProRouteProductBomServiceImpl implements MesProRouteProductBomSe
     @Override
     public List<MesProRouteProductBomDO> getRouteProductBomList(Long routeId, Long processId, Long productId) {
         return routeProductBomMapper.selectList(routeId, processId, productId);
+    }
+
+    @Override
+    public void deleteRouteProductBomByRouteId(Long routeId) {
+        routeProductBomMapper.deleteByRouteId(routeId);
+    }
+
+    @Override
+    public void deleteRouteProductBomByRouteIdAndProductId(Long routeId, Long productId) {
+        routeProductBomMapper.deleteByRouteIdAndProductId(routeId, productId);
     }
 
 }

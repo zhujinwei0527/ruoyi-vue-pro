@@ -1,5 +1,8 @@
 package cn.iocoder.yudao.module.mes.service.pro.route;
 
+import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.util.BooleanUtil;
+import cn.hutool.core.util.ObjUtil;
 import cn.iocoder.yudao.framework.common.enums.CommonStatusEnum;
 import cn.iocoder.yudao.framework.common.pojo.PageResult;
 import cn.iocoder.yudao.framework.common.util.object.BeanUtils;
@@ -10,10 +13,8 @@ import cn.iocoder.yudao.module.mes.dal.dataobject.pro.route.MesProRouteProcessDO
 import cn.iocoder.yudao.module.mes.dal.dataobject.pro.route.MesProRouteProductDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.pro.route.MesProRouteProductBomDO;
 import cn.iocoder.yudao.module.mes.dal.mysql.pro.MesProRouteMapper;
-import cn.iocoder.yudao.module.mes.dal.mysql.pro.MesProRouteProcessMapper;
-import cn.iocoder.yudao.module.mes.dal.mysql.pro.MesProRouteProductBomMapper;
-import cn.iocoder.yudao.module.mes.dal.mysql.pro.MesProRouteProductMapper;
 import jakarta.annotation.Resource;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
@@ -35,13 +36,15 @@ public class MesProRouteServiceImpl implements MesProRouteService {
     @Resource
     private MesProRouteMapper routeMapper;
 
-    // todo @AI：不要直接使用对方模块的 mapper，而是通过 service；
     @Resource
-    private MesProRouteProcessMapper routeProcessMapper;
+    @Lazy
+    private MesProRouteProcessService routeProcessService;
     @Resource
-    private MesProRouteProductMapper routeProductMapper;
+    @Lazy
+    private MesProRouteProductService routeProductService;
     @Resource
-    private MesProRouteProductBomMapper routeProductBomMapper;
+    @Lazy
+    private MesProRouteProductBomService routeProductBomService;
 
     @Override
     public Long createRoute(MesProRouteSaveReqVO createReqVO) {
@@ -59,15 +62,23 @@ public class MesProRouteServiceImpl implements MesProRouteService {
         validateRouteExists(updateReqVO.getId());
         // 1.2 校验编码唯一性
         validateRouteCodeUnique(updateReqVO.getId(), updateReqVO.getCode());
-        // 1.3 启用时的校验
-        // TODO @AI：开启禁用，独立接口；保持更新接口的独立；
-        if (CommonStatusEnum.ENABLE.getStatus().equals(updateReqVO.getStatus())) {
-            validateRouteEnable(updateReqVO.getId());
-        }
 
         // 2. 更新
         MesProRouteDO updateObj = BeanUtils.toBean(updateReqVO, MesProRouteDO.class);
         routeMapper.updateById(updateObj);
+    }
+
+    @Override
+    public void updateRouteStatus(Long id, Integer status) {
+        // 1.1 校验存在
+        validateRouteExists(id);
+        // 1.2 启用时的校验
+        if (CommonStatusEnum.ENABLE.getStatus().equals(status)) {
+            validateRouteEnable(id);
+        }
+
+        // 2. 更新状态
+        routeMapper.updateById(new MesProRouteDO().setId(id).setStatus(status));
     }
 
     @Override
@@ -77,9 +88,9 @@ public class MesProRouteServiceImpl implements MesProRouteService {
         validateRouteExists(id);
 
         // 2.1 级联删除
-        routeProcessMapper.deleteByRouteId(id);
-        routeProductMapper.deleteByRouteId(id);
-        routeProductBomMapper.deleteByRouteId(id);
+        routeProcessService.deleteRouteProcessByRouteId(id);
+        routeProductService.deleteRouteProductByRouteId(id);
+        routeProductBomService.deleteRouteProductBomByRouteId(id);
         // 2.2 删除工艺路线
         routeMapper.deleteById(id);
     }
@@ -95,8 +106,7 @@ public class MesProRouteServiceImpl implements MesProRouteService {
         if (route == null) {
             return;
         }
-        // TODO @AI：ObjUtil notequals；
-        if (id == null || !route.getId().equals(id)) {
+        if (ObjUtil.notEqual(route.getId(), id)) {
             throw exception(PRO_ROUTE_CODE_DUPLICATE);
         }
     }
@@ -106,23 +116,21 @@ public class MesProRouteServiceImpl implements MesProRouteService {
      */
     private void validateRouteEnable(Long routeId) {
         // 1. 必须有工序
-        List<MesProRouteProcessDO> processList = routeProcessMapper.selectListByRouteId(routeId);
-        if (processList.isEmpty()) {
+        List<MesProRouteProcessDO> processList = routeProcessService.getRouteProcessListByRouteId(routeId);
+        if (CollUtil.isEmpty(processList)) {
             throw exception(PRO_ROUTE_ENABLE_NO_PROCESS);
         }
         // 2. 必须有关键工序
         boolean hasKeyProcess = processList.stream().anyMatch(MesProRouteProcessDO::getKeyFlag);
-        // TODO @AI：BooleanUtils.isFalue(hasKeyProcess)
-        if (!hasKeyProcess) {
+        if (BooleanUtil.isFalse(hasKeyProcess)) {
             throw exception(PRO_ROUTE_ENABLE_NO_KEY_PROCESS);
         }
         // 3. 所有产品必须配置了 BOM 消耗
-        List<MesProRouteProductDO> productList = routeProductMapper.selectListByRouteId(routeId);
+        List<MesProRouteProductDO> productList = routeProductService.getRouteProductListByRouteId(routeId);
         for (MesProRouteProductDO product : productList) {
-            List<MesProRouteProductBomDO> bomList = routeProductBomMapper
-                    .selectListByRouteIdAndProductId(routeId, product.getItemId());
-            // TODO @AI：CollUtil.isEmpty(bomList)
-            if (bomList.isEmpty()) {
+            List<MesProRouteProductBomDO> bomList = routeProductBomService
+                    .getRouteProductBomList(routeId, null, product.getItemId());
+            if (CollUtil.isEmpty(bomList)) {
                 throw exception(PRO_ROUTE_ENABLE_PRODUCT_NO_BOM, product.getItemId());
             }
         }

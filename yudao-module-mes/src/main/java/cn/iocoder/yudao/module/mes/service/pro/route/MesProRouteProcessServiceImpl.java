@@ -1,8 +1,8 @@
 package cn.iocoder.yudao.module.mes.service.pro.route;
 
+import cn.hutool.core.collection.CollUtil;
 import cn.iocoder.yudao.framework.common.util.object.BeanUtils;
 import cn.iocoder.yudao.module.mes.controller.admin.pro.route.vo.process.MesProRouteProcessSaveReqVO;
-import cn.iocoder.yudao.module.mes.dal.dataobject.pro.MesProProcessDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.pro.route.MesProRouteProcessDO;
 import cn.iocoder.yudao.module.mes.dal.mysql.pro.MesProRouteProcessMapper;
 import cn.iocoder.yudao.module.mes.service.pro.MesProProcessService;
@@ -18,7 +18,6 @@ import java.util.List;
 import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception;
 import static cn.iocoder.yudao.module.mes.enums.ErrorCodeConstants.*;
 
-// TODO @AI：参考别的模块，需要校验下相关的工艺路线、工序是否存在；（别的 route 也是）；最好对方 service 提供校验方法；
 /**
  * MES 工艺路线工序 Service 实现类
  *
@@ -31,16 +30,23 @@ public class MesProRouteProcessServiceImpl implements MesProRouteProcessService 
     @Resource
     private MesProRouteProcessMapper routeProcessMapper;
 
-    // TODO @AI：貌似没用到？是不是应该要用下哈？
     @Resource
     @Lazy
     private MesProProcessService processService;
 
+    @Resource
+    @Lazy
+    private MesProRouteService routeService;
+
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Long createRouteProcess(MesProRouteProcessSaveReqVO createReqVO) {
-        // 1. 校验
-        validateRouteProcessCreate(createReqVO);
+        // 1.1 校验工艺路线、工序存在
+        validateRouteAndProcessExists(createReqVO.getRouteId(), createReqVO.getProcessId());
+        // 1.2 校验唯一性
+        validateSortUnique(null, createReqVO.getRouteId(), createReqVO.getSort());
+        validateProcessUnique(null, createReqVO.getRouteId(), createReqVO.getProcessId());
+        validateKeyProcessUnique(null, createReqVO.getRouteId(), createReqVO.getKeyFlag());
 
         // 2. 插入
         MesProRouteProcessDO routeProcess = BeanUtils.toBean(createReqVO, MesProRouteProcessDO.class);
@@ -56,8 +62,12 @@ public class MesProRouteProcessServiceImpl implements MesProRouteProcessService 
     public void updateRouteProcess(MesProRouteProcessSaveReqVO updateReqVO) {
         // 1.1 校验存在
         validateRouteProcessExists(updateReqVO.getId());
-        // 1.2 校验唯一性
-        validateRouteProcessUpdate(updateReqVO);
+        // 1.2 校验工艺路线、工序存在
+        validateRouteAndProcessExists(updateReqVO.getRouteId(), updateReqVO.getProcessId());
+        // 1.3 校验唯一性
+        validateSortUnique(updateReqVO.getId(), updateReqVO.getRouteId(), updateReqVO.getSort());
+        validateProcessUnique(updateReqVO.getId(), updateReqVO.getRouteId(), updateReqVO.getProcessId());
+        validateKeyProcessUnique(updateReqVO.getId(), updateReqVO.getRouteId(), updateReqVO.getKeyFlag());
 
         // 2. 更新
         MesProRouteProcessDO updateObj = BeanUtils.toBean(updateReqVO, MesProRouteProcessDO.class);
@@ -88,8 +98,7 @@ public class MesProRouteProcessServiceImpl implements MesProRouteProcessService 
      */
     private void rebuildProcessChain(Long routeId) {
         List<MesProRouteProcessDO> list = routeProcessMapper.selectListByRouteId(routeId);
-        // TODO @AI：CollUtil isEmpty；
-        if (list.isEmpty()) {
+        if (CollUtil.isEmpty(list)) {
             return;
         }
         // 按 sort 排序
@@ -111,45 +120,36 @@ public class MesProRouteProcessServiceImpl implements MesProRouteProcessService 
         }
     }
 
-    // TODO @AI：参考别的模块，拆分为多个模块
-    private void validateRouteProcessCreate(MesProRouteProcessSaveReqVO reqVO) {
-        // 序号唯一
-        MesProRouteProcessDO existing = routeProcessMapper.selectByRouteIdAndSort(reqVO.getRouteId(), reqVO.getSort());
-        if (existing != null) {
-            throw exception(PRO_ROUTE_PROCESS_SORT_DUPLICATE);
+    private void validateRouteAndProcessExists(Long routeId, Long processId) {
+        if (routeService.getRoute(routeId) == null) {
+            throw exception(PRO_ROUTE_NOT_EXISTS);
         }
-        // 工序不重复
-        existing = routeProcessMapper.selectByRouteIdAndProcessId(reqVO.getRouteId(), reqVO.getProcessId());
-        if (existing != null) {
-            throw exception(PRO_ROUTE_PROCESS_DUPLICATE);
-        }
-        // 关键工序唯一
-        if (Boolean.TRUE.equals(reqVO.getKeyFlag())) {
-            existing = routeProcessMapper.selectKeyProcessByRouteId(reqVO.getRouteId());
-            if (existing != null) {
-                throw exception(PRO_ROUTE_PROCESS_KEY_DUPLICATE);
-            }
+        if (processService.getProcess(processId) == null) {
+            throw exception(PRO_ROUTE_PROCESS_NOT_EXISTS);
         }
     }
 
-    // TODO @AI：参考别的模块，拆分为多个模块
-    private void validateRouteProcessUpdate(MesProRouteProcessSaveReqVO reqVO) {
-        // 序号唯一（排除自身）
-        MesProRouteProcessDO existing = routeProcessMapper.selectByRouteIdAndSort(reqVO.getRouteId(), reqVO.getSort());
-        if (existing != null && !existing.getId().equals(reqVO.getId())) {
+    private void validateSortUnique(Long id, Long routeId, Integer sort) {
+        MesProRouteProcessDO existing = routeProcessMapper.selectByRouteIdAndSort(routeId, sort);
+        if (existing != null && !existing.getId().equals(id)) {
             throw exception(PRO_ROUTE_PROCESS_SORT_DUPLICATE);
         }
-        // 工序不重复（排除自身）
-        existing = routeProcessMapper.selectByRouteIdAndProcessId(reqVO.getRouteId(), reqVO.getProcessId());
-        if (existing != null && !existing.getId().equals(reqVO.getId())) {
+    }
+
+    private void validateProcessUnique(Long id, Long routeId, Long processId) {
+        MesProRouteProcessDO existing = routeProcessMapper.selectByRouteIdAndProcessId(routeId, processId);
+        if (existing != null && !existing.getId().equals(id)) {
             throw exception(PRO_ROUTE_PROCESS_DUPLICATE);
         }
-        // 关键工序唯一（排除自身）
-        if (Boolean.TRUE.equals(reqVO.getKeyFlag())) {
-            existing = routeProcessMapper.selectKeyProcessByRouteId(reqVO.getRouteId());
-            if (existing != null && !existing.getId().equals(reqVO.getId())) {
-                throw exception(PRO_ROUTE_PROCESS_KEY_DUPLICATE);
-            }
+    }
+
+    private void validateKeyProcessUnique(Long id, Long routeId, Boolean keyFlag) {
+        if (!Boolean.TRUE.equals(keyFlag)) {
+            return;
+        }
+        MesProRouteProcessDO existing = routeProcessMapper.selectKeyProcessByRouteId(routeId);
+        if (existing != null && !existing.getId().equals(id)) {
+            throw exception(PRO_ROUTE_PROCESS_KEY_DUPLICATE);
         }
     }
 
@@ -161,6 +161,11 @@ public class MesProRouteProcessServiceImpl implements MesProRouteProcessService 
     @Override
     public List<MesProRouteProcessDO> getRouteProcessListByRouteId(Long routeId) {
         return routeProcessMapper.selectListByRouteId(routeId);
+    }
+
+    @Override
+    public void deleteRouteProcessByRouteId(Long routeId) {
+        routeProcessMapper.deleteByRouteId(routeId);
     }
 
 }

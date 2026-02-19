@@ -1,11 +1,12 @@
 package cn.iocoder.yudao.module.mes.service.pro.route;
 
+import cn.hutool.core.util.ObjUtil;
 import cn.iocoder.yudao.framework.common.util.object.BeanUtils;
 import cn.iocoder.yudao.module.mes.controller.admin.pro.route.vo.product.MesProRouteProductSaveReqVO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.pro.route.MesProRouteProductDO;
-import cn.iocoder.yudao.module.mes.dal.mysql.pro.MesProRouteProductBomMapper;
 import cn.iocoder.yudao.module.mes.dal.mysql.pro.MesProRouteProductMapper;
 import jakarta.annotation.Resource;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
@@ -27,9 +28,9 @@ public class MesProRouteProductServiceImpl implements MesProRouteProductService 
     @Resource
     private MesProRouteProductMapper routeProductMapper;
 
-    // TODO @AI：别人模块的操作，需要通过 service；
     @Resource
-    private MesProRouteProductBomMapper routeProductBomMapper;
+    @Lazy
+    private MesProRouteProductBomService routeProductBomService;
 
     @Override
     public Long createRouteProduct(MesProRouteProductSaveReqVO createReqVO) {
@@ -58,14 +59,11 @@ public class MesProRouteProductServiceImpl implements MesProRouteProductService 
     @Transactional(rollbackFor = Exception.class)
     public void deleteRouteProduct(Long id) {
         // 1. 校验存在
-        // TODO @AI：复用 validateRouteProductExists 方法；
         MesProRouteProductDO routeProduct = routeProductMapper.selectById(id);
-        if (routeProduct == null) {
-            throw exception(PRO_ROUTE_PRODUCT_NOT_EXISTS);
-        }
+        validateRouteProductExists(routeProduct);
 
         // 2.1 级联删除关联的 BOM
-        routeProductBomMapper.deleteByRouteIdAndProductId(routeProduct.getRouteId(), routeProduct.getItemId());
+        routeProductBomService.deleteRouteProductBomByRouteIdAndProductId(routeProduct.getRouteId(), routeProduct.getItemId());
         // 2.2 删除产品关联
         routeProductMapper.deleteById(id);
     }
@@ -76,13 +74,18 @@ public class MesProRouteProductServiceImpl implements MesProRouteProductService 
         }
     }
 
+    private void validateRouteProductExists(MesProRouteProductDO routeProduct) {
+        if (routeProduct == null) {
+            throw exception(PRO_ROUTE_PRODUCT_NOT_EXISTS);
+        }
+    }
+
     private void validateItemUnique(Long id, Long itemId) {
         MesProRouteProductDO existing = routeProductMapper.selectByItemId(itemId);
         if (existing == null) {
             return;
         }
-        // TODO @AI：notEquals
-        if (id == null || !existing.getId().equals(id)) {
+        if (ObjUtil.notEqual(existing.getId(), id)) {
             throw exception(PRO_ROUTE_PRODUCT_ITEM_DUPLICATE);
         }
     }
@@ -95,6 +98,11 @@ public class MesProRouteProductServiceImpl implements MesProRouteProductService 
     @Override
     public List<MesProRouteProductDO> getRouteProductListByRouteId(Long routeId) {
         return routeProductMapper.selectListByRouteId(routeId);
+    }
+
+    @Override
+    public void deleteRouteProductByRouteId(Long routeId) {
+        routeProductMapper.deleteByRouteId(routeId);
     }
 
 }

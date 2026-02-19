@@ -28,24 +28,28 @@ public class MesProRouteProductBomDO extends BaseDO {
      */
     @TableId
     private Long id;
-    // TODO @AI：外链 @ 加下，参考别的模块
     /**
      * 工艺路线编号
+     *
+     * 关联 {@link MesProRouteDO#getId()}
      */
     private Long routeId;
-    // TODO @AI：外链 @ 加下，参考别的模块
     /**
      * 工序编号
+     *
+     * 关联 {@link cn.iocoder.yudao.module.mes.dal.dataobject.pro.MesProProcessDO#getId()}
      */
     private Long processId;
-    // TODO @AI：外链 @ 加下，参考别的模块
     /**
      * 产品物料编号
+     *
+     * 关联 {@link cn.iocoder.yudao.module.mes.dal.dataobject.md.item.MesMdItemDO#getId()}
      */
     private Long productId;
-    // TODO @AI：外链 @ 加下，参考别的模块
     /**
      * BOM 物料编号
+     *
+     * 关联 {@link cn.iocoder.yudao.module.mes.dal.dataobject.md.item.MesMdItemDO#getId()}
      */
     private Long itemId;
     /**
