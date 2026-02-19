@@ -3,6 +3,7 @@ package cn.iocoder.yudao.module.mes.dal.mysql.qc;
 import cn.iocoder.yudao.framework.common.pojo.PageResult;
 import cn.iocoder.yudao.framework.mybatis.core.mapper.BaseMapperX;
 import cn.iocoder.yudao.framework.mybatis.core.query.LambdaQueryWrapperX;
+import cn.iocoder.yudao.framework.mybatis.core.util.MyBatisUtils;
 import cn.iocoder.yudao.module.mes.controller.admin.qc.template.vo.MesQcTemplatePageReqVO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.qc.MesQcTemplateDO;
 import org.apache.ibatis.annotations.Mapper;
@@ -22,10 +23,8 @@ public interface MesQcTemplateMapper extends BaseMapperX<MesQcTemplateDO> {
                 .likeIfPresent(MesQcTemplateDO::getCode, reqVO.getCode())
                 .likeIfPresent(MesQcTemplateDO::getName, reqVO.getName())
                 .orderByDesc(MesQcTemplateDO::getId);
-        // types: 用 FIND_IN_SET 精确匹配逗号分隔字段（取第一个值过滤）
-        // TODO @AI：MyBatisUtils 的 findInSet
-        if (reqVO.getTypes() != null && !reqVO.getTypes().isEmpty()) {
-            query.apply("FIND_IN_SET({0}, types) > 0", reqVO.getTypes().get(0));
+        if (reqVO.getType() != null) {
+            query.apply(MyBatisUtils.findInSet("types", reqVO.getType()));
         }
         query.eqIfPresent(MesQcTemplateDO::getEnableFlag, reqVO.getEnableFlag());
         return selectPage(reqVO, query);

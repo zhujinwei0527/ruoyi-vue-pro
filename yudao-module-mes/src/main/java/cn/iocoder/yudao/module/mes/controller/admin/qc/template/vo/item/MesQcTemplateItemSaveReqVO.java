@@ -24,16 +24,13 @@ public class MesQcTemplateItemSaveReqVO {
     @Schema(description = "最低检测数", example = "5")
     private Integer quantityCheck;
 
-    // TODO @AI：VO 里，（0=不启用） 去掉
-    @Schema(description = "最大不合格数（0=不启用）", example = "0")
+    @Schema(description = "最大不合格数", example = "0")
     private Integer quantityUnqualified;
 
-    // TODO @AI：VO 里，（0=不允许） 去掉
-    @Schema(description = "最大致命缺陷率（%，0=不允许）", example = "0")
+    @Schema(description = "最大致命缺陷率（%）", example = "0")
     private BigDecimal criticalRate;
 
-    // TODO @AI：VO 里，（0=不允许） 去掉
-    @Schema(description = "最大严重缺陷率（%，0=不允许）", example = "0")
+    @Schema(description = "最大严重缺陷率（%）", example = "0")
     private BigDecimal majorRate;
 
     @Schema(description = "最大轻微缺陷率（%）", example = "100")

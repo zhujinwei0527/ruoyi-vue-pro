@@ -5,22 +5,14 @@ import cn.hutool.core.util.ObjUtil;
 import cn.iocoder.yudao.framework.common.pojo.PageResult;
 import cn.iocoder.yudao.framework.common.util.object.BeanUtils;
 import cn.iocoder.yudao.module.mes.controller.admin.qc.template.vo.MesQcTemplatePageReqVO;
-import cn.iocoder.yudao.module.mes.controller.admin.qc.template.vo.MesQcTemplateRespVO;
 import cn.iocoder.yudao.module.mes.controller.admin.qc.template.vo.MesQcTemplateSaveReqVO;
 import cn.iocoder.yudao.module.mes.controller.admin.qc.template.vo.indicator.MesQcTemplateIndicatorPageReqVO;
-import cn.iocoder.yudao.module.mes.controller.admin.qc.template.vo.indicator.MesQcTemplateIndicatorRespVO;
 import cn.iocoder.yudao.module.mes.controller.admin.qc.template.vo.indicator.MesQcTemplateIndicatorSaveReqVO;
 import cn.iocoder.yudao.module.mes.controller.admin.qc.template.vo.item.MesQcTemplateItemPageReqVO;
-import cn.iocoder.yudao.module.mes.controller.admin.qc.template.vo.item.MesQcTemplateItemRespVO;
 import cn.iocoder.yudao.module.mes.controller.admin.qc.template.vo.item.MesQcTemplateItemSaveReqVO;
-import cn.iocoder.yudao.module.mes.dal.dataobject.md.item.MesMdItemDO;
-import cn.iocoder.yudao.module.mes.dal.dataobject.md.unitmeasure.MesMdUnitMeasureDO;
-import cn.iocoder.yudao.module.mes.dal.dataobject.qc.MesQcIndicatorDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.qc.MesQcTemplateDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.qc.MesQcTemplateIndicatorDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.qc.MesQcTemplateItemDO;
-import cn.iocoder.yudao.module.mes.dal.mysql.md.item.MesMdItemMapper;
-import cn.iocoder.yudao.module.mes.dal.mysql.md.unitmeasure.MesMdUnitMeasureMapper;
 import cn.iocoder.yudao.module.mes.dal.mysql.qc.MesQcIndicatorMapper;
 import cn.iocoder.yudao.module.mes.dal.mysql.qc.MesQcTemplateIndicatorMapper;
 import cn.iocoder.yudao.module.mes.dal.mysql.qc.MesQcTemplateItemMapper;
@@ -33,7 +25,6 @@ import org.springframework.validation.annotation.Validated;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception;
 import static cn.iocoder.yudao.module.mes.enums.ErrorCodeConstants.*;
@@ -55,10 +46,6 @@ public class MesQcTemplateServiceImpl implements MesQcTemplateService {
     private MesQcTemplateItemMapper templateItemMapper;
     @Resource
     private MesQcIndicatorMapper indicatorMapper;
-    @Resource
-    private MesMdItemMapper mdItemMapper;
-    @Resource
-    private MesMdUnitMeasureMapper unitMeasureMapper;
 
     // ========== 质检方案主表 ==========
 
@@ -112,27 +99,14 @@ public class MesQcTemplateServiceImpl implements MesQcTemplateService {
         }
     }
 
-    // TODO @AI：返回 DO；交给 controller 拼接
     @Override
-    public MesQcTemplateRespVO getTemplate(Long id) {
-        MesQcTemplateDO do0 = templateMapper.selectById(id);
-        if (do0 == null) {
-            return null;
-        }
-        // types/enableFlag 由 TypeHandler/MyBatis-Plus 自动映射，直接 toBean 即可
-        return BeanUtils.toBean(do0, MesQcTemplateRespVO.class);
+    public MesQcTemplateDO getTemplate(Long id) {
+        return templateMapper.selectById(id);
     }
 
-    // TODO @AI：返回 DO；交给 controller 拼接
     @Override
-    public PageResult<MesQcTemplateRespVO> getTemplatePage(MesQcTemplatePageReqVO pageReqVO) {
-        PageResult<MesQcTemplateDO> pageResult = templateMapper.selectPage(pageReqVO);
-        return new PageResult<>(
-                pageResult.getList().stream()
-                        .map(do0 -> BeanUtils.toBean(do0, MesQcTemplateRespVO.class))
-                        .collect(Collectors.toList()),
-                pageResult.getTotal()
-        );
+    public PageResult<MesQcTemplateDO> getTemplatePage(MesQcTemplatePageReqVO pageReqVO) {
+        return templateMapper.selectPage(pageReqVO);
     }
 
     @Override
@@ -184,46 +158,13 @@ public class MesQcTemplateServiceImpl implements MesQcTemplateService {
     }
 
     @Override
-    public MesQcTemplateIndicatorRespVO getTemplateIndicator(Long id) {
-        MesQcTemplateIndicatorDO do0 = templateIndicatorMapper.selectById(id);
-        if (do0 == null) {
-            return null;
-        }
-        return convertIndicatorRespVO(do0);
+    public MesQcTemplateIndicatorDO getTemplateIndicator(Long id) {
+        return templateIndicatorMapper.selectById(id);
     }
 
     @Override
-    public PageResult<MesQcTemplateIndicatorRespVO> getTemplateIndicatorPage(MesQcTemplateIndicatorPageReqVO pageReqVO) {
-        PageResult<MesQcTemplateIndicatorDO> pageResult = templateIndicatorMapper.selectPage(pageReqVO);
-        return new PageResult<>(
-                pageResult.getList().stream().map(this::convertIndicatorRespVO).collect(Collectors.toList()),
-                pageResult.getTotal()
-        );
-    }
-
-    /**
-     * DO → RespVO：JOIN mes_qc_indicator 补充检测项信息，JOIN mes_md_unit_measure 补充单位名称
-     */
-    private MesQcTemplateIndicatorRespVO convertIndicatorRespVO(MesQcTemplateIndicatorDO do0) {
-        MesQcTemplateIndicatorRespVO vo = BeanUtils.toBean(do0, MesQcTemplateIndicatorRespVO.class);
-        // JOIN 质检指标
-        if (do0.getIndicatorId() != null) {
-            MesQcIndicatorDO indicator = indicatorMapper.selectById(do0.getIndicatorId());
-            if (indicator != null) {
-                vo.setIndicatorCode(indicator.getCode());
-                vo.setIndicatorName(indicator.getName());
-                vo.setIndicatorType(indicator.getType());
-                vo.setIndicatorTool(indicator.getTool());
-            }
-        }
-        // JOIN 计量单位
-        if (do0.getUnitMeasureId() != null) {
-            MesMdUnitMeasureDO unit = unitMeasureMapper.selectById(do0.getUnitMeasureId());
-            if (unit != null) {
-                vo.setUnitMeasureName(unit.getName());
-            }
-        }
-        return vo;
+    public PageResult<MesQcTemplateIndicatorDO> getTemplateIndicatorPage(MesQcTemplateIndicatorPageReqVO pageReqVO) {
+        return templateIndicatorMapper.selectPage(pageReqVO);
     }
 
     // ========== 质检方案-产品关联 ==========
@@ -276,44 +217,13 @@ public class MesQcTemplateServiceImpl implements MesQcTemplateService {
     }
 
     @Override
-    public MesQcTemplateItemRespVO getTemplateItem(Long id) {
-        MesQcTemplateItemDO do0 = templateItemMapper.selectById(id);
-        if (do0 == null) {
-            return null;
-        }
-        return convertItemRespVO(do0);
+    public MesQcTemplateItemDO getTemplateItem(Long id) {
+        return templateItemMapper.selectById(id);
     }
 
     @Override
-    public PageResult<MesQcTemplateItemRespVO> getTemplateItemPage(MesQcTemplateItemPageReqVO pageReqVO) {
-        PageResult<MesQcTemplateItemDO> pageResult = templateItemMapper.selectPage(pageReqVO);
-        return new PageResult<>(
-                pageResult.getList().stream().map(this::convertItemRespVO).collect(Collectors.toList()),
-                pageResult.getTotal()
-        );
-    }
-
-    /**
-     * DO → RespVO：JOIN mes_md_item 补充物料信息，JOIN mes_md_unit_measure 补充单位名称
-     */
-    private MesQcTemplateItemRespVO convertItemRespVO(MesQcTemplateItemDO do0) {
-        MesQcTemplateItemRespVO vo = BeanUtils.toBean(do0, MesQcTemplateItemRespVO.class);
-        if (do0.getItemId() != null) {
-            MesMdItemDO item = mdItemMapper.selectById(do0.getItemId());
-            if (item != null) {
-                vo.setItemCode(item.getCode());
-                vo.setItemName(item.getName());
-                vo.setSpecification(item.getSpecification());
-                // 查询计量单位名称
-                if (item.getUnitMeasureId() != null) {
-                    MesMdUnitMeasureDO unit = unitMeasureMapper.selectById(item.getUnitMeasureId());
-                    if (unit != null) {
-                        vo.setUnitMeasureName(unit.getName());
-                    }
-                }
-            }
-        }
-        return vo;
+    public PageResult<MesQcTemplateItemDO> getTemplateItemPage(MesQcTemplateItemPageReqVO pageReqVO) {
+        return templateItemMapper.selectPage(pageReqVO);
     }
 
 }

@@ -9,12 +9,6 @@ import cn.iocoder.yudao.framework.excel.core.util.ExcelUtils;
 import cn.iocoder.yudao.module.mes.controller.admin.qc.template.vo.MesQcTemplatePageReqVO;
 import cn.iocoder.yudao.module.mes.controller.admin.qc.template.vo.MesQcTemplateRespVO;
 import cn.iocoder.yudao.module.mes.controller.admin.qc.template.vo.MesQcTemplateSaveReqVO;
-import cn.iocoder.yudao.module.mes.controller.admin.qc.template.vo.indicator.MesQcTemplateIndicatorPageReqVO;
-import cn.iocoder.yudao.module.mes.controller.admin.qc.template.vo.indicator.MesQcTemplateIndicatorRespVO;
-import cn.iocoder.yudao.module.mes.controller.admin.qc.template.vo.indicator.MesQcTemplateIndicatorSaveReqVO;
-import cn.iocoder.yudao.module.mes.controller.admin.qc.template.vo.item.MesQcTemplateItemPageReqVO;
-import cn.iocoder.yudao.module.mes.controller.admin.qc.template.vo.item.MesQcTemplateItemRespVO;
-import cn.iocoder.yudao.module.mes.controller.admin.qc.template.vo.item.MesQcTemplateItemSaveReqVO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.qc.MesQcTemplateDO;
 import cn.iocoder.yudao.module.mes.service.qc.MesQcTemplateService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -33,7 +27,6 @@ import java.util.List;
 import static cn.iocoder.yudao.framework.apilog.core.enums.OperateTypeEnum.EXPORT;
 import static cn.iocoder.yudao.framework.common.pojo.CommonResult.success;
 
-// TODO @AI：拆分为多个 controller，和别的模块；
 @Tag(name = "管理后台 - MES 质检方案")
 @RestController
 @RequestMapping("/mes/qc/template")
@@ -42,8 +35,6 @@ public class MesQcTemplateController {
 
     @Resource
     private MesQcTemplateService templateService;
-
-    // ========== 质检方案主表 ==========
 
     @PostMapping("/create")
     @Operation(summary = "创建质检方案")
@@ -74,16 +65,16 @@ public class MesQcTemplateController {
     @Parameter(name = "id", description = "编号", required = true, example = "1024")
     @PreAuthorize("@ss.hasPermission('mes:qc-template:query')")
     public CommonResult<MesQcTemplateRespVO> getTemplate(@RequestParam("id") Long id) {
-        // TODO @AI：service 只返回 do；数据拼接放在 controller 里；
-        return success(templateService.getTemplate(id));
+        MesQcTemplateDO template = templateService.getTemplate(id);
+        return success(BeanUtils.toBean(template, MesQcTemplateRespVO.class));
     }
 
     @GetMapping("/page")
     @Operation(summary = "获得质检方案分页")
     @PreAuthorize("@ss.hasPermission('mes:qc-template:query')")
     public CommonResult<PageResult<MesQcTemplateRespVO>> getTemplatePage(@Valid MesQcTemplatePageReqVO pageReqVO) {
-        // TODO @AI：service 只返回 do；数据拼接放在 controller 里；
-        return success(templateService.getTemplatePage(pageReqVO));
+        PageResult<MesQcTemplateDO> pageResult = templateService.getTemplatePage(pageReqVO);
+        return success(BeanUtils.toBean(pageResult, MesQcTemplateRespVO.class));
     }
 
     @GetMapping("/simple-list")
@@ -100,101 +91,9 @@ public class MesQcTemplateController {
     public void exportTemplateExcel(@Valid MesQcTemplatePageReqVO pageReqVO,
                                     HttpServletResponse response) throws IOException {
         pageReqVO.setPageSize(PageParam.PAGE_SIZE_NONE);
-        List<MesQcTemplateRespVO> list = templateService.getTemplatePage(pageReqVO).getList();
-        // TODO @AI：service 只返回 do；数据拼接放在 controller 里；
-        ExcelUtils.write(response, "质检方案.xls", "数据", MesQcTemplateRespVO.class, list);
-    }
-
-    // ========== 质检方案-检测指标项 ==========
-
-    // TODO @AI：是不是拆分成独立的 controller；类似别的模块
-
-    @PostMapping("/indicator/create")
-    @Operation(summary = "创建质检方案-检测指标项")
-    @PreAuthorize("@ss.hasPermission('mes:qc-template:create')")
-    public CommonResult<Long> createTemplateIndicator(@Valid @RequestBody MesQcTemplateIndicatorSaveReqVO createReqVO) {
-        return success(templateService.createTemplateIndicator(createReqVO));
-    }
-
-    @PutMapping("/indicator/update")
-    @Operation(summary = "更新质检方案-检测指标项")
-    @PreAuthorize("@ss.hasPermission('mes:qc-template:update')")
-    public CommonResult<Boolean> updateTemplateIndicator(@Valid @RequestBody MesQcTemplateIndicatorSaveReqVO updateReqVO) {
-        templateService.updateTemplateIndicator(updateReqVO);
-        return success(true);
-    }
-
-    @DeleteMapping("/indicator/delete")
-    @Operation(summary = "删除质检方案-检测指标项")
-    @Parameter(name = "id", description = "编号", required = true)
-    @PreAuthorize("@ss.hasPermission('mes:qc-template:update')")
-    public CommonResult<Boolean> deleteTemplateIndicator(@RequestParam("id") Long id) {
-        templateService.deleteTemplateIndicator(id);
-        return success(true);
-    }
-
-    @GetMapping("/indicator/get")
-    @Operation(summary = "获得质检方案-检测指标项")
-    @Parameter(name = "id", description = "编号", required = true, example = "1024")
-    @PreAuthorize("@ss.hasPermission('mes:qc-template:query')")
-    public CommonResult<MesQcTemplateIndicatorRespVO> getTemplateIndicator(@RequestParam("id") Long id) {
-        // TODO @AI：service 只返回 do；数据拼接放在 controller 里；
-        return success(templateService.getTemplateIndicator(id));
-    }
-
-    @GetMapping("/indicator/page")
-    @Operation(summary = "获得质检方案-检测指标项分页")
-    @PreAuthorize("@ss.hasPermission('mes:qc-template:query')")
-    public CommonResult<PageResult<MesQcTemplateIndicatorRespVO>> getTemplateIndicatorPage(
-            @Valid MesQcTemplateIndicatorPageReqVO pageReqVO) {
-        // TODO @AI：service 只返回 do；数据拼接放在 controller 里；
-        return success(templateService.getTemplateIndicatorPage(pageReqVO));
-    }
-
-    // ========== 质检方案-产品关联 ==========
-
-    // TODO @AI：是不是拆分成独立的 controller；类似别的模块
-
-    @PostMapping("/item/create")
-    @Operation(summary = "创建质检方案-产品关联")
-    @PreAuthorize("@ss.hasPermission('mes:qc-template:create')")
-    public CommonResult<Long> createTemplateItem(@Valid @RequestBody MesQcTemplateItemSaveReqVO createReqVO) {
-        return success(templateService.createTemplateItem(createReqVO));
-    }
-
-    @PutMapping("/item/update")
-    @Operation(summary = "更新质检方案-产品关联")
-    @PreAuthorize("@ss.hasPermission('mes:qc-template:update')")
-    public CommonResult<Boolean> updateTemplateItem(@Valid @RequestBody MesQcTemplateItemSaveReqVO updateReqVO) {
-        templateService.updateTemplateItem(updateReqVO);
-        return success(true);
-    }
-
-    @DeleteMapping("/item/delete")
-    @Operation(summary = "删除质检方案-产品关联")
-    @Parameter(name = "id", description = "编号", required = true)
-    @PreAuthorize("@ss.hasPermission('mes:qc-template:update')")
-    public CommonResult<Boolean> deleteTemplateItem(@RequestParam("id") Long id) {
-        templateService.deleteTemplateItem(id);
-        return success(true);
-    }
-
-    @GetMapping("/item/get")
-    @Operation(summary = "获得质检方案-产品关联")
-    @Parameter(name = "id", description = "编号", required = true, example = "1024")
-    @PreAuthorize("@ss.hasPermission('mes:qc-template:query')")
-    public CommonResult<MesQcTemplateItemRespVO> getTemplateItem(@RequestParam("id") Long id) {
-        // TODO @AI：service 只返回 do；数据拼接放在 controller 里；
-        return success(templateService.getTemplateItem(id));
-    }
-
-    @GetMapping("/item/page")
-    @Operation(summary = "获得质检方案-产品关联分页")
-    @PreAuthorize("@ss.hasPermission('mes:qc-template:query')")
-    public CommonResult<PageResult<MesQcTemplateItemRespVO>> getTemplateItemPage(
-            @Valid MesQcTemplateItemPageReqVO pageReqVO) {
-        // TODO @AI：service 只返回 do；数据拼接放在 controller 里；
-        return success(templateService.getTemplateItemPage(pageReqVO));
+        List<MesQcTemplateDO> list = templateService.getTemplatePage(pageReqVO).getList();
+        ExcelUtils.write(response, "质检方案.xls", "数据", MesQcTemplateRespVO.class,
+                BeanUtils.toBean(list, MesQcTemplateRespVO.class));
     }
 
 }
