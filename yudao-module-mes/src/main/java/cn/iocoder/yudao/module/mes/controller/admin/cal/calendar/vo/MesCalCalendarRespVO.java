@@ -15,9 +15,11 @@ import java.util.List;
 @AllArgsConstructor
 public class MesCalCalendarRespVO {
 
+    // TODO @AI：    private LocalDateTime day; 合适点，和 holiday 保持统一；
     @Schema(description = "日期，格式 yyyy-MM-dd", requiredMode = Schema.RequiredMode.REQUIRED, example = "2025-01-15")
     private String day;
 
+    // TODO @AI：可能在注释上，说下对应的
     @Schema(description = "轮班方式", example = "2")
     private Integer shiftType;
 

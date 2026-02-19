@@ -142,8 +142,10 @@ public class MesCalCalendarServiceImpl implements MesCalCalendarService {
             List<MesCalCalendarRespVO.TeamShiftItem> items = dayShifts.stream()
                     .map(ts -> MesCalCalendarRespVO.TeamShiftItem.builder()
                             .teamId(ts.getTeamId())
+                            // TODO @AI：不用这种 default
                             .teamName(teamNameMap.getOrDefault(ts.getTeamId(), ""))
                             .shiftId(ts.getShiftId())
+                            // TODO @AI：不用这种 default
                             .shiftName(shiftMap.containsKey(ts.getShiftId())
                                     ? shiftMap.get(ts.getShiftId()).getName() : "")
                             .sort(ts.getSort())

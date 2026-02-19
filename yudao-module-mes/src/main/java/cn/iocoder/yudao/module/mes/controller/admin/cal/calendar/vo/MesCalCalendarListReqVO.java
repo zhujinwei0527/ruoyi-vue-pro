@@ -13,6 +13,15 @@ import static cn.iocoder.yudao.framework.common.util.date.DateUtils.FORMAT_YEAR_
 @Data
 public class MesCalCalendarListReqVO {
 
+    @Schema(description = "开始日期")
+    @DateTimeFormat(pattern = FORMAT_YEAR_MONTH_DAY_HOUR_MINUTE_SECOND)
+    private LocalDateTime startDay;
+
+    @Schema(description = "结束日期")
+    @DateTimeFormat(pattern = FORMAT_YEAR_MONTH_DAY_HOUR_MINUTE_SECOND)
+    private LocalDateTime endDay;
+
+    // TODO @AI：可以是 string，但是具体的 type，通过 public static final 定义常量，避免魔法字符串
     @Schema(description = "查询类型：TYPE-按分类，TEAM-按班组，USER-按个人", requiredMode = Schema.RequiredMode.REQUIRED, example = "TYPE")
     @NotEmpty(message = "查询类型不能为空")
     private String queryType;
@@ -25,13 +34,5 @@ public class MesCalCalendarListReqVO {
 
     @Schema(description = "用户编号（queryType=USER 时使用）", example = "1")
     private Long userId;
-
-    @Schema(description = "开始日期")
-    @DateTimeFormat(pattern = FORMAT_YEAR_MONTH_DAY_HOUR_MINUTE_SECOND)
-    private LocalDateTime startDay;
-
-    @Schema(description = "结束日期")
-    @DateTimeFormat(pattern = FORMAT_YEAR_MONTH_DAY_HOUR_MINUTE_SECOND)
-    private LocalDateTime endDay;
 
 }
