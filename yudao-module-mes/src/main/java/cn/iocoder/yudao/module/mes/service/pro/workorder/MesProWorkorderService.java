@@ -6,6 +6,9 @@ import cn.iocoder.yudao.module.mes.controller.admin.pro.workorder.vo.MesProWorkO
 import cn.iocoder.yudao.module.mes.dal.dataobject.pro.workorder.MesProWorkOrderDO;
 import jakarta.validation.Valid;
 
+import java.util.Collection;
+import java.util.List;
+
 /**
  * MES 生产工单 Service 接口
  *
@@ -72,5 +75,13 @@ public interface MesProWorkOrderService {
      * @param id 编号
      */
     void cancelWorkOrder(Long id);
+
+    /**
+     * 获得工单列表
+     *
+     * @param ids 编号数组
+     * @return 工单列表
+     */
+    List<MesProWorkOrderDO> getWorkOrderList(Collection<Long> ids);
 
 }

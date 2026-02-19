@@ -83,6 +83,10 @@ public class MesProWorkOrderRespVO {
     @Schema(description = "客户编号", example = "300")
     private Long clientId;
 
+    @Schema(description = "客户编码", example = "C-001")
+    @ExcelProperty("客户编码")
+    private String clientCode;
+
     @Schema(description = "客户名称", example = "客户 A")
     @ExcelProperty("客户名称")
     private String clientName;
@@ -104,6 +108,9 @@ public class MesProWorkOrderRespVO {
 
     @Schema(description = "父工单编号", example = "0")
     private Long parentId;
+
+    @Schema(description = "父工单编码", example = "WO-001")
+    private String parentCode;
 
     @Schema(description = "完成时间")
     @ExcelProperty("完成时间")

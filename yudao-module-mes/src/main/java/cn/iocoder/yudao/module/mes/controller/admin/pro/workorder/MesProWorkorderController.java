@@ -35,9 +35,11 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import static cn.iocoder.yudao.framework.apilog.core.enums.OperateTypeEnum.EXPORT;
 import static cn.iocoder.yudao.framework.common.pojo.CommonResult.success;
+import static cn.iocoder.yudao.framework.common.util.collection.CollectionUtils.convertMap;
 import static cn.iocoder.yudao.framework.common.util.collection.CollectionUtils.convertSet;
 
 @Tag(name = "管理后台 - MES 生产工单")
@@ -150,17 +152,24 @@ public class MesProWorkOrderController {
                 convertSet(list, MesProWorkOrderDO::getVendorId));
         Map<Long, MesMdUnitMeasureDO> unitMeasureMap = unitMeasureService.getUnitMeasureMap(
                 convertSet(list, MesProWorkOrderDO::getUnitMeasureId));
+        // TODO @AI：直接 workOrderService.getWorkOrderMap，内部调用 workOrderService.getWorkOrderList
+        Set<Long> parentIds = convertSet(list, MesProWorkOrderDO::getParentId);
+        Map<Long, MesProWorkOrderDO> parentMap = CollUtil.isEmpty(parentIds)
+                ? Collections.emptyMap()
+                : convertMap(workOrderService.getWorkOrderList(parentIds), MesProWorkOrderDO::getId);
         // 2. 拼接 VO
         return BeanUtils.toBean(list, MesProWorkOrderRespVO.class, vo -> {
             MapUtils.findAndThen(itemMap, vo.getProductId(), item ->
                     vo.setProductName(item.getName()).setProductCode(item.getCode())
                             .setProductSpec(item.getSpecification()));
             MapUtils.findAndThen(clientMap, vo.getClientId(),
-                    client -> vo.setClientName(client.getName()));
+                    client -> vo.setClientName(client.getName()).setClientCode(client.getCode()));
             MapUtils.findAndThen(vendorMap, vo.getVendorId(),
                     vendor -> vo.setVendorName(vendor.getName()));
             MapUtils.findAndThen(unitMeasureMap, vo.getUnitMeasureId(),
                     unitMeasure -> vo.setUnitMeasureName(unitMeasure.getName()));
+            MapUtils.findAndThen(parentMap, vo.getParentId(),
+                    parent -> vo.setParentCode(parent.getCode()));
         });
     }
 

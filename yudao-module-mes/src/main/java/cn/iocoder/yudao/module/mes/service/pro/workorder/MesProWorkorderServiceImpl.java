@@ -24,6 +24,7 @@ import org.springframework.validation.annotation.Validated;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.Collection;
 import java.util.List;
 
 import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception;
@@ -159,6 +160,11 @@ public class MesProWorkOrderServiceImpl implements MesProWorkOrderService {
                 .setStatus(MesProWorkOrderStatusEnum.CANCELED.getStatus())
                 .setCancelDate(LocalDateTime.now()));
         // TODO @芋艿：pro_task 未迁移，暂不级联更新任务状态
+    }
+
+    @Override
+    public List<MesProWorkOrderDO> getWorkOrderList(Collection<Long> ids) {
+        return workOrderMapper.selectByIds(ids);
     }
 
     // ==================== 校验方法 ====================
