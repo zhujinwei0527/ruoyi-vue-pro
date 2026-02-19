@@ -64,6 +64,14 @@ public interface MesCalTeamMemberService {
     List<MesCalTeamMemberDO> getTeamMemberListByTeamIds(Collection<Long> teamIds);
 
     /**
+     * 根据用户编号获得班组成员
+     *
+     * @param userId 用户编号
+     * @return 班组成员，不存在则返回 null
+     */
+    MesCalTeamMemberDO getTeamMemberByUserId(Long userId);
+
+    /**
      * 根据班组编号删除所有成员
      *
      * @param teamId 班组编号

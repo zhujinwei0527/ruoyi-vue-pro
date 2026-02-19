@@ -1,5 +1,6 @@
 package cn.iocoder.yudao.module.mes.service.cal.plan;
 
+import cn.hutool.core.collection.CollUtil;
 import cn.iocoder.yudao.framework.common.pojo.PageResult;
 import cn.iocoder.yudao.framework.common.util.object.BeanUtils;
 import cn.iocoder.yudao.module.mes.controller.admin.cal.plan.vo.MesCalPlanPageReqVO;
@@ -15,6 +16,10 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
+
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 
 import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception;
 import static cn.iocoder.yudao.module.mes.enums.ErrorCodeConstants.*;
@@ -91,8 +96,7 @@ public class MesCalPlanServiceImpl implements MesCalPlanService {
         planMapper.updateById(updateObj);
 
         // 3. 生成班组排班记录
-        // TODO @AI：方法名，不要缩写；
-        teamShiftService.genRecords(id);
+        teamShiftService.generateTeamShiftRecords(id);
     }
 
     @Override
@@ -111,6 +115,14 @@ public class MesCalPlanServiceImpl implements MesCalPlanService {
     @Override
     public MesCalPlanDO getPlan(Long id) {
         return planMapper.selectById(id);
+    }
+
+    @Override
+    public List<MesCalPlanDO> getPlanList(Collection<Long> ids) {
+        if (CollUtil.isEmpty(ids)) {
+            return Collections.emptyList();
+        }
+        return planMapper.selectByIds(ids);
     }
 
     @Override

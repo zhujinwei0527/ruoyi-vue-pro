@@ -45,9 +45,10 @@ public class MesCalTeamShiftServiceImpl implements MesCalTeamShiftService {
     @Lazy
     private MesCalPlanTeamService planTeamService;
 
+    // TODO @芋艿：这块逻辑，可能要想下；
     @Async
     @Override
-    public void genRecords(Long planId) {
+    public void generateTeamShiftRecords(Long planId) {
         // 1.1 查询排班计划
         MesCalPlanDO plan = planService.getPlan(planId);
         // 1.2 查询计划中的班次列表

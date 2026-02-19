@@ -2,6 +2,7 @@ package cn.iocoder.yudao.module.mes.controller.admin.cal.calendar.vo;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 import org.springframework.format.annotation.DateTimeFormat;
 
@@ -17,11 +18,13 @@ public class MesCalCalendarListReqVO {
     public static final String QUERY_TYPE_TEAM = "TEAM";
     public static final String QUERY_TYPE_USER = "USER";
 
-    @Schema(description = "开始日期")
+    @Schema(description = "开始日期", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotNull(message = "开始日期不能为空")
     @DateTimeFormat(pattern = FORMAT_YEAR_MONTH_DAY_HOUR_MINUTE_SECOND)
     private LocalDateTime startDay;
 
-    @Schema(description = "结束日期")
+    @Schema(description = "结束日期", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotNull(message = "结束日期不能为空")
     @DateTimeFormat(pattern = FORMAT_YEAR_MONTH_DAY_HOUR_MINUTE_SECOND)
     private LocalDateTime endDay;
 

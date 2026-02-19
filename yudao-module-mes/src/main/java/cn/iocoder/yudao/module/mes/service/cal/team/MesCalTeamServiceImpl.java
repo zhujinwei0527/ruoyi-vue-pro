@@ -1,5 +1,7 @@
 package cn.iocoder.yudao.module.mes.service.cal.team;
 
+import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.util.ObjUtil;
 import cn.iocoder.yudao.framework.common.pojo.PageResult;
 import cn.iocoder.yudao.framework.common.util.object.BeanUtils;
 import cn.iocoder.yudao.module.mes.controller.admin.cal.team.vo.MesCalTeamPageReqVO;
@@ -12,6 +14,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception;
@@ -83,6 +87,14 @@ public class MesCalTeamServiceImpl implements MesCalTeamService {
     }
 
     @Override
+    public List<MesCalTeamDO> getTeamList(Collection<Long> ids) {
+        if (CollUtil.isEmpty(ids)) {
+            return Collections.emptyList();
+        }
+        return teamMapper.selectByIds(ids);
+    }
+
+    @Override
     public MesCalTeamDO validateTeamExists(Long id) {
         MesCalTeamDO team = teamMapper.selectById(id);
         if (team == null) {
@@ -96,8 +108,7 @@ public class MesCalTeamServiceImpl implements MesCalTeamService {
         if (team == null) {
             return;
         }
-        // TODO @AI：ObjUtil notEquals
-        if (id == null || !id.equals(team.getId())) {
+        if (ObjUtil.notEqual(id, team.getId())) {
             throw exception(CAL_TEAM_CODE_DUPLICATE);
         }
     }

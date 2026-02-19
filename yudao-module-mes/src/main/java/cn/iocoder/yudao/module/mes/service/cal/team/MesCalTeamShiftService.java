@@ -12,13 +12,12 @@ import java.util.List;
  */
 public interface MesCalTeamShiftService {
 
-    // TODO @AI：方法名，优化下；
     /**
      * 根据排班计划生成班组排班记录
      *
      * @param planId 排班计划编号
      */
-    void genRecords(Long planId);
+    void generateTeamShiftRecords(Long planId);
 
     /**
      * 获得班组排班列表

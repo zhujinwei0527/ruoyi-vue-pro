@@ -6,7 +6,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Schema(description = "管理后台 - MES 排班日历 Response VO")
@@ -16,9 +16,8 @@ import java.util.List;
 @AllArgsConstructor
 public class MesCalCalendarRespVO {
 
-    // TODO @AI：    private LocalDateTime day; 合适点，和 holiday 保持统一；
-    @Schema(description = "日期，格式 yyyy-MM-dd", requiredMode = Schema.RequiredMode.REQUIRED, example = "2025-01-15")
-    private String day;
+    @Schema(description = "日期", requiredMode = Schema.RequiredMode.REQUIRED, example = "2025-01-15 00:00:00")
+    private LocalDateTime day;
 
     @Schema(description = "轮班方式", example = "2")
     private Integer shiftType; // 对应 MesCalShiftTypeEnum 枚举值

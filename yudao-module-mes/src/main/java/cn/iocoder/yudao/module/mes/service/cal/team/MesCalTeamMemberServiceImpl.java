@@ -74,6 +74,11 @@ public class MesCalTeamMemberServiceImpl implements MesCalTeamMemberService {
     }
 
     @Override
+    public MesCalTeamMemberDO getTeamMemberByUserId(Long userId) {
+        return teamMemberMapper.selectByUserId(userId);
+    }
+
+    @Override
     public void deleteByTeamId(Long teamId) {
         teamMemberMapper.deleteByTeamId(teamId);
     }

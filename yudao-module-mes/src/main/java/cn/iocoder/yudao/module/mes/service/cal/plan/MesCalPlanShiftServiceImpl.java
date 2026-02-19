@@ -15,6 +15,10 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 
+import cn.hutool.core.collection.CollUtil;
+
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception;
@@ -129,6 +133,14 @@ public class MesCalPlanShiftServiceImpl implements MesCalPlanShiftService {
                     .build();
             planShiftMapper.insert(planShiftDO);
         }
+    }
+
+    @Override
+    public List<MesCalPlanShiftDO> getPlanShiftList(Collection<Long> ids) {
+        if (CollUtil.isEmpty(ids)) {
+            return Collections.emptyList();
+        }
+        return planShiftMapper.selectByIds(ids);
     }
 
     @Override

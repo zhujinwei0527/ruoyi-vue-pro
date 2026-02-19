@@ -6,6 +6,12 @@ import cn.iocoder.yudao.module.mes.controller.admin.cal.plan.vo.MesCalPlanSaveRe
 import cn.iocoder.yudao.module.mes.dal.dataobject.cal.plan.MesCalPlanDO;
 import jakarta.validation.Valid;
 
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+
+import static cn.iocoder.yudao.framework.common.util.collection.CollectionUtils.convertMap;
+
 /**
  * MES 排班计划 Service 接口
  *
@@ -57,6 +63,24 @@ public interface MesCalPlanService {
      * @return 排班计划
      */
     MesCalPlanDO getPlan(Long id);
+
+    /**
+     * 获得排班计划列表
+     *
+     * @param ids 排班计划编号集合
+     * @return 排班计划列表
+     */
+    List<MesCalPlanDO> getPlanList(Collection<Long> ids);
+
+    /**
+     * 获得排班计划 Map
+     *
+     * @param ids 排班计划编号集合
+     * @return 排班计划 Map，key 为编号
+     */
+    default Map<Long, MesCalPlanDO> getPlanMap(Collection<Long> ids) {
+        return convertMap(getPlanList(ids), MesCalPlanDO::getId);
+    }
 
     /**
      * 获得排班计划分页

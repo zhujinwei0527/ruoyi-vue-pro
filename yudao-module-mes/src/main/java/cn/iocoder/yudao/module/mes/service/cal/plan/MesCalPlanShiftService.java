@@ -6,7 +6,11 @@ import cn.iocoder.yudao.module.mes.controller.admin.cal.plan.vo.shift.MesCalPlan
 import cn.iocoder.yudao.module.mes.dal.dataobject.cal.plan.MesCalPlanShiftDO;
 import jakarta.validation.Valid;
 
+import java.util.Collection;
 import java.util.List;
+import java.util.Map;
+
+import static cn.iocoder.yudao.framework.common.util.collection.CollectionUtils.convertMap;
 
 /**
  * MES 计划班次 Service 接口
@@ -76,6 +80,24 @@ public interface MesCalPlanShiftService {
      * @param shiftType 轮班方式
      */
     void addDefaultPlanShift(Long planId, Integer shiftType);
+
+    /**
+     * 获得计划班次列表
+     *
+     * @param ids 班次编号集合
+     * @return 班次列表
+     */
+    List<MesCalPlanShiftDO> getPlanShiftList(Collection<Long> ids);
+
+    /**
+     * 获得计划班次 Map
+     *
+     * @param ids 班次编号集合
+     * @return 班次 Map，key 为编号
+     */
+    default Map<Long, MesCalPlanShiftDO> getPlanShiftMap(Collection<Long> ids) {
+        return convertMap(getPlanShiftList(ids), MesCalPlanShiftDO::getId);
+    }
 
     /**
      * 根据排班计划编号删除所有班次

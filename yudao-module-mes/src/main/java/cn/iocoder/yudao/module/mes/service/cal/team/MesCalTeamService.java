@@ -6,7 +6,11 @@ import cn.iocoder.yudao.module.mes.controller.admin.cal.team.vo.MesCalTeamSaveRe
 import cn.iocoder.yudao.module.mes.dal.dataobject.cal.team.MesCalTeamDO;
 import jakarta.validation.Valid;
 
+import java.util.Collection;
 import java.util.List;
+import java.util.Map;
+
+import static cn.iocoder.yudao.framework.common.util.collection.CollectionUtils.convertMap;
 
 /**
  * MES 班组 Service 接口
@@ -59,6 +63,24 @@ public interface MesCalTeamService {
      * @return 班组列表
      */
     List<MesCalTeamDO> getTeamList();
+
+    /**
+     * 获得班组列表
+     *
+     * @param ids 班组编号集合
+     * @return 班组列表
+     */
+    List<MesCalTeamDO> getTeamList(Collection<Long> ids);
+
+    /**
+     * 获得班组 Map
+     *
+     * @param ids 班组编号集合
+     * @return 班组 Map，key 为编号
+     */
+    default Map<Long, MesCalTeamDO> getTeamMap(Collection<Long> ids) {
+        return convertMap(getTeamList(ids), MesCalTeamDO::getId);
+    }
 
     /**
      * 校验班组存在
