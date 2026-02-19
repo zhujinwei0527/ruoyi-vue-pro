@@ -6,6 +6,7 @@ import cn.iocoder.yudao.module.mes.controller.admin.pro.process.vo.MesProProcess
 import cn.iocoder.yudao.module.mes.controller.admin.pro.process.vo.MesProProcessSaveReqVO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.pro.MesProProcessDO;
 import cn.iocoder.yudao.module.mes.dal.mysql.pro.MesProProcessMapper;
+import cn.iocoder.yudao.module.mes.dal.mysql.pro.MesProRouteProcessMapper;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -30,6 +31,9 @@ public class MesProProcessServiceImpl implements MesProProcessService {
 
     @Resource
     private MesProProcessContentService processContentService;
+
+    @Resource
+    private MesProRouteProcessMapper routeProcessMapper;
 
     @Override
     public Long createProcess(MesProProcessSaveReqVO createReqVO) {
@@ -61,10 +65,13 @@ public class MesProProcessServiceImpl implements MesProProcessService {
     public void deleteProcess(Long id) {
         // 1. 校验存在
         validateProcessExists(id);
-        // TODO @芋艿：校验是否被工艺路线引用（pro_route_process 表实现后）
-        // 2. 删除工序
+        // 2. 校验是否被工艺路线引用
+        if (!routeProcessMapper.selectListByProcessId(id).isEmpty()) {
+            throw exception(PRO_PROCESS_USED_BY_ROUTE);
+        }
+        // 3. 删除工序
         processMapper.deleteById(id);
-        // 3. 级联删除工序内容
+        // 4. 级联删除工序内容
         processContentService.deleteProcessContentByProcessId(id);
     }
 
