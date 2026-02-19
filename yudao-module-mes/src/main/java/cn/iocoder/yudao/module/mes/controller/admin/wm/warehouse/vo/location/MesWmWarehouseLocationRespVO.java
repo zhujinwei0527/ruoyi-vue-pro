@@ -36,9 +36,9 @@ public class MesWmWarehouseLocationRespVO {
     @ExcelProperty("面积")
     private BigDecimal area;
 
-    @Schema(description = "是否启用库位管理", requiredMode = Schema.RequiredMode.REQUIRED, example = "true")
-    @ExcelProperty("启用库位管理")
-    private Boolean areaEnabled;
+    @Schema(description = "库位管理状态", requiredMode = Schema.RequiredMode.REQUIRED, example = "0")
+    @ExcelProperty("库位管理状态")
+    private Integer areaStatus;
 
     @Schema(description = "是否冻结", requiredMode = Schema.RequiredMode.REQUIRED, example = "false")
     @ExcelProperty("是否冻结")

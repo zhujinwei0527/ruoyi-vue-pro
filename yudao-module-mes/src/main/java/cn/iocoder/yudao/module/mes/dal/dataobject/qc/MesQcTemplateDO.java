@@ -47,9 +47,11 @@ public class MesQcTemplateDO extends BaseDO {
     @TableField(typeHandler = IntegerListTypeHandler.class)
     private List<Integer> types;
     /**
-     * 是否启用
+     * 状态
+     *
+     * 枚举 {@link cn.iocoder.yudao.framework.common.enums.CommonStatusEnum}
      */
-    private Boolean enableFlag;
+    private Integer status;
     /**
      * 备注
      */

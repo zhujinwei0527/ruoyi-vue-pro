@@ -59,9 +59,9 @@ public class MesWmWarehouseAreaRespVO {
     @ExcelProperty("位置 Z")
     private Integer positionZ;
 
-    @Schema(description = "是否启用", requiredMode = Schema.RequiredMode.REQUIRED, example = "true")
-    @ExcelProperty("是否启用")
-    private Boolean enabled;
+    @Schema(description = "状态", requiredMode = Schema.RequiredMode.REQUIRED, example = "0")
+    @ExcelProperty("状态")
+    private Integer status;
 
     @Schema(description = "是否冻结", requiredMode = Schema.RequiredMode.REQUIRED, example = "false")
     @ExcelProperty("是否冻结")

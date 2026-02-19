@@ -61,9 +61,11 @@ public class MesWmWarehouseAreaDO extends BaseDO {
      */
     private Integer positionZ;
     /**
-     * 是否启用
+     * 状态
+     *
+     * 枚举 {@link cn.iocoder.yudao.framework.common.enums.CommonStatusEnum}
      */
-    private Boolean enabled;
+    private Integer status;
     /**
      * 是否冻结
      */

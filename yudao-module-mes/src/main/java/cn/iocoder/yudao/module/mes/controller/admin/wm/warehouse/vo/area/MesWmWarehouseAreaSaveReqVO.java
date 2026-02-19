@@ -41,9 +41,9 @@ public class MesWmWarehouseAreaSaveReqVO {
     @Schema(description = "位置 Z", example = "1")
     private Integer positionZ;
 
-    @Schema(description = "是否启用", requiredMode = Schema.RequiredMode.REQUIRED, example = "true")
-    @NotNull(message = "是否启用不能为空")
-    private Boolean enabled;
+    @Schema(description = "状态", requiredMode = Schema.RequiredMode.REQUIRED, example = "0")
+    @NotNull(message = "状态不能为空")
+    private Integer status;
 
     @Schema(description = "是否冻结", requiredMode = Schema.RequiredMode.REQUIRED, example = "false")
     @NotNull(message = "是否冻结不能为空")

@@ -28,9 +28,9 @@ public class MesQcTemplateSaveReqVO {
     @Size(min = 1, message = "检测种类至少选择一项")
     private List<Integer> types;
 
-    @Schema(description = "是否启用", requiredMode = Schema.RequiredMode.REQUIRED, example = "true")
-    @NotNull(message = "是否启用不能为空")
-    private Boolean enableFlag;
+    @Schema(description = "状态", requiredMode = Schema.RequiredMode.REQUIRED, example = "0")
+    @NotNull(message = "状态不能为空")
+    private Integer status;
 
     @Schema(description = "备注", example = "备注")
     private String remark;

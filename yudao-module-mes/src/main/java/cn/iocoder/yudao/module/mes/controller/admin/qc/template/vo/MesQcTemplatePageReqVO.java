@@ -21,7 +21,7 @@ public class MesQcTemplatePageReqVO extends PageParam {
     @Schema(description = "检测种类", example = "1")
     private Integer type;
 
-    @Schema(description = "是否启用", example = "true")
-    private Boolean enableFlag;
+    @Schema(description = "状态", example = "0")
+    private Integer status;
 
 }

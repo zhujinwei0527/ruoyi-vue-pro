@@ -29,9 +29,9 @@ public class MesQcTemplateRespVO {
     @ExcelProperty("检测种类")
     private List<Integer> types;
 
-    @Schema(description = "是否启用", requiredMode = Schema.RequiredMode.REQUIRED, example = "true")
-    @ExcelProperty("是否启用")
-    private Boolean enableFlag;
+    @Schema(description = "状态", requiredMode = Schema.RequiredMode.REQUIRED, example = "0")
+    @ExcelProperty("状态")
+    private Integer status;
 
     @Schema(description = "备注", example = "备注")
     @ExcelProperty("备注")
