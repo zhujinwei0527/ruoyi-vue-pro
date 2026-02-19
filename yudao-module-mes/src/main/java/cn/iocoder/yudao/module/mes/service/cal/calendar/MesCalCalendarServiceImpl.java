@@ -35,6 +35,7 @@ import java.util.stream.Collectors;
 @Validated
 public class MesCalCalendarServiceImpl implements MesCalCalendarService {
 
+    // TODO @AI：看看能不能用 hutool 里，已经枚举好的；
     private static final DateTimeFormatter DAY_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
     @Resource
@@ -50,10 +51,10 @@ public class MesCalCalendarServiceImpl implements MesCalCalendarService {
     @Resource
     private MesCalHolidayMapper holidayMapper;
 
-    // TODO @AI：放到 controller 实现。这里不要有；
     @Override
     public List<MesCalCalendarRespVO> getCalendarList(MesCalCalendarListReqVO reqVO) {
         // 1. 计算月份范围
+        // TODO @AI：参数非空，通过 validator 在 MesCalCalendarListReqVO 里；
         LocalDateTime startDay = reqVO.getStartDay();
         LocalDateTime endDay = reqVO.getEndDay();
         if (startDay == null || endDay == null) {
@@ -61,16 +62,16 @@ public class MesCalCalendarServiceImpl implements MesCalCalendarService {
         }
 
         // 2. 根据查询类型查询班组排班记录
+        // TODO @AI：抽个小方法去返回；
         List<MesCalTeamShiftDO> teamShifts;
         switch (reqVO.getQueryType()) {
-            // TODO @AI：枚举类，放到 MesCalCalendarListReqVO，直接使用 String 静态枚举；
-            case "TYPE":
+            case MesCalCalendarListReqVO.QUERY_TYPE_TYPE:
                 teamShifts = getTeamShiftsByCalendarType(reqVO.getCalendarType(), startDay, endDay);
                 break;
-            case "TEAM":
+            case MesCalCalendarListReqVO.QUERY_TYPE_TEAM:
                 teamShifts = getTeamShiftsByTeamId(reqVO.getTeamId(), startDay, endDay);
                 break;
-            case "USER":
+            case MesCalCalendarListReqVO.QUERY_TYPE_USER:
                 teamShifts = getTeamShiftsByUserId(reqVO.getUserId(), startDay, endDay);
                 break;
             default:
@@ -84,11 +85,12 @@ public class MesCalCalendarServiceImpl implements MesCalCalendarService {
         Set<String> holidaySet = buildHolidaySet();
 
         // 4. 批量查询关联数据：班组名称、班次名称
-        // TODO @AI：批量查询；service 封装
+        // TODO @AI：需要通过 teamService 去查询，并且要 getTeamMap 的方式；不要 Map<Long, String> 这种；
         Set<Long> teamIds = teamShifts.stream().map(MesCalTeamShiftDO::getTeamId).collect(Collectors.toSet());
         Map<Long, String> teamNameMap = teamMapper.selectBatchIds(teamIds).stream()
                 .collect(Collectors.toMap(MesCalTeamDO::getId, MesCalTeamDO::getName));
 
+        // TODO @AI：使用 planShiftService 的 getPlanShiftMap 方法，批量查询并返回 Map<Long, MesCalPlanShiftDO>；不要 for 循环去查询；
         Set<Long> shiftIds = teamShifts.stream().map(MesCalTeamShiftDO::getShiftId).collect(Collectors.toSet());
         Map<Long, MesCalPlanShiftDO> shiftMap = new HashMap<>();
         if (CollUtil.isNotEmpty(shiftIds)) {
@@ -101,7 +103,7 @@ public class MesCalCalendarServiceImpl implements MesCalCalendarService {
         }
 
         // 查询 plan 用于获取 shiftType
-        // TODO @AI：批量查询；service 封装
+        // TODO @AI：使用 planService 的 getPlanMap 方法，批量查询并返回 Map<Long, MesCalPlanDO>；不要 for 循环去查询；
         Set<Long> planIds = teamShifts.stream().map(MesCalTeamShiftDO::getPlanId)
                 .filter(Objects::nonNull).collect(Collectors.toSet());
         Map<Long, MesCalPlanDO> planMap = new HashMap<>();
@@ -139,21 +141,22 @@ public class MesCalCalendarServiceImpl implements MesCalCalendarService {
                 }
             }
 
+            // TODO @AI：看看怎么进一步简化；
             List<MesCalCalendarRespVO.TeamShiftItem> items = dayShifts.stream()
-                    .map(ts -> MesCalCalendarRespVO.TeamShiftItem.builder()
-                            .teamId(ts.getTeamId())
-                            // TODO @AI：不用这种 default
-                            .teamName(teamNameMap.getOrDefault(ts.getTeamId(), ""))
-                            .shiftId(ts.getShiftId())
-                            // TODO @AI：不用这种 default
-                            .shiftName(shiftMap.containsKey(ts.getShiftId())
-                                    ? shiftMap.get(ts.getShiftId()).getName() : "")
-                            .sort(ts.getSort())
-                            .build())
+                    .map(ts -> {
+                        MesCalPlanShiftDO shift = shiftMap.get(ts.getShiftId());
+                        return MesCalCalendarRespVO.TeamShiftItem.builder()
+                                .teamId(ts.getTeamId())
+                                .teamName(teamNameMap.get(ts.getTeamId()))
+                                .shiftId(ts.getShiftId())
+                                .shiftName(shift != null ? shift.getName() : null)
+                                .sort(ts.getSort())
+                                .build();
+                    })
                     .collect(Collectors.toList());
 
             result.add(MesCalCalendarRespVO.builder()
-                    .day(dayStr)
+                    .day(LocalDate.parse(dayStr, DAY_FORMATTER))
                     .shiftType(shiftType)
                     .teamShifts(items)
                     .build());
