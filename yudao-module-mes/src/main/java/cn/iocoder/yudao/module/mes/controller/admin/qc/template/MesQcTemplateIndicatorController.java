@@ -1,5 +1,6 @@
 package cn.iocoder.yudao.module.mes.controller.admin.qc.template;
 
+import cn.hutool.core.collection.CollUtil;
 import cn.iocoder.yudao.framework.common.pojo.CommonResult;
 import cn.iocoder.yudao.framework.common.pojo.PageResult;
 import cn.iocoder.yudao.framework.common.util.object.BeanUtils;
@@ -9,8 +10,8 @@ import cn.iocoder.yudao.module.mes.controller.admin.qc.template.vo.indicator.Mes
 import cn.iocoder.yudao.module.mes.dal.dataobject.md.unitmeasure.MesMdUnitMeasureDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.qc.MesQcIndicatorDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.qc.MesQcTemplateIndicatorDO;
-import cn.iocoder.yudao.module.mes.dal.mysql.md.unitmeasure.MesMdUnitMeasureMapper;
-import cn.iocoder.yudao.module.mes.dal.mysql.qc.MesQcIndicatorMapper;
+import cn.iocoder.yudao.module.mes.service.md.unitmeasure.MesMdUnitMeasureService;
+import cn.iocoder.yudao.module.mes.service.qc.MesQcIndicatorService;
 import cn.iocoder.yudao.module.mes.service.qc.MesQcTemplateService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -21,9 +22,12 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Map;
 
+import static cn.iocoder.yudao.framework.common.util.collection.CollectionUtils.convertSet;
+import static cn.iocoder.yudao.framework.common.util.collection.MapUtils.findAndThen;
 import static cn.iocoder.yudao.framework.common.pojo.CommonResult.success;
 
 @Tag(name = "管理后台 - MES 质检方案-检测指标项")
@@ -35,9 +39,9 @@ public class MesQcTemplateIndicatorController {
     @Resource
     private MesQcTemplateService templateService;
     @Resource
-    private MesQcIndicatorMapper indicatorMapper;
+    private MesQcIndicatorService indicatorService;
     @Resource
-    private MesMdUnitMeasureMapper unitMeasureMapper;
+    private MesMdUnitMeasureService unitMeasureService;
 
     @PostMapping("/create")
     @Operation(summary = "创建质检方案-检测指标项")
@@ -68,8 +72,8 @@ public class MesQcTemplateIndicatorController {
     @Parameter(name = "id", description = "编号", required = true, example = "1024")
     @PreAuthorize("@ss.hasPermission('mes:qc-template:query')")
     public CommonResult<MesQcTemplateIndicatorRespVO> getTemplateIndicator(@RequestParam("id") Long id) {
-        MesQcTemplateIndicatorDO do0 = templateService.getTemplateIndicator(id);
-        return success(convertIndicatorRespVO(do0));
+        MesQcTemplateIndicatorDO indicator = templateService.getTemplateIndicator(id);
+        return success(buildIndicatorRespVOList(Collections.singletonList(indicator)).get(0));
     }
 
     @GetMapping("/page")
@@ -78,40 +82,29 @@ public class MesQcTemplateIndicatorController {
     public CommonResult<PageResult<MesQcTemplateIndicatorRespVO>> getTemplateIndicatorPage(
             @Valid MesQcTemplateIndicatorPageReqVO pageReqVO) {
         PageResult<MesQcTemplateIndicatorDO> pageResult = templateService.getTemplateIndicatorPage(pageReqVO);
-        List<MesQcTemplateIndicatorRespVO> voList = pageResult.getList().stream()
-                .map(this::convertIndicatorRespVO)
-                .collect(Collectors.toList());
-        return success(new PageResult<>(voList, pageResult.getTotal()));
+        return success(new PageResult<>(buildIndicatorRespVOList(pageResult.getList()), pageResult.getTotal()));
     }
 
-    // TODO @AI：参考别的模块，buildVO；包括注释；
-    /**
-     * DO → RespVO：JOIN mes_qc_indicator 补充检测项信息，JOIN mes_md_unit_measure 补充单位名称
-     */
-    private MesQcTemplateIndicatorRespVO convertIndicatorRespVO(MesQcTemplateIndicatorDO do0) {
-        // TODO @AI：应该是批量的操作；
-        if (do0 == null) {
-            return null;
+    // ==================== 拼接 VO ====================
+
+    private List<MesQcTemplateIndicatorRespVO> buildIndicatorRespVOList(List<MesQcTemplateIndicatorDO> list) {
+        if (CollUtil.isEmpty(list)) {
+            return Collections.emptyList();
         }
-        MesQcTemplateIndicatorRespVO vo = BeanUtils.toBean(do0, MesQcTemplateIndicatorRespVO.class);
-        // JOIN 质检指标
-        if (do0.getIndicatorId() != null) {
-            MesQcIndicatorDO indicator = indicatorMapper.selectById(do0.getIndicatorId());
-            if (indicator != null) {
-                vo.setIndicatorCode(indicator.getCode());
-                vo.setIndicatorName(indicator.getName());
-                vo.setIndicatorType(indicator.getType());
-                vo.setIndicatorTool(indicator.getTool());
-            }
-        }
-        // JOIN 计量单位
-        if (do0.getUnitMeasureId() != null) {
-            MesMdUnitMeasureDO unit = unitMeasureMapper.selectById(do0.getUnitMeasureId());
-            if (unit != null) {
-                vo.setUnitMeasureName(unit.getName());
-            }
-        }
-        return vo;
+        // 批量查询质检指标
+        Map<Long, MesQcIndicatorDO> indicatorMap = indicatorService.getIndicatorMap(
+                convertSet(list, MesQcTemplateIndicatorDO::getIndicatorId));
+        // 批量查询计量单位
+        Map<Long, MesMdUnitMeasureDO> unitMeasureMap = unitMeasureService.getUnitMeasureMap(
+                convertSet(list, MesQcTemplateIndicatorDO::getUnitMeasureId));
+        // 拼装 VO
+        return BeanUtils.toBean(list, MesQcTemplateIndicatorRespVO.class, vo -> {
+            findAndThen(indicatorMap, vo.getIndicatorId(), indicator ->
+                    vo.setIndicatorCode(indicator.getCode()).setIndicatorName(indicator.getName())
+                            .setIndicatorType(indicator.getType()).setIndicatorTool(indicator.getTool()));
+            findAndThen(unitMeasureMap, vo.getUnitMeasureId(),
+                    unit -> vo.setUnitMeasureName(unit.getName()));
+        });
     }
 
 }
