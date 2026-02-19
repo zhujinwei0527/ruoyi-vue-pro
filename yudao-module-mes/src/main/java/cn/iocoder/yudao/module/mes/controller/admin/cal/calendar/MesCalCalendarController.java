@@ -2,6 +2,7 @@ package cn.iocoder.yudao.module.mes.controller.admin.cal.calendar;
 
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.date.DatePattern;
+import cn.hutool.core.date.LocalDateTimeUtil;
 import cn.iocoder.yudao.framework.common.pojo.CommonResult;
 import cn.iocoder.yudao.module.mes.controller.admin.cal.calendar.vo.MesCalCalendarListReqVO;
 import cn.iocoder.yudao.module.mes.controller.admin.cal.calendar.vo.MesCalCalendarRespVO;
@@ -12,6 +13,7 @@ import cn.iocoder.yudao.module.mes.dal.dataobject.cal.plan.MesCalPlanShiftDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.cal.team.MesCalTeamDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.cal.team.MesCalTeamMemberDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.cal.team.MesCalTeamShiftDO;
+import cn.iocoder.yudao.module.mes.enums.cal.MesCalHolidayTypeEnum;
 import cn.iocoder.yudao.module.mes.service.cal.holiday.MesCalHolidayService;
 import cn.iocoder.yudao.module.mes.service.cal.plan.MesCalPlanService;
 import cn.iocoder.yudao.module.mes.service.cal.plan.MesCalPlanShiftService;
@@ -28,13 +30,12 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
 import static cn.iocoder.yudao.framework.common.pojo.CommonResult.success;
-import static cn.iocoder.yudao.framework.common.util.collection.CollectionUtils.convertSet;
+import static cn.iocoder.yudao.framework.common.util.collection.CollectionUtils.*;
 
 @Tag(name = "管理后台 - MES 排班日历")
 @RestController
@@ -64,9 +65,8 @@ public class MesCalCalendarController {
         if (CollUtil.isEmpty(teamShifts)) {
             return success(Collections.emptyList());
         }
-        // 1.2 查询假期列表，构建假期日期集合
-        // TODO @AI：是不是按照指定日期查询下，避免加载所有！
-        Set<String> holidaySet = buildHolidaySet();
+        // 1.2 按日期范围查询假期，构建节假日日期集合
+        Set<String> holidaySet = buildHolidaySet(reqVO.getStartDay(), reqVO.getEndDay());
         // 1.3 批量查询关联数据：班组、班次、排班计划
         Map<Long, MesCalTeamDO> teamMap = teamService.getTeamMap(
                 convertSet(teamShifts, MesCalTeamShiftDO::getTeamId));
@@ -75,24 +75,21 @@ public class MesCalCalendarController {
         Map<Long, MesCalPlanDO> planMap = planService.getPlanMap(
                 convertSet(teamShifts, MesCalTeamShiftDO::getPlanId));
 
-        // 2. 按 day 分组聚合，过滤假期
-        // TODO @AI：使用 MapUtils 里的方法；
-        Map<String, List<MesCalTeamShiftDO>> dayGroupMap = teamShifts.stream()
-                .collect(Collectors.groupingBy(
-                        ts -> ts.getDay().toLocalDate().format(DatePattern.NORM_DATE_FORMATTER),
-                        LinkedHashMap::new,
-                        Collectors.toList()
-                ));
+        // 2. 按 day 分组聚合
+        Map<String, List<MesCalTeamShiftDO>> dayGroupMap = convertMultiMap(teamShifts,
+                teamShift -> LocalDateTimeUtil.format(teamShift.getDay(), DatePattern.NORM_DATE_PATTERN));
+
+        // 3. 遍历分组，过滤假期，构建日历响应
         List<MesCalCalendarRespVO> result = new ArrayList<>();
         for (Map.Entry<String, List<MesCalTeamShiftDO>> entry : dayGroupMap.entrySet()) {
             String dayStr = entry.getKey();
-            // 4.1 过滤假期
+            // 3.1 过滤节假日
             if (holidaySet.contains(dayStr)) {
                 continue;
             }
             List<MesCalTeamShiftDO> dayShifts = entry.getValue();
-            dayShifts.sort(Comparator.comparing(ts -> ts.getSort() != null ? ts.getSort() : 0)); // 按 sort 升序排列
-            // 4.2 获取轮班方式（取第一条记录关联的排班计划）
+            dayShifts.sort(Comparator.comparing(ts -> ts.getSort() != null ? ts.getSort() : 0));
+            // 3.2 获取轮班方式（取第一条记录关联的排班计划）
             Integer shiftType = null;
             MesCalTeamShiftDO first = dayShifts.get(0);
             if (first.getPlanId() != null) {
@@ -101,19 +98,17 @@ public class MesCalCalendarController {
                     shiftType = plan.getShiftType();
                 }
             }
-            // 4.3 构建班组排班项列表
-            // TODO @AI：convertList？
-            List<MesCalCalendarRespVO.TeamShiftItem> items = dayShifts.stream()
-                    .map(ts -> buildTeamShiftItem(ts, teamMap, shiftMap))
-                    .collect(Collectors.toList());
+            // 3.3 构建班组排班项列表
+            List<MesCalCalendarRespVO.TeamShiftItem> items = convertList(dayShifts,
+                    teamShift -> buildTeamShiftItem(teamShift, teamMap, shiftMap));
 
-            // 4.4 构建日历项，添加到结果列表
-            // TODO @AI：先构建出一个对象，在 add 到 result 里；
-            result.add(MesCalCalendarRespVO.builder()
-                    .day(LocalDate.parse(dayStr, DatePattern.NORM_DATE_FORMATTER).atStartOfDay())
+            // 3.4 构建日历项，添加到结果列表
+            MesCalCalendarRespVO calendarVO = MesCalCalendarRespVO.builder()
+                    .day(LocalDateTimeUtil.parseDate(dayStr, DatePattern.NORM_DATE_FORMATTER).atStartOfDay())
                     .shiftType(shiftType)
                     .teamShifts(items)
-                    .build());
+                    .build();
+            result.add(calendarVO);
         }
         return success(result);
     }
@@ -208,20 +203,13 @@ public class MesCalCalendarController {
     }
 
     /**
-     * 构建假期日期集合（yyyy-MM-dd 格式）
+     * 按日期范围查询假期，构建节假日日期集合（yyyy-MM-dd 格式）
      */
-    private Set<String> buildHolidaySet() {
-        List<MesCalHolidayDO> holidays = holidayService.getHolidayList();
-        Set<String> holidaySet = new HashSet<>();
-        for (MesCalHolidayDO holiday : holidays) {
-            // type=2 表示节假日
-            // todo @AI：需要搞个枚举类；另外 holiday 那的字段，也要处理下；
-            if (holiday.getType() != null && holiday.getType() == 2) {
-                LocalDate day = holiday.getDay().toLocalDate();
-                holidaySet.add(day.format(DatePattern.NORM_DATE_FORMATTER));
-            }
-        }
-        return holidaySet;
+    private Set<String> buildHolidaySet(LocalDateTime startDay, LocalDateTime endDay) {
+        List<MesCalHolidayDO> holidays = holidayService.getHolidayList(startDay, endDay);
+        return convertSet(holidays,
+                holiday -> LocalDateTimeUtil.format(holiday.getDay(), DatePattern.NORM_DATE_PATTERN),
+                holiday -> MesCalHolidayTypeEnum.HOLIDAY.getType().equals(holiday.getType()));
     }
 
 }

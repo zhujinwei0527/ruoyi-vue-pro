@@ -30,6 +30,15 @@ public interface MesCalHolidayService {
     List<MesCalHolidayDO> getHolidayList();
 
     /**
+     * 根据日期范围获得假期设置列表
+     *
+     * @param startDay 开始日期
+     * @param endDay   结束日期
+     * @return 假期设置列表
+     */
+    List<MesCalHolidayDO> getHolidayList(LocalDateTime startDay, LocalDateTime endDay);
+
+    /**
      * 根据日期获得假期设置
      *
      * @param day 日期
