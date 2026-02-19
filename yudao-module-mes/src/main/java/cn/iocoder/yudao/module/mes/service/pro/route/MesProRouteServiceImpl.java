@@ -71,7 +71,7 @@ public class MesProRouteServiceImpl implements MesProRouteService {
     @Override
     public void updateRouteStatus(Long id, Integer status) {
         // 1.1 校验存在
-        validateRouteExists(id);
+        MesProRouteDO route = validateRouteExists(id);
         // 1.2 启用时的校验
         if (CommonStatusEnum.ENABLE.getStatus().equals(status)) {
             validateRouteEnable(id);
@@ -84,8 +84,10 @@ public class MesProRouteServiceImpl implements MesProRouteService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void deleteRoute(Long id) {
-        // 1. 校验存在
+        // 1.1 校验存在
         validateRouteExists(id);
+        // 1.2 已启用的工艺路线，不允许删除
+        validateRouteNotEnable(id);
 
         // 2.1 级联删除
         routeProcessService.deleteRouteProcessByRouteId(id);
@@ -95,10 +97,12 @@ public class MesProRouteServiceImpl implements MesProRouteService {
         routeMapper.deleteById(id);
     }
 
-    private void validateRouteExists(Long id) {
-        if (routeMapper.selectById(id) == null) {
+    private MesProRouteDO validateRouteExists(Long id) {
+        MesProRouteDO route = routeMapper.selectById(id);
+        if (route == null) {
             throw exception(PRO_ROUTE_NOT_EXISTS);
         }
+        return route;
     }
 
     private void validateRouteCodeUnique(Long id, String code) {
@@ -149,6 +153,14 @@ public class MesProRouteServiceImpl implements MesProRouteService {
     @Override
     public List<MesProRouteDO> getRouteListByStatus(Integer status) {
         return routeMapper.selectListByStatus(status);
+    }
+
+    @Override
+    public void validateRouteNotEnable(Long routeId) {
+        MesProRouteDO route = routeMapper.selectById(routeId);
+        if (route != null && CommonStatusEnum.ENABLE.getStatus().equals(route.getStatus())) {
+            throw exception(PRO_ROUTE_IS_ENABLE);
+        }
     }
 
 }

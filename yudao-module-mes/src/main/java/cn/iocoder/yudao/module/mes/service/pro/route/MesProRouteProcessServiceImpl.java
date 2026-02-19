@@ -41,6 +41,8 @@ public class MesProRouteProcessServiceImpl implements MesProRouteProcessService 
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Long createRouteProcess(MesProRouteProcessSaveReqVO createReqVO) {
+        // 1.0 已启用的工艺路线，不允许操作
+        routeService.validateRouteNotEnable(createReqVO.getRouteId());
         // 1.1 校验工艺路线、工序存在
         validateRouteAndProcessExists(createReqVO.getRouteId(), createReqVO.getProcessId());
         // 1.2 校验唯一性
@@ -60,6 +62,8 @@ public class MesProRouteProcessServiceImpl implements MesProRouteProcessService 
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void updateRouteProcess(MesProRouteProcessSaveReqVO updateReqVO) {
+        // 1.0 已启用的工艺路线，不允许操作
+        routeService.validateRouteNotEnable(updateReqVO.getRouteId());
         // 1.1 校验存在
         validateRouteProcessExists(updateReqVO.getId());
         // 1.2 校验工艺路线、工序存在
@@ -80,11 +84,10 @@ public class MesProRouteProcessServiceImpl implements MesProRouteProcessService 
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void deleteRouteProcess(Long id) {
-        // 1. 校验存在
-        MesProRouteProcessDO routeProcess = routeProcessMapper.selectById(id);
-        if (routeProcess == null) {
-            throw exception(PRO_ROUTE_PROCESS_NOT_EXISTS);
-        }
+        // 1.1 校验存在
+        MesProRouteProcessDO routeProcess = validateRouteProcessExists(id);
+        // 1.2 已启用的工艺路线，不允许操作
+        routeService.validateRouteNotEnable(routeProcess.getRouteId());
 
         // 2. 删除
         routeProcessMapper.deleteById(id);
@@ -114,10 +117,12 @@ public class MesProRouteProcessServiceImpl implements MesProRouteProcessService 
         }
     }
 
-    private void validateRouteProcessExists(Long id) {
-        if (routeProcessMapper.selectById(id) == null) {
+    private MesProRouteProcessDO validateRouteProcessExists(Long id) {
+        MesProRouteProcessDO routeProcess = routeProcessMapper.selectById(id);
+        if (routeProcess == null) {
             throw exception(PRO_ROUTE_PROCESS_NOT_EXISTS);
         }
+        return routeProcess;
     }
 
     private void validateRouteAndProcessExists(Long routeId, Long processId) {

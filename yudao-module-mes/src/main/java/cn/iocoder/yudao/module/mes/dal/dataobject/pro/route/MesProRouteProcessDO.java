@@ -51,6 +51,7 @@ public class MesProRouteProcessDO extends BaseDO {
     /**
      * 与下一道工序关系
      *
+     * 字典 {@link cn.iocoder.yudao.module.mes.enums.DictTypeConstants#MES_PRO_LINK_TYPE}
      * 枚举 {@link cn.iocoder.yudao.module.mes.enums.pro.MesProLinkTypeEnum}
      */
     private Integer linkType;

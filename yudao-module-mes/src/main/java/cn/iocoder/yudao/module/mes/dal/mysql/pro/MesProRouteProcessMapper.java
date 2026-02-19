@@ -48,22 +48,4 @@ public interface MesProRouteProcessMapper extends BaseMapperX<MesProRouteProcess
         return selectList(MesProRouteProcessDO::getProcessId, processId);
     }
 
-    default MesProRouteProcessDO findPreProcess(Long routeId, Integer sort) {
-        return selectOne(new LambdaQueryWrapperX<MesProRouteProcessDO>()
-                .eq(MesProRouteProcessDO::getRouteId, routeId)
-                .lt(MesProRouteProcessDO::getSort, sort)
-                .orderByDesc(MesProRouteProcessDO::getSort)
-                // TODO @AI：limit 1，使用 mybatis utils
-                .last("LIMIT 1"));
-    }
-
-    default MesProRouteProcessDO findNextProcess(Long routeId, Integer sort) {
-        return selectOne(new LambdaQueryWrapperX<MesProRouteProcessDO>()
-                .eq(MesProRouteProcessDO::getRouteId, routeId)
-                .gt(MesProRouteProcessDO::getSort, sort)
-                .orderByAsc(MesProRouteProcessDO::getSort)
-                // TODO @AI：limit 1，使用 mybatis utils
-                .last("LIMIT 1"));
-    }
-
 }

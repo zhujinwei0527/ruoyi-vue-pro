@@ -53,4 +53,11 @@ public interface MesProRouteService {
      */
     List<MesProRouteDO> getRouteListByStatus(Integer status);
 
+    /**
+     * 校验工艺路线未启用（已启用则抛异常）
+     *
+     * @param routeId 工艺路线编号
+     */
+    void validateRouteNotEnable(Long routeId);
+
 }

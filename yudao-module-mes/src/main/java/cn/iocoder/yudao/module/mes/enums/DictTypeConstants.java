@@ -24,5 +24,7 @@ public interface DictTypeConstants {
     String MES_PRO_WORK_ORDER_SOURCE_TYPE = "mes_pro_work_order_source_type"; // MES 工单来源类型
     String MES_PRO_WORK_ORDER_TYPE = "mes_pro_work_order_type"; // MES 工单类型
     String MES_QC_TYPE = "mes_qc_type"; // MES 检测种类（IQC/IPQC/OQC/RQC）
+    String MES_PRO_LINK_TYPE = "mes_pro_link_type"; // MES 工序关系类型
+    String MES_TIME_UNIT_TYPE = "mes_time_unit_type"; // MES 时间单位
 
 }

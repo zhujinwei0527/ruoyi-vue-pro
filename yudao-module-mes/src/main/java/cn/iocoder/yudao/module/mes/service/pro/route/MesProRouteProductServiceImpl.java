@@ -30,11 +30,16 @@ public class MesProRouteProductServiceImpl implements MesProRouteProductService 
 
     @Resource
     @Lazy
+    private MesProRouteService routeService;
+    @Resource
+    @Lazy
     private MesProRouteProductBomService routeProductBomService;
 
     @Override
     public Long createRouteProduct(MesProRouteProductSaveReqVO createReqVO) {
-        // 1. 校验产品唯一性（一个产品只能关联一条工艺路线）
+        // 1.0 已启用的工艺路线，不允许操作
+        routeService.validateRouteNotEnable(createReqVO.getRouteId());
+        // 1.1 校验产品唯一性（一个产品只能关联一条工艺路线）
         validateItemUnique(null, createReqVO.getItemId());
 
         // 2. 插入
@@ -45,6 +50,8 @@ public class MesProRouteProductServiceImpl implements MesProRouteProductService 
 
     @Override
     public void updateRouteProduct(MesProRouteProductSaveReqVO updateReqVO) {
+        // 1.0 已启用的工艺路线，不允许操作
+        routeService.validateRouteNotEnable(updateReqVO.getRouteId());
         // 1.1 校验存在
         validateRouteProductExists(updateReqVO.getId());
         // 1.2 校验产品唯一性
@@ -58,9 +65,11 @@ public class MesProRouteProductServiceImpl implements MesProRouteProductService 
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void deleteRouteProduct(Long id) {
-        // 1. 校验存在
+        // 1.1 校验存在
         MesProRouteProductDO routeProduct = routeProductMapper.selectById(id);
         validateRouteProductExists(routeProduct);
+        // 1.2 已启用的工艺路线，不允许操作
+        routeService.validateRouteNotEnable(routeProduct.getRouteId());
 
         // 2.1 级联删除关联的 BOM
         routeProductBomService.deleteRouteProductBomByRouteIdAndProductId(routeProduct.getRouteId(), routeProduct.getItemId());

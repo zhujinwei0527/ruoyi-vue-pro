@@ -51,9 +51,9 @@ public class MesProRouteProductDO extends BaseDO {
     /**
      * 时间单位
      *
-     * 字典类型 mes_time_unit_type
+     * 字典 {@link cn.iocoder.yudao.module.mes.enums.DictTypeConstants#MES_TIME_UNIT_TYPE}
+     * 枚举 {@link cn.iocoder.yudao.module.mes.enums.pro.MesTimeUnitTypeEnum}
      */
-    // TODO @AI：外链 @ 加下，字典 + 枚举类；（需要枚举出来。在 dictconstants 里）
     private String timeUnitType;
     /**
      * 备注

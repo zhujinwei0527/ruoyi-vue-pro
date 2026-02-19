@@ -6,6 +6,7 @@ import cn.iocoder.yudao.module.mes.controller.admin.pro.route.vo.productbom.MesP
 import cn.iocoder.yudao.module.mes.dal.dataobject.pro.route.MesProRouteProductBomDO;
 import cn.iocoder.yudao.module.mes.dal.mysql.pro.MesProRouteProductBomMapper;
 import jakarta.annotation.Resource;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 
@@ -26,9 +27,15 @@ public class MesProRouteProductBomServiceImpl implements MesProRouteProductBomSe
     @Resource
     private MesProRouteProductBomMapper routeProductBomMapper;
 
+    @Resource
+    @Lazy
+    private MesProRouteService routeService;
+
     @Override
     public Long createRouteProductBom(MesProRouteProductBomSaveReqVO createReqVO) {
-        // 1. 校验唯一性
+        // 1.0 已启用的工艺路线，不允许操作
+        routeService.validateRouteNotEnable(createReqVO.getRouteId());
+        // 1.1 校验唯一性
         validateBomUnique(null, createReqVO.getItemId(), createReqVO.getProcessId(), createReqVO.getProductId());
         // 2. 插入
         MesProRouteProductBomDO routeProductBom = BeanUtils.toBean(createReqVO, MesProRouteProductBomDO.class);
@@ -38,9 +45,11 @@ public class MesProRouteProductBomServiceImpl implements MesProRouteProductBomSe
 
     @Override
     public void updateRouteProductBom(MesProRouteProductBomSaveReqVO updateReqVO) {
-        // 1. 校验存在
+        // 1.0 已启用的工艺路线，不允许操作
+        routeService.validateRouteNotEnable(updateReqVO.getRouteId());
+        // 1.1 校验存在
         validateRouteProductBomExists(updateReqVO.getId());
-        // 2. 校验唯一性
+        // 1.2 校验唯一性
         validateBomUnique(updateReqVO.getId(), updateReqVO.getItemId(), updateReqVO.getProcessId(), updateReqVO.getProductId());
         // 3. 更新
         MesProRouteProductBomDO updateObj = BeanUtils.toBean(updateReqVO, MesProRouteProductBomDO.class);
@@ -49,8 +58,13 @@ public class MesProRouteProductBomServiceImpl implements MesProRouteProductBomSe
 
     @Override
     public void deleteRouteProductBom(Long id) {
-        // 1. 校验存在
-        validateRouteProductBomExists(id);
+        // 1.1 校验存在
+        MesProRouteProductBomDO bom = routeProductBomMapper.selectById(id);
+        if (bom == null) {
+            throw exception(PRO_ROUTE_PRODUCT_BOM_NOT_EXISTS);
+        }
+        // 1.2 已启用的工艺路线，不允许操作
+        routeService.validateRouteNotEnable(bom.getRouteId());
         // 2. 删除
         routeProductBomMapper.deleteById(id);
     }
