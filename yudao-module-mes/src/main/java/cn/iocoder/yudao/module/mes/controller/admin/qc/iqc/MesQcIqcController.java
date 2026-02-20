@@ -18,6 +18,8 @@ import cn.iocoder.yudao.module.mes.service.md.item.MesMdItemService;
 import cn.iocoder.yudao.module.mes.service.md.unitmeasure.MesMdUnitMeasureService;
 import cn.iocoder.yudao.module.mes.service.md.vendor.MesMdVendorService;
 import cn.iocoder.yudao.module.mes.service.qc.lqc.MesQcIqcService;
+import cn.iocoder.yudao.module.system.api.user.AdminUserApi;
+import cn.iocoder.yudao.module.system.api.user.dto.AdminUserRespDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -52,6 +54,9 @@ public class MesQcIqcController {
     private MesMdItemService itemService;
     @Resource
     private MesMdUnitMeasureService unitMeasureService;
+
+    @Resource
+    private AdminUserApi adminUserApi;
 
     @PostMapping("/create")
     @Operation(summary = "创建来料检验单")
@@ -130,6 +135,9 @@ public class MesQcIqcController {
         // 批量查询计量单位（通过物料的 unitMeasureId）
         Map<Long, MesMdUnitMeasureDO> unitMeasureMap = unitMeasureService.getUnitMeasureMap(
                 convertSet(itemMap.values(), MesMdItemDO::getUnitMeasureId));
+        // 批量查询检测人员
+        Map<Long, AdminUserRespDTO> userMap = adminUserApi.getUserMap(
+                convertSet(list, MesQcIqcDO::getInspectorUserId));
         // 拼装 VO
         return BeanUtils.toBean(list, MesQcIqcRespVO.class, vo -> {
             findAndThen(vendorMap, vo.getVendorId(),
@@ -141,6 +149,8 @@ public class MesQcIqcController {
                 findAndThen(unitMeasureMap, item.getUnitMeasureId(),
                         unit -> vo.setUnitName(unit.getName()));
             });
+            findAndThen(userMap, vo.getInspectorUserId(),
+                    user -> vo.setInspectorNickname(user.getNickname()));
         });
     }
 

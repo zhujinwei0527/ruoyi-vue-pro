@@ -7,7 +7,7 @@ import cn.iocoder.yudao.module.mes.controller.admin.qc.iqc.vo.defect.MesQcIqcDef
 import cn.iocoder.yudao.module.mes.controller.admin.qc.iqc.vo.defect.MesQcIqcDefectRespVO;
 import cn.iocoder.yudao.module.mes.controller.admin.qc.iqc.vo.defect.MesQcIqcDefectSaveReqVO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.qc.lqc.MesQcIqcDefectDO;
-import cn.iocoder.yudao.module.mes.service.qc.lqc.MesQcIqcService;
+import cn.iocoder.yudao.module.mes.service.qc.lqc.MesQcIqcDefectService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -26,20 +26,20 @@ import static cn.iocoder.yudao.framework.common.pojo.CommonResult.success;
 public class MesQcIqcDefectController {
 
     @Resource
-    private MesQcIqcService iqcService;
+    private MesQcIqcDefectService iqcDefectService;
 
     @PostMapping("/create")
     @Operation(summary = "创建来料检验缺陷记录")
     @PreAuthorize("@ss.hasPermission('mes:qc-iqc:create')")
     public CommonResult<Long> createIqcDefect(@Valid @RequestBody MesQcIqcDefectSaveReqVO createReqVO) {
-        return success(iqcService.createIqcDefect(createReqVO));
+        return success(iqcDefectService.createIqcDefect(createReqVO));
     }
 
     @PutMapping("/update")
     @Operation(summary = "更新来料检验缺陷记录")
     @PreAuthorize("@ss.hasPermission('mes:qc-iqc:update')")
     public CommonResult<Boolean> updateIqcDefect(@Valid @RequestBody MesQcIqcDefectSaveReqVO updateReqVO) {
-        iqcService.updateIqcDefect(updateReqVO);
+        iqcDefectService.updateIqcDefect(updateReqVO);
         return success(true);
     }
 
@@ -48,7 +48,7 @@ public class MesQcIqcDefectController {
     @Parameter(name = "id", description = "编号", required = true)
     @PreAuthorize("@ss.hasPermission('mes:qc-iqc:update')")
     public CommonResult<Boolean> deleteIqcDefect(@RequestParam("id") Long id) {
-        iqcService.deleteIqcDefect(id);
+        iqcDefectService.deleteIqcDefect(id);
         return success(true);
     }
 
@@ -56,7 +56,7 @@ public class MesQcIqcDefectController {
     @Operation(summary = "获得来料检验缺陷记录分页")
     @PreAuthorize("@ss.hasPermission('mes:qc-iqc:query')")
     public CommonResult<PageResult<MesQcIqcDefectRespVO>> getIqcDefectPage(@Valid MesQcIqcDefectPageReqVO pageReqVO) {
-        PageResult<MesQcIqcDefectDO> pageResult = iqcService.getIqcDefectPage(pageReqVO);
+        PageResult<MesQcIqcDefectDO> pageResult = iqcDefectService.getIqcDefectPage(pageReqVO);
         return success(BeanUtils.toBean(pageResult, MesQcIqcDefectRespVO.class));
     }
 

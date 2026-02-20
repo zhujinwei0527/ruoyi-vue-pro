@@ -11,7 +11,7 @@ import cn.iocoder.yudao.module.mes.dal.dataobject.qc.lqc.MesQcIqcLineDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.qc.indicator.MesQcIndicatorDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.tm.tool.MesTmToolDO;
 import cn.iocoder.yudao.module.mes.service.md.unitmeasure.MesMdUnitMeasureService;
-import cn.iocoder.yudao.module.mes.service.qc.lqc.MesQcIqcService;
+import cn.iocoder.yudao.module.mes.service.qc.lqc.MesQcIqcLineService;
 import cn.iocoder.yudao.module.mes.service.qc.indicator.MesQcIndicatorService;
 import cn.iocoder.yudao.module.mes.service.tm.tool.MesTmToolService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -41,7 +41,7 @@ import static cn.iocoder.yudao.framework.common.util.collection.MapUtils.findAnd
 public class MesQcIqcLineController {
 
     @Resource
-    private MesQcIqcService iqcService;
+    private MesQcIqcLineService iqcLineService;
     @Resource
     private MesQcIndicatorService indicatorService;
     @Resource
@@ -54,7 +54,7 @@ public class MesQcIqcLineController {
     @Parameter(name = "id", description = "编号", required = true, example = "1024")
     @PreAuthorize("@ss.hasPermission('mes:qc-iqc:query')")
     public CommonResult<MesQcIqcLineRespVO> getIqcLine(@RequestParam("id") Long id) {
-        MesQcIqcLineDO line = iqcService.getIqcLine(id);
+        MesQcIqcLineDO line = iqcLineService.getIqcLine(id);
         return success(buildLineRespVOList(Collections.singletonList(line)).get(0));
     }
 
@@ -62,7 +62,7 @@ public class MesQcIqcLineController {
     @Operation(summary = "获得来料检验单行分页")
     @PreAuthorize("@ss.hasPermission('mes:qc-iqc:query')")
     public CommonResult<PageResult<MesQcIqcLineRespVO>> getIqcLinePage(@Valid MesQcIqcLinePageReqVO pageReqVO) {
-        PageResult<MesQcIqcLineDO> pageResult = iqcService.getIqcLinePage(pageReqVO);
+        PageResult<MesQcIqcLineDO> pageResult = iqcLineService.getIqcLinePage(pageReqVO);
         return success(new PageResult<>(buildLineRespVOList(pageResult.getList()), pageResult.getTotal()));
     }
 

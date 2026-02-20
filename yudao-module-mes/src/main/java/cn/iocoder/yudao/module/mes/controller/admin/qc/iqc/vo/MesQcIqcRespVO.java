@@ -119,9 +119,9 @@ public class MesQcIqcRespVO {
 
     // ========== 检验 ==========
 
-    @Schema(description = "检测结果", example = "PASS")
+    @Schema(description = "检测结果", example = "1")
     @ExcelProperty("检测结果")
-    private String checkResult;
+    private Integer checkResult;
 
     @Schema(description = "来料日期")
     @ExcelProperty("来料日期")
@@ -131,9 +131,12 @@ public class MesQcIqcRespVO {
     @ExcelProperty("检测日期")
     private LocalDateTime inspectDate;
 
-    @Schema(description = "检测人员", example = "张三")
+    @Schema(description = "检测人员用户 ID", example = "1")
+    private Long inspectorUserId;
+
+    @Schema(description = "检测人员昵称", example = "张三")
     @ExcelProperty("检测人员")
-    private String inspector;
+    private String inspectorNickname;
 
     @Schema(description = "状态", requiredMode = Schema.RequiredMode.REQUIRED, example = "0")
     @ExcelProperty("状态")

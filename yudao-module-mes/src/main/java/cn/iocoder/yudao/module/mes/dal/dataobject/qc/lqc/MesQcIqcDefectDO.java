@@ -42,13 +42,12 @@ public class MesQcIqcDefectDO extends BaseDO {
      * 缺陷描述
      */
     private String defectName;
-    // TODO @AI：要不枚举值也加下，也改成 int；
     /**
      * 缺陷等级
      *
-     * 字典 mes_defect_level
+     * 枚举 {@link cn.iocoder.yudao.module.mes.enums.qc.MesQcDefectLevelEnum}
      */
-    private String defectLevel;
+    private Integer defectLevel;
     /**
      * 缺陷数量
      */

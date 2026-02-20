@@ -12,9 +12,8 @@ import lombok.*;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
-// TODO @AI：IQC 完整的拼写，也加下；
 /**
- * MES 来料检验单（IQC） DO
+ * MES 来料检验单（IQC, Incoming Quality Control） DO
  *
  * @author 芋道源码
  */
@@ -147,13 +146,12 @@ public class MesQcIqcDO extends BaseDO {
 
     // ========== 检验 ==========
 
-    // TODO @AI：需要搞个枚举么？使用 int 把。现在就搞了；
     /**
      * 检测结果
      *
-     * 字典 mes_qc_check_result
+     * 枚举 {@link cn.iocoder.yudao.module.mes.enums.qc.MesQcCheckResultEnum}
      */
-    private String checkResult;
+    private Integer checkResult;
     /**
      * 来料日期
      */
@@ -165,13 +163,16 @@ public class MesQcIqcDO extends BaseDO {
     /**
      * 检测人员
      */
-    // TODO @AI：改成 inspectorUserId；
-    private String inspector;
-    // TODO @AI：需要搞个枚举么？使用 int 把。现在就搞了；
     /**
-     * 状态（0=草稿 1=已完成）
+     * 检测人员用户 ID
      *
-     * 字典 mes_qc_iqc_status
+     * 关联 AdminUserDO 的 id
+     */
+    private Long inspectorUserId;
+    /**
+     * 状态
+     *
+     * 枚举 {@link cn.iocoder.yudao.module.mes.enums.qc.MesQcIqcStatusEnum}
      */
     private Integer status;
     /**

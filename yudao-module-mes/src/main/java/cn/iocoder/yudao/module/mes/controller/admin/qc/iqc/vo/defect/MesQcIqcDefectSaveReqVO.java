@@ -24,9 +24,9 @@ public class MesQcIqcDefectSaveReqVO {
     @NotEmpty(message = "缺陷描述不能为空")
     private String defectName;
 
-    @Schema(description = "缺陷等级", requiredMode = Schema.RequiredMode.REQUIRED, example = "CRITICAL")
-    @NotEmpty(message = "缺陷等级不能为空")
-    private String defectLevel;
+    @Schema(description = "缺陷等级", requiredMode = Schema.RequiredMode.REQUIRED, example = "1")
+    @NotNull(message = "缺陷等级不能为空")
+    private Integer defectLevel;
 
     @Schema(description = "缺陷数量", example = "1")
     private Integer defectQuantity;

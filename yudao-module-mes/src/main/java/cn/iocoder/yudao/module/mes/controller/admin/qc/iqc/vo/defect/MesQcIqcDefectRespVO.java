@@ -21,8 +21,8 @@ public class MesQcIqcDefectRespVO {
     @Schema(description = "缺陷描述", requiredMode = Schema.RequiredMode.REQUIRED, example = "表面划伤")
     private String defectName;
 
-    @Schema(description = "缺陷等级", requiredMode = Schema.RequiredMode.REQUIRED, example = "CRITICAL")
-    private String defectLevel;
+    @Schema(description = "缺陷等级", requiredMode = Schema.RequiredMode.REQUIRED, example = "1")
+    private Integer defectLevel;
 
     @Schema(description = "缺陷数量", example = "1")
     private Integer defectQuantity;

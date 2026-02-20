@@ -79,8 +79,8 @@ public class MesQcIqcSaveReqVO {
 
     // ========== 检验 ==========
 
-    @Schema(description = "检测结果", example = "PASS")
-    private String checkResult;
+    @Schema(description = "检测结果", example = "1")
+    private Integer checkResult;
 
     @Schema(description = "来料日期")
     private LocalDateTime receiveDate;
@@ -88,8 +88,8 @@ public class MesQcIqcSaveReqVO {
     @Schema(description = "检测日期")
     private LocalDateTime inspectDate;
 
-    @Schema(description = "检测人员", example = "张三")
-    private String inspector;
+    @Schema(description = "检测人员用户 ID", example = "1")
+    private Long inspectorUserId;
 
     @Schema(description = "备注", example = "备注")
     private String remark;

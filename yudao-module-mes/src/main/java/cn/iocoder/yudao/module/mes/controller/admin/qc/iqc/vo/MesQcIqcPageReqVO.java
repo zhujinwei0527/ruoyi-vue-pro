@@ -29,11 +29,14 @@ public class MesQcIqcPageReqVO extends PageParam {
     @Schema(description = "产品物料 ID", example = "20")
     private Long itemId;
 
-    @Schema(description = "检测结果", example = "PASS")
-    private String checkResult;
+    @Schema(description = "检测结果", example = "1")
+    private Integer checkResult;
 
     @Schema(description = "状态", example = "0")
     private Integer status;
+
+    @Schema(description = "检测人员用户 ID", example = "1")
+    private Long inspectorUserId;
 
     @Schema(description = "来料日期")
     @DateTimeFormat(pattern = FORMAT_YEAR_MONTH_DAY_HOUR_MINUTE_SECOND)
