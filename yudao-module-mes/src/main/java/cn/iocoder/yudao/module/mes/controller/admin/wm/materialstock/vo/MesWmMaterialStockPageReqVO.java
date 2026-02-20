@@ -1,0 +1,36 @@
+package cn.iocoder.yudao.module.mes.controller.admin.wm.materialstock.vo;
+
+import cn.iocoder.yudao.framework.common.pojo.PageParam;
+import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
+
+@Schema(description = "管理后台 - MES 库存台账分页 Request VO")
+@Data
+@EqualsAndHashCode(callSuper = true)
+@ToString(callSuper = true)
+public class MesWmMaterialStockPageReqVO extends PageParam {
+
+    @Schema(description = "物料分类编号", example = "1")
+    private Long itemTypeId;
+
+    @Schema(description = "物料编码", example = "M001")
+    private String itemCode;
+
+    @Schema(description = "物料名称", example = "钢板")
+    private String itemName;
+
+    @Schema(description = "批次号", example = "B20260101")
+    private String batchCode;
+
+    @Schema(description = "仓库编号", example = "1")
+    private Long warehouseId;
+
+    @Schema(description = "库区编号", example = "1")
+    private Long locationId;
+
+    @Schema(description = "是否冻结", example = "false")
+    private Boolean frozen;
+
+}

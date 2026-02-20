@@ -8,6 +8,7 @@ import cn.iocoder.yudao.module.mes.controller.admin.wm.warehouse.vo.MesWmWarehou
 import cn.iocoder.yudao.module.mes.controller.admin.wm.warehouse.vo.MesWmWarehouseSaveReqVO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.wm.warehouse.MesWmWarehouseDO;
 import cn.iocoder.yudao.module.mes.dal.mysql.md.workstation.MesMdWorkstationMapper;
+import cn.iocoder.yudao.module.mes.dal.mysql.wm.materialstock.MesWmMaterialStockMapper;
 import cn.iocoder.yudao.module.mes.dal.mysql.wm.warehouse.MesWmWarehouseLocationMapper;
 import cn.iocoder.yudao.module.mes.dal.mysql.wm.warehouse.MesWmWarehouseMapper;
 import jakarta.annotation.Resource;
@@ -21,6 +22,7 @@ import java.util.List;
 import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception;
 import static cn.iocoder.yudao.module.mes.enums.ErrorCodeConstants.*;
 
+// TODO @AI：不应该直接跨模块调用 mapper，通过他们的 service 操作
 /**
  * MES 仓库 Service 实现类
  */
@@ -36,6 +38,9 @@ public class MesWmWarehouseServiceImpl implements MesWmWarehouseService {
 
     @Resource
     private MesMdWorkstationMapper workstationMapper;
+
+    @Resource
+    private MesWmMaterialStockMapper materialStockMapper;
 
     @Override
     public Long createWarehouse(MesWmWarehouseSaveReqVO createReqVO) {
@@ -76,7 +81,10 @@ public class MesWmWarehouseServiceImpl implements MesWmWarehouseService {
         if (workstationMapper.selectCountByWarehouseId(id) > 0) {
             throw exception(WM_WAREHOUSE_HAS_WORKSTATION);
         }
-        // DONE @芋艿：本轮范围不接入库存占用校验，待 mes_wm_material_stock 迁移后补充
+        // 校验是否有库存记录
+        if (materialStockMapper.selectCountByWarehouseId(id) > 0) {
+            throw exception(WM_WAREHOUSE_HAS_MATERIAL_STOCK);
+        }
 
         // 删除
         warehouseMapper.deleteById(id);
