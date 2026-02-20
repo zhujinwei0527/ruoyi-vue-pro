@@ -62,6 +62,13 @@ public class MesDvMaintenRecordLineServiceImpl implements MesDvMaintenRecordLine
         maintenRecordLineMapper.deleteById(id);
     }
 
+    private void validateMaintenRecordLineRelation(MesDvMaintenRecordLineSaveReqVO reqVO) {
+        // 校验设备保养记录是否存在
+        maintenRecordService.validateMaintenRecordExists(reqVO.getRecordId());
+        // 校验保养项目是否存在
+        subjectService.validateSubjectExists(reqVO.getSubjectId());
+    }
+
     private void validateMaintenRecordLineExists(Long id) {
         if (maintenRecordLineMapper.selectById(id) == null) {
             throw exception(MAINTEN_RECORD_LINE_NOT_EXISTS);

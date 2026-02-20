@@ -53,7 +53,7 @@ public class MesDvMaintenRecordServiceImpl implements MesDvMaintenRecordService 
         // 1.2 校验关联数据
         validateMaintenRecordRelation(updateReqVO);
 
-        // 更新
+        // 2. 更新
         MesDvMaintenRecordDO updateObj = BeanUtils.toBean(updateReqVO, MesDvMaintenRecordDO.class);
         maintenRecordMapper.updateById(updateObj);
     }
@@ -70,7 +70,17 @@ public class MesDvMaintenRecordServiceImpl implements MesDvMaintenRecordService 
         maintenRecordLineMapper.deleteByRecordId(id);
     }
 
-    private void validateMaintenRecordExists(Long id) {
+    private void validateMaintenRecordRelation(MesDvMaintenRecordSaveReqVO reqVO) {
+        // 校验设备是否存在
+        machineryService.validateMachineryExists(reqVO.getMachineryId());
+        // 校验保养计划是否存在
+        if (reqVO.getPlanId() != null) {
+            checkPlanService.validateCheckPlanExists(reqVO.getPlanId());
+        }
+    }
+
+    @Override
+    public void validateMaintenRecordExists(Long id) {
         if (maintenRecordMapper.selectById(id) == null) {
             throw exception(MAINTEN_RECORD_NOT_EXISTS);
         }

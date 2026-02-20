@@ -37,6 +37,13 @@ public interface MesDvMaintenRecordService {
     void deleteMaintenRecord(Long id);
 
     /**
+     * 校验设备保养记录存在
+     *
+     * @param id 编号
+     */
+    void validateMaintenRecordExists(Long id);
+
+    /**
      * 获得设备保养记录
      *
      * @param id 编号
