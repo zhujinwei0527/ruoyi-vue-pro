@@ -120,6 +120,10 @@ public interface ErrorCodeConstants {
     ErrorCode DV_MACHINERY_NOT_EXISTS = new ErrorCode(1_040_301_000, "设备不存在");
     ErrorCode DV_MACHINERY_CODE_DUPLICATE = new ErrorCode(1_040_301_001, "设备编码已存在");
 
+    // ========== MES 设备管理-点检保养项目（1-040-304-000） ==========
+    ErrorCode DV_SUBJECT_NOT_EXISTS = new ErrorCode(1_040_304_000, "点检保养项目不存在");
+    ErrorCode DV_SUBJECT_CODE_DUPLICATE = new ErrorCode(1_040_304_001, "项目编码已存在");
+
     // ========== MES 设备管理-点检计划（1-040-302-000） ==========
     ErrorCode DV_CHECK_PLAN_NOT_EXISTS = new ErrorCode(1_040_302_000, "点检计划不存在");
 
@@ -191,6 +195,18 @@ public interface ErrorCodeConstants {
     ErrorCode QC_DEFECT_NOT_EXISTS = new ErrorCode(1_040_602_000, "缺陷类型不存在");
     ErrorCode QC_DEFECT_CODE_DUPLICATE = new ErrorCode(1_040_602_001, "缺陷类型编码已存在");
     ErrorCode QC_DEFECT_NAME_DUPLICATE = new ErrorCode(1_040_602_002, "缺陷类型名称已存在");
+
+    // ========== MES 质量管理-来料检验 IQC（1-040-603-000） ==========
+    ErrorCode QC_IQC_NOT_EXISTS = new ErrorCode(1_040_603_000, "来料检验单不存在");
+    ErrorCode QC_IQC_CODE_DUPLICATE = new ErrorCode(1_040_603_001, "来料检验单编号已存在");
+    ErrorCode QC_IQC_ONLY_PREPARE_CAN_DELETE = new ErrorCode(1_040_603_002, "只能删除草稿状态的检验单");
+    ErrorCode QC_IQC_ONLY_PREPARE_CAN_COMPLETE = new ErrorCode(1_040_603_003, "只能完成草稿状态的检验单");
+    ErrorCode QC_IQC_QUANTITY_MISMATCH = new ErrorCode(1_040_603_004, "合格品与不合格品数量之和须等于检测数量");
+    ErrorCode QC_IQC_NO_TEMPLATE = new ErrorCode(1_040_603_005, "当前产品未配置 IQC 检测模板");
+    // ========== MES 质量管理-来料检验行（1-040-603-100） ==========
+    ErrorCode QC_IQC_LINE_NOT_EXISTS = new ErrorCode(1_040_603_100, "来料检验行不存在");
+    // ========== MES 质量管理-来料检验缺陷（1-040-603-200） ==========
+    ErrorCode QC_IQC_DEFECT_NOT_EXISTS = new ErrorCode(1_040_603_200, "来料检验缺陷记录不存在");
 
     // ========== MES 仓库管理-仓库（1-040-700-000） ==========
     ErrorCode WM_WAREHOUSE_NOT_EXISTS = new ErrorCode(1_040_700_000, "仓库不存在");

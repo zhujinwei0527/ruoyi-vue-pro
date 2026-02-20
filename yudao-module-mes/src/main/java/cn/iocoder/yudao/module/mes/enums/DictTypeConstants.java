@@ -17,6 +17,7 @@ public interface DictTypeConstants {
     String MES_CAL_CALENDAR_TYPE = "mes_cal_calendar_type"; // MES 班组类型
     String MES_CAL_PLAN_STATUS = "mes_cal_plan_status"; // MES 排班计划状态
     String MES_DV_MACHINERY_STATUS = "mes_dv_machinery_status"; // MES 设备状态
+    String MES_DV_SUBJECT_TYPE = "mes_dv_subject_type"; // MES 点检保养项目类型
     String MES_INDEX_TYPE = "mes_index_type"; // MES 检测项类型
     String MES_QC_RESULT_TYPE = "mes_qc_result_type"; // MES 质检结果值类型
     String MES_DEFECT_LEVEL = "mes_defect_level"; // MES 缺陷等级
@@ -26,5 +27,8 @@ public interface DictTypeConstants {
     String MES_QC_TYPE = "mes_qc_type"; // MES 检测种类（IQC/IPQC/OQC/RQC）
     String MES_PRO_LINK_TYPE = "mes_pro_link_type"; // MES 工序关系类型
     String MES_TIME_UNIT_TYPE = "mes_time_unit_type"; // MES 时间单位
+    String MES_QC_IQC_STATUS = "mes_qc_iqc_status"; // MES 检验单状态
+    String MES_QC_CHECK_RESULT = "mes_qc_check_result"; // MES 检测结果
+    String MES_QC_SOURCE_DOC_TYPE = "mes_qc_source_doc_type"; // MES 来源单据类型
 
 }
