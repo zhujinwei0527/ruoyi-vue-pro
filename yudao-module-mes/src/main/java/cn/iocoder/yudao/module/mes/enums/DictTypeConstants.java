@@ -34,5 +34,9 @@ public interface DictTypeConstants {
     String MES_DV_CHECK_PLAN_STATUS = "mes_dv_check_plan_status"; // MES 点检保养方案状态
     String MES_MAINTEN_RECORD_STATUS = "mes_mainten_record_status"; // MES 保养记录状态
     String MES_MAINTEN_STATUS = "mes_mainten_status"; // MES 保养结果
+    String MES_DV_CHECK_RECORD_STATUS = "mes_dv_check_record_status"; // MES 点检记录状态
+    String MES_DV_CHECK_RESULT = "mes_dv_check_result"; // MES 点检结果
+    String MES_DV_REPAIR_STATUS = "mes_dv_repair_status"; // MES 维修工单状态
+    String MES_DV_REPAIR_RESULT = "mes_dv_repair_result"; // MES 维修结果
 
 }

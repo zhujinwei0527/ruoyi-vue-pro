@@ -137,11 +137,20 @@ public interface ErrorCodeConstants {
 
     // ========== MES 设备管理-维修工单（1-040-303-000） ==========
     ErrorCode DV_REPAIR_NOT_EXISTS = new ErrorCode(1_040_303_000, "维修工单不存在");
+    // ========== MES 设备管理-维修工单行（1-040-303-100） ==========
+    ErrorCode DV_REPAIR_LINE_NOT_EXISTS = new ErrorCode(1_040_303_100, "维修工单行不存在");
 
     // ========== MES 设备管理-保养记录（1-040-305-000） ==========
     ErrorCode MAINTEN_RECORD_NOT_EXISTS = new ErrorCode(1_040_305_000, "设备保养记录不存在");
     // ========== MES 设备管理-保养记录明细（1-040-305-100） ==========
     ErrorCode MAINTEN_RECORD_LINE_NOT_EXISTS = new ErrorCode(1_040_305_100, "设备保养记录明细不存在");
+
+    // ========== MES 设备管理-点检记录（1-040-306-000） ==========
+    ErrorCode DV_CHECK_RECORD_NOT_EXISTS = new ErrorCode(1_040_306_000, "设备点检记录不存在");
+    ErrorCode DV_CHECK_RECORD_NOT_PREPARE = new ErrorCode(1_040_306_001, "设备点检记录已完成，不允许修改或删除");
+    ErrorCode DV_CHECK_RECORD_NO_LINE = new ErrorCode(1_040_306_002, "提交点检记录时，至少需要一条点检项目");
+    // ========== MES 设备管理-点检记录明细（1-040-306-100） ==========
+    ErrorCode DV_CHECK_RECORD_LINE_NOT_EXISTS = new ErrorCode(1_040_306_100, "设备点检记录明细不存在");
 
     // ========== MES 工具管理-工具类型（1-040-400-000） ==========
     ErrorCode TM_TOOL_TYPE_NOT_EXISTS = new ErrorCode(1_040_400_000, "工具类型不存在");
