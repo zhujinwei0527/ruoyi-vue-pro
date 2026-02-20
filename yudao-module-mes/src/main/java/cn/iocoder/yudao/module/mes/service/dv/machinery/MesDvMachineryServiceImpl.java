@@ -118,6 +118,11 @@ public class MesDvMachineryServiceImpl implements MesDvMachineryService {
     }
 
     @Override
+    public List<MesDvMachineryDO> getMachinerySimpleList() {
+        return machineryMapper.selectList();
+    }
+
+    @Override
     public List<MesDvMachineryDO> getMachineryList(Collection<Long> ids) {
         if (CollUtil.isEmpty(ids)) {
             return Collections.emptyList();

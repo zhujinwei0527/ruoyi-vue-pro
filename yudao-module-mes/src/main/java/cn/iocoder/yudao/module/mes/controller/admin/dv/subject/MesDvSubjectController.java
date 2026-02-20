@@ -77,6 +77,14 @@ public class MesDvSubjectController {
         return success(BeanUtils.toBean(pageResult, MesDvSubjectRespVO.class));
     }
 
+    @GetMapping("/simple-list")
+    @Operation(summary = "获得点检保养项目精简列表", description = "主要用于前端的下拉选项")
+    @PreAuthorize("@ss.hasPermission('mes:dv-subject:query')")
+    public CommonResult<List<MesDvSubjectRespVO>> getSubjectSimpleList() {
+        List<MesDvSubjectDO> list = subjectService.getSubjectSimpleList();
+        return success(BeanUtils.toBean(list, MesDvSubjectRespVO.class));
+    }
+
     @GetMapping("/export-excel")
     @Operation(summary = "导出点检保养项目 Excel")
     @PreAuthorize("@ss.hasPermission('mes:dv-subject:export')")

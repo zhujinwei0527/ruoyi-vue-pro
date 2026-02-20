@@ -61,6 +61,9 @@ public class MesProWorkOrderSaveReqVO {
     @Schema(description = "供应商编号", example = "400")
     private Long vendorId;
 
+    @Schema(description = "批次号", example = "BATCH-001")
+    private String batchCode;
+
     @Schema(description = "需求日期", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotNull(message = "需求日期不能为空")
     private LocalDateTime requestDate;

@@ -93,6 +93,11 @@ public class MesDvSubjectServiceImpl implements MesDvSubjectService {
     }
 
     @Override
+    public List<MesDvSubjectDO> getSubjectSimpleList() {
+        return subjectMapper.selectList();
+    }
+
+    @Override
     public List<MesDvSubjectDO> getSubjectList(Collection<Long> ids) {
         if (CollUtil.isEmpty(ids)) {
             return Collections.emptyList();

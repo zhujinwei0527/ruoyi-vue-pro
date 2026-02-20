@@ -35,6 +35,9 @@ public class MesProWorkOrderPageReqVO extends PageParam {
     @Schema(description = "客户编号", example = "300")
     private Long clientId;
 
+    @Schema(description = "批次号", example = "BATCH-001")
+    private String batchCode;
+
     @Schema(description = "工单状态", example = "0")
     private Integer status;
 

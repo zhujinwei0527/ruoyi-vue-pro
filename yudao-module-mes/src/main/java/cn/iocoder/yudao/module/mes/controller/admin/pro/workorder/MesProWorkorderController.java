@@ -167,7 +167,7 @@ public class MesProWorkOrderController {
             MapUtils.findAndThen(clientMap, vo.getClientId(),
                     client -> vo.setClientName(client.getName()).setClientCode(client.getCode()));
             MapUtils.findAndThen(vendorMap, vo.getVendorId(),
-                    vendor -> vo.setVendorName(vendor.getName()));
+                    vendor -> vo.setVendorName(vendor.getName()).setVendorCode(vendor.getCode()));
             MapUtils.findAndThen(unitMeasureMap, vo.getUnitMeasureId(),
                     unitMeasure -> vo.setUnitMeasureName(unitMeasure.getName()));
             MapUtils.findAndThen(parentMap, vo.getParentId(),

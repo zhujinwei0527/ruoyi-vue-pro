@@ -108,6 +108,14 @@ public class MesDvMachineryController {
                 buildMachineryRespVOList(list));
     }
 
+    @GetMapping("/simple-list")
+    @Operation(summary = "获得设备精简列表", description = "主要用于前端的下拉选项")
+    @PreAuthorize("@ss.hasPermission('mes:dv-machinery:query')")
+    public CommonResult<List<MesDvMachineryRespVO>> getMachinerySimpleList() {
+        List<MesDvMachineryDO> list = machineryService.getMachinerySimpleList();
+        return success(BeanUtils.toBean(list, MesDvMachineryRespVO.class));
+    }
+
     // ==================== 拼接 VO ====================
 
     private List<MesDvMachineryRespVO> buildMachineryRespVOList(List<MesDvMachineryDO> list) {
