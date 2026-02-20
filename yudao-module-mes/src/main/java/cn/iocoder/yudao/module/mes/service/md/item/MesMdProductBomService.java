@@ -6,6 +6,7 @@ import cn.iocoder.yudao.module.mes.controller.admin.md.item.vo.bom.MesMdProductB
 import cn.iocoder.yudao.module.mes.dal.dataobject.md.item.MesMdProductBomDO;
 import jakarta.validation.Valid;
 
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -60,6 +61,14 @@ public interface MesMdProductBomService {
      * @return 产品BOM列表
      */
     List<MesMdProductBomDO> getProductBomListByItemId(Long itemId);
+
+    /**
+     * 根据物料产品编号批量获得产品BOM列表
+     *
+     * @param itemIds 物料产品编号数组
+     * @return 产品BOM列表
+     */
+    List<MesMdProductBomDO> getProductBomListByItemIds(Collection<Long> itemIds);
 
     /**
      * 根据物料产品编号删除产品BOM

@@ -25,6 +25,7 @@ import org.springframework.validation.annotation.Validated;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception;
@@ -139,9 +140,33 @@ public class MesProWorkOrderServiceImpl implements MesProWorkOrderService {
     }
 
     @Override
-    public void finishWorkOrder(Long id) {
+    public List<MesProWorkOrderDO> getWorkOrderList(Collection<Long> ids) {
+        if (CollUtil.isEmpty(ids)) {
+            return Collections.emptyList();
+        }
+        return workOrderMapper.selectByIds(ids);
+    }
+
+    @Override
+    public void confirmWorkOrder(Long id) {
         // 1. 校验存在
-        validateWorkOrderExists(id);
+        MesProWorkOrderDO workOrder = validateWorkOrderExists(id);
+        // 2. 只有草稿状态才能确认
+        if (!ObjUtil.equal(workOrder.getStatus(), MesProWorkOrderStatusEnum.PREPARE.getStatus())) {
+            throw exception(PRO_WORK_ORDER_NOT_PREPARE);
+        }
+        // 3. 更新状态为已确认
+        workOrderMapper.updateById(new MesProWorkOrderDO().setId(id)
+                .setStatus(MesProWorkOrderStatusEnum.CONFIRMED.getStatus()));
+    }
+
+    @Override
+    public void finishWorkOrder(Long id) {
+        // 1. 校验存在 + 只有已确认状态才能完成
+        MesProWorkOrderDO workOrder = validateWorkOrderExists(id);
+        if (!ObjUtil.equal(workOrder.getStatus(), MesProWorkOrderStatusEnum.CONFIRMED.getStatus())) {
+            throw exception(PRO_WORK_ORDER_NOT_CONFIRMED);
+        }
 
         // 2. 更新状态为已完成
         workOrderMapper.updateById(new MesProWorkOrderDO().setId(id)
@@ -152,19 +177,17 @@ public class MesProWorkOrderServiceImpl implements MesProWorkOrderService {
 
     @Override
     public void cancelWorkOrder(Long id) {
-        // 1. 校验存在
-        validateWorkOrderExists(id);
+        // 1. 校验存在 + 只有已确认状态才能取消
+        MesProWorkOrderDO workOrder = validateWorkOrderExists(id);
+        if (!ObjUtil.equal(workOrder.getStatus(), MesProWorkOrderStatusEnum.CONFIRMED.getStatus())) {
+            throw exception(PRO_WORK_ORDER_NOT_CONFIRMED);
+        }
 
         // 2. 更新状态为已取消
         workOrderMapper.updateById(new MesProWorkOrderDO().setId(id)
                 .setStatus(MesProWorkOrderStatusEnum.CANCELED.getStatus())
                 .setCancelDate(LocalDateTime.now()));
         // TODO @芋艿：pro_task 未迁移，暂不级联更新任务状态
-    }
-
-    @Override
-    public List<MesProWorkOrderDO> getWorkOrderList(Collection<Long> ids) {
-        return workOrderMapper.selectByIds(ids);
     }
 
     // ==================== 校验方法 ====================

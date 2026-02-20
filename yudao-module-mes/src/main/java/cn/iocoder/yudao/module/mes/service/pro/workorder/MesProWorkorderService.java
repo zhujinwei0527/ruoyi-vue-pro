@@ -8,6 +8,9 @@ import jakarta.validation.Valid;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
+
+import static cn.iocoder.yudao.framework.common.util.collection.CollectionUtils.convertMap;
 
 /**
  * MES 生产工单 Service 接口
@@ -63,6 +66,31 @@ public interface MesProWorkOrderService {
     PageResult<MesProWorkOrderDO> getWorkOrderPage(MesProWorkOrderPageReqVO pageReqVO);
 
     /**
+     * 获得工单列表
+     *
+     * @param ids 编号数组
+     * @return 工单列表
+     */
+    List<MesProWorkOrderDO> getWorkOrderList(Collection<Long> ids);
+
+    /**
+     * 获得工单 Map
+     *
+     * @param ids 编号数组
+     * @return 工单 Map
+     */
+    default Map<Long, MesProWorkOrderDO> getWorkOrderMap(Collection<Long> ids) {
+        return convertMap(getWorkOrderList(ids), MesProWorkOrderDO::getId);
+    }
+
+    /**
+     * 确认工单（草稿 → 已确认）
+     *
+     * @param id 编号
+     */
+    void confirmWorkOrder(Long id);
+
+    /**
      * 完成工单
      *
      * @param id 编号
@@ -75,13 +103,5 @@ public interface MesProWorkOrderService {
      * @param id 编号
      */
     void cancelWorkOrder(Long id);
-
-    /**
-     * 获得工单列表
-     *
-     * @param ids 编号数组
-     * @return 工单列表
-     */
-    List<MesProWorkOrderDO> getWorkOrderList(Collection<Long> ids);
 
 }

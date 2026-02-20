@@ -133,6 +133,11 @@ public class MesMdProductBomServiceImpl implements MesMdProductBomService {
     }
 
     @Override
+    public List<MesMdProductBomDO> getProductBomListByItemIds(Collection<Long> itemIds) {
+        return productBomMapper.selectByItemIds(itemIds);
+    }
+
+    @Override
     public void deleteProductBomByItemId(Long itemId) {
         productBomMapper.deleteByItemId(itemId);
     }

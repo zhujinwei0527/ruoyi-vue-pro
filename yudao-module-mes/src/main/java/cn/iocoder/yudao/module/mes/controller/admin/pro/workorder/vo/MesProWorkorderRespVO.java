@@ -98,10 +98,6 @@ public class MesProWorkOrderRespVO {
     @ExcelProperty("供应商名称")
     private String vendorName;
 
-    @Schema(description = "批次号", example = "BATCH-001")
-    @ExcelProperty("批次号")
-    private String batchCode;
-
     @Schema(description = "需求日期")
     @ExcelProperty("需求日期")
     private LocalDateTime requestDate;

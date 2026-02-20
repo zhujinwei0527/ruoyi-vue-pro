@@ -101,10 +101,6 @@ public class MesProWorkOrderDO extends BaseDO {
      */
     private Long vendorId;
     /**
-     * 批次号
-     */
-    private String batchCode;
-    /**
      * 需求日期
      */
     private LocalDateTime requestDate;

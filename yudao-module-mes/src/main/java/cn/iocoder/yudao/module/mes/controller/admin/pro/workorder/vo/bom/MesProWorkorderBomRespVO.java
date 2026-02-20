@@ -50,6 +50,9 @@ public class MesProWorkOrderBomRespVO {
     @ExcelProperty("备注")
     private String remark;
 
+    @Schema(description = "物料产品标识", example = "PRODUCT")
+    private String itemOrProduct;
+
     @Schema(description = "预留字段1")
     private String attribute1;
 

@@ -32,14 +32,10 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import static cn.iocoder.yudao.framework.apilog.core.enums.OperateTypeEnum.EXPORT;
 import static cn.iocoder.yudao.framework.common.pojo.CommonResult.success;
-import static cn.iocoder.yudao.framework.common.util.collection.CollectionUtils.convertMap;
 import static cn.iocoder.yudao.framework.common.util.collection.CollectionUtils.convertSet;
 
 @Tag(name = "管理后台 - MES 生产工单")
@@ -119,6 +115,15 @@ public class MesProWorkOrderController {
         ExcelUtils.write(response, "生产工单.xls", "数据", MesProWorkOrderRespVO.class, voList);
     }
 
+    @PutMapping("/confirm")
+    @Operation(summary = "确认工单")
+    @Parameter(name = "id", description = "编号", required = true)
+    @PreAuthorize("@ss.hasPermission('mes:pro-work-order:update')")
+    public CommonResult<Boolean> confirmWorkOrder(@RequestParam("id") Long id) {
+        workOrderService.confirmWorkOrder(id);
+        return success(true);
+    }
+
     @PutMapping("/finish")
     @Operation(summary = "完成工单")
     @Parameter(name = "id", description = "编号", required = true)
@@ -152,11 +157,8 @@ public class MesProWorkOrderController {
                 convertSet(list, MesProWorkOrderDO::getVendorId));
         Map<Long, MesMdUnitMeasureDO> unitMeasureMap = unitMeasureService.getUnitMeasureMap(
                 convertSet(list, MesProWorkOrderDO::getUnitMeasureId));
-        // TODO @AI：直接 workOrderService.getWorkOrderMap，内部调用 workOrderService.getWorkOrderList
-        Set<Long> parentIds = convertSet(list, MesProWorkOrderDO::getParentId);
-        Map<Long, MesProWorkOrderDO> parentMap = CollUtil.isEmpty(parentIds)
-                ? Collections.emptyMap()
-                : convertMap(workOrderService.getWorkOrderList(parentIds), MesProWorkOrderDO::getId);
+        Map<Long, MesProWorkOrderDO> parentMap = workOrderService.getWorkOrderMap(
+                convertSet(list, MesProWorkOrderDO::getParentId));
         // 2. 拼接 VO
         return BeanUtils.toBean(list, MesProWorkOrderRespVO.class, vo -> {
             MapUtils.findAndThen(itemMap, vo.getProductId(), item ->

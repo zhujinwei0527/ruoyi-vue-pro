@@ -7,6 +7,7 @@ import cn.iocoder.yudao.module.mes.controller.admin.md.item.vo.bom.MesMdProductB
 import cn.iocoder.yudao.module.mes.dal.dataobject.md.item.MesMdProductBomDO;
 import org.apache.ibatis.annotations.Mapper;
 
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -26,6 +27,10 @@ public interface MesMdProductBomMapper extends BaseMapperX<MesMdProductBomDO> {
 
     default List<MesMdProductBomDO> selectByItemId(Long itemId) {
         return selectList(MesMdProductBomDO::getItemId, itemId);
+    }
+
+    default List<MesMdProductBomDO> selectByItemIds(Collection<Long> itemIds) {
+        return selectList(MesMdProductBomDO::getItemId, itemIds);
     }
 
     default List<MesMdProductBomDO> selectAll() {
