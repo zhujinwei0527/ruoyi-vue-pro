@@ -27,6 +27,7 @@ public class MesDvCheckRecordSaveReqVO {
     @Schema(description = "点检人编号", example = "1")
     private Long userId;
 
+    // TODO @AI：这个字段，不允许提交
     @Schema(description = "状态", example = "10")
     private Integer status;
 

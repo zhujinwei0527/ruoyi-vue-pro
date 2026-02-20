@@ -52,6 +52,8 @@ public class MesDvMaintenRecordDO extends BaseDO {
      * 关联 AdminUserDO#getId()
      */
     private Long userId;
+    // TODO @AI：搞个枚举类，关联下；
+    // TODO @AI：mes_mainten_record_status，需要在 dict contants 美剧侠，然后 @关联下；
     /**
      * 状态
      *

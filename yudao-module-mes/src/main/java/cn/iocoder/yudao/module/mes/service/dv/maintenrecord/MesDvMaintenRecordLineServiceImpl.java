@@ -37,6 +37,7 @@ public class MesDvMaintenRecordLineServiceImpl implements MesDvMaintenRecordLine
     public Long createMaintenRecordLine(MesDvMaintenRecordLineSaveReqVO createReqVO) {
         // 1. 校验关联数据
         validateMaintenRecordLineRelation(createReqVO);
+        // TODO @AI：已提交时，不允许编辑（最好对方提供一个通用方法）
 
         // 2. 插入
         MesDvMaintenRecordLineDO maintenRecordLine = BeanUtils.toBean(createReqVO, MesDvMaintenRecordLineDO.class);
@@ -58,7 +59,11 @@ public class MesDvMaintenRecordLineServiceImpl implements MesDvMaintenRecordLine
 
     @Override
     public void deleteMaintenRecordLine(Long id) {
+        // 1. 校验存在
         validateMaintenRecordLineExists(id);
+        // TODO @AI：已提交时，不允许删除；（最好对方提供一个通用方法）
+
+        // 2. 删除
         maintenRecordLineMapper.deleteById(id);
     }
 

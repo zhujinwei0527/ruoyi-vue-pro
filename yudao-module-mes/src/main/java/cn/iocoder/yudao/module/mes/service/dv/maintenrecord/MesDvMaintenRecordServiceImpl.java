@@ -42,6 +42,7 @@ public class MesDvMaintenRecordServiceImpl implements MesDvMaintenRecordService 
 
         // 2. 插入
         MesDvMaintenRecordDO maintenRecord = BeanUtils.toBean(createReqVO, MesDvMaintenRecordDO.class);
+        // TODO @AI：设置下默认状态；
         maintenRecordMapper.insert(maintenRecord);
         return maintenRecord.getId();
     }
@@ -52,9 +53,11 @@ public class MesDvMaintenRecordServiceImpl implements MesDvMaintenRecordService 
         validateMaintenRecordExists(updateReqVO.getId());
         // 1.2 校验关联数据
         validateMaintenRecordRelation(updateReqVO);
+        // TODO @AI：已提交时，不允许编辑
 
         // 2. 更新
         MesDvMaintenRecordDO updateObj = BeanUtils.toBean(updateReqVO, MesDvMaintenRecordDO.class);
+        // TODO 设置为空，避免更新；
         maintenRecordMapper.updateById(updateObj);
     }
 
@@ -63,6 +66,7 @@ public class MesDvMaintenRecordServiceImpl implements MesDvMaintenRecordService 
     public void deleteMaintenRecord(Long id) {
         // 校验存在
         validateMaintenRecordExists(id);
+        // TODO @AI：已提交时，不允许删除
 
         // 删除
         maintenRecordMapper.deleteById(id);
