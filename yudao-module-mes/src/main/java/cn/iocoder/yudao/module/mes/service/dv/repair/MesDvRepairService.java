@@ -59,4 +59,18 @@ public interface MesDvRepairService {
      */
     PageResult<MesDvRepairDO> getRepairPage(MesDvRepairPageReqVO pageReqVO);
 
+    /**
+     * 通过维修工单（草稿→已确认，结果=通过）
+     *
+     * @param id 编号
+     */
+    void confirmRepair(Long id);
+
+    /**
+     * 不通过维修工单（草稿→已确认，结果=不通过）
+     *
+     * @param id 编号
+     */
+    void rejectRepair(Long id);
+
 }

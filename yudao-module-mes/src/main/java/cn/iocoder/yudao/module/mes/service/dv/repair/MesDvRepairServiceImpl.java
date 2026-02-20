@@ -8,6 +8,7 @@ import cn.iocoder.yudao.module.mes.controller.admin.dv.repair.vo.MesDvRepairSave
 import cn.iocoder.yudao.module.mes.dal.dataobject.dv.repair.MesDvRepairDO;
 import cn.iocoder.yudao.module.mes.dal.mysql.dv.repair.MesDvRepairLineMapper;
 import cn.iocoder.yudao.module.mes.dal.mysql.dv.repair.MesDvRepairMapper;
+import cn.iocoder.yudao.module.mes.enums.dv.MesDvRepairResultEnum;
 import cn.iocoder.yudao.module.mes.enums.dv.MesDvRepairStatusEnum;
 import cn.iocoder.yudao.module.mes.service.dv.machinery.MesDvMachineryService;
 import jakarta.annotation.Resource;
@@ -107,6 +108,28 @@ public class MesDvRepairServiceImpl implements MesDvRepairService {
     @Override
     public PageResult<MesDvRepairDO> getRepairPage(MesDvRepairPageReqVO pageReqVO) {
         return repairMapper.selectPage(pageReqVO);
+    }
+
+    @Override
+    public void confirmRepair(Long id) {
+        // 1. 校验存在，且状态为草稿
+        validateRepairDraft(id);
+
+        // 2. 更新状态为已确认，结果为通过
+        repairMapper.updateById(new MesDvRepairDO().setId(id)
+                .setStatus(MesDvRepairStatusEnum.CONFIRMED.getStatus())
+                .setResult(MesDvRepairResultEnum.PASS.getResult()));
+    }
+
+    @Override
+    public void rejectRepair(Long id) {
+        // 1. 校验存在，且状态为草稿
+        validateRepairDraft(id);
+
+        // 2. 更新状态为已确认，结果为不通过
+        repairMapper.updateById(new MesDvRepairDO().setId(id)
+                .setStatus(MesDvRepairStatusEnum.CONFIRMED.getStatus())
+                .setResult(MesDvRepairResultEnum.FAIL.getResult()));
     }
 
 }

@@ -111,6 +111,24 @@ public class MesDvRepairController {
                 buildRepairRespVOList(list));
     }
 
+    @PutMapping("/confirm")
+    @Operation(summary = "通过维修工单（草稿→已确认，结果=通过）")
+    @Parameter(name = "id", description = "编号", required = true)
+    @PreAuthorize("@ss.hasPermission('mes:dv-repair:update')")
+    public CommonResult<Boolean> confirmRepair(@RequestParam("id") Long id) {
+        repairService.confirmRepair(id);
+        return success(true);
+    }
+
+    @PutMapping("/reject")
+    @Operation(summary = "不通过维修工单（草稿→已确认，结果=不通过）")
+    @Parameter(name = "id", description = "编号", required = true)
+    @PreAuthorize("@ss.hasPermission('mes:dv-repair:update')")
+    public CommonResult<Boolean> rejectRepair(@RequestParam("id") Long id) {
+        repairService.rejectRepair(id);
+        return success(true);
+    }
+
     // ==================== 拼接 VO ====================
 
     private List<MesDvRepairRespVO> buildRepairRespVOList(List<MesDvRepairDO> list) {
