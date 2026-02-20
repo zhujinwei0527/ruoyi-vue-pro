@@ -7,10 +7,9 @@ import cn.iocoder.yudao.framework.common.util.object.BeanUtils;
 import cn.iocoder.yudao.module.mes.controller.admin.wm.warehouse.vo.MesWmWarehousePageReqVO;
 import cn.iocoder.yudao.module.mes.controller.admin.wm.warehouse.vo.MesWmWarehouseSaveReqVO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.wm.warehouse.MesWmWarehouseDO;
-import cn.iocoder.yudao.module.mes.dal.mysql.md.workstation.MesMdWorkstationMapper;
-import cn.iocoder.yudao.module.mes.dal.mysql.wm.materialstock.MesWmMaterialStockMapper;
-import cn.iocoder.yudao.module.mes.dal.mysql.wm.warehouse.MesWmWarehouseLocationMapper;
 import cn.iocoder.yudao.module.mes.dal.mysql.wm.warehouse.MesWmWarehouseMapper;
+import cn.iocoder.yudao.module.mes.service.md.workstation.MesMdWorkstationService;
+import cn.iocoder.yudao.module.mes.service.wm.materialstock.MesWmMaterialStockService;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
@@ -22,7 +21,6 @@ import java.util.List;
 import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception;
 import static cn.iocoder.yudao.module.mes.enums.ErrorCodeConstants.*;
 
-// TODO @AI：不应该直接跨模块调用 mapper，通过他们的 service 操作
 /**
  * MES 仓库 Service 实现类
  */
@@ -34,13 +32,11 @@ public class MesWmWarehouseServiceImpl implements MesWmWarehouseService {
     private MesWmWarehouseMapper warehouseMapper;
 
     @Resource
-    private MesWmWarehouseLocationMapper locationMapper;
-
+    private MesWmWarehouseLocationService locationService;
     @Resource
-    private MesMdWorkstationMapper workstationMapper;
-
+    private MesMdWorkstationService workstationService;
     @Resource
-    private MesWmMaterialStockMapper materialStockMapper;
+    private MesWmMaterialStockService materialStockService;
 
     @Override
     public Long createWarehouse(MesWmWarehouseSaveReqVO createReqVO) {
@@ -74,15 +70,15 @@ public class MesWmWarehouseServiceImpl implements MesWmWarehouseService {
         // 校验存在
         validateWarehouseExists(id);
         // 校验是否有库区
-        if (locationMapper.selectCountByWarehouseId(id) > 0) {
+        if (locationService.getWarehouseLocationCountByWarehouseId(id) > 0) {
             throw exception(WM_WAREHOUSE_HAS_LOCATION);
         }
         // 校验是否被工作站引用
-        if (workstationMapper.selectCountByWarehouseId(id) > 0) {
+        if (workstationService.getWorkstationCountByWarehouseId(id) > 0) {
             throw exception(WM_WAREHOUSE_HAS_WORKSTATION);
         }
         // 校验是否有库存记录
-        if (materialStockMapper.selectCountByWarehouseId(id) > 0) {
+        if (materialStockService.getMaterialStockCountByWarehouseId(id) > 0) {
             throw exception(WM_WAREHOUSE_HAS_MATERIAL_STOCK);
         }
 

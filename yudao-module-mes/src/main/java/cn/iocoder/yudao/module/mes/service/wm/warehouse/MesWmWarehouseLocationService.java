@@ -83,4 +83,12 @@ public interface MesWmWarehouseLocationService {
         return convertMap(getWarehouseLocationList(ids), MesWmWarehouseLocationDO::getId);
     }
 
+    /**
+     * 获得指定仓库下的库区数量
+     *
+     * @param warehouseId 仓库编号
+     * @return 库区数量
+     */
+    Long getWarehouseLocationCountByWarehouseId(Long warehouseId);
+
 }

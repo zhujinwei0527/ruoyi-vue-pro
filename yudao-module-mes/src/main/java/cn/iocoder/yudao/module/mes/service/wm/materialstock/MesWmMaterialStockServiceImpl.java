@@ -1,17 +1,14 @@
 package cn.iocoder.yudao.module.mes.service.wm.materialstock;
 
 import cn.hutool.core.collection.CollUtil;
-import cn.hutool.core.util.StrUtil;
 import cn.iocoder.yudao.framework.common.pojo.PageResult;
+import cn.iocoder.yudao.framework.common.util.collection.SetUtils;
 import cn.iocoder.yudao.module.mes.controller.admin.wm.materialstock.vo.MesWmMaterialStockPageReqVO;
 import cn.iocoder.yudao.module.mes.controller.admin.wm.materialstock.vo.MesWmMaterialStockSaveReqVO;
-import cn.iocoder.yudao.module.mes.dal.dataobject.md.item.MesMdItemDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.md.item.MesMdItemTypeDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.wm.materialstock.MesWmMaterialStockDO;
-import cn.iocoder.yudao.module.mes.dal.mysql.md.item.MesMdItemMapper;
 import cn.iocoder.yudao.module.mes.dal.mysql.wm.materialstock.MesWmMaterialStockMapper;
 import cn.iocoder.yudao.module.mes.service.md.item.MesMdItemTypeService;
-import cn.iocoder.yudao.framework.mybatis.core.query.LambdaQueryWrapperX;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
@@ -35,9 +32,6 @@ public class MesWmMaterialStockServiceImpl implements MesWmMaterialStockService 
     @Resource
     private MesMdItemTypeService itemTypeService;
 
-    @Resource
-    private MesMdItemMapper itemMapper;
-
     @Override
     public MesWmMaterialStockDO getMaterialStock(Long id) {
         return materialStockMapper.selectById(id);
@@ -54,7 +48,7 @@ public class MesWmMaterialStockServiceImpl implements MesWmMaterialStockService 
 
     @Override
     public PageResult<MesWmMaterialStockDO> getMaterialStockPage(MesWmMaterialStockPageReqVO pageReqVO) {
-        // 1. 解析 itemTypeId：包含子分类
+        // 1.1 解析 itemTypeId：包含子分类
         Set<Long> itemTypeIds = null;
         if (pageReqVO.getItemTypeId() != null) {
             itemTypeIds = new HashSet<>();
@@ -62,20 +56,13 @@ public class MesWmMaterialStockServiceImpl implements MesWmMaterialStockService 
             List<MesMdItemTypeDO> children = itemTypeService.getItemTypeChildrenList(pageReqVO.getItemTypeId());
             itemTypeIds.addAll(convertSet(children, MesMdItemTypeDO::getId));
         }
-
-        // 2. 解析 itemCode/itemName：查 md_item 找匹配的 itemId 集合
+        // 1.2 解析 itemId
         Set<Long> itemIds = null;
-        if (StrUtil.isNotBlank(pageReqVO.getItemCode()) || StrUtil.isNotBlank(pageReqVO.getItemName())) {
-            List<MesMdItemDO> matchingItems = itemMapper.selectList(new LambdaQueryWrapperX<MesMdItemDO>()
-                    .eqIfPresent(MesMdItemDO::getCode, pageReqVO.getItemCode())
-                    .likeIfPresent(MesMdItemDO::getName, pageReqVO.getItemName()));
-            if (matchingItems.isEmpty()) {
-                return PageResult.empty();
-            }
-            itemIds = convertSet(matchingItems, MesMdItemDO::getId);
+        if (pageReqVO.getItemId() != null) {
+            itemIds = SetUtils.asSet(pageReqVO.getItemId());
         }
 
-        // 3. 分页查询
+        // 2. 分页查询
         return materialStockMapper.selectPage(pageReqVO, itemTypeIds, itemIds);
     }
 

@@ -61,4 +61,28 @@ public interface MesMdWorkstationService {
      */
     List<MesMdWorkstationDO> getWorkstationListByStatus(Integer status);
 
+    /**
+     * 获得指定仓库下的工作站数量
+     *
+     * @param warehouseId 仓库编号
+     * @return 工作站数量
+     */
+    Long getWorkstationCountByWarehouseId(Long warehouseId);
+
+    /**
+     * 获得指定库区下的工作站数量
+     *
+     * @param locationId 库区编号
+     * @return 工作站数量
+     */
+    Long getWorkstationCountByLocationId(Long locationId);
+
+    /**
+     * 获得指定库位下的工作站数量
+     *
+     * @param areaId 库位编号
+     * @return 工作站数量
+     */
+    Long getWorkstationCountByAreaId(Long areaId);
+
 }

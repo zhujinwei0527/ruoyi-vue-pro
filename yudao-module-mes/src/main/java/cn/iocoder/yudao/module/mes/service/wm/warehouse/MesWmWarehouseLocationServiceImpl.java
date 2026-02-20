@@ -7,10 +7,9 @@ import cn.iocoder.yudao.framework.common.util.object.BeanUtils;
 import cn.iocoder.yudao.module.mes.controller.admin.wm.warehouse.vo.location.MesWmWarehouseLocationPageReqVO;
 import cn.iocoder.yudao.module.mes.controller.admin.wm.warehouse.vo.location.MesWmWarehouseLocationSaveReqVO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.wm.warehouse.MesWmWarehouseLocationDO;
-import cn.iocoder.yudao.module.mes.dal.mysql.md.workstation.MesMdWorkstationMapper;
-import cn.iocoder.yudao.module.mes.dal.mysql.wm.materialstock.MesWmMaterialStockMapper;
-import cn.iocoder.yudao.module.mes.dal.mysql.wm.warehouse.MesWmWarehouseAreaMapper;
 import cn.iocoder.yudao.module.mes.dal.mysql.wm.warehouse.MesWmWarehouseLocationMapper;
+import cn.iocoder.yudao.module.mes.service.md.workstation.MesMdWorkstationService;
+import cn.iocoder.yudao.module.mes.service.wm.materialstock.MesWmMaterialStockService;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
@@ -22,7 +21,6 @@ import java.util.List;
 import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception;
 import static cn.iocoder.yudao.module.mes.enums.ErrorCodeConstants.*;
 
-// TODO @AI：不应该直接跨模块调用 mapper，通过他们的 service 操作
 /**
  * MES 库区 Service 实现类
  */
@@ -34,14 +32,11 @@ public class MesWmWarehouseLocationServiceImpl implements MesWmWarehouseLocation
     private MesWmWarehouseLocationMapper locationMapper;
 
     @Resource
-    private MesWmWarehouseAreaMapper areaMapper;
-
+    private MesWmWarehouseAreaService areaService;
     @Resource
-    private MesMdWorkstationMapper workstationMapper;
-
+    private MesMdWorkstationService workstationService;
     @Resource
-    private MesWmMaterialStockMapper materialStockMapper;
-
+    private MesWmMaterialStockService materialStockService;
     @Resource
     private MesWmWarehouseService warehouseService;
 
@@ -79,15 +74,15 @@ public class MesWmWarehouseLocationServiceImpl implements MesWmWarehouseLocation
         // 校验存在
         validateWarehouseLocationExists(id);
         // 校验是否有库位
-        if (areaMapper.selectCountByLocationId(id) > 0) {
+        if (areaService.getWarehouseAreaCountByLocationId(id) > 0) {
             throw exception(WM_WAREHOUSE_LOCATION_HAS_AREA);
         }
         // 校验是否被工作站引用
-        if (workstationMapper.selectCountByLocationId(id) > 0) {
+        if (workstationService.getWorkstationCountByLocationId(id) > 0) {
             throw exception(WM_WAREHOUSE_LOCATION_HAS_WORKSTATION);
         }
         // 校验是否有库存记录
-        if (materialStockMapper.selectCountByLocationId(id) > 0) {
+        if (materialStockService.getMaterialStockCountByLocationId(id) > 0) {
             throw exception(WM_WAREHOUSE_LOCATION_HAS_MATERIAL_STOCK);
         }
 
@@ -144,6 +139,11 @@ public class MesWmWarehouseLocationServiceImpl implements MesWmWarehouseLocation
             return Collections.emptyList();
         }
         return locationMapper.selectListByIds(ids);
+    }
+
+    @Override
+    public Long getWarehouseLocationCountByWarehouseId(Long warehouseId) {
+        return locationMapper.selectCountByWarehouseId(warehouseId);
     }
 
 }

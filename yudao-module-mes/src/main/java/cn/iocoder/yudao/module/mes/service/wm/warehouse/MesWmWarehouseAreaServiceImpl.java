@@ -7,9 +7,9 @@ import cn.iocoder.yudao.framework.common.util.object.BeanUtils;
 import cn.iocoder.yudao.module.mes.controller.admin.wm.warehouse.vo.area.MesWmWarehouseAreaPageReqVO;
 import cn.iocoder.yudao.module.mes.controller.admin.wm.warehouse.vo.area.MesWmWarehouseAreaSaveReqVO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.wm.warehouse.MesWmWarehouseAreaDO;
-import cn.iocoder.yudao.module.mes.dal.mysql.md.workstation.MesMdWorkstationMapper;
-import cn.iocoder.yudao.module.mes.dal.mysql.wm.materialstock.MesWmMaterialStockMapper;
 import cn.iocoder.yudao.module.mes.dal.mysql.wm.warehouse.MesWmWarehouseAreaMapper;
+import cn.iocoder.yudao.module.mes.service.md.workstation.MesMdWorkstationService;
+import cn.iocoder.yudao.module.mes.service.wm.materialstock.MesWmMaterialStockService;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
@@ -21,7 +21,6 @@ import java.util.List;
 import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception;
 import static cn.iocoder.yudao.module.mes.enums.ErrorCodeConstants.*;
 
-// TODO @AI：不应该直接跨模块调用 mapper，通过他们的 service 操作
 /**
  * MES 库位 Service 实现类
  */
@@ -33,11 +32,9 @@ public class MesWmWarehouseAreaServiceImpl implements MesWmWarehouseAreaService 
     private MesWmWarehouseAreaMapper areaMapper;
 
     @Resource
-    private MesMdWorkstationMapper workstationMapper;
-
+    private MesMdWorkstationService workstationService;
     @Resource
-    private MesWmMaterialStockMapper materialStockMapper;
-
+    private MesWmMaterialStockService materialStockService;
     @Resource
     private MesWmWarehouseLocationService locationService;
 
@@ -75,11 +72,11 @@ public class MesWmWarehouseAreaServiceImpl implements MesWmWarehouseAreaService 
         // 校验存在
         validateWarehouseAreaExists(id);
         // 校验是否被工作站引用
-        if (workstationMapper.selectCountByAreaId(id) > 0) {
+        if (workstationService.getWorkstationCountByAreaId(id) > 0) {
             throw exception(WM_WAREHOUSE_AREA_HAS_WORKSTATION);
         }
         // 校验是否有库存记录
-        if (materialStockMapper.selectCountByAreaId(id) > 0) {
+        if (materialStockService.getMaterialStockCountByAreaId(id) > 0) {
             throw exception(WM_WAREHOUSE_AREA_HAS_MATERIAL_STOCK);
         }
 
@@ -136,6 +133,11 @@ public class MesWmWarehouseAreaServiceImpl implements MesWmWarehouseAreaService 
             return Collections.emptyList();
         }
         return areaMapper.selectListByIds(ids);
+    }
+
+    @Override
+    public Long getWarehouseAreaCountByLocationId(Long locationId) {
+        return areaMapper.selectCountByLocationId(locationId);
     }
 
 }
