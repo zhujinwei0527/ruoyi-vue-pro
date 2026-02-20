@@ -2,6 +2,7 @@ package cn.iocoder.yudao.module.mes.dal.dataobject.dv.checkrecord;
 
 import cn.iocoder.yudao.framework.mybatis.core.dataobject.BaseDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.dv.subject.MesDvSubjectDO;
+import cn.iocoder.yudao.module.mes.enums.dv.MesDvCheckResultEnum;
 import com.baomidou.mybatisplus.annotation.KeySequence;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
@@ -39,16 +40,16 @@ public class MesDvCheckRecordLineDO extends BaseDO {
      * 关联 {@link MesDvSubjectDO#getId()}
      */
     private Long subjectId;
-    // TODO @AI：应该使用 int；
     /**
      * 点检结果
      *
-     * 字典类型 mes_dv_check_result（Y=正常，N=异常）
+     * 枚举 {@link MesDvCheckResultEnum}
      */
-    private String checkStatus;
-    // TODO @AI：需要标注下，checkStatus 才有使用；
+    private Integer checkStatus;
     /**
      * 异常描述
+     *
+     * 仅 {@link #checkStatus} 为异常时使用
      */
     private String checkResult;
     /**

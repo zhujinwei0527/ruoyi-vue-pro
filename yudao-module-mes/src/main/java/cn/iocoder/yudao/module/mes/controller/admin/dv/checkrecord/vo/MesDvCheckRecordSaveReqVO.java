@@ -16,9 +16,6 @@ public class MesDvCheckRecordSaveReqVO {
     @Schema(description = "点检计划编号", example = "1")
     private Long planId;
 
-    @Schema(description = "计划类型", example = "1")
-    private Integer planType;
-
     @Schema(description = "设备编号", requiredMode = Schema.RequiredMode.REQUIRED, example = "1")
     @NotNull(message = "设备不能为空")
     private Long machineryId;

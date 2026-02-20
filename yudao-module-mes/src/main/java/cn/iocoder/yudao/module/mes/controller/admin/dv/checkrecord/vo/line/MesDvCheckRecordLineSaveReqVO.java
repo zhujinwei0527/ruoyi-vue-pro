@@ -20,9 +20,9 @@ public class MesDvCheckRecordLineSaveReqVO {
     @NotNull(message = "点检项目不能为空")
     private Long subjectId;
 
-    @Schema(description = "点检结果（Y=正常，N=异常）", requiredMode = Schema.RequiredMode.REQUIRED, example = "Y")
+    @Schema(description = "点检结果", requiredMode = Schema.RequiredMode.REQUIRED, example = "1")
     @NotNull(message = "点检结果不能为空")
-    private String checkStatus;
+    private Integer checkStatus;
 
     @Schema(description = "异常描述", example = "设备异响")
     private String checkResult;

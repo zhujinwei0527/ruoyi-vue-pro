@@ -147,7 +147,7 @@ public interface ErrorCodeConstants {
 
     // ========== MES 设备管理-点检记录（1-040-306-000） ==========
     ErrorCode DV_CHECK_RECORD_NOT_EXISTS = new ErrorCode(1_040_306_000, "设备点检记录不存在");
-    ErrorCode DV_CHECK_RECORD_NOT_PREPARE = new ErrorCode(1_040_306_001, "设备点检记录已完成，不允许修改或删除");
+    ErrorCode DV_CHECK_RECORD_NOT_DRAFT = new ErrorCode(1_040_306_001, "设备点检记录已完成，不允许修改或删除");
     ErrorCode DV_CHECK_RECORD_NO_LINE = new ErrorCode(1_040_306_002, "提交点检记录时，至少需要一条点检项目");
     // ========== MES 设备管理-点检记录明细（1-040-306-100） ==========
     ErrorCode DV_CHECK_RECORD_LINE_NOT_EXISTS = new ErrorCode(1_040_306_100, "设备点检记录明细不存在");

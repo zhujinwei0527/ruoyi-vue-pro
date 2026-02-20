@@ -72,7 +72,7 @@ public class MesDvCheckRecordController {
     }
 
     @PutMapping("/submit")
-    @Operation(summary = "提交设备点检记录（待点检→已完成）")
+    @Operation(summary = "提交设备点检记录（草稿→已完成）")
     @Parameter(name = "id", description = "编号", required = true)
     @PreAuthorize("@ss.hasPermission('mes:dv-check-record:update')")
     public CommonResult<Boolean> submitCheckRecord(@RequestParam("id") Long id) {

@@ -41,10 +41,10 @@ public class MesDvCheckRecordLineRespVO {
     @ExcelProperty("检查标准")
     private String subjectStandard;
 
-    @Schema(description = "点检结果（Y=正常，N=异常）", requiredMode = Schema.RequiredMode.REQUIRED, example = "Y")
+    @Schema(description = "点检结果", requiredMode = Schema.RequiredMode.REQUIRED, example = "1")
     @ExcelProperty(value = "点检结果", converter = DictConvert.class)
     @DictFormat(DictTypeConstants.MES_DV_CHECK_RESULT)
-    private String checkStatus;
+    private Integer checkStatus;
 
     @Schema(description = "异常描述", example = "设备异响")
     @ExcelProperty("异常描述")

@@ -26,9 +26,6 @@ public class MesDvCheckRecordRespVO {
     @ExcelProperty("计划名称")
     private String planName;
 
-    @Schema(description = "计划类型", example = "1")
-    private Integer planType;
-
     @Schema(description = "设备编号", requiredMode = Schema.RequiredMode.REQUIRED, example = "1")
     private Long machineryId;
 

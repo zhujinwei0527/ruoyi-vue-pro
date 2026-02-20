@@ -30,7 +30,7 @@ public interface MesDvCheckRecordService {
     void updateCheckRecord(@Valid MesDvCheckRecordSaveReqVO updateReqVO);
 
     /**
-     * 提交点检记录（状态从待点检变为已完成）
+     * 提交点检记录（状态从草稿变为已完成）
      *
      * @param id 编号
      */

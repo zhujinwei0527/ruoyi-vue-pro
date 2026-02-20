@@ -3,6 +3,7 @@ package cn.iocoder.yudao.module.mes.dal.dataobject.dv.checkrecord;
 import cn.iocoder.yudao.framework.mybatis.core.dataobject.BaseDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.dv.checkplan.MesDvCheckPlanDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.dv.machinery.MesDvMachineryDO;
+import cn.iocoder.yudao.module.mes.enums.dv.MesDvCheckRecordStatusEnum;
 import com.baomidou.mybatisplus.annotation.KeySequence;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
@@ -36,13 +37,6 @@ public class MesDvCheckRecordDO extends BaseDO {
      * 关联 {@link MesDvCheckPlanDO#getId()}
      */
     private Long planId;
-    // TODO @AI：这个字段可以移除；
-    /**
-     * 计划类型
-     *
-     * 字典类型 mes_dv_check_plan_type（与计划保持冗余，避免 JOIN）
-     */
-    private Integer planType;
     /**
      * 设备编号
      *
@@ -59,11 +53,10 @@ public class MesDvCheckRecordDO extends BaseDO {
      * 关联 AdminUserDO#getId()
      */
     private Long userId;
-    // TODO @AI：枚举、字典；
     /**
      * 状态
      *
-     * 字典类型 mes_dv_check_record_status（10=待点检，20=已完成）
+     * 枚举 {@link MesDvCheckRecordStatusEnum}
      */
     private Integer status;
     /**
