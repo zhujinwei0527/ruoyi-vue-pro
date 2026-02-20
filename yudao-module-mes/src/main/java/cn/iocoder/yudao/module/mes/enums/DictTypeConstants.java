@@ -30,5 +30,9 @@ public interface DictTypeConstants {
     String MES_QC_IQC_STATUS = "mes_qc_iqc_status"; // MES 检验单状态
     String MES_QC_CHECK_RESULT = "mes_qc_check_result"; // MES 检测结果
     String MES_QC_SOURCE_DOC_TYPE = "mes_qc_source_doc_type"; // MES 来源单据类型
+    String MES_DV_CYCLE_TYPE = "mes_dv_cycle_type"; // MES 点检保养周期类型
+    String MES_DV_CHECK_PLAN_STATUS = "mes_dv_check_plan_status"; // MES 点检保养方案状态
+    String MES_MAINTEN_RECORD_STATUS = "mes_mainten_record_status"; // MES 保养记录状态
+    String MES_MAINTEN_STATUS = "mes_mainten_status"; // MES 保养结果
 
 }

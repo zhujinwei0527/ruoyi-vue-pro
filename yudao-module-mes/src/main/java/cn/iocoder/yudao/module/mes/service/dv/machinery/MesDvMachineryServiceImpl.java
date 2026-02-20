@@ -1,5 +1,6 @@
 package cn.iocoder.yudao.module.mes.service.dv.machinery;
 
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.ObjUtil;
 import cn.iocoder.yudao.framework.common.pojo.PageResult;
 import cn.iocoder.yudao.framework.common.util.object.BeanUtils;
@@ -12,6 +13,10 @@ import jakarta.annotation.Resource;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
+
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 
 import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception;
 import static cn.iocoder.yudao.module.mes.enums.ErrorCodeConstants.*;
@@ -77,7 +82,8 @@ public class MesDvMachineryServiceImpl implements MesDvMachineryService {
         machineryMapper.deleteById(id);
     }
 
-    private void validateMachineryExists(Long id) {
+    @Override
+    public void validateMachineryExists(Long id) {
         if (machineryMapper.selectById(id) == null) {
             throw exception(DV_MACHINERY_NOT_EXISTS);
         }
@@ -109,6 +115,14 @@ public class MesDvMachineryServiceImpl implements MesDvMachineryService {
     @Override
     public Long getMachineryCountByMachineryTypeId(Long machineryTypeId) {
         return machineryMapper.selectCountByMachineryTypeId(machineryTypeId);
+    }
+
+    @Override
+    public List<MesDvMachineryDO> getMachineryList(Collection<Long> ids) {
+        if (CollUtil.isEmpty(ids)) {
+            return Collections.emptyList();
+        }
+        return machineryMapper.selectByIds(ids);
     }
 
 }

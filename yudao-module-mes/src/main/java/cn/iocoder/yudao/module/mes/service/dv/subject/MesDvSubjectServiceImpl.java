@@ -1,5 +1,6 @@
 package cn.iocoder.yudao.module.mes.service.dv.subject;
 
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.ObjUtil;
 import cn.iocoder.yudao.framework.common.pojo.PageResult;
 import cn.iocoder.yudao.framework.common.util.object.BeanUtils;
@@ -10,6 +11,10 @@ import cn.iocoder.yudao.module.mes.dal.mysql.dv.subject.MesDvSubjectMapper;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
+
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 
 import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception;
 import static cn.iocoder.yudao.module.mes.enums.ErrorCodeConstants.*;
@@ -57,7 +62,8 @@ public class MesDvSubjectServiceImpl implements MesDvSubjectService {
         subjectMapper.deleteById(id);
     }
 
-    private void validateSubjectExists(Long id) {
+    @Override
+    public void validateSubjectExists(Long id) {
         if (subjectMapper.selectById(id) == null) {
             throw exception(DV_SUBJECT_NOT_EXISTS);
         }
@@ -84,6 +90,14 @@ public class MesDvSubjectServiceImpl implements MesDvSubjectService {
     @Override
     public PageResult<MesDvSubjectDO> getSubjectPage(MesDvSubjectPageReqVO pageReqVO) {
         return subjectMapper.selectPage(pageReqVO);
+    }
+
+    @Override
+    public List<MesDvSubjectDO> getSubjectList(Collection<Long> ids) {
+        if (CollUtil.isEmpty(ids)) {
+            return Collections.emptyList();
+        }
+        return subjectMapper.selectByIds(ids);
     }
 
 }

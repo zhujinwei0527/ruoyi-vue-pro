@@ -6,6 +6,12 @@ import cn.iocoder.yudao.module.mes.controller.admin.dv.subject.vo.MesDvSubjectSa
 import cn.iocoder.yudao.module.mes.dal.dataobject.dv.subject.MesDvSubjectDO;
 import jakarta.validation.Valid;
 
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+
+import static cn.iocoder.yudao.framework.common.util.collection.CollectionUtils.convertMap;
+
 /**
  * MES 点检保养项目 Service 接口
  *
@@ -50,5 +56,30 @@ public interface MesDvSubjectService {
      * @return 点检保养项目分页
      */
     PageResult<MesDvSubjectDO> getSubjectPage(MesDvSubjectPageReqVO pageReqVO);
+
+    /**
+     * 校验点检保养项目存在
+     *
+     * @param id 编号
+     */
+    void validateSubjectExists(Long id);
+
+    /**
+     * 获得点检保养项目列表
+     *
+     * @param ids 编号数组
+     * @return 点检保养项目列表
+     */
+    List<MesDvSubjectDO> getSubjectList(Collection<Long> ids);
+
+    /**
+     * 获得点检保养项目 Map
+     *
+     * @param ids 编号数组
+     * @return 点检保养项目 Map
+     */
+    default Map<Long, MesDvSubjectDO> getSubjectMap(Collection<Long> ids) {
+        return convertMap(getSubjectList(ids), MesDvSubjectDO::getId);
+    }
 
 }

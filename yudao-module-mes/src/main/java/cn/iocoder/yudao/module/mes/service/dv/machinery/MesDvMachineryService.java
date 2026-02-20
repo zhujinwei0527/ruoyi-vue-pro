@@ -6,6 +6,12 @@ import cn.iocoder.yudao.module.mes.controller.admin.dv.machinery.vo.MesDvMachine
 import cn.iocoder.yudao.module.mes.dal.dataobject.dv.machinery.MesDvMachineryDO;
 import jakarta.validation.Valid;
 
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+
+import static cn.iocoder.yudao.framework.common.util.collection.CollectionUtils.convertMap;
+
 /**
  * MES 设备台账 Service 接口
  *
@@ -58,5 +64,30 @@ public interface MesDvMachineryService {
      * @return 设备数量
      */
     Long getMachineryCountByMachineryTypeId(Long machineryTypeId);
+
+    /**
+     * 校验设备存在
+     *
+     * @param id 编号
+     */
+    void validateMachineryExists(Long id);
+
+    /**
+     * 获得设备列表
+     *
+     * @param ids 编号数组
+     * @return 设备列表
+     */
+    List<MesDvMachineryDO> getMachineryList(Collection<Long> ids);
+
+    /**
+     * 获得设备 Map
+     *
+     * @param ids 编号数组
+     * @return 设备 Map
+     */
+    default Map<Long, MesDvMachineryDO> getMachineryMap(Collection<Long> ids) {
+        return convertMap(getMachineryList(ids), MesDvMachineryDO::getId);
+    }
 
 }

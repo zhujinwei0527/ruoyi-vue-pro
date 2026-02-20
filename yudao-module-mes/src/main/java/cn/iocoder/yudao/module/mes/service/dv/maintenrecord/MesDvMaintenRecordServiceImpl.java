@@ -5,19 +5,20 @@ import cn.iocoder.yudao.framework.common.util.object.BeanUtils;
 import cn.iocoder.yudao.module.mes.controller.admin.dv.maintenrecord.vo.MesDvMaintenRecordPageReqVO;
 import cn.iocoder.yudao.module.mes.controller.admin.dv.maintenrecord.vo.MesDvMaintenRecordSaveReqVO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.dv.maintenrecord.MesDvMaintenRecordDO;
-import cn.iocoder.yudao.module.mes.dal.mysql.dv.maintenrecord.MesDvMaintenRecordMapper;
 import cn.iocoder.yudao.module.mes.dal.mysql.dv.maintenrecord.MesDvMaintenRecordLineMapper;
+import cn.iocoder.yudao.module.mes.dal.mysql.dv.maintenrecord.MesDvMaintenRecordMapper;
+import cn.iocoder.yudao.module.mes.service.dv.checkplan.MesDvCheckPlanService;
+import cn.iocoder.yudao.module.mes.service.dv.machinery.MesDvMachineryService;
+import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
-import jakarta.annotation.Resource;
 
 import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception;
-import static cn.iocoder.yudao.module.mes.enums.ErrorCodeConstants.MAINTEN_RECORD_NOT_EXISTS;
+import static cn.iocoder.yudao.module.mes.enums.ErrorCodeConstants.*;
 
-// TODO @AI：注释风格；
 /**
- * 设备保养记录 Service 实现类
+ * MES 设备保养记录 Service 实现类
  *
  * @author 芋道源码
  */
@@ -27,14 +28,19 @@ public class MesDvMaintenRecordServiceImpl implements MesDvMaintenRecordService 
 
     @Resource
     private MesDvMaintenRecordMapper maintenRecordMapper;
-
     @Resource
     private MesDvMaintenRecordLineMapper maintenRecordLineMapper;
+    @Resource
+    private MesDvMachineryService machineryService;
+    @Resource
+    private MesDvCheckPlanService checkPlanService;
 
     @Override
     public Long createMaintenRecord(MesDvMaintenRecordSaveReqVO createReqVO) {
-        // TODO @AI：必要的校验
-        // 插入
+        // 1. 校验关联数据
+        validateMaintenRecordRelation(createReqVO);
+
+        // 2. 插入
         MesDvMaintenRecordDO maintenRecord = BeanUtils.toBean(createReqVO, MesDvMaintenRecordDO.class);
         maintenRecordMapper.insert(maintenRecord);
         return maintenRecord.getId();
@@ -42,9 +48,10 @@ public class MesDvMaintenRecordServiceImpl implements MesDvMaintenRecordService 
 
     @Override
     public void updateMaintenRecord(MesDvMaintenRecordSaveReqVO updateReqVO) {
-        // TODO @AI：必要的校验
-        // 校验存在
+        // 1.1 校验存在
         validateMaintenRecordExists(updateReqVO.getId());
+        // 1.2 校验关联数据
+        validateMaintenRecordRelation(updateReqVO);
 
         // 更新
         MesDvMaintenRecordDO updateObj = BeanUtils.toBean(updateReqVO, MesDvMaintenRecordDO.class);

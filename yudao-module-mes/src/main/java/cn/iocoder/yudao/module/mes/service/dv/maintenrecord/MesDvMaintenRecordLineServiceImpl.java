@@ -6,16 +6,17 @@ import cn.iocoder.yudao.module.mes.controller.admin.dv.maintenrecord.vo.line.Mes
 import cn.iocoder.yudao.module.mes.controller.admin.dv.maintenrecord.vo.line.MesDvMaintenRecordLineSaveReqVO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.dv.maintenrecord.MesDvMaintenRecordLineDO;
 import cn.iocoder.yudao.module.mes.dal.mysql.dv.maintenrecord.MesDvMaintenRecordLineMapper;
+import cn.iocoder.yudao.module.mes.service.dv.subject.MesDvSubjectService;
+import jakarta.annotation.Resource;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
-import jakarta.annotation.Resource;
 
 import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception;
-import static cn.iocoder.yudao.module.mes.enums.ErrorCodeConstants.MAINTEN_RECORD_LINE_NOT_EXISTS;
+import static cn.iocoder.yudao.module.mes.enums.ErrorCodeConstants.*;
 
-// TODO @AI：注释风格；
 /**
- * 设备保养记录明细 Service 实现类
+ * MES 设备保养记录明细 Service 实现类
  *
  * @author 芋道源码
  */
@@ -26,9 +27,18 @@ public class MesDvMaintenRecordLineServiceImpl implements MesDvMaintenRecordLine
     @Resource
     private MesDvMaintenRecordLineMapper maintenRecordLineMapper;
 
+    @Resource
+    @Lazy
+    private MesDvMaintenRecordService maintenRecordService;
+    @Resource
+    private MesDvSubjectService subjectService;
+
     @Override
     public Long createMaintenRecordLine(MesDvMaintenRecordLineSaveReqVO createReqVO) {
-        // TODO @AI：必要的校验
+        // 1. 校验关联数据
+        validateMaintenRecordLineRelation(createReqVO);
+
+        // 2. 插入
         MesDvMaintenRecordLineDO maintenRecordLine = BeanUtils.toBean(createReqVO, MesDvMaintenRecordLineDO.class);
         maintenRecordLineMapper.insert(maintenRecordLine);
         return maintenRecordLine.getId();
@@ -36,8 +46,12 @@ public class MesDvMaintenRecordLineServiceImpl implements MesDvMaintenRecordLine
 
     @Override
     public void updateMaintenRecordLine(MesDvMaintenRecordLineSaveReqVO updateReqVO) {
-        // TODO @AI：必要的校验
+        // 1.1 校验存在
         validateMaintenRecordLineExists(updateReqVO.getId());
+        // 1.2 校验关联数据
+        validateMaintenRecordLineRelation(updateReqVO);
+
+        // 2. 更新
         MesDvMaintenRecordLineDO updateObj = BeanUtils.toBean(updateReqVO, MesDvMaintenRecordLineDO.class);
         maintenRecordLineMapper.updateById(updateObj);
     }
