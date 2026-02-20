@@ -113,7 +113,14 @@ public class MesDvMaintenRecordController {
                 buildMaintenRecordRespVOList(list));
     }
 
-    // TODO @AI：submitMaintenRecord 缺少；
+    @PutMapping("/submit")
+    @Operation(summary = "提交设备保养记录（草稿→已提交）")
+    @Parameter(name = "id", description = "编号", required = true)
+    @PreAuthorize("@ss.hasPermission('mes:dv-mainten-record:update')")
+    public CommonResult<Boolean> submitMaintenRecord(@RequestParam("id") Long id) {
+        maintenRecordService.submitMaintenRecord(id);
+        return success(true);
+    }
 
     // ==================== 拼接 VO ====================
 

@@ -29,7 +29,7 @@ public class MesDvMaintenRecordLineServiceImpl implements MesDvMaintenRecordLine
 
     @Resource
     @Lazy
-    private MesDvMaintenRecordService maintenRecordService;
+    private MesDvMaintenRecordServiceImpl maintenRecordService;
     @Resource
     private MesDvSubjectService subjectService;
 
@@ -37,7 +37,6 @@ public class MesDvMaintenRecordLineServiceImpl implements MesDvMaintenRecordLine
     public Long createMaintenRecordLine(MesDvMaintenRecordLineSaveReqVO createReqVO) {
         // 1. 校验关联数据
         validateMaintenRecordLineRelation(createReqVO);
-        // TODO @AI：已提交时，不允许编辑（最好对方提供一个通用方法）
 
         // 2. 插入
         MesDvMaintenRecordLineDO maintenRecordLine = BeanUtils.toBean(createReqVO, MesDvMaintenRecordLineDO.class);
@@ -59,25 +58,28 @@ public class MesDvMaintenRecordLineServiceImpl implements MesDvMaintenRecordLine
 
     @Override
     public void deleteMaintenRecordLine(Long id) {
-        // 1. 校验存在
-        validateMaintenRecordLineExists(id);
-        // TODO @AI：已提交时，不允许删除；（最好对方提供一个通用方法）
+        // 1.1 校验存在
+        MesDvMaintenRecordLineDO line = validateMaintenRecordLineExists(id);
+        // 1.2 校验保养记录为草稿状态
+        maintenRecordService.validateMaintenRecordDraft(line.getRecordId());
 
         // 2. 删除
         maintenRecordLineMapper.deleteById(id);
     }
 
     private void validateMaintenRecordLineRelation(MesDvMaintenRecordLineSaveReqVO reqVO) {
-        // 校验设备保养记录是否存在
-        maintenRecordService.validateMaintenRecordExists(reqVO.getRecordId());
+        // 校验保养记录为草稿状态
+        maintenRecordService.validateMaintenRecordDraft(reqVO.getRecordId());
         // 校验保养项目是否存在
         subjectService.validateSubjectExists(reqVO.getSubjectId());
     }
 
-    private void validateMaintenRecordLineExists(Long id) {
+    private MesDvMaintenRecordLineDO validateMaintenRecordLineExists(Long id) {
+        MesDvMaintenRecordLineDO maintenRecordLine = maintenRecordLineMapper.selectById(id);
         if (maintenRecordLineMapper.selectById(id) == null) {
             throw exception(MAINTEN_RECORD_LINE_NOT_EXISTS);
         }
+        return maintenRecordLine;
     }
 
     @Override

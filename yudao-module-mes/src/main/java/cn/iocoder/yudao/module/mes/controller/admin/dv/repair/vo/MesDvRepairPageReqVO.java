@@ -23,6 +23,9 @@ public class MesDvRepairPageReqVO extends PageParam {
     @Schema(description = "维修工单名称", example = "注塑机维修")
     private String name;
 
+    @Schema(description = "维修结果", example = "1")
+    private Integer result;
+
     @Schema(description = "状态", example = "10")
     private Integer status;
 

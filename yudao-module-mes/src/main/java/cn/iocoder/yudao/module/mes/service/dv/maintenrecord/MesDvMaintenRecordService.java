@@ -30,6 +30,13 @@ public interface MesDvMaintenRecordService {
     void updateMaintenRecord(@Valid MesDvMaintenRecordSaveReqVO updateReqVO);
 
     /**
+     * 提交设备保养记录（草稿→已提交）
+     *
+     * @param id 编号
+     */
+    void submitMaintenRecord(Long id);
+
+    /**
      * 删除设备保养记录
      *
      * @param id 编号

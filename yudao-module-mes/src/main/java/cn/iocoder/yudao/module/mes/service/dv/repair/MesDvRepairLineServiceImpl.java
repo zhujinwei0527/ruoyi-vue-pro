@@ -29,15 +29,16 @@ public class MesDvRepairLineServiceImpl implements MesDvRepairLineService {
 
     @Resource
     @Lazy
-    private MesDvRepairService repairService;
+    private MesDvRepairServiceImpl repairService;
     @Resource
     private MesDvSubjectService subjectService;
 
     @Override
     public Long createRepairLine(MesDvRepairLineSaveReqVO createReqVO) {
-        // 1. 校验关联数据
+        // 1.1 校验关联数据
         validateRepairLineRelation(createReqVO);
-        // TODO @AI：关联数据的状态的校验（最好对方提供的方法）
+        // 1.2 校验维修工单为草稿状态
+        repairService.validateRepairDraft(createReqVO.getRepairId());
 
         // 2. 插入
         MesDvRepairLineDO repairLine = BeanUtils.toBean(createReqVO, MesDvRepairLineDO.class);
@@ -51,7 +52,8 @@ public class MesDvRepairLineServiceImpl implements MesDvRepairLineService {
         validateRepairLineExists(updateReqVO.getId());
         // 1.2 校验关联数据
         validateRepairLineRelation(updateReqVO);
-        // TODO @AI：关联数据的状态的校验（最好对方提供的方法）
+        // 1.3 校验维修工单为草稿状态
+        repairService.validateRepairDraft(updateReqVO.getRepairId());
 
         // 2. 更新
         MesDvRepairLineDO updateObj = BeanUtils.toBean(updateReqVO, MesDvRepairLineDO.class);
@@ -60,11 +62,15 @@ public class MesDvRepairLineServiceImpl implements MesDvRepairLineService {
 
     @Override
     public void deleteRepairLine(Long id) {
-        // 校验存在
-        validateRepairLineExists(id);
-        // TODO @AI：关联数据的状态的校验（最好对方提供的方法）
+        // 1.1 校验存在
+        MesDvRepairLineDO line = repairLineMapper.selectById(id);
+        if (line == null) {
+            throw exception(DV_REPAIR_LINE_NOT_EXISTS);
+        }
+        // 1.2 校验维修工单为草稿状态
+        repairService.validateRepairDraft(line.getRepairId());
 
-        // 删除
+        // 2. 删除
         repairLineMapper.deleteById(id);
     }
 

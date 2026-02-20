@@ -2,6 +2,8 @@ package cn.iocoder.yudao.module.mes.dal.dataobject.dv.repair;
 
 import cn.iocoder.yudao.framework.mybatis.core.dataobject.BaseDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.dv.machinery.MesDvMachineryDO;
+import cn.iocoder.yudao.module.mes.enums.dv.MesDvRepairResultEnum;
+import cn.iocoder.yudao.module.mes.enums.dv.MesDvRepairStatusEnum;
 import com.baomidou.mybatisplus.annotation.KeySequence;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
@@ -55,11 +57,10 @@ public class MesDvRepairDO extends BaseDO {
      * 验收日期
      */
     private LocalDateTime confirmDate;
-    // TODO @AI：枚举类；
-    // TODO @AI：字典，需要在 dict constants；
     /**
      * 维修结果
      *
+     * 枚举 {@link MesDvRepairResultEnum}
      * 字典类型 mes_dv_repair_result
      */
     private Integer result;
@@ -88,11 +89,10 @@ public class MesDvRepairDO extends BaseDO {
      * 来源单据编码
      */
     private String sourceDocCode;
-    // TODO @AI：枚举类；
-    // TODO @AI：字典，需要在 dict constants；
     /**
      * 状态
      *
+     * 枚举 {@link MesDvRepairStatusEnum}
      * 字典类型 mes_dv_repair_status
      */
     private Integer status;

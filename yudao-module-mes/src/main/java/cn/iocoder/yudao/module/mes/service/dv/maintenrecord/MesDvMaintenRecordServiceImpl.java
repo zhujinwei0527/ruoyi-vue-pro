@@ -1,18 +1,24 @@
 package cn.iocoder.yudao.module.mes.service.dv.maintenrecord;
 
+import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.util.ObjUtil;
 import cn.iocoder.yudao.framework.common.pojo.PageResult;
 import cn.iocoder.yudao.framework.common.util.object.BeanUtils;
 import cn.iocoder.yudao.module.mes.controller.admin.dv.maintenrecord.vo.MesDvMaintenRecordPageReqVO;
 import cn.iocoder.yudao.module.mes.controller.admin.dv.maintenrecord.vo.MesDvMaintenRecordSaveReqVO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.dv.maintenrecord.MesDvMaintenRecordDO;
+import cn.iocoder.yudao.module.mes.dal.dataobject.dv.maintenrecord.MesDvMaintenRecordLineDO;
 import cn.iocoder.yudao.module.mes.dal.mysql.dv.maintenrecord.MesDvMaintenRecordLineMapper;
 import cn.iocoder.yudao.module.mes.dal.mysql.dv.maintenrecord.MesDvMaintenRecordMapper;
+import cn.iocoder.yudao.module.mes.enums.dv.MesDvMaintenRecordStatusEnum;
 import cn.iocoder.yudao.module.mes.service.dv.checkplan.MesDvCheckPlanService;
 import cn.iocoder.yudao.module.mes.service.dv.machinery.MesDvMachineryService;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
+
+import java.util.List;
 
 import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception;
 import static cn.iocoder.yudao.module.mes.enums.ErrorCodeConstants.*;
@@ -42,31 +48,45 @@ public class MesDvMaintenRecordServiceImpl implements MesDvMaintenRecordService 
 
         // 2. 插入
         MesDvMaintenRecordDO maintenRecord = BeanUtils.toBean(createReqVO, MesDvMaintenRecordDO.class);
-        // TODO @AI：设置下默认状态；
+        maintenRecord.setStatus(MesDvMaintenRecordStatusEnum.PREPARE.getStatus());
         maintenRecordMapper.insert(maintenRecord);
         return maintenRecord.getId();
     }
 
     @Override
     public void updateMaintenRecord(MesDvMaintenRecordSaveReqVO updateReqVO) {
-        // 1.1 校验存在
-        validateMaintenRecordExists(updateReqVO.getId());
+        // 1.1 校验存在，且状态为草稿
+        validateMaintenRecordDraft(updateReqVO.getId());
         // 1.2 校验关联数据
         validateMaintenRecordRelation(updateReqVO);
-        // TODO @AI：已提交时，不允许编辑
 
         // 2. 更新
         MesDvMaintenRecordDO updateObj = BeanUtils.toBean(updateReqVO, MesDvMaintenRecordDO.class);
-        // TODO 设置为空，避免更新；
+        maintenRecordMapper.updateById(updateObj);
+    }
+
+    @Override
+    public void submitMaintenRecord(Long id) {
+        // 1.1 校验状态为草稿
+        validateMaintenRecordDraft(id);
+        // 1.2 校验至少有一条明细
+        List<MesDvMaintenRecordLineDO> lines = maintenRecordLineMapper.selectListByRecordId(id);
+        if (CollUtil.isEmpty(lines)) {
+            throw exception(MAINTEN_RECORD_NO_LINE);
+        }
+
+        // 2. 状态改为已提交
+        MesDvMaintenRecordDO updateObj = new MesDvMaintenRecordDO();
+        updateObj.setId(id);
+        updateObj.setStatus(MesDvMaintenRecordStatusEnum.SUBMITTED.getStatus());
         maintenRecordMapper.updateById(updateObj);
     }
 
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void deleteMaintenRecord(Long id) {
-        // 校验存在
-        validateMaintenRecordExists(id);
-        // TODO @AI：已提交时，不允许删除
+        // 校验存在，且状态为草稿
+        validateMaintenRecordDraft(id);
 
         // 删除
         maintenRecordMapper.deleteById(id);
@@ -88,6 +108,23 @@ public class MesDvMaintenRecordServiceImpl implements MesDvMaintenRecordService 
         if (maintenRecordMapper.selectById(id) == null) {
             throw exception(MAINTEN_RECORD_NOT_EXISTS);
         }
+    }
+
+    /**
+     * 校验设备保养记录是否为草稿状态
+     *
+     * @param id 编号
+     * @return 保养记录
+     */
+    public MesDvMaintenRecordDO validateMaintenRecordDraft(Long id) {
+        MesDvMaintenRecordDO record = maintenRecordMapper.selectById(id);
+        if (record == null) {
+            throw exception(MAINTEN_RECORD_NOT_EXISTS);
+        }
+        if (ObjUtil.notEqual(MesDvMaintenRecordStatusEnum.PREPARE.getStatus(), record.getStatus())) {
+            throw exception(MAINTEN_RECORD_NOT_DRAFT);
+        }
+        return record;
     }
 
     @Override

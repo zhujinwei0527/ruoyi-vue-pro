@@ -32,10 +32,12 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Stream;
 
 import static cn.iocoder.yudao.framework.apilog.core.enums.OperateTypeEnum.EXPORT;
 import static cn.iocoder.yudao.framework.common.pojo.CommonResult.success;
 import static cn.iocoder.yudao.framework.common.util.collection.CollectionUtils.convertSet;
+import static cn.iocoder.yudao.framework.common.util.collection.CollectionUtils.convertSetByFlatMap;
 
 @Tag(name = "管理后台 - MES 维修工单")
 @RestController
@@ -119,10 +121,8 @@ public class MesDvRepairController {
         Map<Long, MesDvMachineryDO> machineryMap = machineryService.getMachineryMap(
                 convertSet(list, MesDvRepairDO::getMachineryId));
         // 1.2 收集所有用户 ID（维修人 + 验收人）
-        // TODO @AI：CollUtils 里面，有多字段的处理，你研究下；
-        Set<Long> userIds = convertSet(list, MesDvRepairDO::getAcceptedUserId);
-        userIds.addAll(convertSet(list, MesDvRepairDO::getConfirmUserId));
-        Map<Long, AdminUserRespDTO> userMap = adminUserApi.getUserMap(userIds);
+        Map<Long, AdminUserRespDTO> userMap = adminUserApi.getUserMap(convertSetByFlatMap(list,
+                repair -> Stream.of(repair.getAcceptedUserId(), repair.getConfirmUserId())));
         // 2. 拼接 VO
         return BeanUtils.toBean(list, MesDvRepairRespVO.class, vo -> {
             MapUtils.findAndThen(machineryMap, vo.getMachineryId(), machinery -> vo

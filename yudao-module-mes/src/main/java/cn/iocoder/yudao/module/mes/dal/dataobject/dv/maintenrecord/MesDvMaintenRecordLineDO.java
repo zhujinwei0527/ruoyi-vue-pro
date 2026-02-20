@@ -2,6 +2,7 @@ package cn.iocoder.yudao.module.mes.dal.dataobject.dv.maintenrecord;
 
 import cn.iocoder.yudao.framework.mybatis.core.dataobject.BaseDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.dv.subject.MesDvSubjectDO;
+import cn.iocoder.yudao.module.mes.enums.dv.MesDvMaintenStatusEnum;
 import com.baomidou.mybatisplus.annotation.KeySequence;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
@@ -39,11 +40,10 @@ public class MesDvMaintenRecordLineDO extends BaseDO {
      * 关联 {@link MesDvSubjectDO#getId()}
      */
     private Long subjectId;
-    // TODO @AI：搞个枚举类，关联下；
-    // TODO @AI：mes_mainten_status，需要在 dict contants 美剧侠，然后 @关联下；
     /**
      * 保养结果
      *
+     * 枚举 {@link MesDvMaintenStatusEnum}
      * 字典类型 mes_mainten_status
      */
     private Integer status;

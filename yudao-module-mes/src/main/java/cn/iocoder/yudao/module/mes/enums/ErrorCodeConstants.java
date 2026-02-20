@@ -137,11 +137,14 @@ public interface ErrorCodeConstants {
 
     // ========== MES 设备管理-维修工单（1-040-303-000） ==========
     ErrorCode DV_REPAIR_NOT_EXISTS = new ErrorCode(1_040_303_000, "维修工单不存在");
+    ErrorCode DV_REPAIR_NOT_DRAFT = new ErrorCode(1_040_303_001, "维修工单已确认，不允许修改或删除");
     // ========== MES 设备管理-维修工单行（1-040-303-100） ==========
     ErrorCode DV_REPAIR_LINE_NOT_EXISTS = new ErrorCode(1_040_303_100, "维修工单行不存在");
 
     // ========== MES 设备管理-保养记录（1-040-305-000） ==========
     ErrorCode MAINTEN_RECORD_NOT_EXISTS = new ErrorCode(1_040_305_000, "设备保养记录不存在");
+    ErrorCode MAINTEN_RECORD_NOT_DRAFT = new ErrorCode(1_040_305_001, "设备保养记录已提交，不允许修改或删除");
+    ErrorCode MAINTEN_RECORD_NO_LINE = new ErrorCode(1_040_305_002, "提交保养记录时，至少需要一条保养项目");
     // ========== MES 设备管理-保养记录明细（1-040-305-100） ==========
     ErrorCode MAINTEN_RECORD_LINE_NOT_EXISTS = new ErrorCode(1_040_305_100, "设备保养记录明细不存在");
 

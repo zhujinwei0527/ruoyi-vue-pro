@@ -52,10 +52,6 @@ public class MesDvRepairSaveReqVO {
     @Schema(description = "来源单据编码", example = "DOC001")
     private String sourceDocCode;
 
-    // TODO @AI：这个字段，不允许提交
-    @Schema(description = "状态", example = "10")
-    private Integer status;
-
     @Schema(description = "备注", example = "测试备注")
     private String remark;
 
