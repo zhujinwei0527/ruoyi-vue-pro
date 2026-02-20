@@ -38,5 +38,10 @@ public interface DictTypeConstants {
     String MES_DV_CHECK_RESULT = "mes_dv_check_result"; // MES 点检结果
     String MES_DV_REPAIR_STATUS = "mes_dv_repair_status"; // MES 维修工单状态
     String MES_DV_REPAIR_RESULT = "mes_dv_repair_result"; // MES 维修结果
+    String MES_PRO_ANDON_STATUS = "mes_pro_andon_status"; // MES 安灯处置状态
+    String MES_PRO_ANDON_LEVEL = "mes_pro_andon_level"; // MES 安灯级别
+    String MES_PRO_FEEDBACK_STATUS = "mes_pro_feedback_status"; // MES 生产报工状态
+    String MES_PRO_FEEDBACK_TYPE = "mes_pro_feedback_type"; // MES 生产报工类型
+    String MES_PRO_FEEDBACK_CHANNEL = "mes_pro_feedback_channel"; // MES 生产报工途径
 
 }

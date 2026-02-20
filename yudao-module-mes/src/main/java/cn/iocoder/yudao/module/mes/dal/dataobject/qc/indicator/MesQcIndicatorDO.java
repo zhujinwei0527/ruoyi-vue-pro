@@ -34,22 +34,20 @@ public class MesQcIndicatorDO extends BaseDO {
      * 检测项名称
      */
     private String name;
-    // TODO @AI：字典枚举，链接过去；
     /**
      * 检测项类型
      *
-     * 字典类型 mes_index_type
+     * 枚举 {@link cn.iocoder.yudao.module.mes.enums.DictTypeConstants#MES_INDEX_TYPE}
      */
     private String type;
     /**
      * 检测工具
      */
     private String tool;
-    // TODO @AI：字典枚举，链接过去；
     /**
      * 结果值类型
      *
-     * 字典类型 mes_qc_result_type
+     * 枚举 {@link cn.iocoder.yudao.module.mes.enums.DictTypeConstants#MES_QC_RESULT_TYPE}
      */
     private String resultType;
     /**

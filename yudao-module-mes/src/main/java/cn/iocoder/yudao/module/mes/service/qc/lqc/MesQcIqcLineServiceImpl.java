@@ -12,6 +12,8 @@ import org.springframework.validation.annotation.Validated;
 
 import java.util.List;
 
+import static cn.iocoder.yudao.framework.common.util.collection.CollectionUtils.convertList;
+
 /**
  * MES 来料检验单行 Service 实现类
  *
@@ -44,24 +46,14 @@ public class MesQcIqcLineServiceImpl implements MesQcIqcLineService {
     @Override
     public void createLinesFromTemplate(Long iqcId, Long templateId) {
         List<MesQcTemplateIndicatorDO> indicators = templateIndicatorMapper.selectListByTemplateId(templateId);
-        // TODO @AI：convertList；
-        for (MesQcTemplateIndicatorDO indicator : indicators) {
-            // TODO @AI：链式设置；
-            MesQcIqcLineDO line = new MesQcIqcLineDO();
-            line.setIqcId(iqcId);
-            line.setIndicatorId(indicator.getIndicatorId());
-            line.setToolId(null); // TODO @芋艿：模板指标暂无 toolId，后续可扩展
-            line.setCheckMethod(indicator.getCheckMethod());
-            line.setStandardValue(indicator.getStandardValue());
-            line.setUnitMeasureId(indicator.getUnitMeasureId());
-            line.setMaxThreshold(indicator.getThresholdMax());
-            line.setMinThreshold(indicator.getThresholdMin());
-            line.setCriticalQuantity(0);
-            line.setMajorQuantity(0);
-            line.setMinorQuantity(0);
-            // TODO @AI：insertBatch；
-            iqcLineMapper.insert(line);
-        }
+        List<MesQcIqcLineDO> lines = convertList(indicators, indicator -> new MesQcIqcLineDO()
+                .setIqcId(iqcId).setIndicatorId(indicator.getIndicatorId())
+                .setToolId(null) // TODO @芋艿：模板指标暂无 toolId，后续可扩展
+                .setCheckMethod(indicator.getCheckMethod())
+                .setStandardValue(indicator.getStandardValue()).setUnitMeasureId(indicator.getUnitMeasureId())
+                .setMaxThreshold(indicator.getThresholdMax()).setMinThreshold(indicator.getThresholdMin())
+                .setCriticalQuantity(0).setMajorQuantity(0).setMinorQuantity(0));
+        iqcLineMapper.insertBatch(lines);
     }
 
     @Override
