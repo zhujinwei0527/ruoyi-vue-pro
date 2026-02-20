@@ -1,28 +1,25 @@
-package cn.iocoder.yudao.module.mes.dal.dataobject.pro.route;
+package cn.iocoder.yudao.module.mes.dal.dataobject.pro.process;
 
 import cn.iocoder.yudao.framework.mybatis.core.dataobject.BaseDO;
-import cn.iocoder.yudao.module.mes.dal.dataobject.pro.process.MesProProcessDO;
 import com.baomidou.mybatisplus.annotation.KeySequence;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.*;
 
-import java.math.BigDecimal;
-
 /**
- * MES 工艺路线产品 BOM DO
+ * MES 生产工序内容 DO
  *
  * @author 芋道源码
  */
-@TableName("mes_pro_route_product_bom")
-@KeySequence("mes_pro_route_product_bom_seq")
+@TableName("mes_pro_process_content")
+@KeySequence("mes_pro_process_content_seq") // 用于 Oracle、PostgreSQL、Kingbase、DB2、H2 数据库的主键自增。如果是 MySQL 等数据库，可不写。
 @Data
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class MesProRouteProductBomDO extends BaseDO {
+public class MesProProcessContentDO extends BaseDO {
 
     /**
      * 编号
@@ -30,33 +27,31 @@ public class MesProRouteProductBomDO extends BaseDO {
     @TableId
     private Long id;
     /**
-     * 工艺路线编号
-     *
-     * 关联 {@link MesProRouteDO#getId()}
-     */
-    private Long routeId;
-    /**
      * 工序编号
      *
      * 关联 {@link MesProProcessDO#getId()}
      */
     private Long processId;
     /**
-     * 产品物料编号
-     *
-     * 关联 {@link cn.iocoder.yudao.module.mes.dal.dataobject.md.item.MesMdItemDO#getId()}
+     * 顺序编号
      */
-    private Long productId;
+    private Integer sort;
     /**
-     * BOM 物料编号
-     *
-     * 关联 {@link cn.iocoder.yudao.module.mes.dal.dataobject.md.item.MesMdItemDO#getId()}
+     * 步骤说明
      */
-    private Long itemId;
+    private String content;
     /**
-     * 用料比例
+     * 辅助设备
      */
-    private BigDecimal quantity;
+    private String device;
+    /**
+     * 辅助材料
+     */
+    private String material;
+    /**
+     * 材料文档 URL
+     */
+    private String docUrl;
     /**
      * 备注
      */

@@ -1,6 +1,7 @@
 package cn.iocoder.yudao.module.mes.dal.dataobject.pro.route;
 
 import cn.iocoder.yudao.framework.mybatis.core.dataobject.BaseDO;
+import cn.iocoder.yudao.module.mes.dal.dataobject.pro.process.MesProProcessDO;
 import com.baomidou.mybatisplus.annotation.KeySequence;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
@@ -35,7 +36,7 @@ public class MesProRouteProcessDO extends BaseDO {
     /**
      * 工序编号
      *
-     * 关联 {@link cn.iocoder.yudao.module.mes.dal.dataobject.pro.MesProProcessDO#getId()}
+     * 关联 {@link MesProProcessDO#getId()}
      */
     private Long processId;
     /**
@@ -45,7 +46,7 @@ public class MesProRouteProcessDO extends BaseDO {
     /**
      * 下一道工序编号
      *
-     * 关联 {@link cn.iocoder.yudao.module.mes.dal.dataobject.pro.MesProProcessDO#getId()}
+     * 关联 {@link MesProProcessDO#getId()}
      */
     private Long nextProcessId;
     /**
