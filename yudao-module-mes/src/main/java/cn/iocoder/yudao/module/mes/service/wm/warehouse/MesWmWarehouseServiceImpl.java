@@ -11,6 +11,7 @@ import cn.iocoder.yudao.module.mes.dal.mysql.wm.warehouse.MesWmWarehouseMapper;
 import cn.iocoder.yudao.module.mes.service.md.workstation.MesMdWorkstationService;
 import cn.iocoder.yudao.module.mes.service.wm.materialstock.MesWmMaterialStockService;
 import jakarta.annotation.Resource;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 
@@ -34,6 +35,7 @@ public class MesWmWarehouseServiceImpl implements MesWmWarehouseService {
     @Resource
     private MesWmWarehouseLocationService locationService;
     @Resource
+    @Lazy
     private MesMdWorkstationService workstationService;
     @Resource
     private MesWmMaterialStockService materialStockService;
