@@ -36,6 +36,13 @@ public interface MesProCardService {
     void deleteCard(Long id);
 
     /**
+     * 校验生产流转卡存在
+     *
+     * @param id 编号
+     */
+    void validateCardExists(Long id);
+
+    /**
      * 获得生产流转卡
      *
      * @param id 编号

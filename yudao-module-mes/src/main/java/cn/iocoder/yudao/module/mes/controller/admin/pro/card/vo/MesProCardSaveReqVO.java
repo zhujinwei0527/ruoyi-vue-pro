@@ -29,12 +29,6 @@ public class MesProCardSaveReqVO {
     @NotNull(message = "产品物料不能为空")
     private Long itemId;
 
-    @Schema(description = "规格型号", example = "100x200mm")
-    private String specification;
-
-    @Schema(description = "单位编号", example = "300")
-    private Long unitMeasureId;
-
     @Schema(description = "流转数量", requiredMode = Schema.RequiredMode.REQUIRED, example = "100.00")
     @NotNull(message = "流转数量不能为空")
     private BigDecimal transferedQuantity;

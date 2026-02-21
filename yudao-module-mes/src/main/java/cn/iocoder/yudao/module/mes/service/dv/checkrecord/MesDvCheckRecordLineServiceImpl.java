@@ -7,6 +7,7 @@ import cn.iocoder.yudao.module.mes.controller.admin.dv.checkrecord.vo.line.MesDv
 import cn.iocoder.yudao.module.mes.dal.dataobject.dv.checkrecord.MesDvCheckRecordLineDO;
 import cn.iocoder.yudao.module.mes.dal.mysql.dv.checkrecord.MesDvCheckRecordLineMapper;
 import jakarta.annotation.Resource;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 
@@ -27,9 +28,16 @@ public class MesDvCheckRecordLineServiceImpl implements MesDvCheckRecordLineServ
     @Resource
     private MesDvCheckRecordLineMapper checkRecordLineMapper;
 
+    @Resource
+    @Lazy
+    private MesDvCheckRecordService checkRecordService;
+
     @Override
     public Long createCheckRecordLine(MesDvCheckRecordLineSaveReqVO createReqVO) {
-        // TODO @AI：校验下存在
+        // 1. 校验点检记录存在
+        checkRecordService.validateCheckRecordExists(createReqVO.getRecordId());
+
+        // 2. 插入
         MesDvCheckRecordLineDO line = BeanUtils.toBean(createReqVO, MesDvCheckRecordLineDO.class);
         checkRecordLineMapper.insert(line);
         return line.getId();
@@ -37,11 +45,12 @@ public class MesDvCheckRecordLineServiceImpl implements MesDvCheckRecordLineServ
 
     @Override
     public void updateCheckRecordLine(MesDvCheckRecordLineSaveReqVO updateReqVO) {
-        // TODO @AI：校验下存在
-        // 校验存在
+        // 1.1 校验行存在
         validateCheckRecordLineExists(updateReqVO.getId());
+        // 1.2 校验点检记录存在
+        checkRecordService.validateCheckRecordExists(updateReqVO.getRecordId());
 
-        // 更新
+        // 2. 更新
         MesDvCheckRecordLineDO updateObj = BeanUtils.toBean(updateReqVO, MesDvCheckRecordLineDO.class);
         checkRecordLineMapper.updateById(updateObj);
     }

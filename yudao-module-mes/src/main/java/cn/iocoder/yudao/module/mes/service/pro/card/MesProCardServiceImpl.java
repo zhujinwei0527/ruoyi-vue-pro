@@ -84,7 +84,8 @@ public class MesProCardServiceImpl implements MesProCardService {
 
     // ==================== 校验方法 ====================
 
-    private void validateCardExists(Long id) {
+    @Override
+    public void validateCardExists(Long id) {
         if (cardMapper.selectById(id) == null) {
             throw exception(PRO_CARD_NOT_EXISTS);
         }

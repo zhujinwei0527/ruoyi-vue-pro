@@ -27,7 +27,6 @@ public interface MesCalTeamShiftService {
      */
     List<MesCalTeamShiftDO> getTeamShiftList(MesCalTeamShiftListReqVO reqVO);
 
-    // TODO @AI：评审下，为什么不调用！
     /**
      * 根据排班计划编号删除所有排班记录
      *

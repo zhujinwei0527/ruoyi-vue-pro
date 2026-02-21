@@ -2,7 +2,6 @@ package cn.iocoder.yudao.module.mes.dal.dataobject.pro.card;
 
 import cn.iocoder.yudao.framework.mybatis.core.dataobject.BaseDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.md.item.MesMdItemDO;
-import cn.iocoder.yudao.module.mes.dal.dataobject.md.unitmeasure.MesMdUnitMeasureDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.pro.workorder.MesProWorkOrderDO;
 import com.baomidou.mybatisplus.annotation.KeySequence;
 import com.baomidou.mybatisplus.annotation.TableId;
@@ -51,16 +50,6 @@ public class MesProCardDO extends BaseDO {
      * 关联 {@link MesMdItemDO#getId()}
      */
     private Long itemId;
-    /**
-     * 规格型号
-     */
-    private String specification;
-    /**
-     * 单位编号
-     *
-     * 关联 {@link MesMdUnitMeasureDO#getId()}
-     */
-    private Long unitMeasureId;
     /**
      * 条码地址
      *

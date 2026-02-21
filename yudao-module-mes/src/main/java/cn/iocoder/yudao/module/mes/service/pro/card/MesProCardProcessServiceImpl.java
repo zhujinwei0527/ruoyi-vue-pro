@@ -7,6 +7,7 @@ import cn.iocoder.yudao.module.mes.controller.admin.pro.card.vo.process.MesProCa
 import cn.iocoder.yudao.module.mes.dal.dataobject.pro.card.MesProCardProcessDO;
 import cn.iocoder.yudao.module.mes.dal.mysql.pro.card.MesProCardProcessMapper;
 import jakarta.annotation.Resource;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 
@@ -25,9 +26,16 @@ public class MesProCardProcessServiceImpl implements MesProCardProcessService {
     @Resource
     private MesProCardProcessMapper cardProcessMapper;
 
+    @Resource
+    @Lazy
+    private MesProCardService cardService;
+
     @Override
     public Long createCardProcess(MesProCardProcessSaveReqVO createReqVO) {
-        // TODO @AI：card 存在，通过 cardService 的 validateCardExists() 方法校验
+        // 1. 校验流转卡存在
+        cardService.validateCardExists(createReqVO.getCardId());
+
+        // 2. 插入
         MesProCardProcessDO cardProcess = BeanUtils.toBean(createReqVO, MesProCardProcessDO.class);
         cardProcessMapper.insert(cardProcess);
         return cardProcess.getId();
@@ -35,9 +43,10 @@ public class MesProCardProcessServiceImpl implements MesProCardProcessService {
 
     @Override
     public void updateCardProcess(MesProCardProcessSaveReqVO updateReqVO) {
-        // 1. 校验存在
+        // 1.1 校验存在
         validateCardProcessExists(updateReqVO.getId());
-        // TODO @AI：card 存在，通过 cardService 的 validateCardExists() 方法校验
+        // 1.2 校验流转卡存在
+        cardService.validateCardExists(updateReqVO.getCardId());
 
         // 2. 更新
         MesProCardProcessDO updateObj = BeanUtils.toBean(updateReqVO, MesProCardProcessDO.class);
