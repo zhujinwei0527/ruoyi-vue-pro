@@ -46,6 +46,13 @@ public interface MesQcIqcLineService {
     void createLinesFromTemplate(Long iqcId, Long templateId);
 
     /**
+     * 批量更新行的缺陷统计数量
+     *
+     * @param lines 待更新的行列表（只需设置 id、criticalQuantity、majorQuantity、minorQuantity）
+     */
+    void batchUpdateDefectStats(List<MesQcIqcLineDO> lines);
+
+    /**
      * 根据来料检验单 ID 级联删除所有行
      *
      * @param iqcId 来料检验单 ID

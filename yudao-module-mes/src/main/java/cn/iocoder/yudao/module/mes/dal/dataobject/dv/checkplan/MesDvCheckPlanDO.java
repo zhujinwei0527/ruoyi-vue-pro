@@ -1,6 +1,7 @@
 package cn.iocoder.yudao.module.mes.dal.dataobject.dv.checkplan;
 
 import cn.iocoder.yudao.framework.mybatis.core.dataobject.BaseDO;
+import cn.iocoder.yudao.module.mes.enums.DictTypeConstants;
 import cn.iocoder.yudao.module.mes.enums.dv.MesDvCheckPlanStatusEnum;
 import com.baomidou.mybatisplus.annotation.KeySequence;
 import com.baomidou.mybatisplus.annotation.TableId;
@@ -37,11 +38,10 @@ public class MesDvCheckPlanDO extends BaseDO {
      * 方案名称
      */
     private String name;
-    // TODO @AI：需要在 dict constants 里枚举下，然后 @过去
     /**
      * 方案类型
      *
-     * 字典类型 mes_dv_subject_type（1=设备点检，2=设备保养）
+     * 字典 {@link DictTypeConstants#MES_DV_SUBJECT_TYPE}
      */
     private Integer type;
     /**
@@ -52,11 +52,10 @@ public class MesDvCheckPlanDO extends BaseDO {
      * 结束日期
      */
     private LocalDateTime endDate;
-    // TODO @AI：需要在 dict constants 里枚举下，然后 @过去
     /**
      * 周期类型
      *
-     * 字典类型 mes_dv_cycle_type（1=天，2=周，3=月，4=年）
+     * 字典 {@link DictTypeConstants#MES_DV_CYCLE_TYPE}
      */
     private Integer cycleType;
     /**

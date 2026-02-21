@@ -222,6 +222,11 @@ public class MesProWorkOrderServiceImpl implements MesProWorkOrderService {
         }
     }
 
+    @Override
+    public List<MesProWorkOrderDO> getWorkOrderSimpleList() {
+        return workOrderMapper.selectList();
+    }
+
     // ==================== BOM 自动生成 ====================
 
     /**

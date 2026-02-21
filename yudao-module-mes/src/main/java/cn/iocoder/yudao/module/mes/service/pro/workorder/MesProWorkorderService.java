@@ -112,4 +112,11 @@ public interface MesProWorkOrderService {
      */
     void cancelWorkOrder(Long id);
 
+    /**
+     * 获得工单精简列表（用于下拉选项）
+     *
+     * @return 工单列表
+     */
+    List<MesProWorkOrderDO> getWorkOrderSimpleList();
+
 }

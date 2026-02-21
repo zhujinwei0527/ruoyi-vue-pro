@@ -9,7 +9,6 @@ import cn.iocoder.yudao.module.mes.dal.dataobject.qc.lqc.MesQcIqcDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.qc.lqc.MesQcIqcDefectDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.qc.lqc.MesQcIqcLineDO;
 import cn.iocoder.yudao.module.mes.dal.mysql.qc.lqc.MesQcIqcDefectMapper;
-import cn.iocoder.yudao.module.mes.dal.mysql.qc.lqc.MesQcIqcLineMapper;
 import cn.iocoder.yudao.module.mes.dal.mysql.qc.lqc.MesQcIqcMapper;
 import cn.iocoder.yudao.module.mes.enums.qc.MesQcDefectLevelEnum;
 import jakarta.annotation.Resource;
@@ -20,6 +19,7 @@ import org.springframework.validation.annotation.Validated;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -37,8 +37,6 @@ public class MesQcIqcDefectServiceImpl implements MesQcIqcDefectService {
 
     @Resource
     private MesQcIqcDefectMapper iqcDefectMapper;
-    @Resource
-    private MesQcIqcLineMapper iqcLineMapper;
     @Resource
     private MesQcIqcMapper iqcMapper;
     @Resource
@@ -130,8 +128,9 @@ public class MesQcIqcDefectServiceImpl implements MesQcIqcDefectService {
         // 1. 查询所有缺陷记录
         List<MesQcIqcDefectDO> defects = iqcDefectMapper.selectListByIqcId(iqcId);
 
-        // 2. 更新每行的缺陷数量
+        // 2. 按行汇总缺陷数量，批量更新
         List<MesQcIqcLineDO> lines = iqcLineService.selectListByIqcId(iqcId);
+        List<MesQcIqcLineDO> updateLines = new ArrayList<>();
         for (MesQcIqcLineDO line : lines) {
             int critical = 0, major = 0, minor = 0;
             for (MesQcIqcDefectDO defect : defects) {
@@ -149,8 +148,10 @@ public class MesQcIqcDefectServiceImpl implements MesQcIqcDefectService {
                     throw exception(QC_IQC_DEFECT_LEVEL_UNKNOWN);
                 }
             }
-            updateLineDefectStats(line.getId(), critical, major, minor);
+            updateLines.add(new MesQcIqcLineDO().setId(line.getId())
+                    .setCriticalQuantity(critical).setMajorQuantity(major).setMinorQuantity(minor));
         }
+        iqcLineService.batchUpdateDefectStats(updateLines);
 
         // 3.1 汇总主表的缺陷数量
         int totalCritical = 0, totalMajor = 0, totalMinor = 0;
@@ -185,16 +186,6 @@ public class MesQcIqcDefectServiceImpl implements MesQcIqcDefectService {
                 .setCriticalQuantity(totalCritical).setMajorQuantity(totalMajor).setMinorQuantity(totalMinor)
                 .setCriticalRate(criticalRate).setMajorRate(majorRate).setMinorRate(minorRate);
         iqcMapper.updateById(updateIqc);
-    }
-
-    // TODO @AI：在 iqclineservice 里，提供一个方法，直接根据行 ID 列表，批量更新缺陷统计数量。然后这里直接调用即可，避免循环更新数据库。
-    /**
-     * 更新检验行的缺陷统计数量
-     */
-    private void updateLineDefectStats(Long lineId, int critical, int major, int minor) {
-        MesQcIqcLineDO updateLine = new MesQcIqcLineDO().setId(lineId)
-                .setCriticalQuantity(critical).setMajorQuantity(major).setMinorQuantity(minor);
-        iqcLineMapper.updateById(updateLine);
     }
 
 }

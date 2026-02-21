@@ -70,8 +70,7 @@ public class MesProProcessServiceImpl implements MesProProcessService {
         // 1.1 校验存在
         validateProcessExists(id);
         // 1.2 校验是否被工艺路线引用
-        // TODO @AI：CollUtil.isNotEmpty() 可能更好
-        if (!routeProcessMapper.selectListByProcessId(id).isEmpty()) {
+        if (CollUtil.isNotEmpty(routeProcessMapper.selectListByProcessId(id))) {
             throw exception(PRO_PROCESS_USED_BY_ROUTE);
         }
 

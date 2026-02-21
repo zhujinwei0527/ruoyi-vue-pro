@@ -57,6 +57,13 @@ public class MesQcIqcLineServiceImpl implements MesQcIqcLineService {
     }
 
     @Override
+    public void batchUpdateDefectStats(List<MesQcIqcLineDO> lines) {
+        for (MesQcIqcLineDO line : lines) {
+            iqcLineMapper.updateById(line);
+        }
+    }
+
+    @Override
     public void deleteByIqcId(Long iqcId) {
         iqcLineMapper.deleteByIqcId(iqcId);
     }

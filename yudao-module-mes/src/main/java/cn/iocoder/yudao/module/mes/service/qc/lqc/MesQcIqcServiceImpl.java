@@ -2,7 +2,6 @@ package cn.iocoder.yudao.module.mes.service.qc.lqc;
 
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.ObjUtil;
-import cn.iocoder.yudao.framework.common.exception.ErrorCode;
 import cn.iocoder.yudao.framework.common.pojo.PageResult;
 import cn.iocoder.yudao.framework.common.util.object.BeanUtils;
 import cn.iocoder.yudao.module.mes.controller.admin.qc.iqc.vo.MesQcIqcPageReqVO;
@@ -76,11 +75,9 @@ public class MesQcIqcServiceImpl implements MesQcIqcService {
 
     @Override
     public void updateIqc(MesQcIqcSaveReqVO updateReqVO) {
-        // 1.1 校验存在
-        MesQcIqcDO iqc = validateIqcExists(updateReqVO.getId());
-        // 1.2 校验状态为草稿
-        validatePrepareStatus(iqc, QC_IQC_ONLY_PREPARE_CAN_COMPLETE);
-        // 1.3 校验编号唯一
+        // 1.1 校验存在 + 草稿状态
+        validateIqcStatusPrepare(updateReqVO.getId());
+        // 1.2 校验编号唯一
         validateIqcCodeUnique(updateReqVO.getId(), updateReqVO.getCode());
 
         // 2. 更新
@@ -90,11 +87,9 @@ public class MesQcIqcServiceImpl implements MesQcIqcService {
 
     @Override
     public void completeIqc(Long id) {
-        // 1.1 校验存在
-        MesQcIqcDO iqc = validateIqcExists(id);
-        // 1.2 校验状态为草稿
-        validatePrepareStatus(iqc, QC_IQC_ONLY_PREPARE_CAN_COMPLETE);
-        // 1.3 校验合格品 + 不合格品 = 检测数量
+        // 1.1 校验存在 + 草稿状态
+        MesQcIqcDO iqc = validateIqcStatusPrepare(id);
+        // 1.2 校验合格品 + 不合格品 = 检测数量
         if (iqc.getCheckQuantity() != null && iqc.getCheckQuantity() > 0) {
             int total = (iqc.getQualifiedQuantity() != null ? iqc.getQualifiedQuantity() : 0)
                     + (iqc.getUnqualifiedQuantity() != null ? iqc.getUnqualifiedQuantity() : 0);
@@ -114,10 +109,8 @@ public class MesQcIqcServiceImpl implements MesQcIqcService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void deleteIqc(Long id) {
-        // 1.1 校验存在
-        MesQcIqcDO iqc = validateIqcExists(id);
-        // 1.2 仅草稿可删
-        validatePrepareStatus(iqc, QC_IQC_ONLY_PREPARE_CAN_DELETE);
+        // 1. 校验存在 + 草稿状态
+        validateIqcStatusPrepare(id);
 
         // 2.1 删除主表
         iqcMapper.deleteById(id);
@@ -127,19 +120,21 @@ public class MesQcIqcServiceImpl implements MesQcIqcService {
         iqcDefectService.deleteByIqcId(id);
     }
 
-    private MesQcIqcDO validateIqcExists(Long id) {
+    /**
+     * 校验来料检验单存在且为草稿状态
+     *
+     * @param id 来料检验单 ID
+     * @return 来料检验单
+     */
+    private MesQcIqcDO validateIqcStatusPrepare(Long id) {
         MesQcIqcDO iqc = iqcMapper.selectById(id);
         if (iqc == null) {
             throw exception(QC_IQC_NOT_EXISTS);
         }
-        return iqc;
-    }
-
-    // TODO @AI：就搞个方法，传递 id 进去；抛出不为 草稿状态的异常；然后在 update/delete/complete 方法中调用这个方法（不用专门 errorCode）
-    private void validatePrepareStatus(MesQcIqcDO iqc, ErrorCode errorCode) {
         if (ObjUtil.notEqual(iqc.getStatus(), MesQcIqcStatusEnum.PREPARE.getType())) {
-            throw exception(errorCode);
+            throw exception(QC_IQC_NOT_PREPARE);
         }
+        return iqc;
     }
 
     private void validateIqcCodeUnique(Long id, String code) {

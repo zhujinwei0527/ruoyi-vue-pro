@@ -5,6 +5,7 @@ import cn.iocoder.yudao.module.mes.dal.dataobject.md.item.MesMdItemDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.md.item.MesMdItemTypeDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.md.unitmeasure.MesMdUnitMeasureDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.md.vendor.MesMdVendorDO;
+import cn.iocoder.yudao.module.mes.dal.dataobject.pro.workorder.MesProWorkOrderDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.wm.warehouse.MesWmWarehouseAreaDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.wm.warehouse.MesWmWarehouseDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.wm.warehouse.MesWmWarehouseLocationDO;
@@ -85,11 +86,10 @@ public class MesWmMaterialStockDO extends BaseDO {
      * 关联 {@link MesMdVendorDO#getId()}
      */
     private Long vendorId;
-    // TODO @AI：去关联下；
     /**
      * 生产工单编号
      *
-     * TODO @芋艿：待 mes_pro_work_order 模块完成后关联
+     * 关联 {@link MesProWorkOrderDO#getId()}
      */
     private Long workOrderId;
     /**
