@@ -2,6 +2,7 @@ package cn.iocoder.yudao.module.mes.controller.admin.qc.indicator.vo;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
 @Schema(description = "管理后台 - MES 质检指标新增/修改 Request VO")
@@ -26,12 +27,12 @@ public class MesQcIndicatorSaveReqVO {
     @Schema(description = "检测工具", example = "卡尺")
     private String tool;
 
-    @Schema(description = "结果值类型", requiredMode = Schema.RequiredMode.REQUIRED, example = "FLOAT")
-    @NotEmpty(message = "结果值类型不能为空")
-    private String resultType;
+    @Schema(description = "结果值类型", requiredMode = Schema.RequiredMode.REQUIRED, example = "1")
+    @NotNull(message = "结果值类型不能为空")
+    private Integer resultType;
 
     @Schema(description = "结果值属性", example = "IMG")
-    private String resultSpec;
+    private String resultSpecification;
 
     @Schema(description = "备注", example = "备注")
     private String remark;

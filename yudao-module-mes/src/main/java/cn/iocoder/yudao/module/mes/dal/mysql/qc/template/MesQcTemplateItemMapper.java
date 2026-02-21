@@ -27,6 +27,10 @@ public interface MesQcTemplateItemMapper extends BaseMapperX<MesQcTemplateItemDO
         return selectList(MesQcTemplateItemDO::getTemplateId, templateId);
     }
 
+    default List<MesQcTemplateItemDO> selectListByItemId(Long itemId) {
+        return selectList(MesQcTemplateItemDO::getItemId, itemId);
+    }
+
     default MesQcTemplateItemDO selectByTemplateIdAndItemId(Long templateId, Long itemId) {
         return selectOne(new LambdaQueryWrapperX<MesQcTemplateItemDO>()
                 .eq(MesQcTemplateItemDO::getTemplateId, templateId)

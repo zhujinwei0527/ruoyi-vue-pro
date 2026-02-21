@@ -267,6 +267,12 @@ public interface ErrorCodeConstants {
     ErrorCode QC_DEFECT_RECORD_LEVEL_UNKNOWN = new ErrorCode(1_040_605_001, "未知的缺陷等级");
     ErrorCode QC_DEFECT_RECORD_QC_TYPE_UNSUPPORTED = new ErrorCode(1_040_605_002, "不支持的检验类型");
 
+    // ========== MES 质量管理-检验结果（1-040-606-000） ==========
+    ErrorCode QC_RESULT_NOT_EXISTS = new ErrorCode(1_040_606_000, "检验结果不存在");
+    ErrorCode QC_RESULT_ITEMS_EMPTY = new ErrorCode(1_040_606_001, "检测项结果值不能为空");
+    ErrorCode QC_RESULT_SOURCE_DOC_NOT_EXISTS = new ErrorCode(1_040_606_002, "来源质检单不存在");
+    ErrorCode QC_RESULT_SOURCE_DOC_TYPE_INVALID = new ErrorCode(1_040_606_003, "来源质检单类型不支持");
+
     // ========== MES 仓库管理-仓库（1-040-700-000） ==========
     ErrorCode WM_WAREHOUSE_NOT_EXISTS = new ErrorCode(1_040_700_000, "仓库不存在");
     ErrorCode WM_WAREHOUSE_CODE_DUPLICATE = new ErrorCode(1_040_700_001, "仓库编码已存在");

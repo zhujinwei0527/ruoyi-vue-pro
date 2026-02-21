@@ -47,15 +47,16 @@ public class MesQcIndicatorDO extends BaseDO {
     /**
      * 结果值类型
      *
-     * 枚举 {@link cn.iocoder.yudao.module.mes.enums.DictTypeConstants#MES_QC_RESULT_TYPE}
+     * 枚举 {@link cn.iocoder.yudao.module.mes.enums.qc.MesQcResultValueTypeEnum}
      */
-    private String resultType;
+    private Integer resultType;
     /**
      * 结果值属性
      *
-     * FILE 时存 IMG/FILE；DICT 时存字典类型名
+     * 1. FILE 时：存 IMG/FILE
+     * 2. DICT 时：存字典类型名
      */
-    private String resultSpec;
+    private String resultSpecification;
     /**
      * 备注
      */

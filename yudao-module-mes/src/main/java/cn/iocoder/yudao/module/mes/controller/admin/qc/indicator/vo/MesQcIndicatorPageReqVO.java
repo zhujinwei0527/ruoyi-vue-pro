@@ -21,7 +21,7 @@ public class MesQcIndicatorPageReqVO extends PageParam {
     @Schema(description = "检测项类型", example = "SIZE")
     private String type;
 
-    @Schema(description = "结果值类型", example = "FLOAT")
-    private String resultType;
+    @Schema(description = "结果值类型", example = "1")
+    private Integer resultType;
 
 }

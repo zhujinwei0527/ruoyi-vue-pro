@@ -36,14 +36,14 @@ public class MesQcIndicatorRespVO {
     @ExcelProperty("检测工具")
     private String tool;
 
-    @Schema(description = "结果值类型", requiredMode = Schema.RequiredMode.REQUIRED, example = "FLOAT")
+    @Schema(description = "结果值类型", requiredMode = Schema.RequiredMode.REQUIRED, example = "1")
     @ExcelProperty(value = "结果值类型", converter = DictConvert.class)
     @DictFormat(DictTypeConstants.MES_QC_RESULT_TYPE)
-    private String resultType;
+    private Integer resultType;
 
     @Schema(description = "结果值属性", example = "IMG")
     @ExcelProperty("结果值属性")
-    private String resultSpec;
+    private String resultSpecification;
 
     @Schema(description = "备注", example = "备注")
     @ExcelProperty("备注")
