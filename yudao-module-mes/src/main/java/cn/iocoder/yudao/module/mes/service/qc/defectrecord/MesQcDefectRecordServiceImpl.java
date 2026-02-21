@@ -1,11 +1,11 @@
-package cn.iocoder.yudao.module.mes.service.qc.defect;
+package cn.iocoder.yudao.module.mes.service.qc.defectrecord;
 
 import cn.iocoder.yudao.framework.common.pojo.PageResult;
 import cn.iocoder.yudao.framework.common.util.object.BeanUtils;
-import cn.iocoder.yudao.module.mes.controller.admin.qc.defect.vo.record.MesQcDefectRecordPageReqVO;
-import cn.iocoder.yudao.module.mes.controller.admin.qc.defect.vo.record.MesQcDefectRecordSaveReqVO;
-import cn.iocoder.yudao.module.mes.dal.dataobject.qc.defect.MesQcDefectRecordDO;
-import cn.iocoder.yudao.module.mes.dal.mysql.qc.defect.MesQcDefectRecordMapper;
+import cn.iocoder.yudao.module.mes.controller.admin.qc.defectrecord.vo.MesQcDefectRecordPageReqVO;
+import cn.iocoder.yudao.module.mes.controller.admin.qc.defectrecord.vo.MesQcDefectRecordSaveReqVO;
+import cn.iocoder.yudao.module.mes.dal.dataobject.qc.defectrecord.MesQcDefectRecordDO;
+import cn.iocoder.yudao.module.mes.dal.mysql.qc.defectrecord.MesQcDefectRecordMapper;
 import cn.iocoder.yudao.module.mes.enums.qc.MesQcTypeEnum;
 import cn.iocoder.yudao.module.mes.service.qc.lqc.MesQcIqcLineService;
 import cn.iocoder.yudao.module.mes.service.qc.lqc.MesQcIqcService;

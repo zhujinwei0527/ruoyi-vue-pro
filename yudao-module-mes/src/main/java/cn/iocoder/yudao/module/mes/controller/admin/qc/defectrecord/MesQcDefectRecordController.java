@@ -1,13 +1,13 @@
-package cn.iocoder.yudao.module.mes.controller.admin.qc.defect;
+package cn.iocoder.yudao.module.mes.controller.admin.qc.defectrecord;
 
 import cn.iocoder.yudao.framework.common.pojo.CommonResult;
 import cn.iocoder.yudao.framework.common.pojo.PageResult;
 import cn.iocoder.yudao.framework.common.util.object.BeanUtils;
-import cn.iocoder.yudao.module.mes.controller.admin.qc.defect.vo.record.MesQcDefectRecordPageReqVO;
-import cn.iocoder.yudao.module.mes.controller.admin.qc.defect.vo.record.MesQcDefectRecordRespVO;
-import cn.iocoder.yudao.module.mes.controller.admin.qc.defect.vo.record.MesQcDefectRecordSaveReqVO;
-import cn.iocoder.yudao.module.mes.dal.dataobject.qc.defect.MesQcDefectRecordDO;
-import cn.iocoder.yudao.module.mes.service.qc.defect.MesQcDefectRecordService;
+import cn.iocoder.yudao.module.mes.controller.admin.qc.defectrecord.vo.MesQcDefectRecordPageReqVO;
+import cn.iocoder.yudao.module.mes.controller.admin.qc.defectrecord.vo.MesQcDefectRecordRespVO;
+import cn.iocoder.yudao.module.mes.controller.admin.qc.defectrecord.vo.MesQcDefectRecordSaveReqVO;
+import cn.iocoder.yudao.module.mes.dal.dataobject.qc.defectrecord.MesQcDefectRecordDO;
+import cn.iocoder.yudao.module.mes.service.qc.defectrecord.MesQcDefectRecordService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;

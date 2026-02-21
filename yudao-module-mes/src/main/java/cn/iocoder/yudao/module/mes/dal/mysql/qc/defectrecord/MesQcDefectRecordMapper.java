@@ -1,10 +1,10 @@
-package cn.iocoder.yudao.module.mes.dal.mysql.qc.defect;
+package cn.iocoder.yudao.module.mes.dal.mysql.qc.defectrecord;
 
 import cn.iocoder.yudao.framework.common.pojo.PageResult;
 import cn.iocoder.yudao.framework.mybatis.core.mapper.BaseMapperX;
 import cn.iocoder.yudao.framework.mybatis.core.query.LambdaQueryWrapperX;
-import cn.iocoder.yudao.module.mes.controller.admin.qc.defect.vo.record.MesQcDefectRecordPageReqVO;
-import cn.iocoder.yudao.module.mes.dal.dataobject.qc.defect.MesQcDefectRecordDO;
+import cn.iocoder.yudao.module.mes.controller.admin.qc.defectrecord.vo.MesQcDefectRecordPageReqVO;
+import cn.iocoder.yudao.module.mes.dal.dataobject.qc.defectrecord.MesQcDefectRecordDO;
 import org.apache.ibatis.annotations.Mapper;
 
 import java.util.List;
@@ -29,13 +29,6 @@ public interface MesQcDefectRecordMapper extends BaseMapperX<MesQcDefectRecordDO
         return selectList(new LambdaQueryWrapperX<MesQcDefectRecordDO>()
                 .eq(MesQcDefectRecordDO::getQcType, qcType)
                 .eq(MesQcDefectRecordDO::getQcId, qcId));
-    }
-
-    default List<MesQcDefectRecordDO> selectListByQcTypeAndQcIdAndLineId(Integer qcType, Long qcId, Long lineId) {
-        return selectList(new LambdaQueryWrapperX<MesQcDefectRecordDO>()
-                .eq(MesQcDefectRecordDO::getQcType, qcType)
-                .eq(MesQcDefectRecordDO::getQcId, qcId)
-                .eq(MesQcDefectRecordDO::getLineId, lineId));
     }
 
     default void deleteByQcTypeAndQcId(Integer qcType, Long qcId) {

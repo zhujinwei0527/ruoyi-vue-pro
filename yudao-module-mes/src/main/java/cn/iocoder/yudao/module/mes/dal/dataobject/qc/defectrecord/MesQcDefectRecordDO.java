@@ -1,4 +1,4 @@
-package cn.iocoder.yudao.module.mes.dal.dataobject.qc.defect;
+package cn.iocoder.yudao.module.mes.dal.dataobject.qc.defectrecord;
 
 import cn.iocoder.yudao.framework.mybatis.core.dataobject.BaseDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.qc.ipqc.MesQcIpqcDO;
