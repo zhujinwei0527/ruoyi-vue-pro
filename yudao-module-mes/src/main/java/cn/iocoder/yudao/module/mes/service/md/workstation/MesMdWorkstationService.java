@@ -6,7 +6,11 @@ import cn.iocoder.yudao.module.mes.controller.admin.md.workstation.vo.MesMdWorks
 import cn.iocoder.yudao.module.mes.dal.dataobject.md.workstation.MesMdWorkstationDO;
 import jakarta.validation.Valid;
 
+import java.util.Collection;
 import java.util.List;
+import java.util.Map;
+
+import static cn.iocoder.yudao.framework.common.util.collection.CollectionUtils.convertMap;
 
 /**
  * MES 工作站 Service 接口
@@ -91,5 +95,23 @@ public interface MesMdWorkstationService {
      * @return 工作站数量
      */
     Long getWorkstationCountByAreaId(Long areaId);
+
+    /**
+     * 获得工作站列表
+     *
+     * @param ids 编号数组
+     * @return 工作站列表
+     */
+    List<MesMdWorkstationDO> getWorkstationList(Collection<Long> ids);
+
+    /**
+     * 获得工作站 Map
+     *
+     * @param ids 编号数组
+     * @return 工作站 Map
+     */
+    default Map<Long, MesMdWorkstationDO> getWorkstationMap(Collection<Long> ids) {
+        return convertMap(getWorkstationList(ids), MesMdWorkstationDO::getId);
+    }
 
 }

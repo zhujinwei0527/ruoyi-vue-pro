@@ -7,6 +7,9 @@ import cn.iocoder.yudao.module.mes.dal.dataobject.pro.process.MesProProcessDO;
 
 import jakarta.validation.Valid;
 import java.util.List;
+import java.util.Map;
+
+import static cn.iocoder.yudao.framework.common.util.collection.CollectionUtils.convertMap;
 
 /**
  * MES 生产工序 Service 接口
@@ -68,5 +71,22 @@ public interface MesProProcessService {
      * @return 生产工序列表
      */
     List<MesProProcessDO> getProcessListByStatus(Integer status);
+
+    /**
+     * 校验工序存在
+     *
+     * @param id 编号
+     */
+    void validateProcessExists(Long id);
+
+    /**
+     * 获得工序 Map
+     *
+     * @param ids 编号列表
+     * @return 工序 Map
+     */
+    default Map<Long, MesProProcessDO> getProcessMap(List<Long> ids) {
+        return convertMap(getProcessList(ids), MesProProcessDO::getId);
+    }
 
 }
