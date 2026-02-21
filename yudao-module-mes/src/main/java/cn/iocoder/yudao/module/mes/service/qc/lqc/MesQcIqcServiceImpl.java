@@ -23,8 +23,9 @@ import org.springframework.validation.annotation.Validated;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
+
+import static cn.iocoder.yudao.framework.common.util.collection.CollectionUtils.convertMap;
 
 import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception;
 import static cn.iocoder.yudao.module.mes.enums.ErrorCodeConstants.*;
@@ -210,6 +211,15 @@ public class MesQcIqcServiceImpl implements MesQcIqcService {
                 .setCriticalQuantity(totalCritical).setMajorQuantity(totalMajor).setMinorQuantity(totalMinor)
                 .setCriticalRate(criticalRate).setMajorRate(majorRate).setMinorRate(minorRate);
         iqcMapper.updateById(updateIqc);
+    }
+
+    @Override
+    public Map<Long, MesQcIqcDO> getIqcMap(Collection<Long> ids) {
+        if (CollUtil.isEmpty(ids)) {
+            return Collections.emptyMap();
+        }
+        List<MesQcIqcDO> list = iqcMapper.selectBatchIds(ids);
+        return convertMap(list, MesQcIqcDO::getId);
     }
 
 }

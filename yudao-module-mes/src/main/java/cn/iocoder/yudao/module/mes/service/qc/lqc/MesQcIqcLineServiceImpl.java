@@ -101,6 +101,11 @@ public class MesQcIqcLineServiceImpl implements MesQcIqcLineService {
     }
 
     @Override
+    public List<MesQcIqcLineDO> getIqcLineListByIqcId(Long iqcId) {
+        return iqcLineMapper.selectListByIqcId(iqcId);
+    }
+
+    @Override
     public void deleteByIqcId(Long iqcId) {
         iqcLineMapper.deleteByIqcId(iqcId);
     }

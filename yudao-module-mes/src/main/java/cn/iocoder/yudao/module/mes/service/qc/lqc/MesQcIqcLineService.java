@@ -56,6 +56,14 @@ public interface MesQcIqcLineService {
     void recalculateLineDefectStats(Long iqcId, List<MesQcDefectRecordDO> records);
 
     /**
+     * 根据来料检验单 ID 获取所有行
+     *
+     * @param iqcId 来料检验单 ID
+     * @return 行列表
+     */
+    List<MesQcIqcLineDO> getIqcLineListByIqcId(Long iqcId);
+
+    /**
      * 根据来料检验单 ID 级联删除所有行
      *
      * @param iqcId 来料检验单 ID

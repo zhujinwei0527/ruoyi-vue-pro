@@ -12,7 +12,7 @@ import lombok.ToString;
 @Data
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
-public class MesQcResultPageReqVO extends PageParam {
+public class MesQcIndicatorResultPageReqVO extends PageParam {
 
     @Schema(description = "关联质检单ID", example = "1")
     private Long qcId;

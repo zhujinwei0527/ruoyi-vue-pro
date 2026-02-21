@@ -7,7 +7,9 @@ import cn.iocoder.yudao.module.mes.dal.dataobject.qc.defectrecord.MesQcDefectRec
 import cn.iocoder.yudao.module.mes.dal.dataobject.qc.lqc.MesQcIqcDO;
 import jakarta.validation.Valid;
 
+import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 /**
  * MES 来料检验单（IQC） Service 接口
@@ -76,5 +78,13 @@ public interface MesQcIqcService {
      * @param records 缺陷记录列表
      */
     void recalculateDefectStats(Long iqcId, List<MesQcDefectRecordDO> records);
+
+    /**
+     * 批量获取来料检验单 Map
+     *
+     * @param ids 编号集合
+     * @return 来料检验单 Map
+     */
+    Map<Long, MesQcIqcDO> getIqcMap(Collection<Long> ids);
 
 }

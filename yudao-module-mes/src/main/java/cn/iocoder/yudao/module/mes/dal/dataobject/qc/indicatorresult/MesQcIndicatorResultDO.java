@@ -2,6 +2,7 @@ package cn.iocoder.yudao.module.mes.dal.dataobject.qc.indicatorresult;
 
 import cn.iocoder.yudao.framework.mybatis.core.dataobject.BaseDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.md.item.MesMdItemDO;
+import cn.iocoder.yudao.module.mes.dal.dataobject.qc.lqc.MesQcIqcDO;
 import cn.iocoder.yudao.module.mes.enums.qc.MesQcTypeEnum;
 import com.baomidou.mybatisplus.annotation.KeySequence;
 import com.baomidou.mybatisplus.annotation.TableId;
@@ -13,15 +14,15 @@ import lombok.*;
  *
  * @author 芋道源码
  */
-@TableName("mes_qc_result")
-@KeySequence("mes_qc_result_seq")
+@TableName("mes_qc_indicator_result")
+@KeySequence("mes_qc_indicator_result_seq")
 @Data
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class MesQcResultDO extends BaseDO {
+public class MesQcIndicatorResultDO extends BaseDO {
 
     /**
      * 编号
@@ -32,9 +33,11 @@ public class MesQcResultDO extends BaseDO {
      * 样品编号
      */
     private String code;
-    // TODO @AI：关联下 linkter；
     /**
      * 关联质检单 ID（IQC/IPQC/OQC/RQC 的 id）
+     *
+     * 关联 IQC {@link MesQcIqcDO#getId()}
+     * TODO @芋艿：IPQC/OQC/RQC 关联补充
      */
     private Long qcId;
     /**
