@@ -84,10 +84,13 @@ public class MesQcTemplateServiceImpl implements MesQcTemplateService {
         templateItemMapper.deleteByTemplateId(id);
     }
 
-    private void validateTemplateExists(Long id) {
-        if (templateMapper.selectById(id) == null) {
+    @Override
+    public MesQcTemplateDO validateTemplateExists(Long id) {
+        MesQcTemplateDO template = templateMapper.selectById(id);
+        if (template == null) {
             throw exception(QC_TEMPLATE_NOT_EXISTS);
         }
+        return template;
     }
 
     private void validateTemplateCodeUnique(Long id, String code) {
@@ -98,6 +101,11 @@ public class MesQcTemplateServiceImpl implements MesQcTemplateService {
         if (ObjUtil.notEqual(template.getId(), id)) {
             throw exception(QC_TEMPLATE_CODE_DUPLICATE);
         }
+    }
+
+    @Override
+    public MesQcTemplateItemDO getTemplateItemByTemplateIdAndItemId(Long templateId, Long itemId) {
+        return templateItemMapper.selectByTemplateIdAndItemId(templateId, itemId);
     }
 
     @Override

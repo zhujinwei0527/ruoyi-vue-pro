@@ -1,6 +1,8 @@
 package cn.iocoder.yudao.module.mes.service.qc.lqc;
 
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.ObjUtil;
+import cn.iocoder.yudao.framework.common.exception.ErrorCode;
 import cn.iocoder.yudao.framework.common.pojo.PageResult;
 import cn.iocoder.yudao.framework.common.util.object.BeanUtils;
 import cn.iocoder.yudao.module.mes.controller.admin.qc.iqc.vo.MesQcIqcPageReqVO;
@@ -9,16 +11,13 @@ import cn.iocoder.yudao.module.mes.dal.dataobject.qc.lqc.MesQcIqcDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.qc.template.MesQcTemplateDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.qc.template.MesQcTemplateItemDO;
 import cn.iocoder.yudao.module.mes.dal.mysql.qc.lqc.MesQcIqcMapper;
-import cn.iocoder.yudao.module.mes.dal.mysql.qc.template.MesQcTemplateItemMapper;
-import cn.iocoder.yudao.module.mes.dal.mysql.qc.template.MesQcTemplateMapper;
 import cn.iocoder.yudao.module.mes.enums.qc.MesQcIqcStatusEnum;
 import cn.iocoder.yudao.module.mes.enums.qc.MesQcTypeEnum;
+import cn.iocoder.yudao.module.mes.service.qc.template.MesQcTemplateService;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
-
-import java.util.Objects;
 
 import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception;
 import static cn.iocoder.yudao.module.mes.enums.ErrorCodeConstants.*;
@@ -35,9 +34,7 @@ public class MesQcIqcServiceImpl implements MesQcIqcService {
     @Resource
     private MesQcIqcMapper iqcMapper;
     @Resource
-    private MesQcTemplateMapper templateMapper;
-    @Resource
-    private MesQcTemplateItemMapper templateItemMapper;
+    private MesQcTemplateService templateService;
 
     @Resource
     private MesQcIqcLineService iqcLineService;
@@ -51,16 +48,13 @@ public class MesQcIqcServiceImpl implements MesQcIqcService {
         validateIqcCodeUnique(null, createReqVO.getCode());
         // 1.2 查找物料关联的 IQC 检测模板
         Long templateId = createReqVO.getTemplateId();
-        // TODO @AI：直接使用 templateService 的 validateTemplateExists() 方法，后续如果有更多模板相关的校验，也可以放在该方法中
-        MesQcTemplateDO template = templateMapper.selectById(templateId);
-        // TODO @AI：CollUtil.contains 这样更合适；
-        if (template == null || template.getTypes() == null || !template.getTypes().contains(MesQcTypeEnum.IQC.getType())) {
+        MesQcTemplateDO template = templateService.validateTemplateExists(templateId);
+        if (!CollUtil.contains(template.getTypes(), MesQcTypeEnum.IQC.getType())) {
             throw exception(QC_IQC_NO_TEMPLATE);
         }
 
         // 3.1 从模板的产品关联中获取检测参数（min_check_quantity、max_unqualified_quantity）
-        // TODO @AI：使用 templateItemService 方法，不要直接使用对方的 mapper；
-        MesQcTemplateItemDO templateItem = templateItemMapper.selectByTemplateIdAndItemId(
+        MesQcTemplateItemDO templateItem = templateService.getTemplateItemByTemplateIdAndItemId(
                 templateId, createReqVO.getItemId());
         if (templateItem != null) {
             if (createReqVO.getMinCheckQuantity() == null) {
@@ -85,11 +79,7 @@ public class MesQcIqcServiceImpl implements MesQcIqcService {
         // 1.1 校验存在
         MesQcIqcDO iqc = validateIqcExists(updateReqVO.getId());
         // 1.2 校验状态为草稿
-        // TODO @AI：notEquals；
-        // TODO @AI：抽成一个方法，这样 completeIqc 和 deleteIqc 也可以复用，避免重复代码；
-        if (!Objects.equals(iqc.getStatus(), MesQcIqcStatusEnum.PREPARE.getType())) {
-            throw exception(QC_IQC_ONLY_PREPARE_CAN_COMPLETE);
-        }
+        validatePrepareStatus(iqc, QC_IQC_ONLY_PREPARE_CAN_COMPLETE);
         // 1.3 校验编号唯一
         validateIqcCodeUnique(updateReqVO.getId(), updateReqVO.getCode());
 
@@ -103,9 +93,7 @@ public class MesQcIqcServiceImpl implements MesQcIqcService {
         // 1.1 校验存在
         MesQcIqcDO iqc = validateIqcExists(id);
         // 1.2 校验状态为草稿
-        if (!Objects.equals(iqc.getStatus(), MesQcIqcStatusEnum.PREPARE.getType())) {
-            throw exception(QC_IQC_ONLY_PREPARE_CAN_COMPLETE);
-        }
+        validatePrepareStatus(iqc, QC_IQC_ONLY_PREPARE_CAN_COMPLETE);
         // 1.3 校验合格品 + 不合格品 = 检测数量
         if (iqc.getCheckQuantity() != null && iqc.getCheckQuantity() > 0) {
             int total = (iqc.getQualifiedQuantity() != null ? iqc.getQualifiedQuantity() : 0)
@@ -129,9 +117,7 @@ public class MesQcIqcServiceImpl implements MesQcIqcService {
         // 1.1 校验存在
         MesQcIqcDO iqc = validateIqcExists(id);
         // 1.2 仅草稿可删
-        if (!Objects.equals(iqc.getStatus(), MesQcIqcStatusEnum.PREPARE.getType())) {
-            throw exception(QC_IQC_ONLY_PREPARE_CAN_DELETE);
-        }
+        validatePrepareStatus(iqc, QC_IQC_ONLY_PREPARE_CAN_DELETE);
 
         // 2.1 删除主表
         iqcMapper.deleteById(id);
@@ -147,6 +133,13 @@ public class MesQcIqcServiceImpl implements MesQcIqcService {
             throw exception(QC_IQC_NOT_EXISTS);
         }
         return iqc;
+    }
+
+    // TODO @AI：就搞个方法，传递 id 进去；抛出不为 草稿状态的异常；然后在 update/delete/complete 方法中调用这个方法（不用专门 errorCode）
+    private void validatePrepareStatus(MesQcIqcDO iqc, ErrorCode errorCode) {
+        if (ObjUtil.notEqual(iqc.getStatus(), MesQcIqcStatusEnum.PREPARE.getType())) {
+            throw exception(errorCode);
+        }
     }
 
     private void validateIqcCodeUnique(Long id, String code) {

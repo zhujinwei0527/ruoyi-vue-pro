@@ -1,5 +1,6 @@
 package cn.iocoder.yudao.module.mes.service.qc.lqc;
 
+import cn.hutool.core.util.ObjUtil;
 import cn.iocoder.yudao.framework.common.pojo.PageResult;
 import cn.iocoder.yudao.framework.common.util.object.BeanUtils;
 import cn.iocoder.yudao.module.mes.controller.admin.qc.iqc.vo.defect.MesQcIqcDefectPageReqVO;
@@ -124,6 +125,7 @@ public class MesQcIqcDefectServiceImpl implements MesQcIqcDefectService {
      *
      * @param iqcId 来料检验单 ID
      */
+    @SuppressWarnings("DuplicatedCode")
     private void recalculateDefectStats(Long iqcId) {
         // 1. 查询所有缺陷记录
         List<MesQcIqcDefectDO> defects = iqcDefectMapper.selectListByIqcId(iqcId);
@@ -131,44 +133,38 @@ public class MesQcIqcDefectServiceImpl implements MesQcIqcDefectService {
         // 2. 更新每行的缺陷数量
         List<MesQcIqcLineDO> lines = iqcLineService.selectListByIqcId(iqcId);
         for (MesQcIqcLineDO line : lines) {
-            int critical = 0;
-            int major = 0;
-            int minor = 0;
+            int critical = 0, major = 0, minor = 0;
             for (MesQcIqcDefectDO defect : defects) {
-                // TODO @AI：notEquals continue；减少括号层级；
-                if (Objects.equals(defect.getLineId(), line.getId())) {
-                    // TODO @AI：defaultIfNull；变量改成 quantity
-                    int qty = defect.getDefectQuantity() != null ? defect.getDefectQuantity() : 1;
-                    if (Objects.equals(defect.getDefectLevel(), MesQcDefectLevelEnum.CRITICAL.getType())) {
-                        critical += qty;
-                    } else if (Objects.equals(defect.getDefectLevel(), MesQcDefectLevelEnum.MAJOR.getType())) {
-                        major += qty;
-                    } else if (Objects.equals(defect.getDefectLevel(), MesQcDefectLevelEnum.MINOR.getType())) {
-                        minor += qty;
-                    }
-                    // TODO @AI：抛出异常；未知的缺陷等级
+                if (ObjUtil.notEqual(defect.getLineId(), line.getId())) {
+                    continue;
+                }
+                int quantity = ObjUtil.defaultIfNull(defect.getDefectQuantity(), 1);
+                if (Objects.equals(defect.getDefectLevel(), MesQcDefectLevelEnum.CRITICAL.getType())) {
+                    critical += quantity;
+                } else if (Objects.equals(defect.getDefectLevel(), MesQcDefectLevelEnum.MAJOR.getType())) {
+                    major += quantity;
+                } else if (Objects.equals(defect.getDefectLevel(), MesQcDefectLevelEnum.MINOR.getType())) {
+                    minor += quantity;
+                } else {
+                    throw exception(QC_IQC_DEFECT_LEVEL_UNKNOWN);
                 }
             }
-            MesQcIqcLineDO updateLine = new MesQcIqcLineDO().setId(line.getId())
-                    .setCriticalQuantity(critical).setMajorQuantity(major).setMinorQuantity(minor);
-            // 直接通过 lineService 内部更新（避免循环依赖，使用 mapper）
-            // TODO @AI：单独搞个 updateLineDefectStats 方法；减少 updateLine 变量的作用域；
-            iqcLineMapper.updateById(updateLine);
+            updateLineDefectStats(line.getId(), critical, major, minor);
         }
 
         // 3.1 汇总主表的缺陷数量
         int totalCritical = 0, totalMajor = 0, totalMinor = 0;
         for (MesQcIqcDefectDO defect : defects) {
-            // TODO @AI：defaultIfNull；变量改成 quantity
-            int qty = defect.getDefectQuantity() != null ? defect.getDefectQuantity() : 1;
+            int quantity = ObjUtil.defaultIfNull(defect.getDefectQuantity(), 1);
             if (Objects.equals(defect.getDefectLevel(), MesQcDefectLevelEnum.CRITICAL.getType())) {
-                totalCritical += qty;
+                totalCritical += quantity;
             } else if (Objects.equals(defect.getDefectLevel(), MesQcDefectLevelEnum.MAJOR.getType())) {
-                totalMajor += qty;
+                totalMajor += quantity;
             } else if (Objects.equals(defect.getDefectLevel(), MesQcDefectLevelEnum.MINOR.getType())) {
-                totalMinor += qty;
+                totalMinor += quantity;
+            } else {
+                throw exception(QC_IQC_DEFECT_LEVEL_UNKNOWN);
             }
-            // TODO @AI：抛出异常；未知的缺陷等级
         }
         // 3.2 计算缺陷率
         MesQcIqcDO iqc = iqcMapper.selectById(iqcId);
@@ -189,6 +185,16 @@ public class MesQcIqcDefectServiceImpl implements MesQcIqcDefectService {
                 .setCriticalQuantity(totalCritical).setMajorQuantity(totalMajor).setMinorQuantity(totalMinor)
                 .setCriticalRate(criticalRate).setMajorRate(majorRate).setMinorRate(minorRate);
         iqcMapper.updateById(updateIqc);
+    }
+
+    // TODO @AI：在 iqclineservice 里，提供一个方法，直接根据行 ID 列表，批量更新缺陷统计数量。然后这里直接调用即可，避免循环更新数据库。
+    /**
+     * 更新检验行的缺陷统计数量
+     */
+    private void updateLineDefectStats(Long lineId, int critical, int major, int minor) {
+        MesQcIqcLineDO updateLine = new MesQcIqcLineDO().setId(lineId)
+                .setCriticalQuantity(critical).setMajorQuantity(major).setMinorQuantity(minor);
+        iqcLineMapper.updateById(updateLine);
     }
 
 }

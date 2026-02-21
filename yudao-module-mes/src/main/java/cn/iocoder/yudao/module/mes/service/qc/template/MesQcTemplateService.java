@@ -90,6 +90,23 @@ public interface MesQcTemplateService {
         return convertMap(getTemplateList(ids), MesQcTemplateDO::getId);
     }
 
+    /**
+     * 校验质检方案存在
+     *
+     * @param id 编号
+     * @return 质检方案
+     */
+    MesQcTemplateDO validateTemplateExists(Long id);
+
+    /**
+     * 根据方案 ID + 产品 ID 获取产品关联
+     *
+     * @param templateId 方案 ID
+     * @param itemId 产品 ID
+     * @return 产品关联（可能为 null）
+     */
+    MesQcTemplateItemDO getTemplateItemByTemplateIdAndItemId(Long templateId, Long itemId);
+
     // ========== 质检方案-检测指标项 ==========
 
     /**
