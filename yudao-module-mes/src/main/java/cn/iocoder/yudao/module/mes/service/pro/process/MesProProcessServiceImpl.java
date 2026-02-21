@@ -1,5 +1,6 @@
 package cn.iocoder.yudao.module.mes.service.pro.process;
 
+import cn.hutool.core.collection.CollUtil;
 import cn.iocoder.yudao.framework.common.pojo.PageResult;
 import cn.iocoder.yudao.framework.common.util.object.BeanUtils;
 import cn.iocoder.yudao.module.mes.controller.admin.pro.process.vo.MesProProcessPageReqVO;
@@ -12,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 
+import java.util.Collections;
 import java.util.List;
 
 import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception;
@@ -37,11 +39,12 @@ public class MesProProcessServiceImpl implements MesProProcessService {
 
     @Override
     public Long createProcess(MesProProcessSaveReqVO createReqVO) {
-        // 1. 校验工序编码唯一性
+        // 1.1 校验工序编码唯一性
         validateProcessCodeUnique(null, createReqVO.getCode());
-        // 2. 校验工序名称唯一性
+        // 1.2 校验工序名称唯一性
         validateProcessNameUnique(null, createReqVO.getName());
-        // 3. 插入工序
+
+        // 2. 插入工序
         MesProProcessDO process = BeanUtils.toBean(createReqVO, MesProProcessDO.class);
         processMapper.insert(process);
         return process.getId();
@@ -49,13 +52,14 @@ public class MesProProcessServiceImpl implements MesProProcessService {
 
     @Override
     public void updateProcess(MesProProcessSaveReqVO updateReqVO) {
-        // 1. 校验存在
+        // 1.1 校验存在
         validateProcessExists(updateReqVO.getId());
-        // 2. 校验工序编码唯一性
+        // 1.2 校验工序编码唯一性
         validateProcessCodeUnique(updateReqVO.getId(), updateReqVO.getCode());
-        // 3. 校验工序名称唯一性
+        // 1.3 校验工序名称唯一性
         validateProcessNameUnique(updateReqVO.getId(), updateReqVO.getName());
-        // 4. 更新工序
+
+        // 2. 更新工序
         MesProProcessDO updateObj = BeanUtils.toBean(updateReqVO, MesProProcessDO.class);
         processMapper.updateById(updateObj);
     }
@@ -63,19 +67,22 @@ public class MesProProcessServiceImpl implements MesProProcessService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void deleteProcess(Long id) {
-        // 1. 校验存在
+        // 1.1 校验存在
         validateProcessExists(id);
-        // 2. 校验是否被工艺路线引用
+        // 1.2 校验是否被工艺路线引用
+        // TODO @AI：CollUtil.isNotEmpty() 可能更好
         if (!routeProcessMapper.selectListByProcessId(id).isEmpty()) {
             throw exception(PRO_PROCESS_USED_BY_ROUTE);
         }
-        // 3. 删除工序
+
+        // 2. 删除工序
         processMapper.deleteById(id);
-        // 4. 级联删除工序内容
+        // 3. 级联删除工序内容
         processContentService.deleteProcessContentByProcessId(id);
     }
 
-    private void validateProcessExists(Long id) {
+    @Override
+    public void validateProcessExists(Long id) {
         if (processMapper.selectById(id) == null) {
             throw exception(PRO_PROCESS_NOT_EXISTS);
         }
@@ -114,7 +121,10 @@ public class MesProProcessServiceImpl implements MesProProcessService {
 
     @Override
     public List<MesProProcessDO> getProcessList(List<Long> ids) {
-        return processMapper.selectBatchIds(ids);
+        if (CollUtil.isEmpty(ids)) {
+            return Collections.emptyList();
+        }
+        return processMapper.selectByIds(ids);
     }
 
     @Override

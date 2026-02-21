@@ -9,6 +9,10 @@ import lombok.Data;
 @Data
 public class MesProAndonRecordSaveReqVO {
 
+    @Schema(description = "安灯配置编号", requiredMode = Schema.RequiredMode.REQUIRED, example = "1")
+    @NotNull(message = "安灯配置不能为空")
+    private Long configId;
+
     @Schema(description = "工作站编号", requiredMode = Schema.RequiredMode.REQUIRED, example = "100")
     @NotNull(message = "工作站不能为空")
     private Long workstationId;
@@ -22,14 +26,6 @@ public class MesProAndonRecordSaveReqVO {
 
     @Schema(description = "工序编号", example = "300")
     private Long processId;
-
-    @Schema(description = "呼叫原因", requiredMode = Schema.RequiredMode.REQUIRED, example = "设备故障")
-    @NotEmpty(message = "呼叫原因不能为空")
-    private String reason;
-
-    @Schema(description = "级别", requiredMode = Schema.RequiredMode.REQUIRED, example = "1")
-    @NotNull(message = "级别不能为空")
-    private Integer level;
 
     @Schema(description = "备注", example = "备注")
     private String remark;

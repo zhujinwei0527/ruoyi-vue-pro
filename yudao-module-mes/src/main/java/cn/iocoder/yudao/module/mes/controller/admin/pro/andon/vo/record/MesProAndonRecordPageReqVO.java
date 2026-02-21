@@ -20,8 +20,11 @@ public class MesProAndonRecordPageReqVO extends PageParam {
     @Schema(description = "工作站编号", example = "100")
     private Long workstationId;
 
-    @Schema(description = "级别", example = "1")
-    private Integer level;
+    @Schema(description = "发起用户编号", example = "1")
+    private Long userId;
+
+    @Schema(description = "处置人编号", example = "1")
+    private Long handlerUserId;
 
     @Schema(description = "处置状态", example = "0")
     private Integer status;

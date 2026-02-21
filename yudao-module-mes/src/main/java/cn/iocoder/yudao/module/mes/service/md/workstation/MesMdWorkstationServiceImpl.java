@@ -108,7 +108,8 @@ public class MesMdWorkstationServiceImpl implements MesMdWorkstationService {
         workstationMapper.deleteById(id);
     }
 
-    private void validateWorkstationExists(Long id) {
+    @Override
+    public void validateWorkstationExists(Long id) {
         if (workstationMapper.selectById(id) == null) {
             throw exception(MD_WORKSTATION_NOT_EXISTS);
         }

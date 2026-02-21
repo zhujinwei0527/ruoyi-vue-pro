@@ -19,6 +19,9 @@ public class MesProAndonRecordRespVO {
     @ExcelProperty("编号")
     private Long id;
 
+    @Schema(description = "安灯配置编号", example = "1")
+    private Long configId;
+
     @Schema(description = "工作站编号", example = "100")
     private Long workstationId;
 

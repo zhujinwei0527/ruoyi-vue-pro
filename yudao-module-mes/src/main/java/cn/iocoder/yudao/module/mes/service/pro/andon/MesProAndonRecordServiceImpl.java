@@ -6,6 +6,7 @@ import cn.iocoder.yudao.framework.common.util.object.BeanUtils;
 import cn.iocoder.yudao.module.mes.controller.admin.pro.andon.vo.record.MesProAndonRecordHandleReqVO;
 import cn.iocoder.yudao.module.mes.controller.admin.pro.andon.vo.record.MesProAndonRecordPageReqVO;
 import cn.iocoder.yudao.module.mes.controller.admin.pro.andon.vo.record.MesProAndonRecordSaveReqVO;
+import cn.iocoder.yudao.module.mes.dal.dataobject.pro.andon.MesProAndonConfigDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.pro.andon.MesProAndonRecordDO;
 import cn.iocoder.yudao.module.mes.dal.mysql.pro.andon.MesProAndonRecordMapper;
 import cn.iocoder.yudao.module.mes.enums.pro.MesProAndonStatusEnum;
@@ -17,8 +18,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 
 import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception;
-import static cn.iocoder.yudao.module.mes.enums.ErrorCodeConstants.PRO_ANDON_RECORD_ALREADY_HANDLED;
-import static cn.iocoder.yudao.module.mes.enums.ErrorCodeConstants.PRO_ANDON_RECORD_NOT_EXISTS;
+import static cn.iocoder.yudao.module.mes.enums.ErrorCodeConstants.*;
 
 /**
  * MES 安灯呼叫记录 Service 实现类
@@ -41,19 +41,24 @@ public class MesProAndonRecordServiceImpl implements MesProAndonRecordService {
     @Resource
     private MesProProcessService processService;
 
+    @Resource
+    private MesProAndonConfigService andonConfigService;
+
     @Override
     public Long createAndonRecord(MesProAndonRecordSaveReqVO createReqVO) {
         // 1. 校验关联数据存在
-        workstationService.getWorkstation(createReqVO.getWorkstationId()); // 工作站必填，直接校验
+        MesProAndonConfigDO config = andonConfigService.validateAndonConfigExists(createReqVO.getConfigId());
+        workstationService.validateWorkstationExists(createReqVO.getWorkstationId());
         if (createReqVO.getWorkOrderId() != null) {
             workOrderService.validateWorkOrderExists(createReqVO.getWorkOrderId());
         }
         if (createReqVO.getProcessId() != null) {
-            processService.getProcess(createReqVO.getProcessId());
+            processService.validateProcessExists(createReqVO.getProcessId());
         }
 
         // 2. 插入
         MesProAndonRecordDO record = BeanUtils.toBean(createReqVO, MesProAndonRecordDO.class);
+        record.setReason(config.getReason()).setLevel(config.getLevel());
         record.setStatus(MesProAndonStatusEnum.ACTIVE.getStatus());
         andonRecordMapper.insert(record);
         return record.getId();

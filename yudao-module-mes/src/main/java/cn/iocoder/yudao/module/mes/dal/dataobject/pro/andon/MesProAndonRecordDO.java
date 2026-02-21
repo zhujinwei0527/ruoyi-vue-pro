@@ -34,6 +34,12 @@ public class MesProAndonRecordDO extends BaseDO {
     @TableId
     private Long id;
     /**
+     * 安灯配置编号
+     *
+     * 关联 {@link MesProAndonConfigDO#getId()}
+     */
+    private Long configId;
+    /**
      * 工作站编号
      *
      * 关联 {@link MesMdWorkstationDO#getId()}

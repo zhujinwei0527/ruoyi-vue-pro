@@ -38,6 +38,14 @@ public interface MesProAndonConfigService {
     void deleteAndonConfig(Long id);
 
     /**
+     * 校验安灯呼叫配置存在
+     *
+     * @param id 编号
+     * @return 安灯呼叫配置
+     */
+    MesProAndonConfigDO validateAndonConfigExists(Long id);
+
+    /**
      * 获得安灯呼叫配置
      *
      * @param id 编号

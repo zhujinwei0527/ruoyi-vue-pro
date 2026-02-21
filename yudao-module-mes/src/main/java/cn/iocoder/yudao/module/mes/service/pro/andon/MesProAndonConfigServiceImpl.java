@@ -57,10 +57,13 @@ public class MesProAndonConfigServiceImpl implements MesProAndonConfigService {
         andonConfigMapper.deleteById(id);
     }
 
-    private void validateAndonConfigExists(Long id) {
-        if (andonConfigMapper.selectById(id) == null) {
+    @Override
+    public MesProAndonConfigDO validateAndonConfigExists(Long id) {
+        MesProAndonConfigDO config = andonConfigMapper.selectById(id);
+        if (config == null) {
             throw exception(PRO_ANDON_CONFIG_NOT_EXISTS);
         }
+        return config;
     }
 
     @Override

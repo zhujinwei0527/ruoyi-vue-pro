@@ -38,6 +38,13 @@ public interface MesMdWorkstationService {
     void deleteWorkstation(Long id);
 
     /**
+     * 校验工作站存在
+     *
+     * @param id 编号
+     */
+    void validateWorkstationExists(Long id);
+
+    /**
      * 获得工作站
      *
      * @param id 编号
