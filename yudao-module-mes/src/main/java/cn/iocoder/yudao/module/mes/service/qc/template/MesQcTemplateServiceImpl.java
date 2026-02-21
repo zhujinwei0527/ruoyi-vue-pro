@@ -109,6 +109,25 @@ public class MesQcTemplateServiceImpl implements MesQcTemplateService {
     }
 
     @Override
+    public MesQcTemplateDO getTemplateByItemIdAndType(Long itemId, Integer qcType) {
+        // 1.1 查出 itemId 关联的所有 templateId
+        List<MesQcTemplateItemDO> templateItems = templateItemMapper.selectListByItemId(itemId);
+        if (CollUtil.isEmpty(templateItems)) {
+            return null;
+        }
+        // 1.2 批量查模板，筛选 types 包含给定 qcType 的第一个
+        // TODO @AI：convertSet；
+        List<Long> templateIds = templateItems.stream()
+                .map(MesQcTemplateItemDO::getTemplateId).distinct().toList();
+        List<MesQcTemplateDO> templates = templateMapper.selectByIds(templateIds);
+
+        // 2. 筛选 types 包含给定 qcType 的第一个 TODO @AI：findOne；
+        return templates.stream()
+                .filter(t -> CollUtil.contains(t.getTypes(), qcType))
+                .findFirst().orElse(null);
+    }
+
+    @Override
     public MesQcTemplateDO getTemplate(Long id) {
         return templateMapper.selectById(id);
     }

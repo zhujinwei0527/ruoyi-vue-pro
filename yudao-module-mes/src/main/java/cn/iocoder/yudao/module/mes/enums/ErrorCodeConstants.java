@@ -252,9 +252,20 @@ public interface ErrorCodeConstants {
     ErrorCode QC_IQC_NO_TEMPLATE = new ErrorCode(1_040_603_005, "当前产品未配置 IQC 检测模板");
     // ========== MES 质量管理-来料检验行（1-040-603-100） ==========
     ErrorCode QC_IQC_LINE_NOT_EXISTS = new ErrorCode(1_040_603_100, "来料检验行不存在");
-    // ========== MES 质量管理-来料检验缺陷（1-040-603-200） ==========
-    ErrorCode QC_IQC_DEFECT_NOT_EXISTS = new ErrorCode(1_040_603_200, "来料检验缺陷记录不存在");
-    ErrorCode QC_IQC_DEFECT_LEVEL_UNKNOWN = new ErrorCode(1_040_603_201, "未知的缺陷等级");
+
+    // ========== MES 质量管理-过程检验 IPQC（1-040-604-000） ==========
+    ErrorCode QC_IPQC_NOT_EXISTS = new ErrorCode(1_040_604_000, "过程检验单不存在");
+    ErrorCode QC_IPQC_CODE_DUPLICATE = new ErrorCode(1_040_604_001, "过程检验单编号已存在");
+    ErrorCode QC_IPQC_NOT_PREPARE = new ErrorCode(1_040_604_002, "只有草稿状态的检验单才可操作");
+    ErrorCode QC_IPQC_QUANTITY_MISMATCH = new ErrorCode(1_040_604_004, "合格品与不合格品数量之和须等于检测数量");
+    ErrorCode QC_IPQC_NO_TEMPLATE = new ErrorCode(1_040_604_005, "当前产品未配置 IPQC 检测模板");
+    // ========== MES 质量管理-过程检验行（1-040-604-100） ==========
+    ErrorCode QC_IPQC_LINE_NOT_EXISTS = new ErrorCode(1_040_604_100, "过程检验行不存在");
+
+    // ========== MES 质量管理-质检缺陷记录（通用）（1-040-605-000） ==========
+    ErrorCode QC_DEFECT_RECORD_NOT_EXISTS = new ErrorCode(1_040_605_000, "缺陷记录不存在");
+    ErrorCode QC_DEFECT_RECORD_LEVEL_UNKNOWN = new ErrorCode(1_040_605_001, "未知的缺陷等级");
+    ErrorCode QC_DEFECT_RECORD_QC_TYPE_UNSUPPORTED = new ErrorCode(1_040_605_002, "不支持的检验类型");
 
     // ========== MES 仓库管理-仓库（1-040-700-000） ==========
     ErrorCode WM_WAREHOUSE_NOT_EXISTS = new ErrorCode(1_040_700_000, "仓库不存在");

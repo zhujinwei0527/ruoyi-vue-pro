@@ -12,6 +12,7 @@ import cn.iocoder.yudao.module.mes.dal.dataobject.qc.template.MesQcTemplateItemD
 import cn.iocoder.yudao.module.mes.dal.mysql.qc.lqc.MesQcIqcMapper;
 import cn.iocoder.yudao.module.mes.enums.qc.MesQcIqcStatusEnum;
 import cn.iocoder.yudao.module.mes.enums.qc.MesQcTypeEnum;
+import cn.iocoder.yudao.module.mes.service.qc.defect.MesQcDefectRecordService;
 import cn.iocoder.yudao.module.mes.service.qc.template.MesQcTemplateService;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
@@ -38,7 +39,7 @@ public class MesQcIqcServiceImpl implements MesQcIqcService {
     @Resource
     private MesQcIqcLineService iqcLineService;
     @Resource
-    private MesQcIqcDefectService iqcDefectService;
+    private MesQcDefectRecordService defectRecordService;
 
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -117,7 +118,7 @@ public class MesQcIqcServiceImpl implements MesQcIqcService {
         // 2.2 级联删除行
         iqcLineService.deleteByIqcId(id);
         // 2.3 级联删除缺陷记录
-        iqcDefectService.deleteByIqcId(id);
+        defectRecordService.deleteByQcTypeAndQcId(MesQcTypeEnum.IQC.getType(), id);
     }
 
     /**

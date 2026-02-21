@@ -107,6 +107,17 @@ public interface MesQcTemplateService {
      */
     MesQcTemplateItemDO getTemplateItemByTemplateIdAndItemId(Long templateId, Long itemId);
 
+    /**
+     * 根据产品物料 ID 和 QC 类型查找检验模板
+     *
+     * 查找逻辑：在 template_item 中找到匹配 itemId 的模板，再校验该模板的 types 包含给定的 qcType
+     *
+     * @param itemId 产品物料 ID
+     * @param qcType 检测种类（枚举 {@link cn.iocoder.yudao.module.mes.enums.qc.MesQcTypeEnum}）
+     * @return 匹配的检验模板（可能为 null）
+     */
+    MesQcTemplateDO getTemplateByItemIdAndType(Long itemId, Integer qcType);
+
     // ========== 质检方案-检测指标项 ==========
 
     /**
