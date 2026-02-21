@@ -28,17 +28,17 @@ public class MesQcDefectRecordController {
     @Resource
     private MesQcDefectRecordService defectRecordService;
 
-    // TODO @AI：使用 mes:qc-record:create 权限标识先；不要搞太复杂；当然，也写个 todo @芋艿：说下这个情况
+    // TODO @芋艿：说下 mes:qc-record 这个权限标识的情况
     @PostMapping("/create")
     @Operation(summary = "创建质检缺陷记录")
-    @PreAuthorize("@ss.hasPermission('mes:qc-defect-record:create')")
+    @PreAuthorize("@ss.hasPermission('mes:qc-record:create')")
     public CommonResult<Long> createDefectRecord(@Valid @RequestBody MesQcDefectRecordSaveReqVO createReqVO) {
         return success(defectRecordService.createDefectRecord(createReqVO));
     }
 
     @PutMapping("/update")
     @Operation(summary = "更新质检缺陷记录")
-    @PreAuthorize("@ss.hasPermission('mes:qc-defect-record:update')")
+    @PreAuthorize("@ss.hasPermission('mes:qc-record:update')")
     public CommonResult<Boolean> updateDefectRecord(@Valid @RequestBody MesQcDefectRecordSaveReqVO updateReqVO) {
         defectRecordService.updateDefectRecord(updateReqVO);
         return success(true);
@@ -47,7 +47,7 @@ public class MesQcDefectRecordController {
     @DeleteMapping("/delete")
     @Operation(summary = "删除质检缺陷记录")
     @Parameter(name = "id", description = "编号", required = true)
-    @PreAuthorize("@ss.hasPermission('mes:qc-defect-record:update')")
+    @PreAuthorize("@ss.hasPermission('mes:qc-record:update')")
     public CommonResult<Boolean> deleteDefectRecord(@RequestParam("id") Long id) {
         defectRecordService.deleteDefectRecord(id);
         return success(true);
@@ -55,7 +55,7 @@ public class MesQcDefectRecordController {
 
     @GetMapping("/page")
     @Operation(summary = "获得质检缺陷记录分页")
-    @PreAuthorize("@ss.hasPermission('mes:qc-defect-record:query')")
+    @PreAuthorize("@ss.hasPermission('mes:qc-record:query')")
     public CommonResult<PageResult<MesQcDefectRecordRespVO>> getDefectRecordPage(@Valid MesQcDefectRecordPageReqVO pageReqVO) {
         PageResult<MesQcDefectRecordDO> pageResult = defectRecordService.getDefectRecordPage(pageReqVO);
         return success(BeanUtils.toBean(pageResult, MesQcDefectRecordRespVO.class));

@@ -6,10 +6,12 @@ import cn.iocoder.yudao.framework.common.pojo.PageResult;
 import cn.iocoder.yudao.framework.common.util.object.BeanUtils;
 import cn.iocoder.yudao.module.mes.controller.admin.qc.iqc.vo.MesQcIqcPageReqVO;
 import cn.iocoder.yudao.module.mes.controller.admin.qc.iqc.vo.MesQcIqcSaveReqVO;
+import cn.iocoder.yudao.module.mes.dal.dataobject.qc.defect.MesQcDefectRecordDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.qc.lqc.MesQcIqcDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.qc.template.MesQcTemplateDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.qc.template.MesQcTemplateItemDO;
 import cn.iocoder.yudao.module.mes.dal.mysql.qc.lqc.MesQcIqcMapper;
+import cn.iocoder.yudao.module.mes.enums.qc.MesQcDefectLevelEnum;
 import cn.iocoder.yudao.module.mes.enums.qc.MesQcIqcStatusEnum;
 import cn.iocoder.yudao.module.mes.enums.qc.MesQcTypeEnum;
 import cn.iocoder.yudao.module.mes.service.qc.defect.MesQcDefectRecordService;
@@ -18,6 +20,11 @@ import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
+
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.util.List;
+import java.util.Objects;
 
 import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception;
 import static cn.iocoder.yudao.module.mes.enums.ErrorCodeConstants.*;
@@ -121,6 +128,15 @@ public class MesQcIqcServiceImpl implements MesQcIqcService {
         defectRecordService.deleteByQcTypeAndQcId(MesQcTypeEnum.IQC.getType(), id);
     }
 
+    @Override
+    public MesQcIqcDO validateIqcExists(Long id) {
+        MesQcIqcDO iqc = iqcMapper.selectById(id);
+        if (iqc == null) {
+            throw exception(QC_IQC_NOT_EXISTS);
+        }
+        return iqc;
+    }
+
     /**
      * 校验来料检验单存在且为草稿状态
      *
@@ -128,10 +144,7 @@ public class MesQcIqcServiceImpl implements MesQcIqcService {
      * @return 来料检验单
      */
     private MesQcIqcDO validateIqcStatusPrepare(Long id) {
-        MesQcIqcDO iqc = iqcMapper.selectById(id);
-        if (iqc == null) {
-            throw exception(QC_IQC_NOT_EXISTS);
-        }
+        MesQcIqcDO iqc = validateIqcExists(id);
         if (ObjUtil.notEqual(iqc.getStatus(), MesQcIqcStatusEnum.PREPARE.getType())) {
             throw exception(QC_IQC_NOT_PREPARE);
         }
@@ -156,6 +169,47 @@ public class MesQcIqcServiceImpl implements MesQcIqcService {
     @Override
     public PageResult<MesQcIqcDO> getIqcPage(MesQcIqcPageReqVO pageReqVO) {
         return iqcMapper.selectPage(pageReqVO);
+    }
+
+    @Override
+    public void recalculateDefectStats(Long iqcId, List<MesQcDefectRecordDO> records) {
+        // 1. 行级缺陷统计
+        iqcLineService.recalculateLineDefectStats(iqcId, records);
+
+        // 2.1 汇总主表的缺陷数量
+        int totalCritical = 0, totalMajor = 0, totalMinor = 0;
+        for (MesQcDefectRecordDO record : records) {
+            int quantity = ObjUtil.defaultIfNull(record.getQuantity(), 1);
+            if (Objects.equals(record.getLevel(), MesQcDefectLevelEnum.CRITICAL.getType())) {
+                totalCritical += quantity;
+            } else if (Objects.equals(record.getLevel(), MesQcDefectLevelEnum.MAJOR.getType())) {
+                totalMajor += quantity;
+            } else if (Objects.equals(record.getLevel(), MesQcDefectLevelEnum.MINOR.getType())) {
+                totalMinor += quantity;
+            } else {
+                throw exception(QC_DEFECT_RECORD_LEVEL_UNKNOWN);
+            }
+        }
+        // 2.2 计算缺陷率
+        MesQcIqcDO iqc = validateIqcExists(iqcId);
+        BigDecimal criticalRate = BigDecimal.ZERO;
+        BigDecimal majorRate = BigDecimal.ZERO;
+        BigDecimal minorRate = BigDecimal.ZERO;
+        if (iqc.getCheckQuantity() != null && iqc.getCheckQuantity() > 0) {
+            BigDecimal checkQty = BigDecimal.valueOf(iqc.getCheckQuantity());
+            criticalRate = BigDecimal.valueOf(totalCritical).multiply(BigDecimal.valueOf(100))
+                    .divide(checkQty, 2, RoundingMode.HALF_UP);
+            majorRate = BigDecimal.valueOf(totalMajor).multiply(BigDecimal.valueOf(100))
+                    .divide(checkQty, 2, RoundingMode.HALF_UP);
+            minorRate = BigDecimal.valueOf(totalMinor).multiply(BigDecimal.valueOf(100))
+                    .divide(checkQty, 2, RoundingMode.HALF_UP);
+        }
+
+        // 3. 更新主表
+        MesQcIqcDO updateIqc = new MesQcIqcDO().setId(iqcId)
+                .setCriticalQuantity(totalCritical).setMajorQuantity(totalMajor).setMinorQuantity(totalMinor)
+                .setCriticalRate(criticalRate).setMajorRate(majorRate).setMinorRate(minorRate);
+        iqcMapper.updateById(updateIqc);
     }
 
 }

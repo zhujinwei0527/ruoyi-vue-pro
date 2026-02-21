@@ -25,8 +25,11 @@ import org.springframework.validation.annotation.Validated;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception;
+import static cn.iocoder.yudao.framework.common.util.collection.CollectionUtils.convertSet;
+import static cn.iocoder.yudao.framework.common.util.collection.CollectionUtils.findFirst;
 import static cn.iocoder.yudao.module.mes.enums.ErrorCodeConstants.*;
 
 /**
@@ -116,15 +119,11 @@ public class MesQcTemplateServiceImpl implements MesQcTemplateService {
             return null;
         }
         // 1.2 批量查模板，筛选 types 包含给定 qcType 的第一个
-        // TODO @AI：convertSet；
-        List<Long> templateIds = templateItems.stream()
-                .map(MesQcTemplateItemDO::getTemplateId).distinct().toList();
-        List<MesQcTemplateDO> templates = templateMapper.selectByIds(templateIds);
+        List<MesQcTemplateDO> templates = templateMapper.selectByIds(
+                convertSet(templateItems, MesQcTemplateItemDO::getTemplateId));
 
-        // 2. 筛选 types 包含给定 qcType 的第一个 TODO @AI：findOne；
-        return templates.stream()
-                .filter(t -> CollUtil.contains(t.getTypes(), qcType))
-                .findFirst().orElse(null);
+        // 2. 筛选 types 包含给定 qcType 的第一个
+        return findFirst(templates, template -> CollUtil.contains(template.getTypes(), qcType));
     }
 
     @Override

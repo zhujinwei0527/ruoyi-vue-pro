@@ -3,8 +3,11 @@ package cn.iocoder.yudao.module.mes.service.qc.lqc;
 import cn.iocoder.yudao.framework.common.pojo.PageResult;
 import cn.iocoder.yudao.module.mes.controller.admin.qc.iqc.vo.MesQcIqcPageReqVO;
 import cn.iocoder.yudao.module.mes.controller.admin.qc.iqc.vo.MesQcIqcSaveReqVO;
+import cn.iocoder.yudao.module.mes.dal.dataobject.qc.defect.MesQcDefectRecordDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.qc.lqc.MesQcIqcDO;
 import jakarta.validation.Valid;
+
+import java.util.List;
 
 /**
  * MES 来料检验单（IQC） Service 接口
@@ -43,6 +46,14 @@ public interface MesQcIqcService {
     void deleteIqc(Long id);
 
     /**
+     * 校验来料检验单存在
+     *
+     * @param id 编号
+     * @return 来料检验单
+     */
+    MesQcIqcDO validateIqcExists(Long id);
+
+    /**
      * 获得来料检验单
      *
      * @param id 编号
@@ -57,5 +68,13 @@ public interface MesQcIqcService {
      * @return 来料检验单分页
      */
     PageResult<MesQcIqcDO> getIqcPage(MesQcIqcPageReqVO pageReqVO);
+
+    /**
+     * 根据缺陷记录重新计算主表的缺陷统计（含行级下沉）
+     *
+     * @param iqcId   来料检验单 ID
+     * @param records 缺陷记录列表
+     */
+    void recalculateDefectStats(Long iqcId, List<MesQcDefectRecordDO> records);
 
 }
