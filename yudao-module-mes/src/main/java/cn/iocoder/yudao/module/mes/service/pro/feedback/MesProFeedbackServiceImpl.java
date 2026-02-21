@@ -1,6 +1,5 @@
 package cn.iocoder.yudao.module.mes.service.pro.feedback;
 
-import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.BooleanUtil;
 import cn.hutool.core.util.ObjUtil;
 import cn.iocoder.yudao.framework.common.pojo.PageResult;
@@ -20,7 +19,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception;
 import static cn.iocoder.yudao.framework.security.core.util.SecurityFrameworkUtils.getLoginUserId;
@@ -182,10 +180,7 @@ public class MesProFeedbackServiceImpl implements MesProFeedbackService {
      * @return 是否需要检验
      */
     private boolean getCheckFlag(Long routeId, Long processId) {
-        // TODO @AI：是不是 routeProcessService 提供一个查询 routeeProcess 的方法更好？目前只能查询 routeProcesses 全列表，效率较低
-        List<MesProRouteProcessDO> routeProcesses = routeProcessService.getRouteProcessListByRouteId(routeId);
-        MesProRouteProcessDO routeProcess = CollUtil.findOne(routeProcesses,
-                rp -> ObjUtil.equal(rp.getProcessId(), processId));
+        MesProRouteProcessDO routeProcess = routeProcessService.getRouteProcessByRouteIdAndProcessId(routeId, processId);
         return routeProcess != null && Boolean.TRUE.equals(routeProcess.getCheckFlag());
     }
 

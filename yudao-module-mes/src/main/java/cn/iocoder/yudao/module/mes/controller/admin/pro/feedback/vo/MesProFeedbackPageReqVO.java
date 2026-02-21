@@ -33,4 +33,13 @@ public class MesProFeedbackPageReqVO extends PageParam {
     @DateTimeFormat(pattern = FORMAT_YEAR_MONTH_DAY_HOUR_MINUTE_SECOND)
     private LocalDateTime[] feedbackTime;
 
+    @Schema(description = "产品物料编号", example = "100")
+    private Long itemId;
+
+    @Schema(description = "报工人编号", example = "1")
+    private Long feedbackUserId;
+
+    @Schema(description = "记录人编号（创建人）", example = "1")
+    private String creator;
+
 }

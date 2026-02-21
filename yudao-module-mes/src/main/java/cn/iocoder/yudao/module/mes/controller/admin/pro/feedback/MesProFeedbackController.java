@@ -195,15 +195,14 @@ public class MesProFeedbackController {
         // 1.5 工序
         Map<Long, MesProProcessDO> processMap = processService.getProcessMap(
                 new ArrayList<>(convertSet(list, MesProFeedbackDO::getProcessId)));
-        // 1.6 工序的 checkFlag：批量查询后按 routeId 分组，再按 processId 建内层 Map
+        // 1.6 工序的 checkFlag：批量查询后直接构建 routeId -> processId -> checkFlag 的双层 Map
         List<MesProRouteProcessDO> allRouteProcesses = routeProcessService.getRouteProcessListByRouteIds(routeIds);
-        // TODO @AI：直接构建出 checkFlagMap，避免构建 routeProcessMultiMap 的中间结果，减少内存占用；另外，变量名字在想下；
-        Map<Long, List<MesProRouteProcessDO>> routeProcessMultiMap = convertMultiMap(allRouteProcesses,
-                MesProRouteProcessDO::getRouteId);
-        Map<Long, Map<Long, Boolean>> checkFlagMap = new HashMap<>();
-        routeProcessMultiMap.forEach((routeId, rpList) ->
-                checkFlagMap.put(routeId, convertMap(rpList, MesProRouteProcessDO::getProcessId,
-                        rp -> Boolean.TRUE.equals(rp.getCheckFlag()))));
+        Map<Long, Map<Long, Boolean>> routeProcessCheckFlagMap = new HashMap<>();
+        for (MesProRouteProcessDO rp : allRouteProcesses) {
+            routeProcessCheckFlagMap
+                    .computeIfAbsent(rp.getRouteId(), k -> new HashMap<>())
+                    .put(rp.getProcessId(), Boolean.TRUE.equals(rp.getCheckFlag()));
+        }
         // 1.7 报工人/审核人
         Map<Long, AdminUserRespDTO> userMap = adminUserApi.getUserMap(
                 convertSetByFlatMap(list, feedback ->
@@ -221,7 +220,7 @@ public class MesProFeedbackController {
             findAndThen(processMap, vo.getProcessId(), process ->
                     vo.setProcessCode(process.getCode()).setProcessName(process.getName()));
             // checkFlag
-            findAndThen(checkFlagMap, vo.getRouteId(), processCheckMap ->
+            findAndThen(routeProcessCheckFlagMap, vo.getRouteId(), processCheckMap ->
                     findAndThen(processCheckMap, vo.getProcessId(), vo::setCheckFlag));
             // 工单
             findAndThen(workOrderMap, vo.getWorkOrderId(), wo ->

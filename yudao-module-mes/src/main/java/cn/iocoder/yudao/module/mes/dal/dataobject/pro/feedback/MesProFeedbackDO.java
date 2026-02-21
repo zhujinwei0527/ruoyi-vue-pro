@@ -47,9 +47,10 @@ public class MesProFeedbackDO extends BaseDO {
      * 枚举 {@link MesProFeedbackTypeEnum}
      */
     private Integer type;
-    // TODO @AI：这里需要字典么？
     /**
      * 报工途径
+     *
+     * 字典类型 mes_pro_feedback_channel
      */
     private String channel;
     /**
@@ -137,13 +138,16 @@ public class MesProFeedbackDO extends BaseDO {
      * 其他废品数量
      */
     private BigDecimal otherScrapQuantity;
-    // TODO @AI：feedbackUserId、approveUserId 关联字段
     /**
      * 报工用户编号
+     *
+     * 关联 AdminUserDO#getId()
      */
     private Long feedbackUserId;
     /**
      * 审核用户编号
+     *
+     * 关联 AdminUserDO#getId()
      */
     private Long approveUserId;
     /**

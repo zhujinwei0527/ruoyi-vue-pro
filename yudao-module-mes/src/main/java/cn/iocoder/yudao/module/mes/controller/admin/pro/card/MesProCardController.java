@@ -124,15 +124,17 @@ public class MesProCardController {
         Map<Long, MesMdItemDO> itemMap = itemService.getItemMap(
                 convertSet(list, MesProCardDO::getItemId));
         Map<Long, MesMdUnitMeasureDO> unitMeasureMap = unitMeasureService.getUnitMeasureMap(
-                convertSet(list, MesProCardDO::getUnitMeasureId));
+                convertSet(itemMap.values(), MesMdItemDO::getUnitMeasureId));
         // 2. 拼接 VO
         return BeanUtils.toBean(list, MesProCardRespVO.class, vo -> {
             MapUtils.findAndThen(workOrderMap, vo.getWorkOrderId(), workOrder ->
                     vo.setWorkOrderCode(workOrder.getCode()).setWorkOrderName(workOrder.getName()));
-            MapUtils.findAndThen(itemMap, vo.getItemId(), item ->
-                    vo.setItemCode(item.getCode()).setItemName(item.getName()));
-            MapUtils.findAndThen(unitMeasureMap, vo.getUnitMeasureId(),
-                    unitMeasure -> vo.setUnitMeasureName(unitMeasure.getName()));
+            MapUtils.findAndThen(itemMap, vo.getItemId(), item -> {
+                vo.setItemCode(item.getCode()).setItemName(item.getName())
+                  .setSpecification(item.getSpecification()).setUnitMeasureId(item.getUnitMeasureId());
+                MapUtils.findAndThen(unitMeasureMap, item.getUnitMeasureId(),
+                        unitMeasure -> vo.setUnitMeasureName(unitMeasure.getName()));
+            });
         });
     }
 

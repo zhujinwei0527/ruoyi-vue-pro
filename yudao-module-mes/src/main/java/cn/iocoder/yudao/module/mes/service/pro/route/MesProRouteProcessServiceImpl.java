@@ -179,6 +179,11 @@ public class MesProRouteProcessServiceImpl implements MesProRouteProcessService 
     }
 
     @Override
+    public MesProRouteProcessDO getRouteProcessByRouteIdAndProcessId(Long routeId, Long processId) {
+        return routeProcessMapper.selectByRouteIdAndProcessId(routeId, processId);
+    }
+
+    @Override
     public void deleteRouteProcessByRouteId(Long routeId) {
         routeProcessMapper.deleteByRouteId(routeId);
     }

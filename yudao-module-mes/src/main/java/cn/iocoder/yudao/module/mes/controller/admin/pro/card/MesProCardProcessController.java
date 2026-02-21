@@ -103,18 +103,8 @@ public class MesProCardProcessController {
         Map<Long, MesProProcessDO> processMap = CollectionUtils.convertMap(
                 processService.getProcessList(new ArrayList<>(convertSet(list, MesProCardProcessDO::getProcessId))),
                 MesProProcessDO::getId);
-        // 工位：逐个获取（MesMdWorkstationService 暂无批量方法，单页数据量小可接受）
-        // TODO @AI：还是批量，getWorkstationMap
-        Set<Long> workstationIds = convertSet(list, MesProCardProcessDO::getWorkstationId);
-        Map<Long, MesMdWorkstationDO> workstationMap = new HashMap<>();
-        workstationIds.forEach(wsId -> {
-            if (wsId != null) {
-                MesMdWorkstationDO ws = workstationService.getWorkstation(wsId);
-                if (ws != null) {
-                    workstationMap.put(wsId, ws);
-                }
-            }
-        });
+        Map<Long, MesMdWorkstationDO> workstationMap = workstationService.getWorkstationMap(
+                convertSet(list, MesProCardProcessDO::getWorkstationId));
         Map<Long, AdminUserRespDTO> userMap = adminUserApi.getUserMap(
                 convertSet(list, MesProCardProcessDO::getUserId));
         // 2. 拼接 VO

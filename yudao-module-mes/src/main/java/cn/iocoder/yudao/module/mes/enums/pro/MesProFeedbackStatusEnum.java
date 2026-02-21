@@ -6,9 +6,15 @@ import lombok.Getter;
 
 import java.util.Arrays;
 
-// TODO @AI：注释下，状态的流转，不要太复杂；
 /**
  * MES 生产报工状态枚举
+ *
+ * 状态流转：
+ * 1. 创建 → 草稿（PREPARE）
+ * 2. 草稿 → 提交 → 审批中（APPROVING）
+ * 3. 审批中 → 驳回 → 草稿（PREPARE）
+ * 4. 审批中 → 执行 → 待检验（UNCHECK）或已完成（FINISHED），取决于工序 checkFlag
+ * 5. 草稿/审批中 → 取消 → 已取消（CANCELED）
  *
  * @author 芋道源码
  */
