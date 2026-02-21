@@ -34,10 +34,12 @@ import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
 import java.util.*;
+import java.util.stream.Stream;
 
 import static cn.iocoder.yudao.framework.apilog.core.enums.OperateTypeEnum.EXPORT;
 import static cn.iocoder.yudao.framework.common.pojo.CommonResult.success;
 import static cn.iocoder.yudao.framework.common.util.collection.CollectionUtils.convertSet;
+import static cn.iocoder.yudao.framework.common.util.collection.CollectionUtils.convertSetByFlatMap;
 
 @Tag(name = "管理后台 - MES 安灯呼叫记录")
 @RestController
@@ -129,13 +131,8 @@ public class MesProAndonRecordController {
                 convertSet(list, MesProAndonRecordDO::getWorkOrderId));
         Map<Long, MesProProcessDO> processMap = processService.getProcessMap(
                 new ArrayList<>(convertSet(list, MesProAndonRecordDO::getProcessId)));
-        // 收集所有用户 ID（发起人 + 处置人）
-        // TODO @AI：可以使用 collutils 里，convert 去收集多个字段的 id；
-        Set<Long> userIds = new HashSet<>();
-        userIds.addAll(convertSet(list, MesProAndonRecordDO::getUserId));
-        userIds.addAll(convertSet(list, MesProAndonRecordDO::getHandlerUserId));
-        userIds.remove(null);
-        Map<Long, AdminUserRespDTO> userMap = adminUserApi.getUserMap(userIds);
+        Map<Long, AdminUserRespDTO> userMap = adminUserApi.getUserMap(convertSetByFlatMap(list,
+                record -> Stream.of(record.getUserId(), record.getHandlerUserId())));
         // 2. 拼接 VO
         return BeanUtils.toBean(list, MesProAndonRecordRespVO.class, vo -> {
             MapUtils.findAndThen(workstationMap, vo.getWorkstationId(), ws ->

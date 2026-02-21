@@ -6,6 +6,7 @@ import lombok.Getter;
 
 import java.util.Arrays;
 
+// TODO @AI：注释下，状态的流转，不要太复杂；
 /**
  * MES 生产报工状态枚举
  *
