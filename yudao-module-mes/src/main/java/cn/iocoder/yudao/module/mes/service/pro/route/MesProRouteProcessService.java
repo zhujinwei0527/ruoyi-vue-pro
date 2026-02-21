@@ -4,6 +4,7 @@ import cn.iocoder.yudao.module.mes.controller.admin.pro.route.vo.process.MesProR
 import cn.iocoder.yudao.module.mes.dal.dataobject.pro.route.MesProRouteProcessDO;
 import jakarta.validation.Valid;
 
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -37,6 +38,14 @@ public interface MesProRouteProcessService {
      * 按工艺路线获得工序列表
      */
     List<MesProRouteProcessDO> getRouteProcessListByRouteId(Long routeId);
+
+    /**
+     * 按多个工艺路线获得工序列表
+     *
+     * @param routeIds 工艺路线编号数组
+     * @return 工序列表
+     */
+    List<MesProRouteProcessDO> getRouteProcessListByRouteIds(Collection<Long> routeIds);
 
     /**
      * 按工艺路线删除工序（级联删除使用）

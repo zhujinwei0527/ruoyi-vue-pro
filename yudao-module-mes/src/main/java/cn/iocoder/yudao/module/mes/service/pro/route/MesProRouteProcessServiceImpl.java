@@ -12,6 +12,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
@@ -166,6 +168,14 @@ public class MesProRouteProcessServiceImpl implements MesProRouteProcessService 
     @Override
     public List<MesProRouteProcessDO> getRouteProcessListByRouteId(Long routeId) {
         return routeProcessMapper.selectListByRouteId(routeId);
+    }
+
+    @Override
+    public List<MesProRouteProcessDO> getRouteProcessListByRouteIds(Collection<Long> routeIds) {
+        if (CollUtil.isEmpty(routeIds)) {
+            return Collections.emptyList();
+        }
+        return routeProcessMapper.selectListByRouteIds(routeIds);
     }
 
     @Override

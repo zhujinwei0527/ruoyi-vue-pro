@@ -5,7 +5,6 @@ import cn.iocoder.yudao.framework.apilog.core.annotation.ApiAccessLog;
 import cn.iocoder.yudao.framework.common.pojo.CommonResult;
 import cn.iocoder.yudao.framework.common.pojo.PageParam;
 import cn.iocoder.yudao.framework.common.pojo.PageResult;
-import cn.iocoder.yudao.framework.common.util.collection.MapUtils;
 import cn.iocoder.yudao.framework.common.util.object.BeanUtils;
 import cn.iocoder.yudao.framework.excel.core.util.ExcelUtils;
 import cn.iocoder.yudao.module.mes.controller.admin.pro.feedback.vo.MesProFeedbackPageReqVO;
@@ -41,12 +40,11 @@ import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
 import java.util.*;
-import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static cn.iocoder.yudao.framework.apilog.core.enums.OperateTypeEnum.EXPORT;
 import static cn.iocoder.yudao.framework.common.pojo.CommonResult.success;
-import static cn.iocoder.yudao.framework.common.util.collection.CollectionUtils.convertSet;
-import static cn.iocoder.yudao.framework.common.util.collection.CollectionUtils.convertSetByFlatMap;
+import static cn.iocoder.yudao.framework.common.util.collection.CollectionUtils.*;
 import static cn.iocoder.yudao.framework.common.util.collection.MapUtils.findAndThen;
 
 @Tag(name = "管理后台 - MES 生产报工")
@@ -188,49 +186,28 @@ public class MesProFeedbackController {
         // 1.2 工单
         Map<Long, MesProWorkOrderDO> workOrderMap = workOrderService.getWorkOrderMap(
                 convertSet(list, MesProFeedbackDO::getWorkOrderId));
-        // 1.3 工作站（逐个查询，因为没有批量方法）
-        // TODO @AI：getWorkstationMap 必须有办法
-        Set<Long> workstationIds = convertSet(list, MesProFeedbackDO::getWorkstationId);
-        Map<Long, MesMdWorkstationDO> workstationMap = new HashMap<>();
-        workstationIds.forEach(wsId -> {
-            MesMdWorkstationDO ws = workstationService.getWorkstation(wsId);
-            if (ws != null) {
-                workstationMap.put(wsId, ws);
-            }
-        });
-        // 1.4 工艺路线（逐个查询）
-        // TODO @AI：getRouteMap 必须有办法；里面调用 getRouteList；如果不行，就加个；
+        // 1.3 工作站
+        Map<Long, MesMdWorkstationDO> workstationMap = workstationService.getWorkstationMap(
+                convertSet(list, MesProFeedbackDO::getWorkstationId));
+        // 1.4 工艺路线
         Set<Long> routeIds = convertSet(list, MesProFeedbackDO::getRouteId);
-        Map<Long, MesProRouteDO> routeMap = new HashMap<>();
-        routeIds.forEach(rId -> {
-            MesProRouteDO route = routeService.getRoute(rId);
-            if (route != null) {
-                routeMap.put(rId, route);
-            }
-        });
+        Map<Long, MesProRouteDO> routeMap = routeService.getRouteMap(routeIds);
         // 1.5 工序
-        // TODO @AI：getProcessMap 必须有办法；里面调用 getProcessList；如果不行，就加个；
-        Set<Long> processIds = convertSet(list, MesProFeedbackDO::getProcessId);
-        List<MesProProcessDO> processList = processService.getProcessList(new ArrayList<>(processIds));
-        Map<Long, MesProProcessDO> processMap = processList.stream()
-                .collect(Collectors.toMap(MesProProcessDO::getId, p -> p, (a, b) -> a));
-        // 1.6 工序的 checkFlag（按路线维度缓存）
-        // TODO @AI：collutils 里面有个 convertMultiMap 的方法；
-        Map<Long, List<MesProRouteProcessDO>> routeProcessMap = new HashMap<>();
-        routeIds.forEach(rId -> routeProcessMap.put(rId, routeProcessService.getRouteProcessListByRouteId(rId)));
+        Map<Long, MesProProcessDO> processMap = processService.getProcessMap(
+                new ArrayList<>(convertSet(list, MesProFeedbackDO::getProcessId)));
+        // 1.6 工序的 checkFlag：批量查询后按 routeId 分组，再按 processId 建内层 Map
+        List<MesProRouteProcessDO> allRouteProcesses = routeProcessService.getRouteProcessListByRouteIds(routeIds);
+        // TODO @AI：直接构建出 checkFlagMap，避免构建 routeProcessMultiMap 的中间结果，减少内存占用；另外，变量名字在想下；
+        Map<Long, List<MesProRouteProcessDO>> routeProcessMultiMap = convertMultiMap(allRouteProcesses,
+                MesProRouteProcessDO::getRouteId);
+        Map<Long, Map<Long, Boolean>> checkFlagMap = new HashMap<>();
+        routeProcessMultiMap.forEach((routeId, rpList) ->
+                checkFlagMap.put(routeId, convertMap(rpList, MesProRouteProcessDO::getProcessId,
+                        rp -> Boolean.TRUE.equals(rp.getCheckFlag()))));
         // 1.7 报工人/审核人
         Map<Long, AdminUserRespDTO> userMap = adminUserApi.getUserMap(
-                convertSetByFlatMap(list, feedback -> {
-                    // TODO @AI：必须要判空，里面已经处理了；
-                    Set<Long> userIds = new HashSet<>();
-                    if (feedback.getFeedbackUserId() != null) {
-                        userIds.add(feedback.getFeedbackUserId());
-                    }
-                    if (feedback.getApproveUserId() != null) {
-                        userIds.add(feedback.getApproveUserId());
-                    }
-                    return userIds.stream();
-                }));
+                convertSetByFlatMap(list, feedback ->
+                        Stream.of(feedback.getFeedbackUserId(), feedback.getApproveUserId())));
 
         // 2. 拼接 VO
         return BeanUtils.toBean(list, MesProFeedbackRespVO.class, vo -> {
@@ -244,14 +221,8 @@ public class MesProFeedbackController {
             findAndThen(processMap, vo.getProcessId(), process ->
                     vo.setProcessCode(process.getCode()).setProcessName(process.getName()));
             // checkFlag
-            // TODO @AI：这个判断有点复杂，是不是上面构建更合适的 map？
-            List<MesProRouteProcessDO> rps = routeProcessMap.get(vo.getRouteId());
-            if (rps != null) {
-                rps.stream()
-                        .filter(rp -> rp.getProcessId().equals(vo.getProcessId()))
-                        .findFirst()
-                        .ifPresent(rp -> vo.setCheckFlag(Boolean.TRUE.equals(rp.getCheckFlag())));
-            }
+            findAndThen(checkFlagMap, vo.getRouteId(), processCheckMap ->
+                    findAndThen(processCheckMap, vo.getProcessId(), vo::setCheckFlag));
             // 工单
             findAndThen(workOrderMap, vo.getWorkOrderId(), wo ->
                     vo.setWorkOrderCode(wo.getCode()).setWorkOrderName(wo.getName()));

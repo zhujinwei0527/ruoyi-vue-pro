@@ -148,6 +148,15 @@ public class MesProWorkOrderServiceImpl implements MesProWorkOrderService {
     }
 
     @Override
+    public MesProWorkOrderDO validateWorkOrderConfirmed(Long id) {
+        MesProWorkOrderDO workOrder = validateWorkOrderExists(id);
+        if (ObjUtil.notEqual(workOrder.getStatus(), MesProWorkOrderStatusEnum.CONFIRMED.getStatus())) {
+            throw exception(PRO_WORK_ORDER_NOT_CONFIRMED);
+        }
+        return workOrder;
+    }
+
+    @Override
     public void confirmWorkOrder(Long id) {
         // 1. 校验存在
         MesProWorkOrderDO workOrder = validateWorkOrderExists(id);

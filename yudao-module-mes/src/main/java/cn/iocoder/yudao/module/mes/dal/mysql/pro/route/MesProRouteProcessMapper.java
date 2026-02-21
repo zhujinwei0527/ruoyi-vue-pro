@@ -5,6 +5,7 @@ import cn.iocoder.yudao.framework.mybatis.core.query.LambdaQueryWrapperX;
 import cn.iocoder.yudao.module.mes.dal.dataobject.pro.route.MesProRouteProcessDO;
 import org.apache.ibatis.annotations.Mapper;
 
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -46,6 +47,11 @@ public interface MesProRouteProcessMapper extends BaseMapperX<MesProRouteProcess
 
     default List<MesProRouteProcessDO> selectListByProcessId(Long processId) {
         return selectList(MesProRouteProcessDO::getProcessId, processId);
+    }
+
+    default List<MesProRouteProcessDO> selectListByRouteIds(Collection<Long> routeIds) {
+        return selectList(new LambdaQueryWrapperX<MesProRouteProcessDO>()
+                .in(MesProRouteProcessDO::getRouteId, routeIds));
     }
 
 }

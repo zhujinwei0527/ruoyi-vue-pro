@@ -19,6 +19,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception;
@@ -161,6 +163,14 @@ public class MesProRouteServiceImpl implements MesProRouteService {
         if (route != null && CommonStatusEnum.ENABLE.getStatus().equals(route.getStatus())) {
             throw exception(PRO_ROUTE_IS_ENABLE);
         }
+    }
+
+    @Override
+    public List<MesProRouteDO> getRouteList(Collection<Long> ids) {
+        if (CollUtil.isEmpty(ids)) {
+            return Collections.emptyList();
+        }
+        return routeMapper.selectByIds(ids);
     }
 
 }

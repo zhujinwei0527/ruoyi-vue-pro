@@ -14,6 +14,10 @@ public class MesProFeedbackSaveReqVO {
     @Schema(description = "编号", requiredMode = Schema.RequiredMode.REQUIRED, example = "1024")
     private Long id;
 
+    @Schema(description = "报工单编号", requiredMode = Schema.RequiredMode.REQUIRED, example = "FB202503001")
+    @NotNull(message = "报工单编号不能为空")
+    private String code;
+
     @Schema(description = "报工类型", requiredMode = Schema.RequiredMode.REQUIRED, example = "1")
     @NotNull(message = "报工类型不能为空")
     private Integer type;

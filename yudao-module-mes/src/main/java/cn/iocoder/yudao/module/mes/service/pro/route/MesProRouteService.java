@@ -6,7 +6,11 @@ import cn.iocoder.yudao.module.mes.controller.admin.pro.route.vo.MesProRouteSave
 import cn.iocoder.yudao.module.mes.dal.dataobject.pro.route.MesProRouteDO;
 import jakarta.validation.Valid;
 
+import java.util.Collection;
 import java.util.List;
+import java.util.Map;
+
+import static cn.iocoder.yudao.framework.common.util.collection.CollectionUtils.convertMap;
 
 /**
  * MES 工艺路线 Service 接口
@@ -59,5 +63,23 @@ public interface MesProRouteService {
      * @param routeId 工艺路线编号
      */
     void validateRouteNotEnable(Long routeId);
+
+    /**
+     * 获得工艺路线列表
+     *
+     * @param ids 编号数组
+     * @return 工艺路线列表
+     */
+    List<MesProRouteDO> getRouteList(Collection<Long> ids);
+
+    /**
+     * 获得工艺路线 Map
+     *
+     * @param ids 编号数组
+     * @return 工艺路线 Map
+     */
+    default Map<Long, MesProRouteDO> getRouteMap(Collection<Long> ids) {
+        return convertMap(getRouteList(ids), MesProRouteDO::getId);
+    }
 
 }

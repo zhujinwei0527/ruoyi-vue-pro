@@ -84,6 +84,14 @@ public interface MesProWorkOrderService {
     }
 
     /**
+     * 校验工单已确认
+     *
+     * @param id 编号
+     * @return 工单
+     */
+    MesProWorkOrderDO validateWorkOrderConfirmed(Long id);
+
+    /**
      * 确认工单（草稿 → 已确认）
      *
      * @param id 编号
