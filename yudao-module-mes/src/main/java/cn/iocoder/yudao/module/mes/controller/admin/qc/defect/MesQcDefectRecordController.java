@@ -3,9 +3,9 @@ package cn.iocoder.yudao.module.mes.controller.admin.qc.defect;
 import cn.iocoder.yudao.framework.common.pojo.CommonResult;
 import cn.iocoder.yudao.framework.common.pojo.PageResult;
 import cn.iocoder.yudao.framework.common.util.object.BeanUtils;
-import cn.iocoder.yudao.module.mes.controller.admin.qc.defect.vo.MesQcDefectRecordPageReqVO;
-import cn.iocoder.yudao.module.mes.controller.admin.qc.defect.vo.MesQcDefectRecordRespVO;
-import cn.iocoder.yudao.module.mes.controller.admin.qc.defect.vo.MesQcDefectRecordSaveReqVO;
+import cn.iocoder.yudao.module.mes.controller.admin.qc.defect.vo.record.MesQcDefectRecordPageReqVO;
+import cn.iocoder.yudao.module.mes.controller.admin.qc.defect.vo.record.MesQcDefectRecordRespVO;
+import cn.iocoder.yudao.module.mes.controller.admin.qc.defect.vo.record.MesQcDefectRecordSaveReqVO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.qc.defect.MesQcDefectRecordDO;
 import cn.iocoder.yudao.module.mes.service.qc.defect.MesQcDefectRecordService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -31,14 +31,14 @@ public class MesQcDefectRecordController {
     // TODO @芋艿：说下 mes:qc-record 这个权限标识的情况
     @PostMapping("/create")
     @Operation(summary = "创建质检缺陷记录")
-    @PreAuthorize("@ss.hasPermission('mes:qc-record:create')")
+    @PreAuthorize("@ss.hasPermission('mes:qc-defect:create')")
     public CommonResult<Long> createDefectRecord(@Valid @RequestBody MesQcDefectRecordSaveReqVO createReqVO) {
         return success(defectRecordService.createDefectRecord(createReqVO));
     }
 
     @PutMapping("/update")
     @Operation(summary = "更新质检缺陷记录")
-    @PreAuthorize("@ss.hasPermission('mes:qc-record:update')")
+    @PreAuthorize("@ss.hasPermission('mes:qc-defect:update')")
     public CommonResult<Boolean> updateDefectRecord(@Valid @RequestBody MesQcDefectRecordSaveReqVO updateReqVO) {
         defectRecordService.updateDefectRecord(updateReqVO);
         return success(true);
@@ -47,7 +47,7 @@ public class MesQcDefectRecordController {
     @DeleteMapping("/delete")
     @Operation(summary = "删除质检缺陷记录")
     @Parameter(name = "id", description = "编号", required = true)
-    @PreAuthorize("@ss.hasPermission('mes:qc-record:update')")
+    @PreAuthorize("@ss.hasPermission('mes:qc-defect:update')")
     public CommonResult<Boolean> deleteDefectRecord(@RequestParam("id") Long id) {
         defectRecordService.deleteDefectRecord(id);
         return success(true);
@@ -55,7 +55,7 @@ public class MesQcDefectRecordController {
 
     @GetMapping("/page")
     @Operation(summary = "获得质检缺陷记录分页")
-    @PreAuthorize("@ss.hasPermission('mes:qc-record:query')")
+    @PreAuthorize("@ss.hasPermission('mes:qc-defect:query')")
     public CommonResult<PageResult<MesQcDefectRecordRespVO>> getDefectRecordPage(@Valid MesQcDefectRecordPageReqVO pageReqVO) {
         PageResult<MesQcDefectRecordDO> pageResult = defectRecordService.getDefectRecordPage(pageReqVO);
         return success(BeanUtils.toBean(pageResult, MesQcDefectRecordRespVO.class));

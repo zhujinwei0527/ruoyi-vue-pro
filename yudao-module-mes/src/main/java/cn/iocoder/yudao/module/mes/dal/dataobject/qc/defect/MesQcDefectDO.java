@@ -42,14 +42,12 @@ public class MesQcDefectDO extends BaseDO {
      * 字典类型 mes_index_type
      */
     private String type;
-    // TODO @AI：改成 mes_defect_level；另外，dict constants 里也写下
-    // TODO @AI：枚举类；
     /**
      * 缺陷等级
      *
-     * 字典类型 mes_defect_level
+     * 枚举 {@link cn.iocoder.yudao.module.mes.enums.qc.MesQcDefectLevelEnum}
      */
-    private String level;
+    private Integer level;
     /**
      * 备注
      */

@@ -32,10 +32,10 @@ public class MesQcDefectRespVO {
     @DictFormat(DictTypeConstants.MES_INDEX_TYPE)
     private String type;
 
-    @Schema(description = "缺陷等级", requiredMode = Schema.RequiredMode.REQUIRED, example = "MIN")
+    @Schema(description = "缺陷等级", requiredMode = Schema.RequiredMode.REQUIRED, example = "1")
     @ExcelProperty(value = "缺陷等级", converter = DictConvert.class)
     @DictFormat(DictTypeConstants.MES_DEFECT_LEVEL)
-    private String level;
+    private Integer level;
 
     @Schema(description = "备注", example = "备注")
     @ExcelProperty("备注")

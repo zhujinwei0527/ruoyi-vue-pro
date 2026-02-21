@@ -3,7 +3,7 @@ package cn.iocoder.yudao.module.mes.dal.mysql.qc.defect;
 import cn.iocoder.yudao.framework.common.pojo.PageResult;
 import cn.iocoder.yudao.framework.mybatis.core.mapper.BaseMapperX;
 import cn.iocoder.yudao.framework.mybatis.core.query.LambdaQueryWrapperX;
-import cn.iocoder.yudao.module.mes.controller.admin.qc.defect.vo.MesQcDefectRecordPageReqVO;
+import cn.iocoder.yudao.module.mes.controller.admin.qc.defect.vo.record.MesQcDefectRecordPageReqVO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.qc.defect.MesQcDefectRecordDO;
 import org.apache.ibatis.annotations.Mapper;
 

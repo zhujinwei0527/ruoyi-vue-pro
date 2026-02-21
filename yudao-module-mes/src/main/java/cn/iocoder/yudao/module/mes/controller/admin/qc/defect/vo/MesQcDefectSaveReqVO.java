@@ -1,7 +1,10 @@
 package cn.iocoder.yudao.module.mes.controller.admin.qc.defect.vo;
 
+import cn.iocoder.yudao.framework.common.validation.InEnum;
+import cn.iocoder.yudao.module.mes.enums.qc.MesQcDefectLevelEnum;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
 @Schema(description = "管理后台 - MES 缺陷类型新增/修改 Request VO")
@@ -23,9 +26,10 @@ public class MesQcDefectSaveReqVO {
     @NotEmpty(message = "检测项类型不能为空")
     private String type;
 
-    @Schema(description = "缺陷等级", requiredMode = Schema.RequiredMode.REQUIRED, example = "MIN")
-    @NotEmpty(message = "缺陷等级不能为空")
-    private String level;
+    @Schema(description = "缺陷等级", requiredMode = Schema.RequiredMode.REQUIRED, example = "1")
+    @NotNull(message = "缺陷等级不能为空")
+    @InEnum(MesQcDefectLevelEnum.class)
+    private Integer level;
 
     @Schema(description = "备注", example = "备注")
     private String remark;

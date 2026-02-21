@@ -1,4 +1,4 @@
-package cn.iocoder.yudao.module.mes.controller.admin.qc.defect.vo;
+package cn.iocoder.yudao.module.mes.controller.admin.qc.defect.vo.record;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;

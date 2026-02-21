@@ -1,4 +1,4 @@
-package cn.iocoder.yudao.module.mes.controller.admin.qc.defect.vo;
+package cn.iocoder.yudao.module.mes.controller.admin.qc.defect.vo.record;
 
 import cn.iocoder.yudao.framework.common.validation.InEnum;
 import cn.iocoder.yudao.module.mes.enums.qc.MesQcDefectLevelEnum;
