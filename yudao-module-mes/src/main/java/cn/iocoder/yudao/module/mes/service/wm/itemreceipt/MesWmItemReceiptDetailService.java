@@ -1,7 +1,5 @@
 package cn.iocoder.yudao.module.mes.service.wm.itemreceipt;
 
-import cn.iocoder.yudao.framework.common.pojo.PageResult;
-import cn.iocoder.yudao.module.mes.controller.admin.wm.itemreceipt.vo.detail.MesWmItemReceiptDetailPageReqVO;
 import cn.iocoder.yudao.module.mes.controller.admin.wm.itemreceipt.vo.detail.MesWmItemReceiptDetailSaveReqVO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.wm.itemreceipt.MesWmItemReceiptDetailDO;
 import jakarta.validation.Valid;
@@ -42,14 +40,6 @@ public interface MesWmItemReceiptDetailService {
      * @return 采购入库明细
      */
     MesWmItemReceiptDetailDO getItemReceiptDetail(Long id);
-
-    /**
-     * 获得采购入库明细分页
-     *
-     * @param pageReqVO 分页参数
-     * @return 采购入库明细分页
-     */
-    PageResult<MesWmItemReceiptDetailDO> getItemReceiptDetailPage(MesWmItemReceiptDetailPageReqVO pageReqVO);
 
     /**
      * 按入库单编号获得明细列表

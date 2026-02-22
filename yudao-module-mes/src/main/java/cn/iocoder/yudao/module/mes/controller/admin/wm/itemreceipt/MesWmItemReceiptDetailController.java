@@ -2,10 +2,8 @@ package cn.iocoder.yudao.module.mes.controller.admin.wm.itemreceipt;
 
 import cn.hutool.core.collection.CollUtil;
 import cn.iocoder.yudao.framework.common.pojo.CommonResult;
-import cn.iocoder.yudao.framework.common.pojo.PageResult;
 import cn.iocoder.yudao.framework.common.util.collection.MapUtils;
 import cn.iocoder.yudao.framework.common.util.object.BeanUtils;
-import cn.iocoder.yudao.module.mes.controller.admin.wm.itemreceipt.vo.detail.MesWmItemReceiptDetailPageReqVO;
 import cn.iocoder.yudao.module.mes.controller.admin.wm.itemreceipt.vo.detail.MesWmItemReceiptDetailRespVO;
 import cn.iocoder.yudao.module.mes.controller.admin.wm.itemreceipt.vo.detail.MesWmItemReceiptDetailSaveReqVO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.md.item.MesMdItemDO;
@@ -96,13 +94,14 @@ public class MesWmItemReceiptDetailController {
         return success(buildRespVOList(Collections.singletonList(detail)).get(0));
     }
 
-    @GetMapping("/page")
-    @Operation(summary = "获得采购入库明细分页")
+    @GetMapping("/list-by-line")
+    @Operation(summary = "获得采购入库明细列表（按行编号）")
+    @Parameter(name = "lineId", description = "行编号", required = true, example = "1024")
     @PreAuthorize("@ss.hasPermission('mes:wm-item-receipt:query')")
-    public CommonResult<PageResult<MesWmItemReceiptDetailRespVO>> getItemReceiptDetailPage(
-            @Valid MesWmItemReceiptDetailPageReqVO pageReqVO) {
-        PageResult<MesWmItemReceiptDetailDO> pageResult = itemReceiptDetailService.getItemReceiptDetailPage(pageReqVO);
-        return success(new PageResult<>(buildRespVOList(pageResult.getList()), pageResult.getTotal()));
+    public CommonResult<List<MesWmItemReceiptDetailRespVO>> getItemReceiptDetailListByLineId(
+            @RequestParam("lineId") Long lineId) {
+        List<MesWmItemReceiptDetailDO> list = itemReceiptDetailService.getItemReceiptDetailListByLineId(lineId);
+        return success(buildRespVOList(list));
     }
 
     // ==================== 拼接 VO ====================

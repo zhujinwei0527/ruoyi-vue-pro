@@ -1,9 +1,6 @@
 package cn.iocoder.yudao.module.mes.dal.mysql.wm.itemreceipt;
 
-import cn.iocoder.yudao.framework.common.pojo.PageResult;
 import cn.iocoder.yudao.framework.mybatis.core.mapper.BaseMapperX;
-import cn.iocoder.yudao.framework.mybatis.core.query.LambdaQueryWrapperX;
-import cn.iocoder.yudao.module.mes.controller.admin.wm.itemreceipt.vo.detail.MesWmItemReceiptDetailPageReqVO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.wm.itemreceipt.MesWmItemReceiptDetailDO;
 import org.apache.ibatis.annotations.Mapper;
 
@@ -14,13 +11,6 @@ import java.util.List;
  */
 @Mapper
 public interface MesWmItemReceiptDetailMapper extends BaseMapperX<MesWmItemReceiptDetailDO> {
-
-    default PageResult<MesWmItemReceiptDetailDO> selectPage(MesWmItemReceiptDetailPageReqVO reqVO) {
-        return selectPage(reqVO, new LambdaQueryWrapperX<MesWmItemReceiptDetailDO>()
-                .eqIfPresent(MesWmItemReceiptDetailDO::getReceiptId, reqVO.getReceiptId())
-                .eqIfPresent(MesWmItemReceiptDetailDO::getLineId, reqVO.getLineId())
-                .orderByDesc(MesWmItemReceiptDetailDO::getId));
-    }
 
     default List<MesWmItemReceiptDetailDO> selectListByReceiptId(Long receiptId) {
         return selectList(MesWmItemReceiptDetailDO::getReceiptId, receiptId);

@@ -1,8 +1,6 @@
 package cn.iocoder.yudao.module.mes.service.wm.itemreceipt;
 
-import cn.iocoder.yudao.framework.common.pojo.PageResult;
 import cn.iocoder.yudao.framework.common.util.object.BeanUtils;
-import cn.iocoder.yudao.module.mes.controller.admin.wm.itemreceipt.vo.detail.MesWmItemReceiptDetailPageReqVO;
 import cn.iocoder.yudao.module.mes.controller.admin.wm.itemreceipt.vo.detail.MesWmItemReceiptDetailSaveReqVO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.wm.itemreceipt.MesWmItemReceiptDetailDO;
 import cn.iocoder.yudao.module.mes.dal.mysql.wm.itemreceipt.MesWmItemReceiptDetailMapper;
@@ -63,11 +61,6 @@ public class MesWmItemReceiptDetailServiceImpl implements MesWmItemReceiptDetail
     @Override
     public MesWmItemReceiptDetailDO getItemReceiptDetail(Long id) {
         return itemReceiptDetailMapper.selectById(id);
-    }
-
-    @Override
-    public PageResult<MesWmItemReceiptDetailDO> getItemReceiptDetailPage(MesWmItemReceiptDetailPageReqVO pageReqVO) {
-        return itemReceiptDetailMapper.selectPage(pageReqVO);
     }
 
     @Override

@@ -154,7 +154,6 @@ public class MesWmArrivalNoticeServiceImpl implements MesWmArrivalNoticeService 
 
     @Override
     public List<MesWmArrivalNoticeDO> getArrivalNoticeListByStatus(Integer status) {
-        // TODO DONE @AI：已在 Mapper 新增 selectListByStatus 方法
         if (status == null) {
             return arrivalNoticeMapper.selectList();
         }
