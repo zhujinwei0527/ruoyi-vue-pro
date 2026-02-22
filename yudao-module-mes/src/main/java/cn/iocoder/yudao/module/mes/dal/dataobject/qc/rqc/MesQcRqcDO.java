@@ -65,15 +65,14 @@ public class MesQcRqcDO extends BaseDO {
      */
     private Long sourceLineId;
 
-    // ========== 退货类型 ==========
+    // ========== 检验类型 ==========
 
-    // TODO @AI：改成 int；然后枚举类在 dict constants 也添加下；
     /**
-     * 退货检验类型
+     * 检验类型
      *
      * 字典 mes_rqc_type
      */
-    private String rqcType;
+    private Integer rqcType;
 
     // ========== 物料 ==========
 

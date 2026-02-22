@@ -29,8 +29,8 @@ public class MesQcRqcPageReqVO extends PageParam {
     @Schema(description = "产品物料 ID", example = "20")
     private Long itemId;
 
-    @Schema(description = "退货检验类型", example = "1")
-    private String rqcType;
+    @Schema(description = "检验类型", example = "1")
+    private Integer rqcType;
 
     @Schema(description = "检测结果", example = "1")
     private Integer checkResult;

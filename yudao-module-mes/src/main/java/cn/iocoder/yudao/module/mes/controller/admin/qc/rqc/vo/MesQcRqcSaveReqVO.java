@@ -41,10 +41,10 @@ public class MesQcRqcSaveReqVO {
     @Schema(description = "来源单据行 ID", example = "300")
     private Long sourceLineId;
 
-    // ========== 退货类型 ==========
+    // ========== 检验类型 ==========
 
-    @Schema(description = "退货检验类型", example = "1")
-    private String rqcType;
+    @Schema(description = "检验类型", example = "1")
+    private Integer rqcType;
 
     // ========== 物料 ==========
 
