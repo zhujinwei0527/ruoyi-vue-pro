@@ -19,6 +19,7 @@ public interface MesWmArrivalNoticeMapper extends BaseMapperX<MesWmArrivalNotice
                 .likeIfPresent(MesWmArrivalNoticeDO::getName, reqVO.getName())
                 .likeIfPresent(MesWmArrivalNoticeDO::getPurchaseOrderCode, reqVO.getPurchaseOrderCode())
                 .eqIfPresent(MesWmArrivalNoticeDO::getVendorId, reqVO.getVendorId())
+                .betweenIfPresent(MesWmArrivalNoticeDO::getArrivalDate, reqVO.getArrivalDate())
                 .eqIfPresent(MesWmArrivalNoticeDO::getStatus, reqVO.getStatus())
                 .orderByDesc(MesWmArrivalNoticeDO::getId));
     }

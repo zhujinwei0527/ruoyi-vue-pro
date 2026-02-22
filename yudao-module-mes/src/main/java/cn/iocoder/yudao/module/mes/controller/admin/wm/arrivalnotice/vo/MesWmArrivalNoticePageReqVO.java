@@ -5,6 +5,11 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
+import org.springframework.format.annotation.DateTimeFormat;
+
+import java.time.LocalDateTime;
+
+import static cn.iocoder.yudao.framework.common.util.date.DateUtils.FORMAT_YEAR_MONTH_DAY_HOUR_MINUTE_SECOND;
 
 @Schema(description = "管理后台 - MES 到货通知单分页 Request VO")
 @Data
@@ -23,6 +28,10 @@ public class MesWmArrivalNoticePageReqVO extends PageParam {
 
     @Schema(description = "供应商编号", example = "1")
     private Long vendorId;
+
+    @Schema(description = "到货日期")
+    @DateTimeFormat(pattern = FORMAT_YEAR_MONTH_DAY_HOUR_MINUTE_SECOND)
+    private LocalDateTime[] arrivalDate;
 
     @Schema(description = "状态", example = "0")
     private Integer status;
