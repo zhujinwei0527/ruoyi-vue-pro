@@ -3,7 +3,6 @@ package cn.iocoder.yudao.module.mes.controller.admin.qc.indicatorresult.vo;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -35,26 +34,6 @@ public class MesQcIndicatorResultRespVO {
     @Schema(description = "创建时间", requiredMode = Schema.RequiredMode.REQUIRED)
     private LocalDateTime createTime;
 
-    // ========== 关联查询字段 ==========
-
-    @Schema(description = "质检单编号", example = "IQC-001")
-    private String qcCode;
-
-    @Schema(description = "质检单名称", example = "xxx来料检验")
-    private String qcName;
-
-    @Schema(description = "产品物料编码", example = "ITEM-001")
-    private String itemCode;
-
-    @Schema(description = "产品物料名称", example = "电阻")
-    private String itemName;
-
-    @Schema(description = "规格型号", example = "100Ω")
-    private String itemSpecification;
-
-    @Schema(description = "单位名称", example = "个")
-    private String unitName;
-
     // ========== 子表：检验结果明细 ==========
 
     @Schema(description = "检验结果明细列表")
@@ -79,40 +58,16 @@ public class MesQcIndicatorResultRespVO {
         @Schema(description = "备注", example = "无")
         private String remark;
 
-        // ========== 关联查询字段（来自 IQC line + indicator） ==========
-
-        @Schema(description = "检测指标编码", example = "IDX-001")
-        private String indicatorCode;
+        // ========== 关联查询字段（来自 indicator） ==========
 
         @Schema(description = "检测指标名称", example = "外观检查")
         private String indicatorName;
-
-        @Schema(description = "检测指标类型", example = "QUANTITATIVE")
-        private String indicatorType;
 
         @Schema(description = "质检值类型", example = "1")
         private Integer valueType;
 
         @Schema(description = "值属性", example = "IMG")
         private String valueSpecification;
-
-        @Schema(description = "检测工具名称", example = "卡尺")
-        private String toolName;
-
-        @Schema(description = "检测方法", example = "目视检查")
-        private String checkMethod;
-
-        @Schema(description = "标准值", example = "10.0000")
-        private BigDecimal standardValue;
-
-        @Schema(description = "计量单位名称", example = "mm")
-        private String unitMeasureName;
-
-        @Schema(description = "误差上限", example = "10.5000")
-        private BigDecimal maxThreshold;
-
-        @Schema(description = "误差下限", example = "9.5000")
-        private BigDecimal minThreshold;
 
     }
 

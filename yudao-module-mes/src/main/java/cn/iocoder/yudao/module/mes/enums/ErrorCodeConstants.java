@@ -269,9 +269,6 @@ public interface ErrorCodeConstants {
 
     // ========== MES 质量管理-检验结果（1-040-606-000） ==========
     ErrorCode QC_RESULT_NOT_EXISTS = new ErrorCode(1_040_606_000, "检验结果不存在");
-    ErrorCode QC_RESULT_ITEMS_EMPTY = new ErrorCode(1_040_606_001, "检测项结果值不能为空");
-    ErrorCode QC_RESULT_SOURCE_DOC_NOT_EXISTS = new ErrorCode(1_040_606_002, "来源质检单不存在");
-    ErrorCode QC_RESULT_SOURCE_DOC_TYPE_INVALID = new ErrorCode(1_040_606_003, "来源质检单类型不支持");
 
     // ========== MES 仓库管理-仓库（1-040-700-000） ==========
     ErrorCode WM_WAREHOUSE_NOT_EXISTS = new ErrorCode(1_040_700_000, "仓库不存在");
@@ -302,9 +299,5 @@ public interface ErrorCodeConstants {
 
     // ========== MES 仓库管理-库存（1-040-703-000） ==========
     ErrorCode WM_MATERIAL_STOCK_NOT_EXISTS = new ErrorCode(1_040_703_000, "库存记录不存在");
-
-    // ========== 兼容旧命名（storage_area=库区，storage_location=库位） ==========
-    ErrorCode WM_STORAGE_AREA_NOT_EXISTS = WM_WAREHOUSE_LOCATION_NOT_EXISTS;
-    ErrorCode WM_STORAGE_LOCATION_NOT_EXISTS = WM_WAREHOUSE_AREA_NOT_EXISTS;
 
 }

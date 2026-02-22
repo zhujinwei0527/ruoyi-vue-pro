@@ -119,7 +119,7 @@ public class MesQcIndicatorResultServiceImpl implements MesQcIndicatorResultServ
             return iqc.getItemId();
         }
         // TODO @芋艿：IPQC/OQC/RQC 模块迁移后实现
-        throw exception(QC_RESULT_SOURCE_DOC_TYPE_INVALID);
+        throw new IllegalArgumentException("暂不支持 qcType=" + qcType);
     }
 
 }
