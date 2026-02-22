@@ -56,21 +56,21 @@ public interface MesWmArrivalNoticeService {
     PageResult<MesWmArrivalNoticeDO> getArrivalNoticePage(MesWmArrivalNoticePageReqVO pageReqVO);
 
     /**
-     * 提交到货通知单（草稿 → 已提交）
+     * 提交到货通知单（草稿 → 待质检/待入库）
      *
      * @param id 编号
      */
     void submitArrivalNotice(Long id);
 
     /**
-     * 审批到货通知单（已提交 → 已审批）
+     * 审批到货通知单（待质检 → 待入库）
      *
      * @param id 编号
      */
     void approveArrivalNotice(Long id);
 
     /**
-     * 完成到货通知单（已审批 → 已完成），内部调用
+     * 完成到货通知单（待入库 → 已完成），内部调用
      *
      * @param id 编号
      */
@@ -87,5 +87,13 @@ public interface MesWmArrivalNoticeService {
     default Map<Long, MesWmArrivalNoticeDO> getArrivalNoticeMap(Collection<Long> ids) {
         return convertMap(getArrivalNoticeList(ids), MesWmArrivalNoticeDO::getId);
     }
+
+    /**
+     * 按状态获得到货通知单列表
+     *
+     * @param status 状态
+     * @return 到货通知单列表
+     */
+    List<MesWmArrivalNoticeDO> getArrivalNoticeListByStatus(Integer status);
 
 }

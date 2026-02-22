@@ -50,24 +50,31 @@ public interface MesWmItemReceiptService {
     PageResult<MesWmItemReceiptDO> getItemReceiptPage(MesWmItemReceiptPageReqVO pageReqVO);
 
     /**
-     * 提交采购入库单（草稿 → 已提交）
+     * 提交采购入库单（草稿 → 待上架）
      *
      * @param id 编号
      */
     void submitItemReceipt(Long id);
 
     /**
-     * 审批采购入库单（已提交 → 已审批）
+     * 执行上架（待上架 → 待入库）
      *
      * @param id 编号
      */
-    void approveItemReceipt(Long id);
+    void shelvingItemReceipt(Long id);
 
     /**
-     * 执行入库（已审批 → 已完成），更新库存台账
+     * 执行入库（待入库 → 已完成），更新库存台账
      *
      * @param id 编号
      */
     void executeItemReceipt(Long id);
+
+    /**
+     * 取消采购入库单（任意非已完成/已取消状态 → 已取消）
+     *
+     * @param id 编号
+     */
+    void cancelItemReceipt(Long id);
 
 }

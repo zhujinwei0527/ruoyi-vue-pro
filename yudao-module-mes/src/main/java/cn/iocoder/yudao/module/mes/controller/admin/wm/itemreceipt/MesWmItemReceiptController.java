@@ -137,12 +137,13 @@ public class MesWmItemReceiptController {
         return success(true);
     }
 
-    @PutMapping("/approve")
-    @Operation(summary = "审批采购入库单")
+    // TODO @芋艿：【待定，不要删除】这个是合适的单词么？
+    @PutMapping("/shelving")
+    @Operation(summary = "执行上架")
     @Parameter(name = "id", description = "编号", required = true)
     @PreAuthorize("@ss.hasPermission('mes:wm-item-receipt:update')")
-    public CommonResult<Boolean> approveItemReceipt(@RequestParam("id") Long id) {
-        itemReceiptService.approveItemReceipt(id);
+    public CommonResult<Boolean> shelvingItemReceipt(@RequestParam("id") Long id) {
+        itemReceiptService.shelvingItemReceipt(id);
         return success(true);
     }
 
@@ -152,6 +153,15 @@ public class MesWmItemReceiptController {
     @PreAuthorize("@ss.hasPermission('mes:wm-item-receipt:execute')")
     public CommonResult<Boolean> executeItemReceipt(@RequestParam("id") Long id) {
         itemReceiptService.executeItemReceipt(id);
+        return success(true);
+    }
+
+    @PutMapping("/cancel")
+    @Operation(summary = "取消采购入库单")
+    @Parameter(name = "id", description = "编号", required = true)
+    @PreAuthorize("@ss.hasPermission('mes:wm-item-receipt:update')")
+    public CommonResult<Boolean> cancelItemReceipt(@RequestParam("id") Long id) {
+        itemReceiptService.cancelItemReceipt(id);
         return success(true);
     }
 

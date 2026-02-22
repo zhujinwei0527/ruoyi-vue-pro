@@ -96,13 +96,13 @@ public class MesWmArrivalNoticeServiceImpl implements MesWmArrivalNoticeService 
         // 检查所有行的 iqcCheckFlag：如果没有需要检验的行，则直接审批通过
         boolean needCheck = CollectionUtils.anyMatch(lines, line -> Boolean.TRUE.equals(line.getIqcCheckFlag()));
         if (!needCheck) {
-            // 不需要检验，直接审批通过
+            // 不需要检验，直接进入待入库
             arrivalNoticeMapper.updateById(new MesWmArrivalNoticeDO()
-                    .setId(id).setStatus(MesWmArrivalNoticeStatusEnum.APPROVED.getStatus()));
+                    .setId(id).setStatus(MesWmArrivalNoticeStatusEnum.PENDING_RECEIPT.getStatus()));
         } else {
-            // 需要检验，提交待审批
+            // 需要检验，进入待质检
             arrivalNoticeMapper.updateById(new MesWmArrivalNoticeDO()
-                    .setId(id).setStatus(MesWmArrivalNoticeStatusEnum.SUBMITTED.getStatus()));
+                    .setId(id).setStatus(MesWmArrivalNoticeStatusEnum.PENDING_QC.getStatus()));
         }
     }
 
@@ -111,9 +111,9 @@ public class MesWmArrivalNoticeServiceImpl implements MesWmArrivalNoticeService 
     public void approveArrivalNotice(Long id) {
         // 校验存在
         MesWmArrivalNoticeDO notice = validateArrivalNoticeExists(id);
-        // 校验状态：只有已提交才允许审批
-        if (ObjUtil.notEqual(MesWmArrivalNoticeStatusEnum.SUBMITTED.getStatus(), notice.getStatus())) {
-            throw exception(WM_ARRIVAL_NOTICE_STATUS_NOT_SUBMITTED);
+        // 校验状态：只有待质检才允许审批
+        if (ObjUtil.notEqual(MesWmArrivalNoticeStatusEnum.PENDING_QC.getStatus(), notice.getStatus())) {
+            throw exception(WM_ARRIVAL_NOTICE_STATUS_NOT_PENDING_QC);
         }
 
         // 校验所有 iqcCheckFlag=true 的行必须 iqcId 不为空
@@ -125,16 +125,16 @@ public class MesWmArrivalNoticeServiceImpl implements MesWmArrivalNoticeService 
         }
         // 审批通过
         arrivalNoticeMapper.updateById(new MesWmArrivalNoticeDO()
-                .setId(id).setStatus(MesWmArrivalNoticeStatusEnum.APPROVED.getStatus()));
+                .setId(id).setStatus(MesWmArrivalNoticeStatusEnum.PENDING_RECEIPT.getStatus()));
     }
 
     @Override
     public void finishArrivalNotice(Long id) {
         // 校验存在
         MesWmArrivalNoticeDO notice = validateArrivalNoticeExists(id);
-        // 校验状态：只有已审批才允许完成
-        if (ObjUtil.notEqual(MesWmArrivalNoticeStatusEnum.APPROVED.getStatus(), notice.getStatus())) {
-            throw exception(WM_ARRIVAL_NOTICE_STATUS_NOT_APPROVED);
+        // 校验状态：只有待入库才允许完成
+        if (ObjUtil.notEqual(MesWmArrivalNoticeStatusEnum.PENDING_RECEIPT.getStatus(), notice.getStatus())) {
+            throw exception(WM_ARRIVAL_NOTICE_STATUS_NOT_PENDING_RECEIPT);
         }
 
         // 完成
@@ -148,6 +148,15 @@ public class MesWmArrivalNoticeServiceImpl implements MesWmArrivalNoticeService 
             return Collections.emptyList();
         }
         return arrivalNoticeMapper.selectByIds(ids);
+    }
+
+    @Override
+    public List<MesWmArrivalNoticeDO> getArrivalNoticeListByStatus(Integer status) {
+        // TODO @AI：通过 selectListByStatus 方法实现，更通用；
+        if (status == null) {
+            return arrivalNoticeMapper.selectList();
+        }
+        return arrivalNoticeMapper.selectList(MesWmArrivalNoticeDO::getStatus, status);
     }
 
     private MesWmArrivalNoticeDO validateArrivalNoticeExists(Long id) {

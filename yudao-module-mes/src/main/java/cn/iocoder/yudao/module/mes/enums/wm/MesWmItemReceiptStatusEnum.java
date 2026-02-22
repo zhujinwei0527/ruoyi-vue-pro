@@ -16,9 +16,10 @@ import java.util.Arrays;
 public enum MesWmItemReceiptStatusEnum implements ArrayValuable<Integer> {
 
     PREPARE(0, "草稿"),
-    SUBMITTED(1, "已提交"),
-    APPROVED(2, "已审批"),
-    FINISHED(3, "已完成");
+    APPROVING(1, "待上架"),
+    APPROVED(2, "待入库"),
+    FINISHED(3, "已完成"),
+    CANCELED(4, "已取消");
 
     public static final Integer[] ARRAYS = Arrays.stream(values()).map(MesWmItemReceiptStatusEnum::getStatus).toArray(Integer[]::new);
 

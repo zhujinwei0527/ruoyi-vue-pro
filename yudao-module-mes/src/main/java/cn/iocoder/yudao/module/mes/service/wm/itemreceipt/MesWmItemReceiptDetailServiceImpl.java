@@ -2,6 +2,7 @@ package cn.iocoder.yudao.module.mes.service.wm.itemreceipt;
 
 import cn.iocoder.yudao.framework.common.pojo.PageResult;
 import cn.iocoder.yudao.framework.common.util.object.BeanUtils;
+import cn.iocoder.yudao.framework.common.util.object.ObjectUtils;
 import cn.iocoder.yudao.module.mes.controller.admin.wm.itemreceipt.vo.detail.MesWmItemReceiptDetailPageReqVO;
 import cn.iocoder.yudao.module.mes.controller.admin.wm.itemreceipt.vo.detail.MesWmItemReceiptDetailSaveReqVO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.wm.itemreceipt.MesWmItemReceiptDO;
@@ -36,7 +37,7 @@ public class MesWmItemReceiptDetailServiceImpl implements MesWmItemReceiptDetail
     @Override
     public Long createItemReceiptDetail(MesWmItemReceiptDetailSaveReqVO createReqVO) {
         // 校验父单据存在且为草稿状态
-        validateReceiptStatusDraft(createReqVO.getReceiptId());
+        validateReceiptStatusForDetailEdit(createReqVO.getReceiptId());
 
         MesWmItemReceiptDetailDO detail = BeanUtils.toBean(createReqVO, MesWmItemReceiptDetailDO.class);
         itemReceiptDetailMapper.insert(detail);
@@ -48,7 +49,7 @@ public class MesWmItemReceiptDetailServiceImpl implements MesWmItemReceiptDetail
         // 校验存在
         MesWmItemReceiptDetailDO detail = validateItemReceiptDetailExists(updateReqVO.getId());
         // 校验父单据存在且为草稿状态
-        validateReceiptStatusDraft(detail.getReceiptId());
+        validateReceiptStatusForDetailEdit(detail.getReceiptId());
 
         // 更新
         MesWmItemReceiptDetailDO updateObj = BeanUtils.toBean(updateReqVO, MesWmItemReceiptDetailDO.class);
@@ -101,15 +102,18 @@ public class MesWmItemReceiptDetailServiceImpl implements MesWmItemReceiptDetail
         return detail;
     }
 
+    // TODO @AI：在 itemReceiptService 里，封装一个这个方法；最好不要是 fordetail，而不是 prepare + approving 状态；
     /**
-     * 校验父采购入库单存在且为草稿状态
+     * 校验父采购入库单存在且允许编辑明细（草稿或待上架状态）
      */
-    private void validateReceiptStatusDraft(Long receiptId) {
+    private void validateReceiptStatusForDetailEdit(Long receiptId) {
         MesWmItemReceiptDO receipt = itemReceiptService.getItemReceipt(receiptId);
         if (receipt == null) {
             throw exception(WM_ITEM_RECEIPT_NOT_EXISTS);
         }
-        if (ObjUtil.notEqual(MesWmItemReceiptStatusEnum.PREPARE.getStatus(), receipt.getStatus())) {
+        // TODO @AI：在 ObjectUtils 里，封装一个 notEquals 方法，简化代码；
+        if (ObjUtil.notEqual(MesWmItemReceiptStatusEnum.PREPARE.getStatus(), receipt.getStatus())
+                && ObjUtil.notEqual(MesWmItemReceiptStatusEnum.APPROVING.getStatus(), receipt.getStatus())) {
             throw exception(WM_ITEM_RECEIPT_STATUS_NOT_PREPARE);
         }
     }

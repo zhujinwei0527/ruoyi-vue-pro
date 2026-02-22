@@ -53,6 +53,7 @@ public class MesWmItemReceiptDO extends BaseDO {
      * 关联 {@link MesWmArrivalNoticeDO#getId()}
      */
     private Long noticeId;
+    // TODO @AI：不用存储，它冗余自 noticeId 订单，可以需要的时候去读取！
     /**
      * 采购订单编号
      */

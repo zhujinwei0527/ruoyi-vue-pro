@@ -107,17 +107,17 @@ public class MesWmItemReceiptServiceImpl implements MesWmItemReceiptService {
             throw exception(WM_ITEM_RECEIPT_NO_LINE);
         }
 
-        // 提交
+        // 提交（草稿 → 待上架）
         itemReceiptMapper.updateById(new MesWmItemReceiptDO()
-                .setId(id).setStatus(MesWmItemReceiptStatusEnum.SUBMITTED.getStatus()));
+                .setId(id).setStatus(MesWmItemReceiptStatusEnum.APPROVING.getStatus()));
     }
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public void approveItemReceipt(Long id) {
+    public void shelvingItemReceipt(Long id) {
         // 校验存在
         MesWmItemReceiptDO receipt = validateItemReceiptExists(id);
-        if (ObjUtil.notEqual(MesWmItemReceiptStatusEnum.SUBMITTED.getStatus(), receipt.getStatus())) {
+        if (ObjUtil.notEqual(MesWmItemReceiptStatusEnum.APPROVING.getStatus(), receipt.getStatus())) {
             throw exception(WM_ITEM_RECEIPT_STATUS_ERROR);
         }
         // 校验每行的 SUM(detail.quantity) = line.receivedQuantity
@@ -131,7 +131,7 @@ public class MesWmItemReceiptServiceImpl implements MesWmItemReceiptService {
             }
         }
 
-        // 审批
+        // 执行上架（待上架 → 待入库）
         itemReceiptMapper.updateById(new MesWmItemReceiptDO()
                 .setId(id).setStatus(MesWmItemReceiptStatusEnum.APPROVED.getStatus()));
     }
@@ -160,6 +160,23 @@ public class MesWmItemReceiptServiceImpl implements MesWmItemReceiptService {
         if (receipt.getNoticeId() != null) {
             arrivalNoticeService.finishArrivalNotice(receipt.getNoticeId());
         }
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void cancelItemReceipt(Long id) {
+        // 校验存在
+        MesWmItemReceiptDO receipt = validateItemReceiptExists(id);
+        // 已完成和已取消不允许取消
+        // TODO @AI：在 ObjectUtils 里，有个 equalsAny；
+        // TODO @芋艿：【待确定】是不是就这 2 个状态了；
+        if (ObjUtil.equal(MesWmItemReceiptStatusEnum.FINISHED.getStatus(), receipt.getStatus())
+                || ObjUtil.equal(MesWmItemReceiptStatusEnum.CANCELED.getStatus(), receipt.getStatus())) {
+            throw exception(WM_ITEM_RECEIPT_CANCEL_NOT_ALLOWED);
+        }
+        // 取消
+        itemReceiptMapper.updateById(new MesWmItemReceiptDO()
+                .setId(id).setStatus(MesWmItemReceiptStatusEnum.CANCELED.getStatus()));
     }
 
     private MesWmItemReceiptDO validateItemReceiptExists(Long id) {
