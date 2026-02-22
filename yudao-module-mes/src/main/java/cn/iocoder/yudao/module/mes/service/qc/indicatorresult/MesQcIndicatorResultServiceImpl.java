@@ -9,9 +9,16 @@ import cn.iocoder.yudao.module.mes.dal.dataobject.qc.indicatorresult.MesQcIndica
 import cn.iocoder.yudao.module.mes.dal.dataobject.qc.indicatorresult.MesQcIndicatorResultDetailDO;
 import cn.iocoder.yudao.module.mes.dal.mysql.qc.indicatorresult.MesQcIndicatorResultDetailMapper;
 import cn.iocoder.yudao.module.mes.dal.mysql.qc.indicatorresult.MesQcIndicatorResultMapper;
+import cn.iocoder.yudao.module.mes.dal.dataobject.qc.ipqc.MesQcIpqcDO;
+import cn.iocoder.yudao.module.mes.dal.dataobject.qc.oqc.MesQcOqcDO;
+import cn.iocoder.yudao.module.mes.dal.dataobject.qc.rqc.MesQcRqcDO;
 import cn.iocoder.yudao.module.mes.enums.qc.MesQcTypeEnum;
+import cn.iocoder.yudao.module.mes.service.qc.ipqc.MesQcIpqcService;
 import cn.iocoder.yudao.module.mes.service.qc.lqc.MesQcIqcService;
+import cn.iocoder.yudao.module.mes.service.qc.oqc.MesQcOqcService;
+import cn.iocoder.yudao.module.mes.service.qc.rqc.MesQcRqcService;
 import jakarta.annotation.Resource;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
@@ -39,6 +46,15 @@ public class MesQcIndicatorResultServiceImpl implements MesQcIndicatorResultServ
 
     @Resource
     private MesQcIqcService iqcService;
+    @Resource
+    @Lazy
+    private MesQcIpqcService ipqcService;
+    @Resource
+    @Lazy
+    private MesQcOqcService oqcService;
+    @Resource
+    @Lazy
+    private MesQcRqcService rqcService;
 
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -117,8 +133,16 @@ public class MesQcIndicatorResultServiceImpl implements MesQcIndicatorResultServ
         if (Objects.equals(qcType, MesQcTypeEnum.IQC.getType())) {
             MesQcIqcDO iqc = iqcService.validateIqcExists(qcId);
             return iqc.getItemId();
+        } else if (Objects.equals(qcType, MesQcTypeEnum.IPQC.getType())) {
+            MesQcIpqcDO ipqc = ipqcService.validateIpqcExists(qcId);
+            return ipqc.getItemId();
+        } else if (Objects.equals(qcType, MesQcTypeEnum.OQC.getType())) {
+            MesQcOqcDO oqc = oqcService.validateOqcExists(qcId);
+            return oqc.getItemId();
+        } else if (Objects.equals(qcType, MesQcTypeEnum.RQC.getType())) {
+            MesQcRqcDO rqc = rqcService.validateRqcExists(qcId);
+            return rqc.getItemId();
         }
-        // TODO @芋艿：IPQC/OQC/RQC 模块迁移后实现
         throw new IllegalArgumentException("暂不支持 qcType=" + qcType);
     }
 

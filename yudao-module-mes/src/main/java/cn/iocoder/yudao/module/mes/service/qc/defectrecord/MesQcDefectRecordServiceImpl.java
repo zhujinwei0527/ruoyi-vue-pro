@@ -7,8 +7,14 @@ import cn.iocoder.yudao.module.mes.controller.admin.qc.defectrecord.vo.MesQcDefe
 import cn.iocoder.yudao.module.mes.dal.dataobject.qc.defectrecord.MesQcDefectRecordDO;
 import cn.iocoder.yudao.module.mes.dal.mysql.qc.defectrecord.MesQcDefectRecordMapper;
 import cn.iocoder.yudao.module.mes.enums.qc.MesQcTypeEnum;
+import cn.iocoder.yudao.module.mes.service.qc.ipqc.MesQcIpqcLineService;
+import cn.iocoder.yudao.module.mes.service.qc.ipqc.MesQcIpqcService;
 import cn.iocoder.yudao.module.mes.service.qc.lqc.MesQcIqcLineService;
 import cn.iocoder.yudao.module.mes.service.qc.lqc.MesQcIqcService;
+import cn.iocoder.yudao.module.mes.service.qc.oqc.MesQcOqcLineService;
+import cn.iocoder.yudao.module.mes.service.qc.oqc.MesQcOqcService;
+import cn.iocoder.yudao.module.mes.service.qc.rqc.MesQcRqcLineService;
+import cn.iocoder.yudao.module.mes.service.qc.rqc.MesQcRqcService;
 import jakarta.annotation.Resource;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
@@ -39,6 +45,27 @@ public class MesQcDefectRecordServiceImpl implements MesQcDefectRecordService {
     @Resource
     @Lazy
     private MesQcIqcLineService iqcLineService;
+
+    @Resource
+    @Lazy
+    private MesQcIpqcService ipqcService;
+    @Resource
+    @Lazy
+    private MesQcIpqcLineService ipqcLineService;
+
+    @Resource
+    @Lazy
+    private MesQcOqcService oqcService;
+    @Resource
+    @Lazy
+    private MesQcOqcLineService oqcLineService;
+
+    @Resource
+    @Lazy
+    private MesQcRqcService rqcService;
+    @Resource
+    @Lazy
+    private MesQcRqcLineService rqcLineService;
 
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -98,8 +125,16 @@ public class MesQcDefectRecordServiceImpl implements MesQcDefectRecordService {
         if (Objects.equals(qcType, MesQcTypeEnum.IQC.getType())) {
             iqcService.validateIqcExists(qcId);
             iqcLineService.validateIqcLineExists(lineId);
+        } else if (Objects.equals(qcType, MesQcTypeEnum.IPQC.getType())) {
+            ipqcService.validateIpqcExists(qcId);
+            ipqcLineService.validateIpqcLineExists(lineId);
+        } else if (Objects.equals(qcType, MesQcTypeEnum.OQC.getType())) {
+            oqcService.validateOqcExists(qcId);
+            oqcLineService.validateOqcLineExists(lineId);
+        } else if (Objects.equals(qcType, MesQcTypeEnum.RQC.getType())) {
+            rqcService.validateRqcExists(qcId);
+            rqcLineService.validateRqcLineExists(lineId);
         } else {
-            // 后续扩展：IPQC、OQC、RQC
             throw exception(QC_DEFECT_RECORD_QC_TYPE_UNSUPPORTED);
         }
     }
@@ -124,8 +159,13 @@ public class MesQcDefectRecordServiceImpl implements MesQcDefectRecordService {
         List<MesQcDefectRecordDO> records = defectRecordMapper.selectListByQcTypeAndQcId(qcType, qcId);
         if (Objects.equals(qcType, MesQcTypeEnum.IQC.getType())) {
             iqcService.recalculateDefectStats(qcId, records);
+        } else if (Objects.equals(qcType, MesQcTypeEnum.IPQC.getType())) {
+            ipqcService.recalculateDefectStats(qcId, records);
+        } else if (Objects.equals(qcType, MesQcTypeEnum.OQC.getType())) {
+            oqcService.recalculateDefectStats(qcId, records);
+        } else if (Objects.equals(qcType, MesQcTypeEnum.RQC.getType())) {
+            rqcService.recalculateDefectStats(qcId, records);
         } else {
-            // 后续扩展：IPQC、OQC、RQC
             throw exception(QC_DEFECT_RECORD_QC_TYPE_UNSUPPORTED);
         }
     }

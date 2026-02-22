@@ -8,11 +8,17 @@ import cn.iocoder.yudao.module.mes.controller.admin.qc.indicatorresult.vo.*;
 import cn.iocoder.yudao.module.mes.dal.dataobject.qc.indicator.MesQcIndicatorDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.qc.indicatorresult.MesQcIndicatorResultDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.qc.indicatorresult.MesQcIndicatorResultDetailDO;
+import cn.iocoder.yudao.module.mes.dal.dataobject.qc.ipqc.MesQcIpqcLineDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.qc.lqc.MesQcIqcLineDO;
+import cn.iocoder.yudao.module.mes.dal.dataobject.qc.oqc.MesQcOqcLineDO;
+import cn.iocoder.yudao.module.mes.dal.dataobject.qc.rqc.MesQcRqcLineDO;
 import cn.iocoder.yudao.module.mes.enums.qc.MesQcTypeEnum;
 import cn.iocoder.yudao.module.mes.service.qc.indicator.MesQcIndicatorService;
 import cn.iocoder.yudao.module.mes.service.qc.indicatorresult.MesQcIndicatorResultService;
+import cn.iocoder.yudao.module.mes.service.qc.ipqc.MesQcIpqcLineService;
 import cn.iocoder.yudao.module.mes.service.qc.lqc.MesQcIqcLineService;
+import cn.iocoder.yudao.module.mes.service.qc.oqc.MesQcOqcLineService;
+import cn.iocoder.yudao.module.mes.service.qc.rqc.MesQcRqcLineService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.Parameters;
@@ -40,6 +46,12 @@ public class MesQcIndicatorResultController {
     private MesQcIndicatorResultService resultService;
     @Resource
     private MesQcIqcLineService iqcLineService;
+    @Resource
+    private MesQcIpqcLineService ipqcLineService;
+    @Resource
+    private MesQcOqcLineService oqcLineService;
+    @Resource
+    private MesQcRqcLineService rqcLineService;
     @Resource
     private MesQcIndicatorService indicatorService;
 
@@ -118,38 +130,50 @@ public class MesQcIndicatorResultController {
      */
     private List<MesQcIndicatorResultRespVO.Item> buildDetailItemList(
             List<MesQcIndicatorResultDetailDO> details, Long qcId, Integer qcType) {
-        // 1.1 获取检验单行列表（知道有哪些检测指标）
-        List<MesQcIqcLineDO> lines;
+        // 1.1 获取检验单行的指标 ID 列表（知道有哪些检测指标）
+        List<Long> indicatorIds;
         if (Objects.equals(qcType, MesQcTypeEnum.IQC.getType())) {
-            lines = iqcLineService.getIqcLineListByIqcId(qcId);
+            List<MesQcIqcLineDO> lines = iqcLineService.getIqcLineListByIqcId(qcId);
+            indicatorIds = CollUtil.isEmpty(lines) ? Collections.emptyList()
+                    : new ArrayList<>(convertSet(lines, MesQcIqcLineDO::getIndicatorId));
+        } else if (Objects.equals(qcType, MesQcTypeEnum.IPQC.getType())) {
+            List<MesQcIpqcLineDO> lines = ipqcLineService.selectListByIpqcId(qcId);
+            indicatorIds = CollUtil.isEmpty(lines) ? Collections.emptyList()
+                    : new ArrayList<>(convertSet(lines, MesQcIpqcLineDO::getIndicatorId));
+        } else if (Objects.equals(qcType, MesQcTypeEnum.OQC.getType())) {
+            List<MesQcOqcLineDO> lines = oqcLineService.getOqcLineListByOqcId(qcId);
+            indicatorIds = CollUtil.isEmpty(lines) ? Collections.emptyList()
+                    : new ArrayList<>(convertSet(lines, MesQcOqcLineDO::getIndicatorId));
+        } else if (Objects.equals(qcType, MesQcTypeEnum.RQC.getType())) {
+            List<MesQcRqcLineDO> lines = rqcLineService.getRqcLineListByRqcId(qcId);
+            indicatorIds = CollUtil.isEmpty(lines) ? Collections.emptyList()
+                    : new ArrayList<>(convertSet(lines, MesQcRqcLineDO::getIndicatorId));
         } else {
-            // TODO @芋艿：IPQC/OQC/RQC 模块迁移后实现
             throw new IllegalArgumentException("暂不支持 qcType=" + qcType);
         }
-        if (CollUtil.isEmpty(lines)) {
+        if (CollUtil.isEmpty(indicatorIds)) {
             return Collections.emptyList();
         }
 
         // 1.2 批量查询检测指标
-        Map<Long, MesQcIndicatorDO> indicatorMap = indicatorService.getIndicatorMap(
-                convertSet(lines, MesQcIqcLineDO::getIndicatorId));
+        Map<Long, MesQcIndicatorDO> indicatorMap = indicatorService.getIndicatorMap(new HashSet<>(indicatorIds));
         // 1.3 构建已有明细 Map（按 indicatorId 索引）
         Map<Long, MesQcIndicatorResultDetailDO> detailMap = CollUtil.isEmpty(details)
                 ? Collections.emptyMap()
                 : convertMap(details, MesQcIndicatorResultDetailDO::getIndicatorId);
 
-        // 2. 遍历行，组装 VO
-        List<MesQcIndicatorResultRespVO.Item> voList = new ArrayList<>(lines.size());
-        for (MesQcIqcLineDO line : lines) {
+        // 2. 遍历指标 ID，组装 VO
+        List<MesQcIndicatorResultRespVO.Item> voList = new ArrayList<>(indicatorIds.size());
+        for (Long indicatorId : indicatorIds) {
             MesQcIndicatorResultRespVO.Item vo = new MesQcIndicatorResultRespVO.Item()
-                    .setIndicatorId(line.getIndicatorId());
+                    .setIndicatorId(indicatorId);
             // 来自 indicator
-            findAndThen(indicatorMap, line.getIndicatorId(), indicator -> vo
+            findAndThen(indicatorMap, indicatorId, indicator -> vo
                     .setIndicatorName(indicator.getName())
                     .setValueType(indicator.getResultType())
                     .setValueSpecification(indicator.getResultSpecification()));
             // 来自已有结果明细（如有）
-            findAndThen(detailMap, line.getIndicatorId(), detail -> vo
+            findAndThen(detailMap, indicatorId, detail -> vo
                     .setId(detail.getId()).setResultId(detail.getResultId())
                     .setValue(detail.getValue()).setRemark(detail.getRemark()));
             voList.add(vo);
