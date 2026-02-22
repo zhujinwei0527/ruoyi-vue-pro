@@ -19,6 +19,7 @@ public interface MesWmItemReceiptMapper extends BaseMapperX<MesWmItemReceiptDO> 
                 .likeIfPresent(MesWmItemReceiptDO::getName, reqVO.getName())
                 .likeIfPresent(MesWmItemReceiptDO::getPurchaseOrderCode, reqVO.getPurchaseOrderCode())
                 .eqIfPresent(MesWmItemReceiptDO::getVendorId, reqVO.getVendorId())
+                .betweenIfPresent(MesWmItemReceiptDO::getReceiptDate, reqVO.getReceiptDate())
                 .eqIfPresent(MesWmItemReceiptDO::getStatus, reqVO.getStatus())
                 .orderByDesc(MesWmItemReceiptDO::getId));
     }
