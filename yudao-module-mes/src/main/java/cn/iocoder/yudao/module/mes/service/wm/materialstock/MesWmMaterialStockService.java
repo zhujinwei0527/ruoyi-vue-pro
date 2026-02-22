@@ -6,6 +6,8 @@ import cn.iocoder.yudao.module.mes.controller.admin.wm.materialstock.vo.MesWmMat
 import cn.iocoder.yudao.module.mes.dal.dataobject.wm.materialstock.MesWmMaterialStockDO;
 import jakarta.validation.Valid;
 
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -83,5 +85,25 @@ public interface MesWmMaterialStockService {
     default Map<Long, MesWmMaterialStockDO> getMaterialStockMap(Collection<Long> ids) {
         return convertMap(getMaterialStockList(ids), MesWmMaterialStockDO::getId);
     }
+
+    /**
+     * 增加库存
+     *
+     * 按 itemId + warehouseId + locationId + areaId + batchId 查找已有库存，
+     * 存在则增加 quantityOnhand；不存在则新建记录。
+     *
+     * @param itemId         物料编号
+     * @param warehouseId    仓库编号
+     * @param locationId     库区编号
+     * @param areaId         库位编号
+     * @param batchId        批次编号
+     * @param quantity       增加数量
+     * @param vendorId       供应商编号
+     * @param productionDate 生产日期
+     * @param expireDate     过期日期
+     */
+    void increaseStock(Long itemId, Long warehouseId, Long locationId, Long areaId,
+                       Long batchId, BigDecimal quantity, Long vendorId,
+                       LocalDateTime productionDate, LocalDateTime expireDate);
 
 }

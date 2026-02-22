@@ -5,14 +5,18 @@ import cn.iocoder.yudao.framework.common.pojo.PageResult;
 import cn.iocoder.yudao.framework.common.util.collection.SetUtils;
 import cn.iocoder.yudao.module.mes.controller.admin.wm.materialstock.vo.MesWmMaterialStockPageReqVO;
 import cn.iocoder.yudao.module.mes.controller.admin.wm.materialstock.vo.MesWmMaterialStockSaveReqVO;
+import cn.iocoder.yudao.module.mes.dal.dataobject.md.item.MesMdItemDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.md.item.MesMdItemTypeDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.wm.materialstock.MesWmMaterialStockDO;
 import cn.iocoder.yudao.module.mes.dal.mysql.wm.materialstock.MesWmMaterialStockMapper;
+import cn.iocoder.yudao.module.mes.service.md.item.MesMdItemService;
 import cn.iocoder.yudao.module.mes.service.md.item.MesMdItemTypeService;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.*;
 
 import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception;
@@ -28,6 +32,9 @@ public class MesWmMaterialStockServiceImpl implements MesWmMaterialStockService 
 
     @Resource
     private MesWmMaterialStockMapper materialStockMapper;
+
+    @Resource
+    private MesMdItemService itemService;
 
     @Resource
     private MesMdItemTypeService itemTypeService;
@@ -98,6 +105,36 @@ public class MesWmMaterialStockServiceImpl implements MesWmMaterialStockService 
             return Collections.emptyList();
         }
         return materialStockMapper.selectListByIds(ids);
+    }
+
+    // TODO @AI：MaterialStock
+    @Override
+    public void increaseStock(Long itemId, Long warehouseId, Long locationId, Long areaId,
+                              Long batchId, BigDecimal quantity, Long vendorId,
+                              LocalDateTime productionDate, LocalDateTime expireDate) {
+        // 1. 查找已有库存记录
+        MesWmMaterialStockDO stock = materialStockMapper.selectByCompositeKey(
+                itemId, warehouseId, locationId, areaId, batchId);
+
+        // 2a. 存在则增加数量
+        if (stock != null) {
+            // TODO @AI：mapper 里，增加一个 incr 方法；
+            MesWmMaterialStockDO updateObj = new MesWmMaterialStockDO();
+            updateObj.setId(stock.getId());
+            updateObj.setQuantityOnhand(stock.getQuantityOnhand().add(quantity));
+            materialStockMapper.updateById(updateObj);
+            return;
+        }
+
+        // 2. 不存在则新建
+        MesMdItemDO item = itemService.validateItemExists(itemId);
+        MesWmMaterialStockDO newStock = MesWmMaterialStockDO.builder()
+                .itemId(itemId).itemTypeId(item.getItemTypeId()).unitMeasureId(item.getUnitMeasureId())
+                .warehouseId(warehouseId).locationId(locationId).areaId(areaId)
+                .batchId(batchId).vendorId(vendorId).quantityOnhand(quantity)
+                .recptDate(LocalDateTime.now()).productionDate(productionDate).expireDate(expireDate).frozen(false)
+                .build();
+        materialStockMapper.insert(newStock);
     }
 
 }

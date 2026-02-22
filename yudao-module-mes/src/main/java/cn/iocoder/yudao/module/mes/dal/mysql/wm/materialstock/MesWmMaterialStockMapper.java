@@ -46,4 +46,14 @@ public interface MesWmMaterialStockMapper extends BaseMapperX<MesWmMaterialStock
         return selectByIds(ids);
     }
 
+    default MesWmMaterialStockDO selectByCompositeKey(Long itemId, Long warehouseId, Long locationId,
+                                                       Long areaId, Long batchId) {
+        return selectOne(new LambdaQueryWrapperX<MesWmMaterialStockDO>()
+                .eqIfPresent(MesWmMaterialStockDO::getItemId, itemId)
+                .eqIfPresent(MesWmMaterialStockDO::getWarehouseId, warehouseId)
+                .eqIfPresent(MesWmMaterialStockDO::getLocationId, locationId)
+                .eqIfPresent(MesWmMaterialStockDO::getAreaId, areaId)
+                .eqIfPresent(MesWmMaterialStockDO::getBatchId, batchId));
+    }
+
 }

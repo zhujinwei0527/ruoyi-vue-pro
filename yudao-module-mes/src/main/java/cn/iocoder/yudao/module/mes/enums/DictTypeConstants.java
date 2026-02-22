@@ -44,5 +44,7 @@ public interface DictTypeConstants {
     String MES_PRO_FEEDBACK_STATUS = "mes_pro_feedback_status"; // MES 生产报工状态
     String MES_PRO_FEEDBACK_TYPE = "mes_pro_feedback_type"; // MES 生产报工类型
     String MES_PRO_FEEDBACK_CHANNEL = "mes_pro_feedback_channel"; // MES 生产报工途径
+    String MES_WM_ARRIVAL_NOTICE_STATUS = "mes_wm_arrival_notice_status"; // MES 到货通知单状态
+    String MES_WM_ITEM_RECEIPT_STATUS = "mes_wm_item_receipt_status"; // MES 采购入库单状态
 
 }
