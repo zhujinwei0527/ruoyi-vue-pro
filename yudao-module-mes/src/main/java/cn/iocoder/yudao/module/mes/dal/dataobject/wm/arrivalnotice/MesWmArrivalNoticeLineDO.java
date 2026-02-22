@@ -2,6 +2,7 @@ package cn.iocoder.yudao.module.mes.dal.dataobject.wm.arrivalnotice;
 
 import cn.iocoder.yudao.framework.mybatis.core.dataobject.BaseDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.md.item.MesMdItemDO;
+import cn.iocoder.yudao.module.mes.dal.dataobject.qc.lqc.MesQcIqcDO;
 import com.baomidou.mybatisplus.annotation.KeySequence;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
@@ -51,11 +52,10 @@ public class MesWmArrivalNoticeLineDO extends BaseDO {
      * 是否需要来料检验
      */
     private Boolean iqcCheckFlag;
-    // TODO @AI：关联下 iqcId 字段
     /**
      * 来料检验单编号
      *
-     * 关联 mes_qc_iqc.id
+     * 关联 {@link MesQcIqcDO#getId()}
      */
     private Long iqcId;
     /**

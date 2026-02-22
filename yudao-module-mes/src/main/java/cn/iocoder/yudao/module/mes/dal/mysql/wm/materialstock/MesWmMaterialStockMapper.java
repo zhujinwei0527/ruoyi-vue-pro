@@ -4,6 +4,7 @@ import cn.iocoder.yudao.framework.common.pojo.PageResult;
 import cn.iocoder.yudao.framework.mybatis.core.mapper.BaseMapperX;
 import cn.iocoder.yudao.framework.mybatis.core.query.LambdaQueryWrapperX;
 import cn.iocoder.yudao.module.mes.controller.admin.wm.materialstock.vo.MesWmMaterialStockPageReqVO;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import cn.iocoder.yudao.module.mes.dal.dataobject.wm.materialstock.MesWmMaterialStockDO;
 import org.apache.ibatis.annotations.Mapper;
 
@@ -44,6 +45,13 @@ public interface MesWmMaterialStockMapper extends BaseMapperX<MesWmMaterialStock
 
     default List<MesWmMaterialStockDO> selectListByIds(Collection<Long> ids) {
         return selectByIds(ids);
+    }
+
+    // TODO @AI：参考别的模块，最好使用 update某个字段，有例子的；然后看看，有没可能，尽量不写字段，而是通过 lamba 表达式获得名字。
+    default void incrQuantityOnhand(Long id, BigDecimal quantity) {
+        update(null, new LambdaUpdateWrapper<MesWmMaterialStockDO>()
+                .eq(MesWmMaterialStockDO::getId, id)
+                .setSql("quantity_onhand = quantity_onhand + " + quantity));
     }
 
     default MesWmMaterialStockDO selectByCompositeKey(Long itemId, Long warehouseId, Long locationId,

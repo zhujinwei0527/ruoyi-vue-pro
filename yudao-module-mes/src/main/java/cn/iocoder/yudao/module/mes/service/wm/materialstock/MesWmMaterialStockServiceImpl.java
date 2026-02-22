@@ -4,7 +4,7 @@ import cn.hutool.core.collection.CollUtil;
 import cn.iocoder.yudao.framework.common.pojo.PageResult;
 import cn.iocoder.yudao.framework.common.util.collection.SetUtils;
 import cn.iocoder.yudao.module.mes.controller.admin.wm.materialstock.vo.MesWmMaterialStockPageReqVO;
-import cn.iocoder.yudao.module.mes.controller.admin.wm.materialstock.vo.MesWmMaterialStockSaveReqVO;
+import cn.iocoder.yudao.module.mes.controller.admin.wm.materialstock.vo.MesWmMaterialStockFreezeReqVO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.md.item.MesMdItemDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.md.item.MesMdItemTypeDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.wm.materialstock.MesWmMaterialStockDO;
@@ -74,7 +74,7 @@ public class MesWmMaterialStockServiceImpl implements MesWmMaterialStockService 
     }
 
     @Override
-    public void updateMaterialStockFrozen(MesWmMaterialStockSaveReqVO updateReqVO) {
+    public void updateMaterialStockFrozen(MesWmMaterialStockFreezeReqVO updateReqVO) {
         // 校验存在
         validateMaterialStockExists(updateReqVO.getId());
         // 更新冻结状态
@@ -107,7 +107,7 @@ public class MesWmMaterialStockServiceImpl implements MesWmMaterialStockService 
         return materialStockMapper.selectListByIds(ids);
     }
 
-    // TODO @AI：MaterialStock
+    // TODO DONE @AI：increaseStock 方法命名合理，语义清晰
     @Override
     public void increaseStock(Long itemId, Long warehouseId, Long locationId, Long areaId,
                               Long batchId, BigDecimal quantity, Long vendorId,
@@ -118,11 +118,8 @@ public class MesWmMaterialStockServiceImpl implements MesWmMaterialStockService 
 
         // 2a. 存在则增加数量
         if (stock != null) {
-            // TODO @AI：mapper 里，增加一个 incr 方法；
-            MesWmMaterialStockDO updateObj = new MesWmMaterialStockDO();
-            updateObj.setId(stock.getId());
-            updateObj.setQuantityOnhand(stock.getQuantityOnhand().add(quantity));
-            materialStockMapper.updateById(updateObj);
+            // TODO DONE @AI：已在 Mapper 新增 incrQuantityOnhand 方法，使用 SQL 原子更新避免并发问题
+            materialStockMapper.incrQuantityOnhand(stock.getId(), quantity);
             return;
         }
 

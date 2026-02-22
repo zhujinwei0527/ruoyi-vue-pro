@@ -21,6 +21,7 @@ public class MesWmArrivalNoticeLineSaveReqVO {
     @NotNull(message = "物料编号不能为空")
     private Long itemId;
 
+    // TODO @AI：必须大于 0；前端也校验下；
     @Schema(description = "到货数量", requiredMode = Schema.RequiredMode.REQUIRED, example = "500.00")
     @NotNull(message = "到货数量不能为空")
     private BigDecimal arrivalQuantity;

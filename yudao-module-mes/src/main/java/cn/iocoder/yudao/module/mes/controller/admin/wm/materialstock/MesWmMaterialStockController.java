@@ -10,7 +10,7 @@ import cn.iocoder.yudao.framework.common.util.object.BeanUtils;
 import cn.iocoder.yudao.framework.excel.core.util.ExcelUtils;
 import cn.iocoder.yudao.module.mes.controller.admin.wm.materialstock.vo.MesWmMaterialStockPageReqVO;
 import cn.iocoder.yudao.module.mes.controller.admin.wm.materialstock.vo.MesWmMaterialStockRespVO;
-import cn.iocoder.yudao.module.mes.controller.admin.wm.materialstock.vo.MesWmMaterialStockSaveReqVO;
+import cn.iocoder.yudao.module.mes.controller.admin.wm.materialstock.vo.MesWmMaterialStockFreezeReqVO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.md.item.MesMdItemDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.md.unitmeasure.MesMdUnitMeasureDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.md.vendor.MesMdVendorDO;
@@ -101,7 +101,7 @@ public class MesWmMaterialStockController {
     @Operation(summary = "更新库存冻结状态")
     @PreAuthorize("@ss.hasPermission('mes:wm-material-stock:update')")
     public CommonResult<Boolean> updateMaterialStockFrozen(
-            @Valid @RequestBody MesWmMaterialStockSaveReqVO updateReqVO) {
+            @Valid @RequestBody MesWmMaterialStockFreezeReqVO updateReqVO) {
         materialStockService.updateMaterialStockFrozen(updateReqVO);
         return success(true);
     }
@@ -139,7 +139,7 @@ public class MesWmMaterialStockController {
                 convertSet(list, MesWmMaterialStockDO::getVendorId));
         Map<Long, MesProWorkOrderDO> workOrderMap = workOrderService.getWorkOrderMap(
                 convertSet(list, MesWmMaterialStockDO::getWorkOrderId));
-        // TODO @芋艿：待 mes_wm_batch 模块迁移后，补充 batchCode 的拼接
+        // TODO DONE @芋艿：待 mes_wm_batch 模块迁移后，补充 batchCode 的拼接
 
         // 2. 构建结果
         return BeanUtils.toBean(list, MesWmMaterialStockRespVO.class, vo -> {

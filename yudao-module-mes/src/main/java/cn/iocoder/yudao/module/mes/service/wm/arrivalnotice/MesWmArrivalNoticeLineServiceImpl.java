@@ -42,6 +42,7 @@ public class MesWmArrivalNoticeLineServiceImpl implements MesWmArrivalNoticeLine
         // 插入
         MesWmArrivalNoticeLineDO line = BeanUtils.toBean(createReqVO, MesWmArrivalNoticeLineDO.class);
         // 如果不需要检验，则合格品数量直接等于到货数量
+        // TODO @AI：抽个通用方法，给 create 和 update 方法使用；然后最好注释下：“如果不需要 iqc 检验，则合格品数量直接 = 接收数量；否则，合格品数量就由对应的 iqc 检验单负责更新（对应方法）”
         if (BooleanUtil.isFalse(line.getIqcCheckFlag())) {
             line.setQualifiedQuantity(line.getArrivalQuantity());
         }

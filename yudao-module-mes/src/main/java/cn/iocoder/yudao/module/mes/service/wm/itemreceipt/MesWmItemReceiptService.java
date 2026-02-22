@@ -77,4 +77,11 @@ public interface MesWmItemReceiptService {
      */
     void cancelItemReceipt(Long id);
 
+    /**
+     * 校验采购入库单存在且处于可编辑状态（草稿或待上架）
+     *
+     * @param id 编号
+     */
+    void validateItemReceiptEditable(Long id);
+
 }

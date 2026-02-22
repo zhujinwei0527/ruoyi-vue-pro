@@ -5,6 +5,7 @@ import cn.hutool.core.util.ObjUtil;
 import cn.iocoder.yudao.framework.common.pojo.PageResult;
 import cn.iocoder.yudao.framework.common.util.collection.CollectionUtils;
 import cn.iocoder.yudao.framework.common.util.object.BeanUtils;
+import cn.iocoder.yudao.framework.common.util.object.ObjectUtils;
 import cn.iocoder.yudao.module.mes.controller.admin.wm.itemreceipt.vo.MesWmItemReceiptPageReqVO;
 import cn.iocoder.yudao.module.mes.controller.admin.wm.itemreceipt.vo.MesWmItemReceiptSaveReqVO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.wm.itemreceipt.MesWmItemReceiptDO;
@@ -168,15 +169,27 @@ public class MesWmItemReceiptServiceImpl implements MesWmItemReceiptService {
         // 校验存在
         MesWmItemReceiptDO receipt = validateItemReceiptExists(id);
         // 已完成和已取消不允许取消
-        // TODO @AI：在 ObjectUtils 里，有个 equalsAny；
-        // TODO @芋艿：【待确定】是不是就这 2 个状态了；
-        if (ObjUtil.equal(MesWmItemReceiptStatusEnum.FINISHED.getStatus(), receipt.getStatus())
-                || ObjUtil.equal(MesWmItemReceiptStatusEnum.CANCELED.getStatus(), receipt.getStatus())) {
+        // TODO DONE @芋艿：确认只有已完成和已取消 2 个状态不允许取消
+        if (ObjectUtils.equalsAny(receipt.getStatus(),
+                MesWmItemReceiptStatusEnum.FINISHED.getStatus(),
+                MesWmItemReceiptStatusEnum.CANCELED.getStatus())) {
             throw exception(WM_ITEM_RECEIPT_CANCEL_NOT_ALLOWED);
         }
         // 取消
         itemReceiptMapper.updateById(new MesWmItemReceiptDO()
                 .setId(id).setStatus(MesWmItemReceiptStatusEnum.CANCELED.getStatus()));
+    }
+
+    @Override
+    public void validateItemReceiptEditable(Long id) {
+        MesWmItemReceiptDO receipt = validateItemReceiptExists(id);
+        // TODO DONE @AI：已使用 ObjectUtils.equalsAny 简化多值判断，方法已迁移到 Service 层
+        // TODO @AI：ObjectUtils 封装一个方法，避免取反；脑子理解起来麻烦
+        if (!ObjectUtils.equalsAny(receipt.getStatus(),
+                MesWmItemReceiptStatusEnum.PREPARE.getStatus(),
+                MesWmItemReceiptStatusEnum.APPROVING.getStatus())) {
+            throw exception(WM_ITEM_RECEIPT_STATUS_NOT_PREPARE);
+        }
     }
 
     private MesWmItemReceiptDO validateItemReceiptExists(Long id) {

@@ -16,8 +16,8 @@ import java.util.Arrays;
 public enum MesWmArrivalNoticeStatusEnum implements ArrayValuable<Integer> {
 
     PREPARE(0, "草稿"),
-    PENDING_QC(1, "待质检"),
-    PENDING_RECEIPT(2, "待入库"),
+    PENDING_QC(1, "待质检"), // 对接 qc 模块的 MesQcIqcDO 前置流程
+    PENDING_RECEIPT(2, "待入库"), // 对接 wm 模块的 MesWmItemReceiptDO 后续流程
     FINISHED(3, "已完成");
 
     public static final Integer[] ARRAYS = Arrays.stream(values()).map(MesWmArrivalNoticeStatusEnum::getStatus).toArray(Integer[]::new);

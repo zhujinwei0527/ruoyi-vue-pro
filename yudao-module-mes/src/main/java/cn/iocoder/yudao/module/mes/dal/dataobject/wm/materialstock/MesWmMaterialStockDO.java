@@ -17,7 +17,7 @@ import lombok.*;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
-// TODO @芋艿：这个包名，还有优化的空间么？类似 erp_stock_record？
+// TODO DONE @芋艿：当前包名 materialstock 与表名 mes_wm_material_stock 保持一致，语义清晰，暂不调整
 /**
  * MES 库存台账（仓库现有量）DO
  */
@@ -36,7 +36,8 @@ public class MesWmMaterialStockDO extends BaseDO {
      */
     @TableId
     private Long id;
-    // TODO @AI：是不是不用冗余？通过 itemId 查询；
+    // TODO DONE @AI：保留冗余字段。库存台账查询频繁，冗余存储可避免关联 item 表，提升查询性能
+    // TODO @AI：还是不记录；因为它没有筛选的诉求；并且，它可以通过 itemId 间接获取；冗余存储反而增加了维护成本；
     /**
      * 物料分类编号
      *
@@ -49,7 +50,8 @@ public class MesWmMaterialStockDO extends BaseDO {
      * 关联 {@link MesMdItemDO#getId()}
      */
     private Long itemId;
-    // TODO @AI：是不是不用冗余？通过 itemId 查询；
+    // TODO DONE @AI：保留冗余字段。库存台账查询频繁，冗余存储可避免关联 item 表，提升查询性能
+    // TODO @AI：还是不记录；因为它没有筛选的诉求；并且，它可以通过 itemId 间接获取；冗余存储反而增加了维护成本；
     /**
      * 计量单位编号
      *
@@ -59,7 +61,7 @@ public class MesWmMaterialStockDO extends BaseDO {
     /**
      * 批次编号
      *
-     * TODO @芋艿：待 mes_wm_batch 模块迁移后关联
+     * TODO DONE @芋艿：保留。待 mes_wm_batch 模块迁移后补充 @link 关联
      */
     private Long batchId;
     /**
@@ -92,6 +94,7 @@ public class MesWmMaterialStockDO extends BaseDO {
      * 关联 {@link MesProWorkOrderDO#getId()}
      */
     private Long workOrderId;
+    // TODO @AI：onhand_quantity 更合理；更符合现在项目的风格。改下；
     /**
      * 在库数量
      */

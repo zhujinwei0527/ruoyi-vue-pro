@@ -2,7 +2,7 @@ package cn.iocoder.yudao.module.mes.service.wm.materialstock;
 
 import cn.iocoder.yudao.framework.common.pojo.PageResult;
 import cn.iocoder.yudao.module.mes.controller.admin.wm.materialstock.vo.MesWmMaterialStockPageReqVO;
-import cn.iocoder.yudao.module.mes.controller.admin.wm.materialstock.vo.MesWmMaterialStockSaveReqVO;
+import cn.iocoder.yudao.module.mes.controller.admin.wm.materialstock.vo.MesWmMaterialStockFreezeReqVO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.wm.materialstock.MesWmMaterialStockDO;
 import jakarta.validation.Valid;
 
@@ -48,7 +48,7 @@ public interface MesWmMaterialStockService {
      *
      * @param updateReqVO 更新信息
      */
-    void updateMaterialStockFrozen(@Valid MesWmMaterialStockSaveReqVO updateReqVO);
+    void updateMaterialStockFrozen(@Valid MesWmMaterialStockFreezeReqVO updateReqVO);
 
     /**
      * 获得仓库下库存记录数量

@@ -4,10 +4,10 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
-// TODO @AI：不应该叫 save？！
+// TODO DONE @AI：已重命名为 FreezeReqVO，语义与冻结/解冻操作一致
 @Schema(description = "管理后台 - MES 库存台账冻结/解冻 Request VO")
 @Data
-public class MesWmMaterialStockSaveReqVO {
+public class MesWmMaterialStockFreezeReqVO {
 
     @Schema(description = "编号", requiredMode = Schema.RequiredMode.REQUIRED, example = "1024")
     @NotNull(message = "编号不能为空")

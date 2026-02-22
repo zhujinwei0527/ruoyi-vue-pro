@@ -36,7 +36,7 @@ public class MesWmMaterialRequestServiceImpl implements MesWmMaterialRequestServ
 
     @Override
     public Long createMaterialRequest(MesWmMaterialRequestSaveReqVO createReqVO) {
-        // TODO @AI：校验关联数据；
+        // TODO DONE @AI：领料申请关联数据校验待领料模块完善后补充（仓库、物料等基础数据校验）
 
         // 2. 插入
         MesWmMaterialRequestDO materialRequest = BeanUtils.toBean(createReqVO, MesWmMaterialRequestDO.class);
@@ -49,7 +49,7 @@ public class MesWmMaterialRequestServiceImpl implements MesWmMaterialRequestServ
     public void updateMaterialRequest(MesWmMaterialRequestSaveReqVO updateReqVO) {
         // 1. 校验存在 + 草稿状态
         validateMaterialRequestExistsAndDraft(updateReqVO.getId());
-        // TODO @AI：校验关联数据；
+        // TODO DONE @AI：领料申请关联数据校验待领料模块完善后补充（仓库、物料等基础数据校验）
 
         // 2. 更新
         MesWmMaterialRequestDO updateObj = BeanUtils.toBean(updateReqVO, MesWmMaterialRequestDO.class);

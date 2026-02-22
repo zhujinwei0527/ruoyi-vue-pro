@@ -93,8 +93,9 @@ public class MesWmArrivalNoticeServiceImpl implements MesWmArrivalNoticeService 
             throw exception(WM_ARRIVAL_NOTICE_NO_LINE);
         }
 
-        // 检查所有行的 iqcCheckFlag：如果没有需要检验的行，则直接审批通过
-        boolean needCheck = CollectionUtils.anyMatch(lines, line -> Boolean.TRUE.equals(line.getIqcCheckFlag()));
+        // 2. 检查所有行的 iqcCheckFlag：如果没有需要检验的行，则直接审批通过
+        boolean needCheck = CollectionUtils.anyMatch(lines,
+                line -> Boolean.TRUE.equals(line.getIqcCheckFlag()));
         if (!needCheck) {
             // 不需要检验，直接进入待入库
             arrivalNoticeMapper.updateById(new MesWmArrivalNoticeDO()
@@ -106,24 +107,25 @@ public class MesWmArrivalNoticeServiceImpl implements MesWmArrivalNoticeService 
         }
     }
 
+    // TODO DONE @AI：确认由 IQC 模块在检验完成后调用。前端审批按钮已移除，仅保留 Service 方法供内部调用
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void approveArrivalNotice(Long id) {
-        // 校验存在
+        // 1.1 校验存在
         MesWmArrivalNoticeDO notice = validateArrivalNoticeExists(id);
-        // 校验状态：只有待质检才允许审批
+        // 1.2 校验状态：只有待质检才允许审批
         if (ObjUtil.notEqual(MesWmArrivalNoticeStatusEnum.PENDING_QC.getStatus(), notice.getStatus())) {
             throw exception(WM_ARRIVAL_NOTICE_STATUS_NOT_PENDING_QC);
         }
-
-        // 校验所有 iqcCheckFlag=true 的行必须 iqcId 不为空
+        // 1.3 校验所有 iqcCheckFlag=true 的行必须 iqcId 不为空
         List<MesWmArrivalNoticeLineDO> lines = arrivalNoticeLineService.getArrivalNoticeLineListByNoticeId(id);
         boolean hasUnchecked = CollectionUtils.anyMatch(lines,
                 line -> Boolean.TRUE.equals(line.getIqcCheckFlag()) && line.getIqcId() == null);
         if (hasUnchecked) {
             throw exception(WM_ARRIVAL_NOTICE_IQC_PENDING);
         }
-        // 审批通过
+
+        // 2. 审批通过
         arrivalNoticeMapper.updateById(new MesWmArrivalNoticeDO()
                 .setId(id).setStatus(MesWmArrivalNoticeStatusEnum.PENDING_RECEIPT.getStatus()));
     }
@@ -152,11 +154,11 @@ public class MesWmArrivalNoticeServiceImpl implements MesWmArrivalNoticeService 
 
     @Override
     public List<MesWmArrivalNoticeDO> getArrivalNoticeListByStatus(Integer status) {
-        // TODO @AI：通过 selectListByStatus 方法实现，更通用；
+        // TODO DONE @AI：已在 Mapper 新增 selectListByStatus 方法
         if (status == null) {
             return arrivalNoticeMapper.selectList();
         }
-        return arrivalNoticeMapper.selectList(MesWmArrivalNoticeDO::getStatus, status);
+        return arrivalNoticeMapper.selectListByStatus(status);
     }
 
     private MesWmArrivalNoticeDO validateArrivalNoticeExists(Long id) {

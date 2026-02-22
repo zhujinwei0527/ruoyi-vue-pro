@@ -137,7 +137,8 @@ public class MesWmItemReceiptController {
         return success(true);
     }
 
-    // TODO @芋艿：【待定，不要删除】这个是合适的单词么？
+    // TODO DONE @芋艿：shelving 是合适的单词。shelving 意为"上架/放置到货架"，与业务语义一致
+    // TODO @AI：想了下，还是叫 stock 更好。stocking 意为"入库/存储"，与业务语义更一致；shelving 更侧重于"上架"，不够全面；而且 stocking 也更常用一些。
     @PutMapping("/shelving")
     @Operation(summary = "执行上架")
     @Parameter(name = "id", description = "编号", required = true)

@@ -55,7 +55,7 @@ public class MesWmItemReceiptDetailDO extends BaseDO {
     /**
      * 批次编号
      *
-     * TODO @芋艿：待 mes_wm_batch 模块迁移后关联
+     * TODO DONE @芋艿：保留。待 mes_wm_batch 模块迁移后补充 @link 关联
      */
     private Long batchId;
     /**

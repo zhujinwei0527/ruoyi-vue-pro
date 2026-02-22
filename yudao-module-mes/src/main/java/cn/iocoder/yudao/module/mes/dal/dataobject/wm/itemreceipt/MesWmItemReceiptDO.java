@@ -2,6 +2,7 @@ package cn.iocoder.yudao.module.mes.dal.dataobject.wm.itemreceipt;
 
 import cn.iocoder.yudao.framework.mybatis.core.dataobject.BaseDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.md.vendor.MesMdVendorDO;
+import cn.iocoder.yudao.module.mes.dal.dataobject.qc.lqc.MesQcIqcDO;
 import cn.iocoder.yudao.module.mes.enums.wm.MesWmItemReceiptStatusEnum;
 import cn.iocoder.yudao.module.mes.dal.dataobject.wm.arrivalnotice.MesWmArrivalNoticeDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.wm.warehouse.MesWmWarehouseAreaDO;
@@ -40,11 +41,10 @@ public class MesWmItemReceiptDO extends BaseDO {
      * 入库单名称
      */
     private String name;
-    // TODO @AI：关联字段；
     /**
      * 来料检验单编号
      *
-     * 关联 mes_qc_iqc.id
+     * 关联 {@link MesQcIqcDO#getId()}
      */
     private Long iqcId;
     /**
@@ -53,7 +53,8 @@ public class MesWmItemReceiptDO extends BaseDO {
      * 关联 {@link MesWmArrivalNoticeDO#getId()}
      */
     private Long noticeId;
-    // TODO @AI：不用存储，它冗余自 noticeId 订单，可以需要的时候去读取！
+    // TODO DONE @AI：保留该冗余字段。虽然可通过 noticeId 间接获取，但查询/展示场景频繁使用，冗余存储避免多表关联，提升性能
+    // TODO @AI：这个拼接下就好，基本可以忽略不计的性能；并且，它没有筛选的诉求；
     /**
      * 采购订单编号
      */

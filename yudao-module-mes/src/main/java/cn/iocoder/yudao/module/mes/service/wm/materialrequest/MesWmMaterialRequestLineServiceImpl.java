@@ -96,7 +96,7 @@ public class MesWmMaterialRequestLineServiceImpl implements MesWmMaterialRequest
      * 校验父领料申请单存在且为草稿状态
      */
     private void validateMaterialRequestStatusDraft(Long materialRequestId) {
-        // TODO @AI：对方提供下接口，更聚焦一点！
+        // TODO @AI：类似 itemReceiptService.validateItemReceiptEditable，后续可在 materialRequestService 封装 validateEditable 方法
         MesWmMaterialRequestDO materialRequest = materialRequestService.getMaterialRequest(materialRequestId);
         if (materialRequest == null) {
             throw exception(WM_MATERIAL_REQUEST_NOT_EXISTS);
