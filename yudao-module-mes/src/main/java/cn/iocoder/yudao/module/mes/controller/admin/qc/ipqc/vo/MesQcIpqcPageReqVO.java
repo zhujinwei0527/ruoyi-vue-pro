@@ -20,8 +20,8 @@ public class MesQcIpqcPageReqVO extends PageParam {
     @Schema(description = "检验单编号", example = "IPQC2025")
     private String code;
 
-    @Schema(description = "IPQC 检验类型", example = "IPQC")
-    private String type;
+    @Schema(description = "IPQC 检验类型", example = "1")
+    private Integer type;
 
     @Schema(description = "生产工单 ID", example = "10")
     private Long workOrderId;

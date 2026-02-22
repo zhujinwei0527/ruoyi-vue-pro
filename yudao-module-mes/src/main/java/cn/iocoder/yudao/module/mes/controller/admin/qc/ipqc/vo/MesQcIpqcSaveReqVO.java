@@ -23,9 +23,9 @@ public class MesQcIpqcSaveReqVO {
     @NotEmpty(message = "检验单名称不能为空")
     private String name;
 
-    @Schema(description = "IPQC 检验类型", requiredMode = Schema.RequiredMode.REQUIRED, example = "IPQC")
-    @NotEmpty(message = "检验类型不能为空")
-    private String type;
+    @Schema(description = "IPQC 检验类型", requiredMode = Schema.RequiredMode.REQUIRED, example = "1")
+    @NotNull(message = "检验类型不能为空")
+    private Integer type;
 
     @Schema(description = "检验模板 ID", example = "100")
     private Long templateId;

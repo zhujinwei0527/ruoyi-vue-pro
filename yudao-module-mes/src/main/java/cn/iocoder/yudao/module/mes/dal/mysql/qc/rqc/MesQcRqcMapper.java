@@ -18,6 +18,8 @@ public interface MesQcRqcMapper extends BaseMapperX<MesQcRqcDO> {
     default PageResult<MesQcRqcDO> selectPage(MesQcRqcPageReqVO reqVO) {
         return selectPage(reqVO, new LambdaQueryWrapperX<MesQcRqcDO>()
                 .likeIfPresent(MesQcRqcDO::getCode, reqVO.getCode())
+                .eqIfPresent(MesQcRqcDO::getSourceDocType, reqVO.getSourceDocType())
+                .likeIfPresent(MesQcRqcDO::getSourceDocCode, reqVO.getSourceDocCode())
                 .eqIfPresent(MesQcRqcDO::getItemId, reqVO.getItemId())
                 .eqIfPresent(MesQcRqcDO::getRqcType, reqVO.getRqcType())
                 .eqIfPresent(MesQcRqcDO::getCheckResult, reqVO.getCheckResult())

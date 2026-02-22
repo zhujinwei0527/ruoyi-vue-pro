@@ -25,9 +25,9 @@ public class MesQcIpqcRespVO {
     @ExcelProperty("检验单名称")
     private String name;
 
-    @Schema(description = "IPQC 检验类型", requiredMode = Schema.RequiredMode.REQUIRED, example = "IPQC")
+    @Schema(description = "IPQC 检验类型", requiredMode = Schema.RequiredMode.REQUIRED, example = "1")
     @ExcelProperty("检验类型")
-    private String type;
+    private Integer type;
 
     @Schema(description = "检验模板 ID", requiredMode = Schema.RequiredMode.REQUIRED, example = "100")
     private Long templateId;

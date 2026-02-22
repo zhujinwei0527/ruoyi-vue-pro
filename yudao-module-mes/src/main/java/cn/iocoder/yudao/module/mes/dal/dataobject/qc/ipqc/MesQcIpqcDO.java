@@ -41,13 +41,12 @@ public class MesQcIpqcDO extends BaseDO {
      * 检验单名称
      */
     private String name;
-    // TODO @AI：搞成 int 类型；
     /**
      * IPQC 检验类型
      *
      * 字典 {@link cn.iocoder.yudao.module.mes.enums.DictTypeConstants#MES_IPQC_TYPE}
      */
-    private String type;
+    private Integer type;
     /**
      * 检验模板 ID
      *

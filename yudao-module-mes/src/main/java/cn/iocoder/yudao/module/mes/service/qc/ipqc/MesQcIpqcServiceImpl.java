@@ -5,12 +5,10 @@ import cn.iocoder.yudao.framework.common.pojo.PageResult;
 import cn.iocoder.yudao.framework.common.util.object.BeanUtils;
 import cn.iocoder.yudao.module.mes.controller.admin.qc.ipqc.vo.MesQcIpqcPageReqVO;
 import cn.iocoder.yudao.module.mes.controller.admin.qc.ipqc.vo.MesQcIpqcSaveReqVO;
-import cn.iocoder.yudao.module.mes.dal.dataobject.md.workstation.MesMdWorkstationDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.pro.workorder.MesProWorkOrderDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.qc.defectrecord.MesQcDefectRecordDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.qc.ipqc.MesQcIpqcDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.qc.template.MesQcTemplateDO;
-import cn.iocoder.yudao.module.mes.dal.dataobject.qc.template.MesQcTemplateItemDO;
 import cn.iocoder.yudao.module.mes.dal.mysql.qc.ipqc.MesQcIpqcMapper;
 import cn.iocoder.yudao.module.mes.enums.qc.MesQcDefectLevelEnum;
 import cn.iocoder.yudao.module.mes.enums.qc.MesQcIqcStatusEnum;
@@ -64,40 +62,21 @@ public class MesQcIpqcServiceImpl implements MesQcIpqcService {
     public Long createIpqc(MesQcIpqcSaveReqVO createReqVO) {
         // 1.1 校验编号唯一
         validateIpqcCodeUnique(null, createReqVO.getCode());
-
-        // 1.2 从工单获取产品物料 ID
-        // TODO @AI：需要校验 workOrderService 存在；
-//      TODO  createReqVO 里的 itemId 字段去掉；直接去下面的实体去 set；
-        MesProWorkOrderDO workOrder = workOrderService.getWorkOrder(createReqVO.getWorkOrderId());
-        if (workOrder != null) {
-            createReqVO.setItemId(workOrder.getProductId());
-        }
-
-        // 1.3 从工位获取工序 ID
-        // TODO @AI：需要校验 workstationService 存在；
-        // TODO @AI：processId 不存储，去读取好了；
-        MesMdWorkstationDO workstation = workstationService.getWorkstation(createReqVO.getWorkstationId());
-        if (workstation != null && workstation.getProcessId() != null) {
-            createReqVO.setProcessId(workstation.getProcessId());
-        }
-
+        // 1.2 校验工单存在
+        MesProWorkOrderDO workOrder = workOrderService.validateWorkOrderExists(createReqVO.getWorkOrderId());
+        // 1.3 校验工位存在
+        workstationService.validateWorkstationExists(createReqVO.getWorkstationId());
         // 1.4 根据产品 + 检验类型自动匹配模板
-        // TODO @AI：直接调用 templateService 的校验方法；
         MesQcTemplateDO template = templateService.getTemplateByItemIdAndType(
-                createReqVO.getItemId(), MesQcTypeEnum.IPQC.getType());
+                workOrder.getProductId(), MesQcTypeEnum.IPQC.getType());
         if (template == null) {
             throw exception(QC_IPQC_NO_TEMPLATE);
         }
-        createReqVO.setTemplateId(template.getId());
-
-        // 1.5 从模板的产品关联中获取检测参数
-        MesQcTemplateItemDO templateItem = templateService.getTemplateItemByTemplateIdAndItemId(
-                template.getId(), createReqVO.getItemId());
-        // 模板产品关联可能为空（模板关联了其他产品但也可手动选择），此处不强制
 
         // 2. 插入主表
         MesQcIpqcDO ipqc = BeanUtils.toBean(createReqVO, MesQcIpqcDO.class);
-        ipqc.setStatus(MesQcIqcStatusEnum.PREPARE.getType());
+        ipqc.setItemId(workOrder.getProductId());
+        ipqc.setTemplateId(template.getId()).setStatus(MesQcIqcStatusEnum.PREPARE.getType());
         ipqcMapper.insert(ipqc);
 
         // 3. 从模板指标自动生成检验行
