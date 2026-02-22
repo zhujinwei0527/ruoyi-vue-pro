@@ -322,7 +322,10 @@ public interface ErrorCodeConstants {
     ErrorCode WM_ARRIVAL_NOTICE_NOT_EXISTS = new ErrorCode(1_040_704_000, "到货通知单不存在");
     ErrorCode WM_ARRIVAL_NOTICE_CODE_DUPLICATE = new ErrorCode(1_040_704_001, "到货通知单编码已存在");
     ErrorCode WM_ARRIVAL_NOTICE_STATUS_NOT_PREPARE = new ErrorCode(1_040_704_002, "只有草稿状态才允许此操作");
-    ErrorCode WM_ARRIVAL_NOTICE_IQC_PENDING = new ErrorCode(1_040_704_003, "存在待检验行，无法审批通过");
+    ErrorCode WM_ARRIVAL_NOTICE_STATUS_NOT_SUBMITTED = new ErrorCode(1_040_704_003, "只有已提交状态才允许审批");
+    ErrorCode WM_ARRIVAL_NOTICE_STATUS_NOT_APPROVED = new ErrorCode(1_040_704_004, "只有已审批状态才允许完成");
+    ErrorCode WM_ARRIVAL_NOTICE_IQC_PENDING = new ErrorCode(1_040_704_005, "存在待检验行，无法审批通过");
+    ErrorCode WM_ARRIVAL_NOTICE_NO_LINE = new ErrorCode(1_040_704_006, "至少需要一条行项目");
     ErrorCode WM_ARRIVAL_NOTICE_LINE_NOT_EXISTS = new ErrorCode(1_040_704_100, "到货通知单行不存在");
 
     // ========== MES 仓库管理-采购入库单（1-040-705-000） ==========
