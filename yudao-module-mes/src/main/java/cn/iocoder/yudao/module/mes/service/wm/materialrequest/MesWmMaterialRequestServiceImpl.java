@@ -1,13 +1,14 @@
 package cn.iocoder.yudao.module.mes.service.wm.materialrequest;
 
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.util.ObjUtil;
 import cn.iocoder.yudao.framework.common.pojo.PageResult;
 import cn.iocoder.yudao.framework.common.util.object.BeanUtils;
 import cn.iocoder.yudao.module.mes.controller.admin.wm.materialrequest.vo.MesWmMaterialRequestPageReqVO;
 import cn.iocoder.yudao.module.mes.controller.admin.wm.materialrequest.vo.MesWmMaterialRequestSaveReqVO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.wm.materialrequest.MesWmMaterialRequestDO;
-import cn.iocoder.yudao.module.mes.dal.mysql.wm.materialrequest.MesWmMaterialRequestLineMapper;
 import cn.iocoder.yudao.module.mes.dal.mysql.wm.materialrequest.MesWmMaterialRequestMapper;
+import cn.iocoder.yudao.module.mes.enums.wm.MesWmMaterialRequestStatusEnum;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,7 +21,6 @@ import java.util.List;
 import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception;
 import static cn.iocoder.yudao.module.mes.enums.ErrorCodeConstants.*;
 
-// TODO @AI：参考 /Users/yunai/Java/yudao-all-in-one/ruoyi-vue-pro/yudao-module-mes/src/main/java/cn/iocoder/yudao/module/mes/service/wm/arrivalnotice/MesWmArrivalNoticeServiceImpl.java 风格，优化代码；
 /**
  * MES 领料申请单 Service 实现类
  */
@@ -32,24 +32,26 @@ public class MesWmMaterialRequestServiceImpl implements MesWmMaterialRequestServ
     private MesWmMaterialRequestMapper materialRequestMapper;
 
     @Resource
-    private MesWmMaterialRequestLineMapper materialRequestLineMapper;
+    private MesWmMaterialRequestLineService materialRequestLineService;
 
     @Override
     public Long createMaterialRequest(MesWmMaterialRequestSaveReqVO createReqVO) {
+        // TODO @AI：校验关联数据；
+
+        // 2. 插入
         MesWmMaterialRequestDO materialRequest = BeanUtils.toBean(createReqVO, MesWmMaterialRequestDO.class);
-        materialRequest.setStatus(0); // 草稿
+        materialRequest.setStatus(MesWmMaterialRequestStatusEnum.PREPARE.getStatus());
         materialRequestMapper.insert(materialRequest);
         return materialRequest.getId();
     }
 
     @Override
     public void updateMaterialRequest(MesWmMaterialRequestSaveReqVO updateReqVO) {
-        // 校验存在
-        MesWmMaterialRequestDO materialRequest = validateMaterialRequestExists(updateReqVO.getId());
-        // 只有草稿状态才允许修改
-        if (!materialRequest.getStatus().equals(0)) {
-            throw exception(WM_MATERIAL_REQUEST_STATUS_INVALID);
-        }
+        // 1. 校验存在 + 草稿状态
+        validateMaterialRequestExistsAndDraft(updateReqVO.getId());
+        // TODO @AI：校验关联数据；
+
+        // 2. 更新
         MesWmMaterialRequestDO updateObj = BeanUtils.toBean(updateReqVO, MesWmMaterialRequestDO.class);
         materialRequestMapper.updateById(updateObj);
     }
@@ -57,15 +59,12 @@ public class MesWmMaterialRequestServiceImpl implements MesWmMaterialRequestServ
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void deleteMaterialRequest(Long id) {
-        // 校验存在
-        MesWmMaterialRequestDO materialRequest = validateMaterialRequestExists(id);
-        // 只有草稿状态才允许删除
-        if (!materialRequest.getStatus().equals(0)) {
-            throw exception(WM_MATERIAL_REQUEST_STATUS_INVALID);
-        }
-        // 级联删除行
-        materialRequestLineMapper.deleteByMaterialRequestId(id);
-        // 删除
+        // 1. 校验存在 + 草稿状态
+        validateMaterialRequestExistsAndDraft(id);
+
+        // 2.1 级联删除行
+        materialRequestLineService.deleteMaterialRequestLineByMaterialRequestId(id);
+        // 2.2 删除
         materialRequestMapper.deleteById(id);
     }
 
@@ -81,42 +80,54 @@ public class MesWmMaterialRequestServiceImpl implements MesWmMaterialRequestServ
 
     @Override
     public void submitMaterialRequest(Long id) {
-        MesWmMaterialRequestDO materialRequest = validateMaterialRequestExists(id);
-        // 0=草稿 → 1=备料中
-        if (!materialRequest.getStatus().equals(0)) {
-            throw exception(WM_MATERIAL_REQUEST_STATUS_INVALID);
-        }
-        materialRequestMapper.updateById(new MesWmMaterialRequestDO().setId(id).setStatus(1));
+        // 1. 校验存在 + 草稿状态
+        validateMaterialRequestExistsAndDraft(id);
+
+        // 2. 草稿 → 备料中
+        materialRequestMapper.updateById(new MesWmMaterialRequestDO()
+                .setId(id).setStatus(MesWmMaterialRequestStatusEnum.PREPARING.getStatus()));
     }
 
     @Override
     public void approveMaterialRequest(Long id) {
+        // 1.1 校验存在
         MesWmMaterialRequestDO materialRequest = validateMaterialRequestExists(id);
-        // 1=备料中 → 2=待领料
-        if (!materialRequest.getStatus().equals(1)) {
+        // 1.2 校验状态：只有备料中才允许审批
+        if (ObjUtil.notEqual(MesWmMaterialRequestStatusEnum.PREPARING.getStatus(), materialRequest.getStatus())) {
             throw exception(WM_MATERIAL_REQUEST_STATUS_INVALID);
         }
-        materialRequestMapper.updateById(new MesWmMaterialRequestDO().setId(id).setStatus(2));
+
+        // 2. 备料中 → 待领料
+        materialRequestMapper.updateById(new MesWmMaterialRequestDO()
+                .setId(id).setStatus(MesWmMaterialRequestStatusEnum.WAITING.getStatus()));
     }
 
     @Override
     public void finishMaterialRequest(Long id) {
+        // 1.1 校验存在
         MesWmMaterialRequestDO materialRequest = validateMaterialRequestExists(id);
-        // 2=待领料 → 3=已完成
-        if (!materialRequest.getStatus().equals(2)) {
+        // 1.2 校验状态：只有待领料才允许完成
+        if (ObjUtil.notEqual(MesWmMaterialRequestStatusEnum.WAITING.getStatus(), materialRequest.getStatus())) {
             throw exception(WM_MATERIAL_REQUEST_STATUS_INVALID);
         }
-        materialRequestMapper.updateById(new MesWmMaterialRequestDO().setId(id).setStatus(3));
+
+        // 2. 待领料 → 已完成
+        materialRequestMapper.updateById(new MesWmMaterialRequestDO()
+                .setId(id).setStatus(MesWmMaterialRequestStatusEnum.FINISHED.getStatus()));
     }
 
     @Override
     public void cancelMaterialRequest(Long id) {
+        // 1.1 校验存在
         MesWmMaterialRequestDO materialRequest = validateMaterialRequestExists(id);
-        // 已完成不可取消
-        if (materialRequest.getStatus().equals(3)) {
+        // 1.2 已完成不可取消
+        if (ObjUtil.equal(MesWmMaterialRequestStatusEnum.FINISHED.getStatus(), materialRequest.getStatus())) {
             throw exception(WM_MATERIAL_REQUEST_STATUS_INVALID);
         }
-        materialRequestMapper.updateById(new MesWmMaterialRequestDO().setId(id).setStatus(4));
+
+        // 2. 非已完成 → 已取消
+        materialRequestMapper.updateById(new MesWmMaterialRequestDO()
+                .setId(id).setStatus(MesWmMaterialRequestStatusEnum.CANCELED.getStatus()));
     }
 
     @Override
@@ -131,6 +142,17 @@ public class MesWmMaterialRequestServiceImpl implements MesWmMaterialRequestServ
         MesWmMaterialRequestDO materialRequest = materialRequestMapper.selectById(id);
         if (materialRequest == null) {
             throw exception(WM_MATERIAL_REQUEST_NOT_EXISTS);
+        }
+        return materialRequest;
+    }
+
+    /**
+     * 校验领料申请单存在且为草稿状态
+     */
+    private MesWmMaterialRequestDO validateMaterialRequestExistsAndDraft(Long id) {
+        MesWmMaterialRequestDO materialRequest = validateMaterialRequestExists(id);
+        if (ObjUtil.notEqual(MesWmMaterialRequestStatusEnum.PREPARE.getStatus(), materialRequest.getStatus())) {
+            throw exception(WM_MATERIAL_REQUEST_STATUS_INVALID);
         }
         return materialRequest;
     }

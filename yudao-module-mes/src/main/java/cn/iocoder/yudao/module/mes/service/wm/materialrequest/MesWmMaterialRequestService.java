@@ -55,32 +55,29 @@ public interface MesWmMaterialRequestService {
      */
     PageResult<MesWmMaterialRequestDO> getMaterialRequestPage(MesWmMaterialRequestPageReqVO pageReqVO);
 
-    // TODO @AI：不用 0、1 这种状态，只写中文就行
     /**
-     * 提交领料申请单（0=草稿 → 1=备料中）
+     * 提交领料申请单（草稿 → 备料中）
      *
      * @param id 编号
      */
     void submitMaterialRequest(Long id);
 
-    // TODO @AI：不用 0、1 这种状态，只写中文就行
     /**
-     * 审批领料申请单（1=备料中 → 2=待领料）
+     * 审批领料申请单（备料中 → 待领料）
      *
      * @param id 编号
      */
     void approveMaterialRequest(Long id);
 
-    // TODO @AI：不用 0、1 这种状态，只写中文就行
     /**
-     * 完成领料申请单（2=待领料 → 3=已完成），内部调用
+     * 完成领料申请单（待领料 → 已完成），内部调用
      *
      * @param id 编号
      */
     void finishMaterialRequest(Long id);
 
     /**
-     * 取消领料申请单（非已完成 → 4=已取消）
+     * 取消领料申请单（非已完成 → 已取消）
      *
      * @param id 编号
      */

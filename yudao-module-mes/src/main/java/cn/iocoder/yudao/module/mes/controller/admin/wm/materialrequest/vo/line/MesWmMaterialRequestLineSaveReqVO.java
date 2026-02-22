@@ -22,9 +22,6 @@ public class MesWmMaterialRequestLineSaveReqVO {
     @NotNull(message = "产品物料ID不能为空")
     private Long itemId;
 
-    @Schema(description = "产品物料名称", example = "PVC 颗粒")
-    private String itemName;
-
     @Schema(description = "计量单位ID", example = "1")
     private Long unitMeasureId;
 

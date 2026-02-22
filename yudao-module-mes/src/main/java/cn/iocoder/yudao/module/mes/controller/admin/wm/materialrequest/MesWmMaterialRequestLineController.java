@@ -102,7 +102,7 @@ public class MesWmMaterialRequestLineController {
         // 2. 构建结果
         return BeanUtils.toBean(list, MesWmMaterialRequestLineRespVO.class, vo -> {
             MapUtils.findAndThen(itemMap, vo.getItemId(), item ->
-                    vo.setItemCode(item.getCode()).setSpecification(item.getSpecification()));
+                    vo.setItemCode(item.getCode()).setItemName(item.getName()).setSpecification(item.getSpecification()));
             MapUtils.findAndThen(unitMeasureMap, vo.getUnitMeasureId(), unit ->
                     vo.setUnitMeasureName(unit.getName()));
         });

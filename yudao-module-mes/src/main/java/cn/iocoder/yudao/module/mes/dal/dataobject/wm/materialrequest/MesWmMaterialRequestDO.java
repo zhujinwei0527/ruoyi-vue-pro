@@ -3,6 +3,7 @@ package cn.iocoder.yudao.module.mes.dal.dataobject.wm.materialrequest;
 import cn.iocoder.yudao.framework.mybatis.core.dataobject.BaseDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.md.workstation.MesMdWorkstationDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.pro.workorder.MesProWorkOrderDO;
+import cn.iocoder.yudao.module.mes.enums.wm.MesWmMaterialRequestStatusEnum;
 import com.baomidou.mybatisplus.annotation.KeySequence;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
@@ -58,12 +59,10 @@ public class MesWmMaterialRequestDO extends BaseDO {
      * 完成时间
      */
     private LocalDateTime endTime;
-    // TODO @AI：枚举类；
-    // TODO @AI：字典；
     /**
      * 状态
      *
-     * 0=草稿 1=备料中 2=待领料 3=已完成 4=已取消
+     * 枚举 {@link MesWmMaterialRequestStatusEnum}
      */
     private Integer status;
     /**

@@ -40,11 +40,6 @@ public class MesWmMaterialRequestLineDO extends BaseDO {
      * 关联 {@link MesMdItemDO#getId()}
      */
     private Long itemId;
-    // TODO @AI：不用快照，读取就好了。
-    /**
-     * 产品物料名称（快照）
-     */
-    private String itemName;
     /**
      * 计量单位ID
      *

@@ -6,6 +6,8 @@ import cn.iocoder.yudao.module.mes.controller.admin.wm.materialrequest.vo.line.M
 import cn.iocoder.yudao.module.mes.dal.dataobject.wm.materialrequest.MesWmMaterialRequestLineDO;
 import jakarta.validation.Valid;
 
+import java.util.List;
+
 /**
  * MES 领料申请单行 Service 接口
  */
@@ -48,5 +50,20 @@ public interface MesWmMaterialRequestLineService {
      * @return 领料申请单行分页
      */
     PageResult<MesWmMaterialRequestLineDO> getMaterialRequestLinePage(MesWmMaterialRequestLinePageReqVO pageReqVO);
+
+    /**
+     * 获得指定领料申请单的所有行
+     *
+     * @param materialRequestId 领料申请单编号
+     * @return 领料申请单行列表
+     */
+    List<MesWmMaterialRequestLineDO> getMaterialRequestLineListByMaterialRequestId(Long materialRequestId);
+
+    /**
+     * 根据领料申请单编号，删除所有行
+     *
+     * @param materialRequestId 领料申请单编号
+     */
+    void deleteMaterialRequestLineByMaterialRequestId(Long materialRequestId);
 
 }
