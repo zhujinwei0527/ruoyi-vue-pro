@@ -2,6 +2,7 @@ package cn.iocoder.yudao.module.mes.dal.dataobject.wm.itemreceipt;
 
 import cn.iocoder.yudao.framework.mybatis.core.dataobject.BaseDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.md.vendor.MesMdVendorDO;
+import cn.iocoder.yudao.module.mes.enums.wm.MesWmItemReceiptStatusEnum;
 import cn.iocoder.yudao.module.mes.dal.dataobject.wm.arrivalnotice.MesWmArrivalNoticeDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.wm.warehouse.MesWmWarehouseAreaDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.wm.warehouse.MesWmWarehouseDO;
@@ -84,12 +85,10 @@ public class MesWmItemReceiptDO extends BaseDO {
      * 入库日期
      */
     private LocalDateTime receiptDate;
-    // TODO @AI：枚举类；需要 @关联
-    // TODO @AI：字典类；需要 @关联
     /**
      * 状态
      *
-     * 0=草稿 1=已提交 2=已审批 3=已完成
+     * 枚举 {@link MesWmItemReceiptStatusEnum}
      */
     private Integer status;
     /**

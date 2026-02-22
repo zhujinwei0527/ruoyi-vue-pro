@@ -114,6 +114,8 @@ public class MesWmItemReceiptDetailController {
         // 1. 获得关联数据
         Map<Long, MesMdItemDO> itemMap = itemService.getItemMap(
                 convertSet(list, MesWmItemReceiptDetailDO::getItemId));
+        Map<Long, MesMdUnitMeasureDO> unitMeasureMap = unitMeasureService.getUnitMeasureMap(
+                convertSet(itemMap.values(), MesMdItemDO::getUnitMeasureId));
         Map<Long, MesWmWarehouseDO> warehouseMap = warehouseService.getWarehouseMap(
                 convertSet(list, MesWmItemReceiptDetailDO::getWarehouseId));
         Map<Long, MesWmWarehouseLocationDO> locationMap = locationService.getWarehouseLocationMap(
@@ -124,13 +126,8 @@ public class MesWmItemReceiptDetailController {
         return BeanUtils.toBean(list, MesWmItemReceiptDetailRespVO.class, vo -> {
             MapUtils.findAndThen(itemMap, vo.getItemId(), item -> {
                 vo.setItemCode(item.getCode()).setItemName(item.getName()).setSpecification(item.getSpecification());
-                // TODO @AI：批量查询，避免 N+1 查询
-                if (item.getUnitMeasureId() != null) {
-                    MesMdUnitMeasureDO unitMeasure = unitMeasureService.getUnitMeasure(item.getUnitMeasureId());
-                    if (unitMeasure != null) {
-                        vo.setUnitMeasureName(unitMeasure.getName());
-                    }
-                }
+                MapUtils.findAndThen(unitMeasureMap, item.getUnitMeasureId(),
+                        unitMeasure -> vo.setUnitMeasureName(unitMeasure.getName()));
             });
             MapUtils.findAndThen(warehouseMap, vo.getWarehouseId(),
                     warehouse -> vo.setWarehouseName(warehouse.getName()));

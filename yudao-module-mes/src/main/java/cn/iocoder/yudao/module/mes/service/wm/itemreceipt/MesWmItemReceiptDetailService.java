@@ -52,11 +52,33 @@ public interface MesWmItemReceiptDetailService {
     PageResult<MesWmItemReceiptDetailDO> getItemReceiptDetailPage(MesWmItemReceiptDetailPageReqVO pageReqVO);
 
     /**
+     * 按入库单编号获得明细列表
+     *
+     * @param receiptId 入库单编号
+     * @return 明细列表
+     */
+    List<MesWmItemReceiptDetailDO> getItemReceiptDetailListByReceiptId(Long receiptId);
+
+    /**
      * 按入库单行编号获得明细列表
      *
      * @param lineId 行编号
      * @return 明细列表
      */
     List<MesWmItemReceiptDetailDO> getItemReceiptDetailListByLineId(Long lineId);
+
+    /**
+     * 按入库单行编号批量删除明细
+     *
+     * @param lineId 行编号
+     */
+    void deleteItemReceiptDetailByLineId(Long lineId);
+
+    /**
+     * 按入库单编号批量删除明细
+     *
+     * @param receiptId 入库单编号
+     */
+    void deleteItemReceiptDetailByReceiptId(Long receiptId);
 
 }

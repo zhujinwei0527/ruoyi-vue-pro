@@ -104,20 +104,16 @@ public class MesWmArrivalNoticeLineController {
         // 1. 获得关联数据
         Map<Long, MesMdItemDO> itemMap = itemService.getItemMap(
                 convertSet(list, MesWmArrivalNoticeLineDO::getItemId));
+        Map<Long, MesMdUnitMeasureDO> unitMeasureMap = unitMeasureService.getUnitMeasureMap(
+                convertSet(itemMap.values(), MesMdItemDO::getUnitMeasureId));
         Map<Long, MesQcIqcDO> iqcMap = iqcService.getIqcMap(
                 convertSet(list, MesWmArrivalNoticeLineDO::getIqcId));
         // 2. 构建结果
         return BeanUtils.toBean(list, MesWmArrivalNoticeLineRespVO.class, vo -> {
             MapUtils.findAndThen(itemMap, vo.getItemId(), item -> {
                 vo.setItemCode(item.getCode()).setItemName(item.getName()).setSpecification(item.getSpecification());
-                // 查询物料的计量单位名称
-                // TODO @AI：也批量查询，避免逐个；
-                if (item.getUnitMeasureId() != null) {
-                    MesMdUnitMeasureDO unitMeasure = unitMeasureService.getUnitMeasure(item.getUnitMeasureId());
-                    if (unitMeasure != null) {
-                        vo.setUnitMeasureName(unitMeasure.getName());
-                    }
-                }
+                MapUtils.findAndThen(unitMeasureMap, item.getUnitMeasureId(),
+                        unitMeasure -> vo.setUnitMeasureName(unitMeasure.getName()));
             });
             MapUtils.findAndThen(iqcMap, vo.getIqcId(), iqc -> vo.setIqcCode(iqc.getCode()));
         });

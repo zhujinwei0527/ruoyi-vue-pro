@@ -59,4 +59,11 @@ public interface MesWmItemReceiptLineService {
      */
     List<MesWmItemReceiptLineDO> getItemReceiptLineListByReceiptId(Long receiptId);
 
+    /**
+     * 按入库单编号批量删除行
+     *
+     * @param receiptId 入库单编号
+     */
+    void deleteItemReceiptLineByReceiptId(Long receiptId);
+
 }

@@ -2,6 +2,7 @@ package cn.iocoder.yudao.module.mes.dal.dataobject.wm.arrivalnotice;
 
 import cn.iocoder.yudao.framework.mybatis.core.dataobject.BaseDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.md.vendor.MesMdVendorDO;
+import cn.iocoder.yudao.module.mes.enums.wm.MesWmArrivalNoticeStatusEnum;
 import com.baomidou.mybatisplus.annotation.KeySequence;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
@@ -57,12 +58,10 @@ public class MesWmArrivalNoticeDO extends BaseDO {
      * 联系电话
      */
     private String contactTelephone;
-    // TODO @AI：枚举类；需要 @关联
-    // TODO @AI：字典类；需要 @关联
     /**
      * 状态
      *
-     * 0=草稿 1=已提交 2=已审批 3=已完成
+     * 枚举 {@link MesWmArrivalNoticeStatusEnum}
      */
     private Integer status;
     /**

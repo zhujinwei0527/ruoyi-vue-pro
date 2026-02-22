@@ -25,7 +25,8 @@ public class MesWmItemReceiptDetailSaveReqVO {
     @NotNull(message = "物料编号不能为空")
     private Long itemId;
 
-    @Schema(description = "上架数量", example = "300.00")
+    @Schema(description = "上架数量", requiredMode = Schema.RequiredMode.REQUIRED, example = "300.00")
+    @NotNull(message = "上架数量不能为空")
     private BigDecimal quantity;
 
     @Schema(description = "批次编号", example = "1")

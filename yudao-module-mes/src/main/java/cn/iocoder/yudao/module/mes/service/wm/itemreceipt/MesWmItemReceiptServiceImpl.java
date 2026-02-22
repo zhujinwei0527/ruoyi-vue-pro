@@ -1,15 +1,17 @@
 package cn.iocoder.yudao.module.mes.service.wm.itemreceipt;
 
+import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.util.ObjUtil;
 import cn.iocoder.yudao.framework.common.pojo.PageResult;
+import cn.iocoder.yudao.framework.common.util.collection.CollectionUtils;
 import cn.iocoder.yudao.framework.common.util.object.BeanUtils;
 import cn.iocoder.yudao.module.mes.controller.admin.wm.itemreceipt.vo.MesWmItemReceiptPageReqVO;
 import cn.iocoder.yudao.module.mes.controller.admin.wm.itemreceipt.vo.MesWmItemReceiptSaveReqVO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.wm.itemreceipt.MesWmItemReceiptDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.wm.itemreceipt.MesWmItemReceiptDetailDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.wm.itemreceipt.MesWmItemReceiptLineDO;
-import cn.iocoder.yudao.module.mes.dal.mysql.wm.itemreceipt.MesWmItemReceiptDetailMapper;
-import cn.iocoder.yudao.module.mes.dal.mysql.wm.itemreceipt.MesWmItemReceiptLineMapper;
 import cn.iocoder.yudao.module.mes.dal.mysql.wm.itemreceipt.MesWmItemReceiptMapper;
+import cn.iocoder.yudao.module.mes.enums.wm.MesWmItemReceiptStatusEnum;
 import cn.iocoder.yudao.module.mes.service.wm.arrivalnotice.MesWmArrivalNoticeService;
 import cn.iocoder.yudao.module.mes.service.wm.materialstock.MesWmMaterialStockService;
 import jakarta.annotation.Resource;
@@ -35,10 +37,10 @@ public class MesWmItemReceiptServiceImpl implements MesWmItemReceiptService {
     private MesWmItemReceiptMapper itemReceiptMapper;
 
     @Resource
-    private MesWmItemReceiptLineMapper itemReceiptLineMapper;
+    private MesWmItemReceiptLineService itemReceiptLineService;
 
     @Resource
-    private MesWmItemReceiptDetailMapper itemReceiptDetailMapper;
+    private MesWmItemReceiptDetailService itemReceiptDetailService;
 
     @Resource
     @Lazy
@@ -51,25 +53,18 @@ public class MesWmItemReceiptServiceImpl implements MesWmItemReceiptService {
     public Long createItemReceipt(MesWmItemReceiptSaveReqVO createReqVO) {
         // 校验编码唯一
         validateCodeUnique(null, createReqVO.getCode());
-        // TODO @AI：校验关联字段；
 
         // 插入
         MesWmItemReceiptDO receipt = BeanUtils.toBean(createReqVO, MesWmItemReceiptDO.class);
-        receipt.setStatus(0); // 草稿 TODO @AI：使用枚举类
+        receipt.setStatus(MesWmItemReceiptStatusEnum.PREPARE.getStatus());
         itemReceiptMapper.insert(receipt);
         return receipt.getId();
     }
 
     @Override
     public void updateItemReceipt(MesWmItemReceiptSaveReqVO updateReqVO) {
-        // 校验存在
-        MesWmItemReceiptDO receipt = validateItemReceiptExists(updateReqVO.getId());
-        // TODO @AI：校验关联字段；
-        // 校验状态：只有草稿才允许修改
-        // TODO @AI：校验状态，看看抽个方法，尽量几个方法复用
-        if (receipt.getStatus() != 0) {
-            throw exception(WM_ITEM_RECEIPT_STATUS_NOT_PREPARE);
-        }
+        // 校验存在 + 草稿状态
+        validateItemReceiptExistsAndDraft(updateReqVO.getId());
         // 校验编码唯一
         validateCodeUnique(updateReqVO.getId(), updateReqVO.getCode());
 
@@ -81,17 +76,12 @@ public class MesWmItemReceiptServiceImpl implements MesWmItemReceiptService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void deleteItemReceipt(Long id) {
-        // 校验存在
-        MesWmItemReceiptDO receipt = validateItemReceiptExists(id);
-        // 校验状态：只有草稿才允许删除
-        // TODO @AI：校验状态，看看抽个方法，尽量几个方法复用
-        if (receipt.getStatus() != 0) {
-            throw exception(WM_ITEM_RECEIPT_STATUS_NOT_PREPARE);
-        }
+        // 校验存在 + 草稿状态
+        validateItemReceiptExistsAndDraft(id);
 
         // 级联删除明细和行
-        itemReceiptDetailMapper.deleteByReceiptId(id);
-        itemReceiptLineMapper.deleteByReceiptId(id);
+        itemReceiptDetailService.deleteItemReceiptDetailByReceiptId(id);
+        itemReceiptLineService.deleteItemReceiptLineByReceiptId(id);
         // 删除
         itemReceiptMapper.deleteById(id);
     }
@@ -107,47 +97,43 @@ public class MesWmItemReceiptServiceImpl implements MesWmItemReceiptService {
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public void submitItemReceipt(Long id) {
-        // 校验存在
-        MesWmItemReceiptDO receipt = validateItemReceiptExists(id);
-        // TODO @AI：校验状态，看看抽个方法，尽量几个方法复用
-        if (receipt.getStatus() != 0) {
-            throw exception(WM_ITEM_RECEIPT_STATUS_NOT_PREPARE);
-        }
+        // 校验存在 + 草稿状态
+        validateItemReceiptExistsAndDraft(id);
         // 校验至少有一条行
-        // TODO @AI：对方抽个计算数量的方法啊；
-        List<MesWmItemReceiptLineDO> lines = itemReceiptLineMapper.selectListByReceiptId(id);
-        if (lines.isEmpty()) {
+        List<MesWmItemReceiptLineDO> lines = itemReceiptLineService.getItemReceiptLineListByReceiptId(id);
+        if (CollUtil.isEmpty(lines)) {
             throw exception(WM_ITEM_RECEIPT_NO_LINE);
         }
 
         // 提交
-        itemReceiptMapper.updateById(new MesWmItemReceiptDO().setId(id).setStatus(1));
+        itemReceiptMapper.updateById(new MesWmItemReceiptDO()
+                .setId(id).setStatus(MesWmItemReceiptStatusEnum.SUBMITTED.getStatus()));
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public void approveItemReceipt(Long id) {
         // 校验存在
         MesWmItemReceiptDO receipt = validateItemReceiptExists(id);
-        // TODO @AI：抽一些校验的存在+状态方法
-        if (receipt.getStatus() != 1) {
+        if (ObjUtil.notEqual(MesWmItemReceiptStatusEnum.SUBMITTED.getStatus(), receipt.getStatus())) {
             throw exception(WM_ITEM_RECEIPT_STATUS_ERROR);
         }
         // 校验每行的 SUM(detail.quantity) = line.receivedQuantity
-        // TODO @AI：抽个计算的 count 方法，然后在行和明细都用；不然代码里到处都是计算的逻辑；
-        List<MesWmItemReceiptLineDO> lines = itemReceiptLineMapper.selectListByReceiptId(id);
+        List<MesWmItemReceiptLineDO> lines = itemReceiptLineService.getItemReceiptLineListByReceiptId(id);
         for (MesWmItemReceiptLineDO line : lines) {
-            List<MesWmItemReceiptDetailDO> details = itemReceiptDetailMapper.selectListByLineId(line.getId());
-            BigDecimal totalDetailQty = details.stream()
-                    .map(MesWmItemReceiptDetailDO::getQuantity)
-                    .reduce(BigDecimal.ZERO, BigDecimal::add);
+            List<MesWmItemReceiptDetailDO> details = itemReceiptDetailService.getItemReceiptDetailListByLineId(line.getId());
+            BigDecimal totalDetailQty = CollectionUtils.getSumValue(details,
+                    MesWmItemReceiptDetailDO::getQuantity, BigDecimal::add, BigDecimal.ZERO);
             if (line.getReceivedQuantity() != null && totalDetailQty.compareTo(line.getReceivedQuantity()) != 0) {
                 throw exception(WM_ITEM_RECEIPT_DETAIL_QUANTITY_MISMATCH);
             }
         }
 
         // 审批
-        itemReceiptMapper.updateById(new MesWmItemReceiptDO().setId(id).setStatus(2));
+        itemReceiptMapper.updateById(new MesWmItemReceiptDO()
+                .setId(id).setStatus(MesWmItemReceiptStatusEnum.APPROVED.getStatus()));
     }
 
     @Override
@@ -155,14 +141,12 @@ public class MesWmItemReceiptServiceImpl implements MesWmItemReceiptService {
     public void executeItemReceipt(Long id) {
         // 校验存在
         MesWmItemReceiptDO receipt = validateItemReceiptExists(id);
-        // TODO @AI：抽一些校验的存在+状态方法
-        if (receipt.getStatus() != 2) {
+        if (ObjUtil.notEqual(MesWmItemReceiptStatusEnum.APPROVED.getStatus(), receipt.getStatus())) {
             throw exception(WM_ITEM_RECEIPT_STATUS_ERROR);
         }
 
         // 遍历所有明细，更新库存台账
-        // TODO @AI：select 方法，对方搞个；
-        List<MesWmItemReceiptDetailDO> details = itemReceiptDetailMapper.selectListByReceiptId(id);
+        List<MesWmItemReceiptDetailDO> details = itemReceiptDetailService.getItemReceiptDetailListByReceiptId(id);
         for (MesWmItemReceiptDetailDO detail : details) {
             materialStockService.increaseStock(
                     detail.getItemId(), detail.getWarehouseId(), detail.getLocationId(), detail.getAreaId(),
@@ -170,8 +154,8 @@ public class MesWmItemReceiptServiceImpl implements MesWmItemReceiptService {
         }
 
         // 更新入库单状态
-        // TODO @AI：枚举类；
-        itemReceiptMapper.updateById(new MesWmItemReceiptDO().setId(id).setStatus(3));
+        itemReceiptMapper.updateById(new MesWmItemReceiptDO()
+                .setId(id).setStatus(MesWmItemReceiptStatusEnum.FINISHED.getStatus()));
         // 更新关联的到货通知单状态
         if (receipt.getNoticeId() != null) {
             arrivalNoticeService.finishArrivalNotice(receipt.getNoticeId());
@@ -186,13 +170,23 @@ public class MesWmItemReceiptServiceImpl implements MesWmItemReceiptService {
         return receipt;
     }
 
+    /**
+     * 校验采购入库单存在且为草稿状态
+     */
+    private MesWmItemReceiptDO validateItemReceiptExistsAndDraft(Long id) {
+        MesWmItemReceiptDO receipt = validateItemReceiptExists(id);
+        if (ObjUtil.notEqual(MesWmItemReceiptStatusEnum.PREPARE.getStatus(), receipt.getStatus())) {
+            throw exception(WM_ITEM_RECEIPT_STATUS_NOT_PREPARE);
+        }
+        return receipt;
+    }
+
     private void validateCodeUnique(Long id, String code) {
         MesWmItemReceiptDO receipt = itemReceiptMapper.selectByCode(code);
         if (receipt == null) {
             return;
         }
-        // TODO @AI：ObjUtil notEquals
-        if (id == null || !id.equals(receipt.getId())) {
+        if (ObjUtil.notEqual(id, receipt.getId())) {
             throw exception(WM_ITEM_RECEIPT_CODE_DUPLICATE);
         }
     }

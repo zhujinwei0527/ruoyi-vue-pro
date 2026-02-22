@@ -55,23 +55,22 @@ public interface MesWmArrivalNoticeService {
      */
     PageResult<MesWmArrivalNoticeDO> getArrivalNoticePage(MesWmArrivalNoticePageReqVO pageReqVO);
 
-    // TODO @AI：0-》1、1-》2 尽量写状态；不要写这种；
     /**
-     * 提交到货通知单（0→1）
+     * 提交到货通知单（草稿 → 已提交）
      *
      * @param id 编号
      */
     void submitArrivalNotice(Long id);
 
     /**
-     * 审批到货通知单（1→2）
+     * 审批到货通知单（已提交 → 已审批）
      *
      * @param id 编号
      */
     void approveArrivalNotice(Long id);
 
     /**
-     * 完成到货通知单（→3），内部调用
+     * 完成到货通知单（已审批 → 已完成），内部调用
      *
      * @param id 编号
      */

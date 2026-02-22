@@ -49,25 +49,22 @@ public interface MesWmItemReceiptService {
      */
     PageResult<MesWmItemReceiptDO> getItemReceiptPage(MesWmItemReceiptPageReqVO pageReqVO);
 
-    // TODO @AI：0-》1、1-》2 尽量写状态；不要写这种；
     /**
-     * 提交采购入库单（0→1）
+     * 提交采购入库单（草稿 → 已提交）
      *
      * @param id 编号
      */
     void submitItemReceipt(Long id);
 
-    // TODO @AI：0-》1、1-》2 尽量写状态；不要写这种；
     /**
-     * 审批采购入库单（1→2）
+     * 审批采购入库单（已提交 → 已审批）
      *
      * @param id 编号
      */
     void approveItemReceipt(Long id);
 
-    // TODO @AI：0-》1、1-》2 尽量写状态；不要写这种；
     /**
-     * 执行入库（2→3），更新库存台账
+     * 执行入库（已审批 → 已完成），更新库存台账
      *
      * @param id 编号
      */

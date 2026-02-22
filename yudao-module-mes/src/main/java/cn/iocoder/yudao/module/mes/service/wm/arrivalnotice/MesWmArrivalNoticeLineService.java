@@ -51,7 +51,6 @@ public interface MesWmArrivalNoticeLineService {
      */
     PageResult<MesWmArrivalNoticeLineDO> getArrivalNoticeLinePage(MesWmArrivalNoticeLinePageReqVO pageReqVO);
 
-    // TODO @AI：不用的接口，就删除掉；
     /**
      * 按通知单编号获得行列表
      *
@@ -59,5 +58,12 @@ public interface MesWmArrivalNoticeLineService {
      * @return 行列表
      */
     List<MesWmArrivalNoticeLineDO> getArrivalNoticeLineListByNoticeId(Long noticeId);
+
+    /**
+     * 按通知单编号批量删除行
+     *
+     * @param noticeId 通知单编号
+     */
+    void deleteArrivalNoticeLineByNoticeId(Long noticeId);
 
 }

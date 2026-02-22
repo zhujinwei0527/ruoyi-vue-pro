@@ -4,16 +4,20 @@ import cn.iocoder.yudao.framework.common.pojo.PageResult;
 import cn.iocoder.yudao.framework.common.util.object.BeanUtils;
 import cn.iocoder.yudao.module.mes.controller.admin.wm.itemreceipt.vo.detail.MesWmItemReceiptDetailPageReqVO;
 import cn.iocoder.yudao.module.mes.controller.admin.wm.itemreceipt.vo.detail.MesWmItemReceiptDetailSaveReqVO;
+import cn.iocoder.yudao.module.mes.dal.dataobject.wm.itemreceipt.MesWmItemReceiptDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.wm.itemreceipt.MesWmItemReceiptDetailDO;
 import cn.iocoder.yudao.module.mes.dal.mysql.wm.itemreceipt.MesWmItemReceiptDetailMapper;
+import cn.hutool.core.util.ObjUtil;
+import cn.iocoder.yudao.module.mes.enums.wm.MesWmItemReceiptStatusEnum;
 import jakarta.annotation.Resource;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 
 import java.util.List;
 
 import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception;
-import static cn.iocoder.yudao.module.mes.enums.ErrorCodeConstants.WM_ITEM_RECEIPT_DETAIL_NOT_EXISTS;
+import static cn.iocoder.yudao.module.mes.enums.ErrorCodeConstants.*;
 
 /**
  * MES 采购入库明细 Service 实现类
@@ -25,9 +29,15 @@ public class MesWmItemReceiptDetailServiceImpl implements MesWmItemReceiptDetail
     @Resource
     private MesWmItemReceiptDetailMapper itemReceiptDetailMapper;
 
+    @Resource
+    @Lazy
+    private MesWmItemReceiptService itemReceiptService;
+
     @Override
     public Long createItemReceiptDetail(MesWmItemReceiptDetailSaveReqVO createReqVO) {
-        // TODO @AI：校验关联字段；
+        // 校验父单据存在且为草稿状态
+        validateReceiptStatusDraft(createReqVO.getReceiptId());
+
         MesWmItemReceiptDetailDO detail = BeanUtils.toBean(createReqVO, MesWmItemReceiptDetailDO.class);
         itemReceiptDetailMapper.insert(detail);
         return detail.getId();
@@ -36,8 +46,9 @@ public class MesWmItemReceiptDetailServiceImpl implements MesWmItemReceiptDetail
     @Override
     public void updateItemReceiptDetail(MesWmItemReceiptDetailSaveReqVO updateReqVO) {
         // 校验存在
-        validateItemReceiptDetailExists(updateReqVO.getId());
-        // TODO @AI：校验关联字段；
+        MesWmItemReceiptDetailDO detail = validateItemReceiptDetailExists(updateReqVO.getId());
+        // 校验父单据存在且为草稿状态
+        validateReceiptStatusDraft(detail.getReceiptId());
 
         // 更新
         MesWmItemReceiptDetailDO updateObj = BeanUtils.toBean(updateReqVO, MesWmItemReceiptDetailDO.class);
@@ -63,13 +74,43 @@ public class MesWmItemReceiptDetailServiceImpl implements MesWmItemReceiptDetail
     }
 
     @Override
+    public List<MesWmItemReceiptDetailDO> getItemReceiptDetailListByReceiptId(Long receiptId) {
+        return itemReceiptDetailMapper.selectListByReceiptId(receiptId);
+    }
+
+    @Override
     public List<MesWmItemReceiptDetailDO> getItemReceiptDetailListByLineId(Long lineId) {
         return itemReceiptDetailMapper.selectListByLineId(lineId);
     }
 
-    private void validateItemReceiptDetailExists(Long id) {
-        if (itemReceiptDetailMapper.selectById(id) == null) {
+    @Override
+    public void deleteItemReceiptDetailByLineId(Long lineId) {
+        itemReceiptDetailMapper.deleteByLineId(lineId);
+    }
+
+    @Override
+    public void deleteItemReceiptDetailByReceiptId(Long receiptId) {
+        itemReceiptDetailMapper.deleteByReceiptId(receiptId);
+    }
+
+    private MesWmItemReceiptDetailDO validateItemReceiptDetailExists(Long id) {
+        MesWmItemReceiptDetailDO detail = itemReceiptDetailMapper.selectById(id);
+        if (detail == null) {
             throw exception(WM_ITEM_RECEIPT_DETAIL_NOT_EXISTS);
+        }
+        return detail;
+    }
+
+    /**
+     * 校验父采购入库单存在且为草稿状态
+     */
+    private void validateReceiptStatusDraft(Long receiptId) {
+        MesWmItemReceiptDO receipt = itemReceiptService.getItemReceipt(receiptId);
+        if (receipt == null) {
+            throw exception(WM_ITEM_RECEIPT_NOT_EXISTS);
+        }
+        if (ObjUtil.notEqual(MesWmItemReceiptStatusEnum.PREPARE.getStatus(), receipt.getStatus())) {
+            throw exception(WM_ITEM_RECEIPT_STATUS_NOT_PREPARE);
         }
     }
 
