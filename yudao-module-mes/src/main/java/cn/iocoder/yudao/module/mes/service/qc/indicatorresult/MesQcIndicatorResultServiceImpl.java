@@ -1,6 +1,5 @@
 package cn.iocoder.yudao.module.mes.service.qc.indicatorresult;
 
-import cn.hutool.core.collection.CollUtil;
 import cn.iocoder.yudao.framework.common.pojo.PageResult;
 import cn.iocoder.yudao.framework.common.util.object.BeanUtils;
 import cn.iocoder.yudao.module.mes.controller.admin.qc.indicatorresult.vo.MesQcIndicatorResultPageReqVO;
@@ -44,22 +43,16 @@ public class MesQcIndicatorResultServiceImpl implements MesQcIndicatorResultServ
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Long createIndicatorResult(MesQcIndicatorResultSaveReqVO createReqVO) {
-        // 1. 校验明细不为空
-        // TODO @AI：是不是 MesQcIndicatorResultSaveReqVO validator 参数校验；
-        List<MesQcIndicatorResultSaveReqVO.Item> items = createReqVO.getItems();
-        if (CollUtil.isEmpty(items)) {
-            throw exception(QC_RESULT_ITEMS_EMPTY);
-        }
-
-        // 2. 根据 qcType 查询源质检单，获取 itemId
+        // 1. 根据 qcType 查询源质检单，获取 itemId
         Long itemId = getItemIdFromQcDoc(createReqVO.getQcId(), createReqVO.getQcType());
 
-        // 3.1 插入主表
+        // 2.1 插入主表
         MesQcIndicatorResultDO result = BeanUtils.toBean(createReqVO, MesQcIndicatorResultDO.class);
         result.setItemId(itemId);
         resultMapper.insert(result);
-        // 3.2 批量插入明细
-        List<MesQcIndicatorResultDetailDO> details = BeanUtils.toBean(items, MesQcIndicatorResultDetailDO.class);
+        // 2.2 批量插入明细
+        List<MesQcIndicatorResultDetailDO> details = BeanUtils.toBean(createReqVO.getItems(),
+                MesQcIndicatorResultDetailDO.class);
         details.forEach(detail -> detail.setResultId(result.getId()));
         resultDetailMapper.insertBatch(details);
         return result.getId();
@@ -71,46 +64,13 @@ public class MesQcIndicatorResultServiceImpl implements MesQcIndicatorResultServ
         // 1. 校验存在
         validateIndicatorResultExists(updateReqVO.getId());
 
-        // 2. 校验明细不为空
-        // TODO @AI：是不是 MesQcIndicatorResultSaveReqVO validator 参数校验；
-        List<MesQcIndicatorResultSaveReqVO.Item> items = updateReqVO.getItems();
-        if (CollUtil.isEmpty(items)) {
-            throw exception(QC_RESULT_ITEMS_EMPTY);
-        }
-
         // 2.1 更新主表
         MesQcIndicatorResultDO updateObj = BeanUtils.toBean(updateReqVO, MesQcIndicatorResultDO.class);
         resultMapper.updateById(updateObj);
-
-        // TODO @AI：直接 for 循环，resultMapper.insertOrUpdate() 简单粗暴点！
-        // 4. 更新明细：diff 方式（有 id → 更新，无 id → 新增，不在列表中 → 删除）
-        List<MesQcIndicatorResultDetailDO> existingDetails = resultDetailMapper.selectListByResultId(updateReqVO.getId());
-        Map<Long, MesQcIndicatorResultDetailDO> existingMap = convertMap(existingDetails, MesQcIndicatorResultDetailDO::getId);
-
-        // 4.1 收集前端传入的、已有 id 的集合
-        Set<Long> newItemIds = convertSet(items, MesQcIndicatorResultSaveReqVO.Item::getId);
-        newItemIds.remove(null);
-
-        // 4.2 遍历传入的明细：有 id 则更新，无 id 则新增
-        for (MesQcIndicatorResultSaveReqVO.Item item : items) {
-            MesQcIndicatorResultDetailDO detail = BeanUtils.toBean(item, MesQcIndicatorResultDetailDO.class);
-            detail.setResultId(updateReqVO.getId());
-            if (item.getId() != null && existingMap.containsKey(item.getId())) {
-                // 更新已有记录
-                resultDetailMapper.updateById(detail);
-            } else {
-                // 新增记录
-                detail.setId(null);
-                resultDetailMapper.insert(detail);
-            }
-        }
-
-        // 4.3 删除不在新列表中的旧记录
-        for (MesQcIndicatorResultDetailDO existing : existingDetails) {
-            if (!newItemIds.contains(existing.getId())) {
-                resultDetailMapper.deleteById(existing.getId());
-            }
-        }
+        // 2.2 批量更新明细
+        List<MesQcIndicatorResultDetailDO> details = BeanUtils.toBean(updateReqVO.getItems(),
+                MesQcIndicatorResultDetailDO.class);
+        resultDetailMapper.insertOrUpdate(details);
     }
 
     @Override
@@ -155,11 +115,7 @@ public class MesQcIndicatorResultServiceImpl implements MesQcIndicatorResultServ
      */
     private Long getItemIdFromQcDoc(Long qcId, Integer qcType) {
         if (Objects.equals(qcType, MesQcTypeEnum.IQC.getType())) {
-            // TODO @AI：使用 iqcService 的 validateIqcExists 方法，这样更聚焦！
-            MesQcIqcDO iqc = iqcService.getIqc(qcId);
-            if (iqc == null) {
-                throw exception(QC_RESULT_SOURCE_DOC_NOT_EXISTS);
-            }
+            MesQcIqcDO iqc = iqcService.validateIqcExists(qcId);
             return iqc.getItemId();
         }
         // TODO @芋艿：IPQC/OQC/RQC 模块迁移后实现

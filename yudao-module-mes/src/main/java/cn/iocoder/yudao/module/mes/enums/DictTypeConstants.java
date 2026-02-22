@@ -27,6 +27,7 @@ public interface DictTypeConstants {
     String MES_QC_TYPE = "mes_qc_type"; // MES 检测种类（IQC/IPQC/OQC/RQC）
     String MES_PRO_LINK_TYPE = "mes_pro_link_type"; // MES 工序关系类型
     String MES_TIME_UNIT_TYPE = "mes_time_unit_type"; // MES 时间单位
+    String MES_IPQC_TYPE = "mes_ipqc_type"; // MES IPQC 检验类型
     String MES_QC_IQC_STATUS = "mes_qc_iqc_status"; // MES 检验单状态
     String MES_QC_CHECK_RESULT = "mes_qc_check_result"; // MES 检测结果
     String MES_QC_SOURCE_DOC_TYPE = "mes_qc_source_doc_type"; // MES 来源单据类型

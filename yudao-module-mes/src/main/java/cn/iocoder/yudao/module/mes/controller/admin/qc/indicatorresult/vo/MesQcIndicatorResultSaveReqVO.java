@@ -3,6 +3,7 @@ package cn.iocoder.yudao.module.mes.controller.admin.qc.indicatorresult.vo;
 import cn.iocoder.yudao.framework.common.validation.InEnum;
 import cn.iocoder.yudao.module.mes.enums.qc.MesQcTypeEnum;
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
@@ -33,7 +34,8 @@ public class MesQcIndicatorResultSaveReqVO {
     @Schema(description = "备注", example = "无")
     private String remark;
 
-    @Schema(description = "检验结果明细列表")
+    @Schema(description = "检验结果明细列表", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotEmpty(message = "检验结果明细列表不能为空")
     private List<Item> items;
 
     @Schema(description = "检验结果明细项")
