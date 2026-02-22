@@ -1,0 +1,73 @@
+package cn.iocoder.yudao.module.mes.controller.admin.wm.itemreceipt.vo.line;
+
+import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.NotNull;
+import lombok.Data;
+
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+
+@Schema(description = "管理后台 - MES 采购入库单行新增/修改 Request VO")
+@Data
+public class MesWmItemReceiptLineSaveReqVO {
+
+    @Schema(description = "编号", example = "1024")
+    private Long id;
+
+    @Schema(description = "入库单编号", requiredMode = Schema.RequiredMode.REQUIRED, example = "1")
+    @NotNull(message = "入库单编号不能为空")
+    private Long receiptId;
+
+    @Schema(description = "到货通知单行编号", example = "1")
+    private Long noticeLineId;
+
+    @Schema(description = "物料编号", requiredMode = Schema.RequiredMode.REQUIRED, example = "1")
+    @NotNull(message = "物料编号不能为空")
+    private Long itemId;
+
+    @Schema(description = "入库数量", example = "500.00")
+    private BigDecimal receivedQuantity;
+
+    @Schema(description = "批次编号", example = "1")
+    private Long batchId;
+
+    @Schema(description = "仓库编号", example = "1")
+    private Long warehouseId;
+
+    @Schema(description = "库区编号", example = "1")
+    private Long locationId;
+
+    @Schema(description = "库位编号", example = "1")
+    private Long areaId;
+
+    @Schema(description = "生产日期")
+    private LocalDateTime productionDate;
+
+    @Schema(description = "有效期")
+    private LocalDateTime expireDate;
+
+    @Schema(description = "生产批号", example = "PB20260110")
+    private String productionBatchNumber;
+
+    @Schema(description = "是否需要来料检验", example = "true")
+    private Boolean iqcCheckFlag;
+
+    @Schema(description = "来料检验单编号", example = "1")
+    private Long iqcId;
+
+    @Schema(description = "备注", example = "备注")
+    private String remark;
+
+    @Schema(description = "预留字段1")
+    private String attribute1;
+
+    @Schema(description = "预留字段2")
+    private String attribute2;
+
+    @Schema(description = "预留字段3")
+    private Integer attribute3;
+
+    @Schema(description = "预留字段4")
+    private Integer attribute4;
+
+}
