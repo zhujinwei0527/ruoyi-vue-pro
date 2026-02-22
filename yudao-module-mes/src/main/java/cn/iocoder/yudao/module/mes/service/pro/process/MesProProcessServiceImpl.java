@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
@@ -119,7 +120,7 @@ public class MesProProcessServiceImpl implements MesProProcessService {
     }
 
     @Override
-    public List<MesProProcessDO> getProcessList(List<Long> ids) {
+    public List<MesProProcessDO> getProcessList(Collection<Long> ids) {
         if (CollUtil.isEmpty(ids)) {
             return Collections.emptyList();
         }

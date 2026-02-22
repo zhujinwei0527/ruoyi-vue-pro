@@ -270,6 +270,24 @@ public interface ErrorCodeConstants {
     // ========== MES 质量管理-检验结果（1-040-606-000） ==========
     ErrorCode QC_RESULT_NOT_EXISTS = new ErrorCode(1_040_606_000, "检验结果不存在");
 
+    // ========== MES 质量管理-出货检验（1-040-607-000） ==========
+    ErrorCode QC_OQC_NOT_EXISTS = new ErrorCode(1_040_607_000, "出货检验单不存在");
+    ErrorCode QC_OQC_CODE_DUPLICATE = new ErrorCode(1_040_607_001, "出货检验单编号已存在");
+    ErrorCode QC_OQC_NOT_PREPARE = new ErrorCode(1_040_607_002, "只有草稿状态的检验单才可操作");
+    ErrorCode QC_OQC_QUANTITY_MISMATCH = new ErrorCode(1_040_607_004, "合格品与不合格品数量之和须等于检测数量");
+    ErrorCode QC_OQC_NO_TEMPLATE = new ErrorCode(1_040_607_005, "当前产品未配置 OQC 检测模板");
+    // ========== MES 质量管理-出货检验行（1-040-607-100） ==========
+    ErrorCode QC_OQC_LINE_NOT_EXISTS = new ErrorCode(1_040_607_100, "出货检验行不存在");
+
+    // ========== MES 质量管理-退货检验 RQC（1-040-608-000） ==========
+    ErrorCode QC_RQC_NOT_EXISTS = new ErrorCode(1_040_608_000, "退货检验单不存在");
+    ErrorCode QC_RQC_CODE_DUPLICATE = new ErrorCode(1_040_608_001, "退货检验单编号已存在");
+    ErrorCode QC_RQC_NOT_PREPARE = new ErrorCode(1_040_608_002, "只有草稿状态的检验单才可操作");
+    ErrorCode QC_RQC_QUANTITY_MISMATCH = new ErrorCode(1_040_608_004, "合格品与不合格品数量之和须等于检测数量");
+    ErrorCode QC_RQC_NO_TEMPLATE = new ErrorCode(1_040_608_005, "当前产品未配置 RQC 检测模板");
+    // ========== MES 质量管理-退货检验行（1-040-608-100） ==========
+    ErrorCode QC_RQC_LINE_NOT_EXISTS = new ErrorCode(1_040_608_100, "退货检验行不存在");
+
     // ========== MES 仓库管理-仓库（1-040-700-000） ==========
     ErrorCode WM_WAREHOUSE_NOT_EXISTS = new ErrorCode(1_040_700_000, "仓库不存在");
     ErrorCode WM_WAREHOUSE_CODE_DUPLICATE = new ErrorCode(1_040_700_001, "仓库编码已存在");

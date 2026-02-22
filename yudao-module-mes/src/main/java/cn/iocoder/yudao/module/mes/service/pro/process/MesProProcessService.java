@@ -6,6 +6,8 @@ import cn.iocoder.yudao.module.mes.controller.admin.pro.process.vo.MesProProcess
 import cn.iocoder.yudao.module.mes.dal.dataobject.pro.process.MesProProcessDO;
 
 import jakarta.validation.Valid;
+
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -54,7 +56,7 @@ public interface MesProProcessService {
      * @param ids 编号列表
      * @return 生产工序列表
      */
-    List<MesProProcessDO> getProcessList(List<Long> ids);
+    List<MesProProcessDO> getProcessList(Collection<Long> ids);
 
     /**
      * 获得生产工序分页
@@ -85,7 +87,7 @@ public interface MesProProcessService {
      * @param ids 编号列表
      * @return 工序 Map
      */
-    default Map<Long, MesProProcessDO> getProcessMap(List<Long> ids) {
+    default Map<Long, MesProProcessDO> getProcessMap(Collection<Long> ids) {
         return convertMap(getProcessList(ids), MesProProcessDO::getId);
     }
 
