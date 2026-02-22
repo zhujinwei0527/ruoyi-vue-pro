@@ -1,0 +1,51 @@
+package cn.iocoder.yudao.module.mes.controller.admin.wm.arrivalnotice.vo.line;
+
+import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.NotNull;
+import lombok.Data;
+
+import java.math.BigDecimal;
+
+@Schema(description = "管理后台 - MES 到货通知单行新增/修改 Request VO")
+@Data
+public class MesWmArrivalNoticeLineSaveReqVO {
+
+    @Schema(description = "编号", example = "1024")
+    private Long id;
+
+    @Schema(description = "到货通知单编号", requiredMode = Schema.RequiredMode.REQUIRED, example = "1")
+    @NotNull(message = "到货通知单编号不能为空")
+    private Long noticeId;
+
+    @Schema(description = "物料编号", requiredMode = Schema.RequiredMode.REQUIRED, example = "1")
+    @NotNull(message = "物料编号不能为空")
+    private Long itemId;
+
+    @Schema(description = "到货数量", example = "500.00")
+    private BigDecimal arrivalQuantity;
+
+    @Schema(description = "合格数量", example = "500.00")
+    private BigDecimal qualifiedQuantity;
+
+    @Schema(description = "是否需要来料检验", example = "true")
+    private Boolean iqcCheckFlag;
+
+    @Schema(description = "来料检验单编号", example = "1")
+    private Long iqcId;
+
+    @Schema(description = "备注", example = "备注")
+    private String remark;
+
+    @Schema(description = "预留字段1")
+    private String attribute1;
+
+    @Schema(description = "预留字段2")
+    private String attribute2;
+
+    @Schema(description = "预留字段3")
+    private Integer attribute3;
+
+    @Schema(description = "预留字段4")
+    private Integer attribute4;
+
+}
