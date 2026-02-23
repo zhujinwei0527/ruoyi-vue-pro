@@ -3,6 +3,7 @@ package cn.iocoder.yudao.module.mes.dal.dataobject.qc.rqc;
 import cn.iocoder.yudao.framework.mybatis.core.dataobject.BaseDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.md.item.MesMdItemDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.qc.template.MesQcTemplateDO;
+import cn.iocoder.yudao.module.mes.enums.MesOrderStatusEnum;
 import com.baomidou.mybatisplus.annotation.KeySequence;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
@@ -123,7 +124,8 @@ public class MesQcRqcDO extends BaseDO {
     /**
      * 状态
      *
-     * 枚举 {@link cn.iocoder.yudao.module.mes.enums.qc.MesQcIqcStatusEnum}
+     * 枚举 {@link MesOrderStatusEnum}
+     * 当前使用：{@link MesOrderStatusEnum#DRAFT}、{@link MesOrderStatusEnum#FINISHED}
      */
     private Integer status;
     /**
