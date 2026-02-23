@@ -29,4 +29,11 @@ public interface MesWmArrivalNoticeLineMapper extends BaseMapperX<MesWmArrivalNo
         delete(MesWmArrivalNoticeLineDO::getNoticeId, noticeId);
     }
 
+    default List<MesWmArrivalNoticeLineDO> selectListByIqcPending(List<Long> noticeIds) {
+        return selectList(new LambdaQueryWrapperX<MesWmArrivalNoticeLineDO>()
+                .in(MesWmArrivalNoticeLineDO::getNoticeId, noticeIds)
+                .eq(MesWmArrivalNoticeLineDO::getIqcCheckFlag, true)
+                .isNull(MesWmArrivalNoticeLineDO::getIqcId));
+    }
+
 }
