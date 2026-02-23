@@ -72,12 +72,6 @@ public class MesQcIqcRespVO {
 
     // ========== 数量 ==========
 
-    @Schema(description = "最低检测数", example = "5")
-    private Integer minCheckQuantity;
-
-    @Schema(description = "最大不合格数", example = "0")
-    private Integer maxUnqualifiedQuantity;
-
     @Schema(description = "本次接收数量", requiredMode = Schema.RequiredMode.REQUIRED, example = "100")
     @ExcelProperty("接收数量")
     private BigDecimal receivedQuantity;

@@ -16,7 +16,7 @@ import cn.iocoder.yudao.module.mes.enums.qc.MesQcTypeEnum;
 import cn.iocoder.yudao.module.mes.service.md.workstation.MesMdWorkstationService;
 import cn.iocoder.yudao.module.mes.service.pro.workorder.MesProWorkOrderService;
 import cn.iocoder.yudao.module.mes.service.qc.defectrecord.MesQcDefectRecordService;
-import cn.iocoder.yudao.module.mes.service.qc.template.MesQcTemplateService;
+import cn.iocoder.yudao.module.mes.service.qc.template.MesQcTemplateDetailService;
 import jakarta.annotation.Resource;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
@@ -44,7 +44,7 @@ public class MesQcIpqcServiceImpl implements MesQcIpqcService {
     private MesQcIpqcMapper ipqcMapper;
 
     @Resource
-    private MesQcTemplateService templateService;
+    private MesQcTemplateDetailService templateDetailService;
     @Resource
     private MesQcIpqcLineService ipqcLineService;
     @Resource
@@ -67,7 +67,7 @@ public class MesQcIpqcServiceImpl implements MesQcIpqcService {
         // 1.3 校验工位存在
         workstationService.validateWorkstationExists(createReqVO.getWorkstationId());
         // 1.4 根据产品 + 检验类型自动匹配模板
-        MesQcTemplateDO template = templateService.getTemplateByItemIdAndType(
+        MesQcTemplateDO template = templateDetailService.getTemplateByItemIdAndType(
                 workOrder.getProductId(), MesQcTypeEnum.IPQC.getType());
         if (template == null) {
             throw exception(QC_IPQC_NO_TEMPLATE);
@@ -129,7 +129,7 @@ public class MesQcIpqcServiceImpl implements MesQcIpqcService {
         // 2.2 级联删除行
         ipqcLineService.deleteByIpqcId(id);
         // 2.3 级联删除缺陷记录
-        defectRecordService.deleteByQcTypeAndQcId(MesQcTypeEnum.IPQC.getType(), id);
+        defectRecordService.deleteListByQcTypeAndQcId(MesQcTypeEnum.IPQC.getType(), id);
     }
 
     @Override

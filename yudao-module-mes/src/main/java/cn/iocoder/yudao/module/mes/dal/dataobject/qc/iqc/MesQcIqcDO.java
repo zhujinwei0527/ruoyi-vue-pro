@@ -98,14 +98,6 @@ public class MesQcIqcDO extends BaseDO {
     // ========== 数量 ==========
 
     /**
-     * 最低检测数
-     */
-    private Integer minCheckQuantity;
-    /**
-     * 最大不合格数
-     */
-    private Integer maxUnqualifiedQuantity;
-    /**
      * 本次接收数量
      */
     private BigDecimal receivedQuantity;

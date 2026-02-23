@@ -1,6 +1,7 @@
 package cn.iocoder.yudao.module.mes.controller.admin.qc.iqc.vo;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
@@ -23,17 +24,13 @@ public class MesQcIqcSaveReqVO {
     @NotEmpty(message = "检验单名称不能为空")
     private String name;
 
-    @Schema(description = "检验模板 ID", requiredMode = Schema.RequiredMode.REQUIRED, example = "100")
-    @NotNull(message = "检验模板不能为空")
-    private Long templateId;
-
     // ========== 来源单据 ==========
-
-    @Schema(description = "来源单据 ID", example = "200")
-    private Long sourceDocId;
 
     @Schema(description = "来源单据类型", example = "100")
     private Integer sourceDocType;
+
+    @Schema(description = "来源单据 ID", example = "200")
+    private Long sourceDocId;
 
     @Schema(description = "来源单据行 ID", example = "300")
     private Long sourceLineId;
@@ -55,23 +52,18 @@ public class MesQcIqcSaveReqVO {
 
     // ========== 数量 ==========
 
-    @Schema(description = "最低检测数", example = "5")
-    private Integer minCheckQuantity;
-
-    @Schema(description = "最大不合格数", example = "0")
-    private Integer maxUnqualifiedQuantity;
-
     @Schema(description = "本次接收数量", requiredMode = Schema.RequiredMode.REQUIRED, example = "100")
     @NotNull(message = "本次接收数量不能为空")
     private BigDecimal receivedQuantity;
 
-    @Schema(description = "本次检测数量", example = "10")
-    private BigDecimal checkQuantity;
-
-    @Schema(description = "合格品数量", example = "9")
+    @Schema(description = "合格品数量", requiredMode = Schema.RequiredMode.REQUIRED, example = "9")
+    @NotNull(message = "合格品数量不能为空")
+    @DecimalMin(value = "0", message = "合格品数量不能小于 0")
     private BigDecimal qualifiedQuantity;
 
-    @Schema(description = "不合格品数量", example = "1")
+    @Schema(description = "不合格品数量", requiredMode = Schema.RequiredMode.REQUIRED, example = "1")
+    @NotNull(message = "不合格品数量不能为空")
+    @DecimalMin(value = "0", message = "不合格品数量不能小于 0")
     private BigDecimal unqualifiedQuantity;
 
     // ========== 检验 ==========
@@ -79,14 +71,13 @@ public class MesQcIqcSaveReqVO {
     @Schema(description = "检测结果", example = "1")
     private Integer checkResult;
 
-    @Schema(description = "来料日期")
+    @Schema(description = "来料日期", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotNull(message = "来料日期不能为空")
     private LocalDateTime receiveDate;
 
-    @Schema(description = "检测日期")
+    @Schema(description = "检测日期", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotNull(message = "检测日期不能为空")
     private LocalDateTime inspectDate;
-
-    @Schema(description = "检测人员用户 ID", example = "1")
-    private Long inspectorUserId;
 
     @Schema(description = "备注", example = "备注")
     private String remark;

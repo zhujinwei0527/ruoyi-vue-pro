@@ -115,7 +115,7 @@ public class MesQcDefectRecordServiceImpl implements MesQcDefectRecordService {
     }
 
     @Override
-    public void deleteByQcTypeAndQcId(Integer qcType, Long qcId) {
+    public void deleteListByQcTypeAndQcId(Integer qcType, Long qcId) {
         defectRecordMapper.deleteByQcTypeAndQcId(qcType, qcId);
     }
 

@@ -68,6 +68,6 @@ public interface MesQcIqcLineService {
      *
      * @param iqcId 来料检验单 ID
      */
-    void deleteByIqcId(Long iqcId);
+    void deleteListByIqcId(Long iqcId);
 
 }

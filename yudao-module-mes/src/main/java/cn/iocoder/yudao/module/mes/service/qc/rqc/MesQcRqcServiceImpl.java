@@ -111,7 +111,7 @@ public class MesQcRqcServiceImpl implements MesQcRqcService {
         // 2.2 级联删除行
         rqcLineService.deleteByRqcId(id);
         // 2.3 级联删除缺陷记录
-        defectRecordService.deleteByQcTypeAndQcId(MesQcTypeEnum.RQC.getType(), id);
+        defectRecordService.deleteListByQcTypeAndQcId(MesQcTypeEnum.RQC.getType(), id);
     }
 
     @Override

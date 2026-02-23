@@ -15,6 +15,7 @@ import cn.iocoder.yudao.module.mes.enums.qc.MesQcDefectLevelEnum;
 import cn.iocoder.yudao.module.mes.enums.qc.MesQcOqcStatusEnum;
 import cn.iocoder.yudao.module.mes.enums.qc.MesQcTypeEnum;
 import cn.iocoder.yudao.module.mes.service.qc.defectrecord.MesQcDefectRecordService;
+import cn.iocoder.yudao.module.mes.service.qc.template.MesQcTemplateDetailService;
 import cn.iocoder.yudao.module.mes.service.qc.template.MesQcTemplateService;
 import jakarta.annotation.Resource;
 import org.springframework.context.annotation.Lazy;
@@ -44,6 +45,8 @@ public class MesQcOqcServiceImpl implements MesQcOqcService {
     @Resource
     private MesQcTemplateService templateService;
     @Resource
+    private MesQcTemplateDetailService templateDetailService;
+    @Resource
     private MesQcOqcLineService oqcLineService;
     @Resource
     @Lazy
@@ -63,7 +66,7 @@ public class MesQcOqcServiceImpl implements MesQcOqcService {
 
         // 1.3 从模板的产品关联中获取检测参数
         // TODO @芋艿：【暂时不用删除】到底 miniCheckQuantity 和 maxUnqualifiedQuantity 是否有必要存储？
-        MesQcTemplateItemDO templateItem = templateService.getTemplateItemByTemplateIdAndItemId(
+        MesQcTemplateItemDO templateItem = templateDetailService.getTemplateItemByTemplateIdAndItemId(
                 templateId, createReqVO.getItemId());
         if (templateItem != null) {
             if (createReqVO.getMinCheckQuantity() == null) {
@@ -128,7 +131,7 @@ public class MesQcOqcServiceImpl implements MesQcOqcService {
         // 2.2 级联删除行
         oqcLineService.deleteByOqcId(id);
         // 2.3 级联删除缺陷记录
-        defectRecordService.deleteByQcTypeAndQcId(MesQcTypeEnum.OQC.getType(), id);
+        defectRecordService.deleteListByQcTypeAndQcId(MesQcTypeEnum.OQC.getType(), id);
     }
 
     @Override

@@ -106,7 +106,7 @@ public class MesQcIqcLineServiceImpl implements MesQcIqcLineService {
     }
 
     @Override
-    public void deleteByIqcId(Long iqcId) {
+    public void deleteListByIqcId(Long iqcId) {
         iqcLineMapper.deleteByIqcId(iqcId);
     }
 

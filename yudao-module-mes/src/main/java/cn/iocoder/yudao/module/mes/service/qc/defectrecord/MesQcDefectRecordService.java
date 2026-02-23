@@ -49,6 +49,6 @@ public interface MesQcDefectRecordService {
      * @param qcType 检验类型
      * @param qcId 检验单 ID
      */
-    void deleteByQcTypeAndQcId(Integer qcType, Long qcId);
+    void deleteListByQcTypeAndQcId(Integer qcType, Long qcId);
 
 }
