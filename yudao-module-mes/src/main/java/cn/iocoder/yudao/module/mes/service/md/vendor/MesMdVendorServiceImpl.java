@@ -78,10 +78,13 @@ public class MesMdVendorServiceImpl implements MesMdVendorService {
         vendorMapper.deleteById(id);
     }
 
-    private void validateVendorExists(Long id) {
-        if (vendorMapper.selectById(id) == null) {
+    @Override
+    public MesMdVendorDO validateVendorExists(Long id) {
+        MesMdVendorDO vendor = vendorMapper.selectById(id);
+        if (vendor == null) {
             throw exception(MD_VENDOR_NOT_EXISTS);
         }
+        return vendor;
     }
 
     private void validateVendorCodeUnique(Long id, String code) {

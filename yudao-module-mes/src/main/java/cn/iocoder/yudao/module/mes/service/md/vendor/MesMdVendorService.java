@@ -52,6 +52,14 @@ public interface MesMdVendorService {
     MesMdVendorDO getVendor(Long id);
 
     /**
+     * 校验供应商存在
+     *
+     * @param id 供应商 ID
+     * @return 供应商
+     */
+    MesMdVendorDO validateVendorExists(Long id);
+
+    /**
      * 获得供应商分页
      *
      * @param pageReqVO 分页查询

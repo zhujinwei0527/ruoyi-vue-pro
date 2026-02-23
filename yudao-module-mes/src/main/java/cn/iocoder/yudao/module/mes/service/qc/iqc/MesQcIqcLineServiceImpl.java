@@ -91,7 +91,9 @@ public class MesQcIqcLineServiceImpl implements MesQcIqcLineService {
         }
         List<MesQcIqcLineDO> updateLines = new ArrayList<>(lines.size());
         for (MesQcIqcLineDO line : lines) {
-            int critical = 0, major = 0, minor = 0;
+            int critical = 0;
+            int major = 0;
+            int minor = 0;
             for (MesQcDefectRecordDO record : records) {
                 if (ObjUtil.notEqual(record.getLineId(), line.getId())) {
                     continue;

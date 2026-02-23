@@ -15,6 +15,8 @@ import cn.iocoder.yudao.module.mes.enums.MesBizTypeConstants;
 import cn.iocoder.yudao.module.mes.enums.qc.MesQcDefectLevelEnum;
 import cn.iocoder.yudao.module.mes.enums.qc.MesQcIqcStatusEnum;
 import cn.iocoder.yudao.module.mes.enums.qc.MesQcTypeEnum;
+import cn.iocoder.yudao.module.mes.service.md.item.MesMdItemService;
+import cn.iocoder.yudao.module.mes.service.md.vendor.MesMdVendorService;
 import cn.iocoder.yudao.module.mes.service.qc.defectrecord.MesQcDefectRecordService;
 import cn.iocoder.yudao.module.mes.service.qc.template.MesQcTemplateDetailService;
 import cn.iocoder.yudao.module.mes.service.wm.arrivalnotice.MesWmArrivalNoticeService;
@@ -52,15 +54,22 @@ public class MesQcIqcServiceImpl implements MesQcIqcService {
     private MesQcDefectRecordService defectRecordService;
     @Resource
     private MesWmArrivalNoticeService arrivalNoticeService;
+    @Resource
+    private MesMdVendorService vendorService;
+    @Resource
+    private MesMdItemService itemService;
 
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Long createIqc(MesQcIqcSaveReqVO createReqVO, Long inspectorUserId) {
         // 1.1 校验编号唯一
         validateIqcCodeUnique(null, createReqVO.getCode());
-        // 1.2 校验来源单据参数，并验证数据存在
+        // 1.2 校验供应商、物料存在
+        vendorService.validateVendorExists(createReqVO.getVendorId());
+        itemService.validateItemExists(createReqVO.getItemId());
+        // 1.3 校验来源单据参数，并验证数据存在
         validateSourceDoc(createReqVO.getSourceDocType(), createReqVO.getSourceDocId(), createReqVO.getSourceLineId());
-        // 1.3 通过 itemId + IQC 类型自动查找模板
+        // 1.4 通过 itemId + IQC 类型自动查找模板
         MesQcTemplateItemDO templateItem = templateDetailService.getRequiredTemplateByItemIdAndType(
                 createReqVO.getItemId(), MesQcTypeEnum.IQC.getType());
         Long templateId = templateItem.getTemplateId();
@@ -84,6 +93,9 @@ public class MesQcIqcServiceImpl implements MesQcIqcService {
         validateIqcStatusPrepare(updateReqVO.getId());
         // 1.2 校验编号唯一
         validateIqcCodeUnique(updateReqVO.getId(), updateReqVO.getCode());
+        // 1.3 校验供应商、物料存在
+        vendorService.validateVendorExists(updateReqVO.getVendorId());
+        itemService.validateItemExists(updateReqVO.getItemId());
 
         // 2. 更新主表
         MesQcIqcDO updateObj = BeanUtils.toBean(updateReqVO, MesQcIqcDO.class);
@@ -216,11 +228,14 @@ public class MesQcIqcServiceImpl implements MesQcIqcService {
 
     @Override
     public void recalculateDefectStats(Long iqcId, List<MesQcDefectRecordDO> records) {
+        MesQcIqcDO iqc = validateIqcExists(iqcId);
         // 1. 行级缺陷统计
         iqcLineService.recalculateLineDefectStats(iqcId, records);
 
         // 2.1 汇总主表的缺陷数量
-        int totalCritical = 0, totalMajor = 0, totalMinor = 0;
+        int totalCritical = 0;
+        int totalMajor = 0;
+        int totalMinor = 0;
         for (MesQcDefectRecordDO record : records) {
             int quantity = ObjUtil.defaultIfNull(record.getQuantity(), 1);
             if (Objects.equals(record.getLevel(), MesQcDefectLevelEnum.CRITICAL.getType())) {
@@ -234,7 +249,6 @@ public class MesQcIqcServiceImpl implements MesQcIqcService {
             }
         }
         // 2.2 计算缺陷率
-        MesQcIqcDO iqc = validateIqcExists(iqcId);
         BigDecimal criticalRate = BigDecimal.ZERO;
         BigDecimal majorRate = BigDecimal.ZERO;
         BigDecimal minorRate = BigDecimal.ZERO;
