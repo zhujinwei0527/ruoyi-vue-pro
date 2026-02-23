@@ -9,11 +9,9 @@ import cn.iocoder.yudao.module.mes.controller.admin.qc.iqc.vo.line.MesQcIqcLineR
 import cn.iocoder.yudao.module.mes.dal.dataobject.md.unitmeasure.MesMdUnitMeasureDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.qc.iqc.MesQcIqcLineDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.qc.indicator.MesQcIndicatorDO;
-import cn.iocoder.yudao.module.mes.dal.dataobject.tm.tool.MesTmToolDO;
 import cn.iocoder.yudao.module.mes.service.md.unitmeasure.MesMdUnitMeasureService;
 import cn.iocoder.yudao.module.mes.service.qc.iqc.MesQcIqcLineService;
 import cn.iocoder.yudao.module.mes.service.qc.indicator.MesQcIndicatorService;
-import cn.iocoder.yudao.module.mes.service.tm.tool.MesTmToolService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -46,8 +44,6 @@ public class MesQcIqcLineController {
     private MesQcIndicatorService indicatorService;
     @Resource
     private MesMdUnitMeasureService unitMeasureService;
-    @Resource
-    private MesTmToolService toolService;
 
     @GetMapping("/get")
     @Operation(summary = "获得来料检验单行")
@@ -85,13 +81,6 @@ public class MesQcIqcLineController {
                             .setIndicatorType(indicator.getType()));
             findAndThen(unitMeasureMap, vo.getUnitMeasureId(),
                     unit -> vo.setUnitMeasureName(unit.getName()));
-            // 逐个查询工具名称（工具数量通常较少）
-            if (vo.getToolId() != null) {
-                MesTmToolDO tool = toolService.getTool(vo.getToolId());
-                if (tool != null) {
-                    vo.setToolName(tool.getName());
-                }
-            }
         });
     }
 

@@ -93,6 +93,14 @@ public interface MesWmArrivalNoticeService {
     }
 
     /**
+     * 校验到货通知单和行存在，且行属于该通知单
+     *
+     * @param noticeId 到货通知单 ID
+     * @param lineId 到货通知单行 ID
+     */
+    void validateArrivalNoticeAndLineExists(Long noticeId, Long lineId);
+
+    /**
      * 按状态获得到货通知单列表
      *
      * @param status 状态

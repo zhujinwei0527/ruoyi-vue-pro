@@ -22,16 +22,18 @@ public interface MesQcIqcService {
      * 创建来料检验单
      *
      * @param createReqVO 创建信息
+     * @param inspectorUserId 检测人员用户 ID
      * @return 编号
      */
-    Long createIqc(@Valid MesQcIqcSaveReqVO createReqVO);
+    Long createIqc(@Valid MesQcIqcSaveReqVO createReqVO, Long inspectorUserId);
 
     /**
      * 更新来料检验单
      *
      * @param updateReqVO 更新信息
+     * @param inspectorUserId 检测人员用户 ID
      */
-    void updateIqc(@Valid MesQcIqcSaveReqVO updateReqVO);
+    void updateIqc(@Valid MesQcIqcSaveReqVO updateReqVO, Long inspectorUserId);
 
     /**
      * 完成来料检验单

@@ -6,20 +6,24 @@ import cn.iocoder.yudao.framework.common.pojo.PageResult;
 import cn.iocoder.yudao.module.mes.controller.admin.qc.iqc.vo.line.MesQcIqcLinePageReqVO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.qc.defectrecord.MesQcDefectRecordDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.qc.iqc.MesQcIqcLineDO;
+import cn.iocoder.yudao.module.mes.dal.dataobject.qc.indicator.MesQcIndicatorDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.qc.template.MesQcTemplateIndicatorDO;
 import cn.iocoder.yudao.module.mes.dal.mysql.qc.iqc.MesQcIqcLineMapper;
 import cn.iocoder.yudao.module.mes.dal.mysql.qc.template.MesQcTemplateIndicatorMapper;
 import cn.iocoder.yudao.module.mes.enums.qc.MesQcDefectLevelEnum;
+import cn.iocoder.yudao.module.mes.service.qc.indicator.MesQcIndicatorService;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception;
 import static cn.iocoder.yudao.framework.common.util.collection.CollectionUtils.convertList;
+import static cn.iocoder.yudao.framework.common.util.collection.CollectionUtils.convertSet;
 import static cn.iocoder.yudao.module.mes.enums.ErrorCodeConstants.*;
 
 /**
@@ -35,6 +39,9 @@ public class MesQcIqcLineServiceImpl implements MesQcIqcLineService {
     private MesQcIqcLineMapper iqcLineMapper;
     @Resource
     private MesQcTemplateIndicatorMapper templateIndicatorMapper;
+
+    @Resource
+    private MesQcIndicatorService indicatorService;
 
     @Override
     public MesQcIqcLineDO validateIqcLineExists(Long id) {
@@ -57,14 +64,22 @@ public class MesQcIqcLineServiceImpl implements MesQcIqcLineService {
 
     @Override
     public void createLinesFromTemplate(Long iqcId, Long templateId) {
-        List<MesQcTemplateIndicatorDO> indicators = templateIndicatorMapper.selectListByTemplateId(templateId);
-        List<MesQcIqcLineDO> lines = convertList(indicators, indicator -> new MesQcIqcLineDO()
-                .setIqcId(iqcId).setIndicatorId(indicator.getIndicatorId())
-                .setToolId(null) // TODO @芋艿：模板指标暂无 toolId，后续可扩展
-                .setCheckMethod(indicator.getCheckMethod())
-                .setStandardValue(indicator.getStandardValue()).setUnitMeasureId(indicator.getUnitMeasureId())
-                .setMaxThreshold(indicator.getThresholdMax()).setMinThreshold(indicator.getThresholdMin())
-                .setCriticalQuantity(0).setMajorQuantity(0).setMinorQuantity(0));
+        List<MesQcTemplateIndicatorDO> templateIndicators = templateIndicatorMapper.selectListByTemplateId(templateId);
+        if (CollUtil.isEmpty(templateIndicators)) {
+            return;
+        }
+        Map<Long, MesQcIndicatorDO> indicatorMap = indicatorService.getIndicatorMap(
+                convertSet(templateIndicators, MesQcTemplateIndicatorDO::getIndicatorId));
+        List<MesQcIqcLineDO> lines = convertList(templateIndicators, templateIndicator -> {
+            MesQcIndicatorDO indicator = indicatorMap.get(templateIndicator.getIndicatorId());
+            return new MesQcIqcLineDO()
+                    .setIqcId(iqcId).setIndicatorId(templateIndicator.getIndicatorId())
+                    .setTool(indicator != null ? indicator.getTool() : null)
+                    .setCheckMethod(templateIndicator.getCheckMethod())
+                    .setStandardValue(templateIndicator.getStandardValue()).setUnitMeasureId(templateIndicator.getUnitMeasureId())
+                    .setMaxThreshold(templateIndicator.getThresholdMax()).setMinThreshold(templateIndicator.getThresholdMin())
+                    .setCriticalQuantity(0).setMajorQuantity(0).setMinorQuantity(0);
+        });
         iqcLineMapper.insertBatch(lines);
     }
 

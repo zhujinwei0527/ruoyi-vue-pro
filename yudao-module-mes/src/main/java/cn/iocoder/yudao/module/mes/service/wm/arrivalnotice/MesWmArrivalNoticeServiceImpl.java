@@ -21,6 +21,7 @@ import java.math.BigDecimal;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception;
 import static cn.iocoder.yudao.module.mes.enums.ErrorCodeConstants.*;
@@ -164,6 +165,24 @@ public class MesWmArrivalNoticeServiceImpl implements MesWmArrivalNoticeService 
             return arrivalNoticeMapper.selectList();
         }
         return arrivalNoticeMapper.selectListByStatus(status);
+    }
+
+    @Override
+    public void validateArrivalNoticeAndLineExists(Long noticeId, Long lineId) {
+        // 1. 校验通知单存在
+        MesWmArrivalNoticeDO notice = arrivalNoticeMapper.selectById(noticeId);
+        if (notice == null) {
+            throw exception(WM_ARRIVAL_NOTICE_NOT_EXISTS);
+        }
+        // 2.1 校验行存在
+        MesWmArrivalNoticeLineDO line = arrivalNoticeLineService.getArrivalNoticeLine(lineId);
+        if (line == null) {
+            throw exception(WM_ARRIVAL_NOTICE_LINE_NOT_EXISTS);
+        }
+        // 2.2 校验行属于该通知单
+        if (ObjUtil.notEqual(line.getNoticeId(), noticeId)) {
+            throw exception(WM_ARRIVAL_NOTICE_LINE_NOT_EXISTS);
+        }
     }
 
     private MesWmArrivalNoticeDO validateArrivalNoticeExists(Long id) {

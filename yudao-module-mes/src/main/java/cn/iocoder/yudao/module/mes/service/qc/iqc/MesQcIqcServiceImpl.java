@@ -4,11 +4,11 @@ import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.ObjUtil;
 import cn.iocoder.yudao.framework.common.pojo.PageResult;
 import cn.iocoder.yudao.framework.common.util.object.BeanUtils;
+import cn.hutool.core.util.ObjectUtil;
 import cn.iocoder.yudao.module.mes.controller.admin.qc.iqc.vo.MesQcIqcPageReqVO;
 import cn.iocoder.yudao.module.mes.controller.admin.qc.iqc.vo.MesQcIqcSaveReqVO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.qc.defectrecord.MesQcDefectRecordDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.qc.iqc.MesQcIqcDO;
-import cn.iocoder.yudao.module.mes.dal.dataobject.qc.template.MesQcTemplateDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.qc.template.MesQcTemplateItemDO;
 import cn.iocoder.yudao.module.mes.dal.mysql.qc.iqc.MesQcIqcMapper;
 import cn.iocoder.yudao.module.mes.enums.MesBizTypeConstants;
@@ -16,7 +16,7 @@ import cn.iocoder.yudao.module.mes.enums.qc.MesQcDefectLevelEnum;
 import cn.iocoder.yudao.module.mes.enums.qc.MesQcIqcStatusEnum;
 import cn.iocoder.yudao.module.mes.enums.qc.MesQcTypeEnum;
 import cn.iocoder.yudao.module.mes.service.qc.defectrecord.MesQcDefectRecordService;
-import cn.iocoder.yudao.module.mes.service.qc.template.MesQcTemplateService;
+import cn.iocoder.yudao.module.mes.service.qc.template.MesQcTemplateDetailService;
 import cn.iocoder.yudao.module.mes.service.wm.arrivalnotice.MesWmArrivalNoticeService;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
@@ -44,7 +44,7 @@ public class MesQcIqcServiceImpl implements MesQcIqcService {
     @Resource
     private MesQcIqcMapper iqcMapper;
     @Resource
-    private MesQcTemplateService templateService;
+    private MesQcTemplateDetailService templateDetailService;
 
     @Resource
     private MesQcIqcLineService iqcLineService;
@@ -55,46 +55,42 @@ public class MesQcIqcServiceImpl implements MesQcIqcService {
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public Long createIqc(MesQcIqcSaveReqVO createReqVO) {
+    public Long createIqc(MesQcIqcSaveReqVO createReqVO, Long inspectorUserId) {
         // 1.1 校验编号唯一
         validateIqcCodeUnique(null, createReqVO.getCode());
-        // 1.2 查找物料关联的 IQC 检测模板
-        Long templateId = createReqVO.getTemplateId();
-        MesQcTemplateDO template = templateService.validateTemplateExists(templateId);
-        if (!CollUtil.contains(template.getTypes(), MesQcTypeEnum.IQC.getType())) {
-            throw exception(QC_IQC_NO_TEMPLATE);
-        }
+        // 1.2 校验来源单据参数，并验证数据存在
+        validateSourceDoc(createReqVO.getSourceDocType(), createReqVO.getSourceDocId(), createReqVO.getSourceLineId());
+        // 1.3 通过 itemId + IQC 类型自动查找模板
+        MesQcTemplateItemDO templateItem = templateDetailService.getRequiredTemplateByItemIdAndType(
+                createReqVO.getItemId(), MesQcTypeEnum.IQC.getType());
+        Long templateId = templateItem.getTemplateId();
 
-        // 3.1 从模板的产品关联中获取检测参数（min_check_quantity、max_unqualified_quantity）
-        MesQcTemplateItemDO templateItem = templateService.getTemplateItemByTemplateIdAndItemId(
-                templateId, createReqVO.getItemId());
-        if (templateItem != null) {
-            if (createReqVO.getMinCheckQuantity() == null) {
-                createReqVO.setMinCheckQuantity(templateItem.getQuantityCheck());
-            }
-            if (createReqVO.getMaxUnqualifiedQuantity() == null) {
-                createReqVO.setMaxUnqualifiedQuantity(templateItem.getQuantityUnqualified());
-            }
-        }
-        // 3.2 插入主表
+        // 2. 插入主表
         MesQcIqcDO iqc = BeanUtils.toBean(createReqVO, MesQcIqcDO.class);
+        iqc.setTemplateId(templateId);
+        iqc.setCheckQuantity(createReqVO.getQualifiedQuantity().add(createReqVO.getUnqualifiedQuantity()));
+        iqc.setInspectorUserId(inspectorUserId);
         iqc.setStatus(MesQcIqcStatusEnum.PREPARE.getType());
         iqcMapper.insert(iqc);
 
-        // 4. 从模板指标自动生成检验行
+        // 3. 从模板指标自动生成检验行
         iqcLineService.createLinesFromTemplate(iqc.getId(), templateId);
         return iqc.getId();
     }
 
     @Override
-    public void updateIqc(MesQcIqcSaveReqVO updateReqVO) {
+    public void updateIqc(MesQcIqcSaveReqVO updateReqVO, Long inspectorUserId) {
         // 1.1 校验存在 + 草稿状态
         validateIqcStatusPrepare(updateReqVO.getId());
         // 1.2 校验编号唯一
         validateIqcCodeUnique(updateReqVO.getId(), updateReqVO.getCode());
 
-        // 2. 更新
+        // 2. 更新主表
         MesQcIqcDO updateObj = BeanUtils.toBean(updateReqVO, MesQcIqcDO.class);
+        updateObj.setSourceDocType(null).setSourceDocId(null).setSourceLineId(null); // 不允许修改来源单据
+        updateObj.setTemplateId(null); // 不允许修改模板
+        updateObj.setCheckQuantity(updateReqVO.getQualifiedQuantity().add(updateReqVO.getUnqualifiedQuantity()));
+        updateObj.setInspectorUserId(inspectorUserId);
         iqcMapper.updateById(updateObj);
     }
 
@@ -102,14 +98,11 @@ public class MesQcIqcServiceImpl implements MesQcIqcService {
     public void completeIqc(Long id) {
         // 1.1 校验存在 + 草稿状态
         MesQcIqcDO iqc = validateIqcStatusPrepare(id);
-        // 1.2 校验合格品 + 不合格品 = 检测数量
-        if (iqc.getCheckQuantity() != null && iqc.getCheckQuantity().compareTo(BigDecimal.ZERO) > 0) {
-            BigDecimal total = ObjUtil.defaultIfNull(iqc.getQualifiedQuantity(), BigDecimal.ZERO)
-                    .add(ObjUtil.defaultIfNull(iqc.getUnqualifiedQuantity(), BigDecimal.ZERO));
-            if (total.compareTo(iqc.getCheckQuantity()) != 0) {
-                throw exception(QC_IQC_QUANTITY_MISMATCH);
-            }
+        // DONE @AI：已修复，增加 checkResult 必填校验
+        if (iqc.getCheckResult() == null) {
+            throw exception(QC_IQC_CHECK_RESULT_EMPTY);
         }
+        // DONE @AI：已修复，数量校验已在 MesQcIqcSaveReqVO 的 @AssertTrue 中保证，此处移除
 
         // 2. 更新状态为已完成
         MesQcIqcDO updateObj = new MesQcIqcDO()
@@ -130,7 +123,8 @@ public class MesQcIqcServiceImpl implements MesQcIqcService {
         if (iqc.getSourceDocType() == null) {
             return;
         }
-        if (iqc.getSourceLineId() == null || iqc.getSourceDocId() == null) {
+        // DONE @AI：已修复，使用 ObjectUtil.hasNull() 简化判断
+        if (ObjectUtil.hasNull(iqc.getSourceLineId(), iqc.getSourceDocId())) {
             throw new IllegalArgumentException(
                     "IQC 单[" + iqc.getId() + "] sourceDocType 非空但 sourceLineId 或 sourceDocId 为空");
         }
@@ -152,9 +146,9 @@ public class MesQcIqcServiceImpl implements MesQcIqcService {
         // 2.1 删除主表
         iqcMapper.deleteById(id);
         // 2.2 级联删除行
-        iqcLineService.deleteByIqcId(id);
+        iqcLineService.deleteListByIqcId(id);
         // 2.3 级联删除缺陷记录
-        defectRecordService.deleteByQcTypeAndQcId(MesQcTypeEnum.IQC.getType(), id);
+        defectRecordService.deleteListByQcTypeAndQcId(MesQcTypeEnum.IQC.getType(), id);
     }
 
     @Override
@@ -187,6 +181,26 @@ public class MesQcIqcServiceImpl implements MesQcIqcService {
         }
         if (ObjUtil.notEqual(iqc.getId(), id)) {
             throw exception(QC_IQC_CODE_DUPLICATE);
+        }
+    }
+
+    /**
+     * 校验来源单据参数，并验证数据存在
+     *
+     * @param sourceDocType 来源单据类型
+     * @param sourceDocId 来源单据 ID
+     * @param sourceLineId 来源单据行 ID
+     */
+    private void validateSourceDoc(Integer sourceDocType, Long sourceDocId, Long sourceLineId) {
+        if (sourceDocType == null) {
+            return;
+        }
+        if (ObjUtil.hasNull(sourceDocId, sourceLineId)) {
+            throw exception(QC_IQC_SOURCE_DOC_PARAMS_MISSING);
+        }
+        // 根据来源单据类型，校验数据存在且匹配
+        if (Objects.equals(sourceDocType, MesBizTypeConstants.WM_ARRIVAL_NOTICE)) {
+            arrivalNoticeService.validateArrivalNoticeAndLineExists(sourceDocId, sourceLineId);
         }
     }
 
@@ -246,7 +260,7 @@ public class MesQcIqcServiceImpl implements MesQcIqcService {
         if (CollUtil.isEmpty(ids)) {
             return Collections.emptyMap();
         }
-        List<MesQcIqcDO> list = iqcMapper.selectBatchIds(ids);
+        List<MesQcIqcDO> list = iqcMapper.selectByIds(ids);
         return convertMap(list, MesQcIqcDO::getId);
     }
 

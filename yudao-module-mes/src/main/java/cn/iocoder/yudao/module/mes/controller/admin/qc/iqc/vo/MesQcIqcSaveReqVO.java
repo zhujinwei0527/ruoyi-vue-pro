@@ -1,6 +1,8 @@
 package cn.iocoder.yudao.module.mes.controller.admin.qc.iqc.vo;
 
+import cn.hutool.core.util.ObjUtil;
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
@@ -81,5 +83,14 @@ public class MesQcIqcSaveReqVO {
 
     @Schema(description = "备注", example = "备注")
     private String remark;
+
+    @AssertTrue(message = "合格品数量与不合格品数量之和必须等于本次接收数量")
+    @Schema(hidden = true)
+    public boolean isQuantityValid() {
+        if (ObjUtil.hasNull(qualifiedQuantity, unqualifiedQuantity, receivedQuantity)) {
+            return true; // @NotNull 会处理 null
+        }
+        return qualifiedQuantity.add(unqualifiedQuantity).compareTo(receivedQuantity) == 0;
+    }
 
 }
