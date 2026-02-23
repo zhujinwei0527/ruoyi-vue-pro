@@ -12,10 +12,12 @@ import cn.iocoder.yudao.module.mes.dal.dataobject.wm.arrivalnotice.MesWmArrivalN
 import cn.iocoder.yudao.module.mes.dal.mysql.wm.arrivalnotice.MesWmArrivalNoticeMapper;
 import cn.iocoder.yudao.module.mes.enums.wm.MesWmArrivalNoticeStatusEnum;
 import jakarta.annotation.Resource;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 
+import java.math.BigDecimal;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -28,6 +30,7 @@ import static cn.iocoder.yudao.module.mes.enums.ErrorCodeConstants.*;
  */
 @Service
 @Validated
+@Slf4j
 public class MesWmArrivalNoticeServiceImpl implements MesWmArrivalNoticeService {
 
     @Resource
@@ -107,25 +110,28 @@ public class MesWmArrivalNoticeServiceImpl implements MesWmArrivalNoticeService 
         }
     }
 
-    // TODO DONE @AI：确认由 IQC 模块在检验完成后调用。前端审批按钮已移除，仅保留 Service 方法供内部调用
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public void approveArrivalNotice(Long id) {
-        // 1.1 校验存在
+    public void approveArrivalNoticeWhenIqcComplete(Long id, Long lineId, Long iqcId, BigDecimal qualifiedQuantity) {
+        // 1.1 校验到货通知单存在
         MesWmArrivalNoticeDO notice = validateArrivalNoticeExists(id);
-        // 1.2 校验状态：只有待质检才允许审批
+        // 1.2 校验状态为待质检
         if (ObjUtil.notEqual(MesWmArrivalNoticeStatusEnum.PENDING_QC.getStatus(), notice.getStatus())) {
             throw exception(WM_ARRIVAL_NOTICE_STATUS_NOT_PENDING_QC);
         }
-        // 1.3 校验所有 iqcCheckFlag=true 的行必须 iqcId 不为空
+
+        // 2. 更新到货通知单行：绑定 iqcId + 合格数量
+        arrivalNoticeLineService.updateByIqcComplete(lineId, iqcId, qualifiedQuantity);
+
+        // 3.1 判断是否所有需检行都已完成
         List<MesWmArrivalNoticeLineDO> lines = arrivalNoticeLineService.getArrivalNoticeLineListByNoticeId(id);
         boolean hasUnchecked = CollectionUtils.anyMatch(lines,
                 line -> Boolean.TRUE.equals(line.getIqcCheckFlag()) && line.getIqcId() == null);
         if (hasUnchecked) {
-            throw exception(WM_ARRIVAL_NOTICE_IQC_PENDING);
+            log.info("[updateWhenIqcComplete][到货通知单({}) 还有未完成检验的行，暂不更新状态]", id);
+            return;
         }
-
-        // 2. 审批通过
+        // 3.2 所有行检验完成，更新主表状态 PENDING_QC → PENDING_RECEIPT
         arrivalNoticeMapper.updateById(new MesWmArrivalNoticeDO()
                 .setId(id).setStatus(MesWmArrivalNoticeStatusEnum.PENDING_RECEIPT.getStatus()));
     }

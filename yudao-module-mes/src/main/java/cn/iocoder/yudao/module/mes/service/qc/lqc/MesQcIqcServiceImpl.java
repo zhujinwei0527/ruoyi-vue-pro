@@ -11,11 +11,13 @@ import cn.iocoder.yudao.module.mes.dal.dataobject.qc.lqc.MesQcIqcDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.qc.template.MesQcTemplateDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.qc.template.MesQcTemplateItemDO;
 import cn.iocoder.yudao.module.mes.dal.mysql.qc.lqc.MesQcIqcMapper;
+import cn.iocoder.yudao.module.mes.enums.MesBizTypeConstants;
 import cn.iocoder.yudao.module.mes.enums.qc.MesQcDefectLevelEnum;
 import cn.iocoder.yudao.module.mes.enums.qc.MesQcIqcStatusEnum;
 import cn.iocoder.yudao.module.mes.enums.qc.MesQcTypeEnum;
 import cn.iocoder.yudao.module.mes.service.qc.defectrecord.MesQcDefectRecordService;
 import cn.iocoder.yudao.module.mes.service.qc.template.MesQcTemplateService;
+import cn.iocoder.yudao.module.mes.service.wm.arrivalnotice.MesWmArrivalNoticeService;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -48,6 +50,8 @@ public class MesQcIqcServiceImpl implements MesQcIqcService {
     private MesQcIqcLineService iqcLineService;
     @Resource
     private MesQcDefectRecordService defectRecordService;
+    @Resource
+    private MesWmArrivalNoticeService arrivalNoticeService;
 
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -99,10 +103,10 @@ public class MesQcIqcServiceImpl implements MesQcIqcService {
         // 1.1 校验存在 + 草稿状态
         MesQcIqcDO iqc = validateIqcStatusPrepare(id);
         // 1.2 校验合格品 + 不合格品 = 检测数量
-        if (iqc.getCheckQuantity() != null && iqc.getCheckQuantity() > 0) {
-            int total = (iqc.getQualifiedQuantity() != null ? iqc.getQualifiedQuantity() : 0)
-                    + (iqc.getUnqualifiedQuantity() != null ? iqc.getUnqualifiedQuantity() : 0);
-            if (total != iqc.getCheckQuantity()) {
+        if (iqc.getCheckQuantity() != null && iqc.getCheckQuantity().compareTo(BigDecimal.ZERO) > 0) {
+            BigDecimal total = ObjUtil.defaultIfNull(iqc.getQualifiedQuantity(), BigDecimal.ZERO)
+                    .add(ObjUtil.defaultIfNull(iqc.getUnqualifiedQuantity(), BigDecimal.ZERO));
+            if (total.compareTo(iqc.getCheckQuantity()) != 0) {
                 throw exception(QC_IQC_QUANTITY_MISMATCH);
             }
         }
@@ -112,7 +116,31 @@ public class MesQcIqcServiceImpl implements MesQcIqcService {
                 .setId(id).setStatus(MesQcIqcStatusEnum.FINISHED.getType());
         iqcMapper.updateById(updateObj);
 
-        // TODO @芋艿：WM 模块迁移后，更新到货通知单行/外协入库单行的检验结果
+        // 3. 回写来源单据
+        writeBackSourceDoc(iqc);
+    }
+
+    /**
+     * 回写来源单据（IQC 完成后）
+     *
+     * @param iqc 来料检验单
+     */
+    private void writeBackSourceDoc(MesQcIqcDO iqc) {
+        // 校验：sourceDocType 非空时，lineId 和 docId 必须非空，否则为脏数据
+        if (iqc.getSourceDocType() == null) {
+            return;
+        }
+        if (iqc.getSourceLineId() == null || iqc.getSourceDocId() == null) {
+            throw new IllegalArgumentException(
+                    "IQC 单[" + iqc.getId() + "] sourceDocType 非空但 sourceLineId 或 sourceDocId 为空");
+        }
+
+        // 根据不同的来源单据类型，回写不同的单据
+        if (Objects.equals(iqc.getSourceDocType(), MesBizTypeConstants.WM_ARRIVAL_NOTICE)) {
+            arrivalNoticeService.approveArrivalNoticeWhenIqcComplete(iqc.getSourceDocId(), iqc.getSourceLineId(),
+                    iqc.getId(), iqc.getQualifiedQuantity());
+        }
+        // TODO 外协入库单：未实现，占位
     }
 
     @Override
@@ -196,8 +224,8 @@ public class MesQcIqcServiceImpl implements MesQcIqcService {
         BigDecimal criticalRate = BigDecimal.ZERO;
         BigDecimal majorRate = BigDecimal.ZERO;
         BigDecimal minorRate = BigDecimal.ZERO;
-        if (iqc.getCheckQuantity() != null && iqc.getCheckQuantity() > 0) {
-            BigDecimal checkQty = BigDecimal.valueOf(iqc.getCheckQuantity());
+        if (iqc.getCheckQuantity() != null && iqc.getCheckQuantity().compareTo(BigDecimal.ZERO) > 0) {
+            BigDecimal checkQty = iqc.getCheckQuantity();
             criticalRate = BigDecimal.valueOf(totalCritical).multiply(BigDecimal.valueOf(100))
                     .divide(checkQty, 2, RoundingMode.HALF_UP);
             majorRate = BigDecimal.valueOf(totalMajor).multiply(BigDecimal.valueOf(100))

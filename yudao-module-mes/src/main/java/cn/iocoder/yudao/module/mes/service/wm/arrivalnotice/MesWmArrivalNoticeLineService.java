@@ -6,6 +6,7 @@ import cn.iocoder.yudao.module.mes.controller.admin.wm.arrivalnotice.vo.line.Mes
 import cn.iocoder.yudao.module.mes.dal.dataobject.wm.arrivalnotice.MesWmArrivalNoticeLineDO;
 import jakarta.validation.Valid;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 /**
@@ -65,5 +66,14 @@ public interface MesWmArrivalNoticeLineService {
      * @param noticeId 通知单编号
      */
     void deleteArrivalNoticeLineByNoticeId(Long noticeId);
+
+    /**
+     * IQC 检验完成后回写行数据
+     *
+     * @param lineId 行编号
+     * @param iqcId IQC 检验单编号
+     * @param qualifiedQuantity 合格数量
+     */
+    void updateByIqcComplete(Long lineId, Long iqcId, BigDecimal qualifiedQuantity);
 
 }

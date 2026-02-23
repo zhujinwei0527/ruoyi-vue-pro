@@ -6,6 +6,7 @@ import cn.iocoder.yudao.module.mes.controller.admin.wm.arrivalnotice.vo.MesWmArr
 import cn.iocoder.yudao.module.mes.dal.dataobject.wm.arrivalnotice.MesWmArrivalNoticeDO;
 import jakarta.validation.Valid;
 
+import java.math.BigDecimal;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -63,11 +64,14 @@ public interface MesWmArrivalNoticeService {
     void submitArrivalNotice(Long id);
 
     /**
-     * 审批到货通知单（待质检 → 待入库）
+     * IQC 检验完成后回写到货通知单（更新行 + 尝试推进主表状态）
      *
-     * @param id 编号
+     * @param id 到货通知单编号
+     * @param lineId 到货通知单行编号
+     * @param iqcId IQC 检验单编号
+     * @param qualifiedQuantity 合格数量
      */
-    void approveArrivalNotice(Long id);
+    void approveArrivalNoticeWhenIqcComplete(Long id, Long lineId, Long iqcId, BigDecimal qualifiedQuantity);
 
     /**
      * 完成到货通知单（待入库 → 已完成），内部调用

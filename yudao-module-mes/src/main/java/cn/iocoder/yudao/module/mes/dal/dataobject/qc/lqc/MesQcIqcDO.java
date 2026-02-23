@@ -4,6 +4,9 @@ import cn.iocoder.yudao.framework.mybatis.core.dataobject.BaseDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.md.item.MesMdItemDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.md.vendor.MesMdVendorDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.qc.template.MesQcTemplateDO;
+import cn.iocoder.yudao.module.mes.dal.dataobject.wm.arrivalnotice.MesWmArrivalNoticeDO;
+import cn.iocoder.yudao.module.mes.dal.dataobject.wm.arrivalnotice.MesWmArrivalNoticeLineDO;
+import cn.iocoder.yudao.module.mes.enums.qc.MesQcSourceDocTypeEnum;
 import com.baomidou.mybatisplus.annotation.KeySequence;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
@@ -47,24 +50,26 @@ public class MesQcIqcDO extends BaseDO {
      */
     private Long templateId;
 
-    // ========== 来源单据（TODO @芋艿：WM 模块迁移后接入） ==========
+    // ========== 来源单据 ==========
 
-    /**
-     * 来源单据 ID
-     */
-    private Long sourceDocId;
     /**
      * 来源单据类型
      *
-     * 字典 mes_qc_source_doc_type
+     * 枚举 {@link MesQcSourceDocTypeEnum}
      */
-    private String sourceDocType;
+    private Integer sourceDocType;
     /**
-     * 来源单据编号
+     * 来源单据 ID
+     *
+     * 关联：根据 {@link #sourceDocType} 不同：
+     * 1. {@link MesQcSourceDocTypeEnum#ARRIVAL_NOTICE} 时，关联 {@link MesWmArrivalNoticeDO#getId()}
      */
-    private String sourceDocCode;
+    private Long sourceDocId;
     /**
      * 来源单据行 ID
+     *
+     * 关联：根据 {@link #sourceDocType} 不同：
+     * 1. {@link MesQcSourceDocTypeEnum#ARRIVAL_NOTICE} 时，关联 {@link MesWmArrivalNoticeLineDO#getId()}
      */
     private Long sourceLineId;
 
@@ -107,15 +112,15 @@ public class MesQcIqcDO extends BaseDO {
     /**
      * 本次检测数量
      */
-    private Integer checkQuantity;
+    private BigDecimal checkQuantity;
     /**
      * 合格品数量
      */
-    private Integer qualifiedQuantity;
+    private BigDecimal qualifiedQuantity;
     /**
      * 不合格品数量
      */
-    private Integer unqualifiedQuantity;
+    private BigDecimal unqualifiedQuantity;
 
     // ========== 缺陷统计 ==========
 

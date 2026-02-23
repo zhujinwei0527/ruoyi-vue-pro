@@ -112,15 +112,6 @@ public class MesWmArrivalNoticeController {
         return success(true);
     }
 
-    @PutMapping("/approve")
-    @Operation(summary = "审批到货通知单")
-    @Parameter(name = "id", description = "编号", required = true)
-    @PreAuthorize("@ss.hasPermission('mes:wm-arrival-notice:update')")
-    public CommonResult<Boolean> approveArrivalNotice(@RequestParam("id") Long id) {
-        arrivalNoticeService.approveArrivalNotice(id);
-        return success(true);
-    }
-
     @GetMapping("/simple-list")
     @Operation(summary = "获得到货通知单精简列表")
     @Parameter(name = "status", description = "状态", example = "2")

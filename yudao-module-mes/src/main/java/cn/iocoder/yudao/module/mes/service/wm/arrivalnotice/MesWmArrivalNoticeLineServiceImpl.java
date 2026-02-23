@@ -15,6 +15,7 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception;
@@ -41,11 +42,7 @@ public class MesWmArrivalNoticeLineServiceImpl implements MesWmArrivalNoticeLine
 
         // 插入
         MesWmArrivalNoticeLineDO line = BeanUtils.toBean(createReqVO, MesWmArrivalNoticeLineDO.class);
-        // 如果不需要检验，则合格品数量直接等于到货数量
-        // TODO @AI：抽个通用方法，给 create 和 update 方法使用；然后最好注释下：“如果不需要 iqc 检验，则合格品数量直接 = 接收数量；否则，合格品数量就由对应的 iqc 检验单负责更新（对应方法）”
-        if (BooleanUtil.isFalse(line.getIqcCheckFlag())) {
-            line.setQualifiedQuantity(line.getArrivalQuantity());
-        }
+        initQualifiedQuantityIfNoIqc(line);
         arrivalNoticeLineMapper.insert(line);
         return line.getId();
     }
@@ -59,11 +56,19 @@ public class MesWmArrivalNoticeLineServiceImpl implements MesWmArrivalNoticeLine
 
         // 更新
         MesWmArrivalNoticeLineDO updateObj = BeanUtils.toBean(updateReqVO, MesWmArrivalNoticeLineDO.class);
-        // 如果不需要检验，则合格品数量直接等于到货数量
-        if (BooleanUtil.isFalse(updateObj.getIqcCheckFlag())) {
-            updateObj.setQualifiedQuantity(updateObj.getArrivalQuantity());
-        }
+        initQualifiedQuantityIfNoIqc(updateObj);
         arrivalNoticeLineMapper.updateById(updateObj);
+    }
+
+    /**
+     * 初始化合格品数量：
+     * 1. 如果不需要 IQC 检验，则合格品数量直接 = 接收数量；
+     * 2. 否则，合格品数量由对应的 IQC 检验单负责更新（见 {@link #updateByIqcComplete}）
+     */
+    private void initQualifiedQuantityIfNoIqc(MesWmArrivalNoticeLineDO line) {
+        if (BooleanUtil.isFalse(line.getIqcCheckFlag())) {
+            line.setQualifiedQuantity(line.getArrivalQuantity());
+        }
     }
 
     @Override
@@ -92,6 +97,15 @@ public class MesWmArrivalNoticeLineServiceImpl implements MesWmArrivalNoticeLine
     @Override
     public void deleteArrivalNoticeLineByNoticeId(Long noticeId) {
         arrivalNoticeLineMapper.deleteByNoticeId(noticeId);
+    }
+
+    @Override
+    public void updateByIqcComplete(Long lineId, Long iqcId, BigDecimal qualifiedQuantity) {
+        // 校验行存在
+        validateArrivalNoticeLineExists(lineId);
+        // 更新
+        arrivalNoticeLineMapper.updateById(new MesWmArrivalNoticeLineDO()
+                .setId(lineId).setIqcId(iqcId).setQualifiedQuantity(qualifiedQuantity));
     }
 
     private MesWmArrivalNoticeLineDO validateArrivalNoticeLineExists(Long id) {

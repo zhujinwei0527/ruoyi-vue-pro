@@ -8,20 +8,19 @@ import lombok.Getter;
 import java.util.Arrays;
 
 /**
- * MES 检测种类枚举
+ * MES 质检来源单据类型枚举
  *
  * @author 芋道源码
  */
 @Getter
 @AllArgsConstructor
-public enum MesQcTypeEnum implements ArrayValuable<Integer> {
+public enum MesQcSourceDocTypeEnum implements ArrayValuable<Integer> {
 
-    IQC(MesBizTypeConstants.QC_IQC, "来料检验"),
-    IPQC(MesBizTypeConstants.QC_IPQC, "过程检验"),
-    OQC(MesBizTypeConstants.QC_OQC, "出货检验"),
-    RQC(MesBizTypeConstants.QC_RQC, "退货检验");
+    ARRIVAL_NOTICE(MesBizTypeConstants.WM_ARRIVAL_NOTICE, "到货通知单"),
+    // OUTSOURCE_RECPT(MesBizTypeConstants.WM_OUTSOURCE_RECPT, "外协入库单"), // TODO 未实现，占位
+    ;
 
-    public static final Integer[] ARRAYS = Arrays.stream(values()).map(MesQcTypeEnum::getType).toArray(Integer[]::new);
+    public static final Integer[] ARRAYS = Arrays.stream(values()).map(MesQcSourceDocTypeEnum::getType).toArray(Integer[]::new);
 
     /**
      * 类型值

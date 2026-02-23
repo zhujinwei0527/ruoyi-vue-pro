@@ -36,8 +36,6 @@ public class MesWmMaterialStockDO extends BaseDO {
      */
     @TableId
     private Long id;
-    // TODO DONE @AI：保留冗余字段。库存台账查询频繁，冗余存储可避免关联 item 表，提升查询性能
-    // TODO @AI：还是不记录；因为它没有筛选的诉求；并且，它可以通过 itemId 间接获取；冗余存储反而增加了维护成本；
     /**
      * 物料分类编号
      *
@@ -50,8 +48,6 @@ public class MesWmMaterialStockDO extends BaseDO {
      * 关联 {@link MesMdItemDO#getId()}
      */
     private Long itemId;
-    // TODO DONE @AI：保留冗余字段。库存台账查询频繁，冗余存储可避免关联 item 表，提升查询性能
-    // TODO @AI：还是不记录；因为它没有筛选的诉求；并且，它可以通过 itemId 间接获取；冗余存储反而增加了维护成本；
     /**
      * 计量单位编号
      *
@@ -88,6 +84,7 @@ public class MesWmMaterialStockDO extends BaseDO {
      * 关联 {@link MesMdVendorDO#getId()}
      */
     private Long vendorId;
+    // TODO @AI：这个字段，应该没有的。
     /**
      * 生产工单编号
      *
