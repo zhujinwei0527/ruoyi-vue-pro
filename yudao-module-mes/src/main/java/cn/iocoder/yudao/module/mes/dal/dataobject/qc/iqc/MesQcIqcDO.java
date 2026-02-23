@@ -1,4 +1,4 @@
-package cn.iocoder.yudao.module.mes.dal.dataobject.qc.lqc;
+package cn.iocoder.yudao.module.mes.dal.dataobject.qc.iqc;
 
 import cn.iocoder.yudao.framework.mybatis.core.dataobject.BaseDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.md.item.MesMdItemDO;

@@ -2,7 +2,7 @@ package cn.iocoder.yudao.module.mes.dal.dataobject.wm.arrivalnotice;
 
 import cn.iocoder.yudao.framework.mybatis.core.dataobject.BaseDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.md.item.MesMdItemDO;
-import cn.iocoder.yudao.module.mes.dal.dataobject.qc.lqc.MesQcIqcDO;
+import cn.iocoder.yudao.module.mes.dal.dataobject.qc.iqc.MesQcIqcDO;
 import com.baomidou.mybatisplus.annotation.KeySequence;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;

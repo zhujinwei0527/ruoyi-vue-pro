@@ -9,8 +9,8 @@ import cn.iocoder.yudao.module.mes.dal.mysql.qc.defectrecord.MesQcDefectRecordMa
 import cn.iocoder.yudao.module.mes.enums.qc.MesQcTypeEnum;
 import cn.iocoder.yudao.module.mes.service.qc.ipqc.MesQcIpqcLineService;
 import cn.iocoder.yudao.module.mes.service.qc.ipqc.MesQcIpqcService;
-import cn.iocoder.yudao.module.mes.service.qc.lqc.MesQcIqcLineService;
-import cn.iocoder.yudao.module.mes.service.qc.lqc.MesQcIqcService;
+import cn.iocoder.yudao.module.mes.service.qc.iqc.MesQcIqcLineService;
+import cn.iocoder.yudao.module.mes.service.qc.iqc.MesQcIqcService;
 import cn.iocoder.yudao.module.mes.service.qc.oqc.MesQcOqcLineService;
 import cn.iocoder.yudao.module.mes.service.qc.oqc.MesQcOqcService;
 import cn.iocoder.yudao.module.mes.service.qc.rqc.MesQcRqcLineService;

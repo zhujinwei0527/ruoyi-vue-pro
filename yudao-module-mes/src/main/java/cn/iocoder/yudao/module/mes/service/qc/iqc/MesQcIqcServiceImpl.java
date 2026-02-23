@@ -1,4 +1,4 @@
-package cn.iocoder.yudao.module.mes.service.qc.lqc;
+package cn.iocoder.yudao.module.mes.service.qc.iqc;
 
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.ObjUtil;
@@ -7,10 +7,10 @@ import cn.iocoder.yudao.framework.common.util.object.BeanUtils;
 import cn.iocoder.yudao.module.mes.controller.admin.qc.iqc.vo.MesQcIqcPageReqVO;
 import cn.iocoder.yudao.module.mes.controller.admin.qc.iqc.vo.MesQcIqcSaveReqVO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.qc.defectrecord.MesQcDefectRecordDO;
-import cn.iocoder.yudao.module.mes.dal.dataobject.qc.lqc.MesQcIqcDO;
+import cn.iocoder.yudao.module.mes.dal.dataobject.qc.iqc.MesQcIqcDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.qc.template.MesQcTemplateDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.qc.template.MesQcTemplateItemDO;
-import cn.iocoder.yudao.module.mes.dal.mysql.qc.lqc.MesQcIqcMapper;
+import cn.iocoder.yudao.module.mes.dal.mysql.qc.iqc.MesQcIqcMapper;
 import cn.iocoder.yudao.module.mes.enums.MesBizTypeConstants;
 import cn.iocoder.yudao.module.mes.enums.qc.MesQcDefectLevelEnum;
 import cn.iocoder.yudao.module.mes.enums.qc.MesQcIqcStatusEnum;

@@ -1,10 +1,10 @@
-package cn.iocoder.yudao.module.mes.service.qc.lqc;
+package cn.iocoder.yudao.module.mes.service.qc.iqc;
 
 import cn.iocoder.yudao.framework.common.pojo.PageResult;
 import cn.iocoder.yudao.module.mes.controller.admin.qc.iqc.vo.MesQcIqcPageReqVO;
 import cn.iocoder.yudao.module.mes.controller.admin.qc.iqc.vo.MesQcIqcSaveReqVO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.qc.defectrecord.MesQcDefectRecordDO;
-import cn.iocoder.yudao.module.mes.dal.dataobject.qc.lqc.MesQcIqcDO;
+import cn.iocoder.yudao.module.mes.dal.dataobject.qc.iqc.MesQcIqcDO;
 import jakarta.validation.Valid;
 
 import java.util.Collection;

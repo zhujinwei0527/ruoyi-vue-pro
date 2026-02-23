@@ -1,10 +1,10 @@
-package cn.iocoder.yudao.module.mes.dal.mysql.qc.lqc;
+package cn.iocoder.yudao.module.mes.dal.mysql.qc.iqc;
 
 import cn.iocoder.yudao.framework.common.pojo.PageResult;
 import cn.iocoder.yudao.framework.mybatis.core.mapper.BaseMapperX;
 import cn.iocoder.yudao.framework.mybatis.core.query.LambdaQueryWrapperX;
 import cn.iocoder.yudao.module.mes.controller.admin.qc.iqc.vo.line.MesQcIqcLinePageReqVO;
-import cn.iocoder.yudao.module.mes.dal.dataobject.qc.lqc.MesQcIqcLineDO;
+import cn.iocoder.yudao.module.mes.dal.dataobject.qc.iqc.MesQcIqcLineDO;
 import org.apache.ibatis.annotations.Mapper;
 
 import java.util.List;

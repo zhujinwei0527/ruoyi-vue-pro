@@ -1,13 +1,13 @@
-package cn.iocoder.yudao.module.mes.service.qc.lqc;
+package cn.iocoder.yudao.module.mes.service.qc.iqc;
 
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.ObjUtil;
 import cn.iocoder.yudao.framework.common.pojo.PageResult;
 import cn.iocoder.yudao.module.mes.controller.admin.qc.iqc.vo.line.MesQcIqcLinePageReqVO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.qc.defectrecord.MesQcDefectRecordDO;
-import cn.iocoder.yudao.module.mes.dal.dataobject.qc.lqc.MesQcIqcLineDO;
+import cn.iocoder.yudao.module.mes.dal.dataobject.qc.iqc.MesQcIqcLineDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.qc.template.MesQcTemplateIndicatorDO;
-import cn.iocoder.yudao.module.mes.dal.mysql.qc.lqc.MesQcIqcLineMapper;
+import cn.iocoder.yudao.module.mes.dal.mysql.qc.iqc.MesQcIqcLineMapper;
 import cn.iocoder.yudao.module.mes.dal.mysql.qc.template.MesQcTemplateIndicatorMapper;
 import cn.iocoder.yudao.module.mes.enums.qc.MesQcDefectLevelEnum;
 import jakarta.annotation.Resource;
