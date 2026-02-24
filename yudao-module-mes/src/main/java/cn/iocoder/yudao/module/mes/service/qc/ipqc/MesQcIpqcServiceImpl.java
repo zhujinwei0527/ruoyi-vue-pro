@@ -8,15 +8,17 @@ import cn.iocoder.yudao.module.mes.controller.admin.qc.ipqc.vo.MesQcIpqcSaveReqV
 import cn.iocoder.yudao.module.mes.dal.dataobject.pro.workorder.MesProWorkOrderDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.qc.defectrecord.MesQcDefectRecordDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.qc.ipqc.MesQcIpqcDO;
-import cn.iocoder.yudao.module.mes.dal.dataobject.qc.template.MesQcTemplateDO;
+import cn.iocoder.yudao.module.mes.dal.dataobject.qc.template.MesQcTemplateItemDO;
 import cn.iocoder.yudao.module.mes.dal.mysql.qc.ipqc.MesQcIpqcMapper;
 import cn.iocoder.yudao.module.mes.enums.qc.MesQcDefectLevelEnum;
 import cn.iocoder.yudao.module.mes.enums.MesOrderStatusEnum;
 import cn.iocoder.yudao.module.mes.enums.qc.MesQcTypeEnum;
+import cn.iocoder.yudao.module.mes.service.md.item.MesMdItemService;
 import cn.iocoder.yudao.module.mes.service.md.workstation.MesMdWorkstationService;
 import cn.iocoder.yudao.module.mes.service.pro.workorder.MesProWorkOrderService;
 import cn.iocoder.yudao.module.mes.service.qc.defectrecord.MesQcDefectRecordService;
 import cn.iocoder.yudao.module.mes.service.qc.template.MesQcTemplateDetailService;
+import cn.iocoder.yudao.module.system.api.user.AdminUserApi;
 import jakarta.annotation.Resource;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
@@ -55,7 +57,13 @@ public class MesQcIpqcServiceImpl implements MesQcIpqcService {
     private MesMdWorkstationService workstationService;
     @Resource
     @Lazy
+    private MesMdItemService itemService;
+    @Resource
+    @Lazy
     private MesQcDefectRecordService defectRecordService;
+
+    @Resource
+    private AdminUserApi adminUserApi;
 
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -66,23 +74,24 @@ public class MesQcIpqcServiceImpl implements MesQcIpqcService {
         MesProWorkOrderDO workOrder = workOrderService.validateWorkOrderExists(createReqVO.getWorkOrderId());
         // 1.3 校验工位存在
         workstationService.validateWorkstationExists(createReqVO.getWorkstationId());
-        // 1.4 根据产品 + 检验类型自动匹配模板
-        // TODO @AI：参考 iqc，应该通过 getRequiredTemplatesByItemIdAndType 方法；
-        MesQcTemplateDO template = templateDetailService.getTemplateByItemIdAndType(
+        // 1.4 校验检测人员存在
+        adminUserApi.validateUser(createReqVO.getInspectorUserId());
+        // 1.5 校验物料存在
+        itemService.validateItemExists(createReqVO.getItemId());
+        // 1.6 根据产品 + 检验类型自动匹配模板
+        MesQcTemplateItemDO templateItem = templateDetailService.getRequiredTemplateByItemIdAndType(
                 workOrder.getProductId(), MesQcTypeEnum.IPQC.getType());
-        if (template == null) {
-            throw exception(QC_IPQC_NO_TEMPLATE);
-        }
+        Long templateId = templateItem.getTemplateId();
         // TODO @AI：processId 不应该是前端传递，而是通过 workstation + work order + route 表，联合查询出来的；
 
         // 2. 插入主表
         MesQcIpqcDO ipqc = BeanUtils.toBean(createReqVO, MesQcIpqcDO.class);
         ipqc.setItemId(workOrder.getProductId());
-        ipqc.setTemplateId(template.getId()).setStatus(MesOrderStatusEnum.DRAFT.getType());
+        ipqc.setTemplateId(templateId).setStatus(MesOrderStatusEnum.DRAFT.getType());
         ipqcMapper.insert(ipqc);
 
         // 3. 从模板指标自动生成检验行
-        ipqcLineService.createLinesFromTemplate(ipqc.getId(), template.getId());
+        ipqcLineService.createLinesFromTemplate(ipqc.getId(), templateId);
         return ipqc.getId();
     }
 
@@ -92,6 +101,14 @@ public class MesQcIpqcServiceImpl implements MesQcIpqcService {
         validateIpqcStatusPrepare(updateReqVO.getId());
         // 1.2 校验编号唯一
         validateIpqcCodeUnique(updateReqVO.getId(), updateReqVO.getCode());
+        // 1.3 校验工单存在
+        workOrderService.validateWorkOrderExists(updateReqVO.getWorkOrderId());
+        // 1.4 校验工位存在
+        workstationService.validateWorkstationExists(updateReqVO.getWorkstationId());
+        // 1.5 校验检测人员存在
+        adminUserApi.validateUser(updateReqVO.getInspectorUserId());
+        // 1.6 校验物料存在
+        itemService.validateItemExists(updateReqVO.getItemId());
 
         // 2. 更新
         MesQcIpqcDO updateObj = BeanUtils.toBean(updateReqVO, MesQcIpqcDO.class);
@@ -102,13 +119,9 @@ public class MesQcIpqcServiceImpl implements MesQcIpqcService {
     public void completeIpqc(Long id) {
         // 1.1 校验存在 + 草稿状态
         MesQcIpqcDO ipqc = validateIpqcStatusPrepare(id);
-        // 1.2 校验合格品 + 不合格品 = 检测数量
-        if (ipqc.getCheckQuantity() != null && ipqc.getCheckQuantity().compareTo(BigDecimal.ZERO) > 0) {
-            BigDecimal qualified = ipqc.getQualifiedQuantity() != null ? ipqc.getQualifiedQuantity() : BigDecimal.ZERO;
-            BigDecimal unqualified = ipqc.getUnqualifiedQuantity() != null ? ipqc.getUnqualifiedQuantity() : BigDecimal.ZERO;
-            if (qualified.add(unqualified).compareTo(ipqc.getCheckQuantity()) != 0) {
-                throw exception(QC_IPQC_QUANTITY_MISMATCH);
-            }
+        // 1.2 校验检测结论必填
+        if (ipqc.getCheckResult() == null) {
+            throw exception(QC_IPQC_CHECK_RESULT_EMPTY);
         }
 
         // 2. 更新状态为已完成
@@ -179,11 +192,14 @@ public class MesQcIpqcServiceImpl implements MesQcIpqcService {
 
     @Override
     public void recalculateDefectStats(Long ipqcId, List<MesQcDefectRecordDO> records) {
+        MesQcIpqcDO ipqc = validateIpqcExists(ipqcId);
         // 1. 行级缺陷统计
         ipqcLineService.recalculateLineDefectStats(ipqcId, records);
 
         // 2.1 汇总主表的缺陷数量
-        int totalCritical = 0, totalMajor = 0, totalMinor = 0;
+        int totalCritical = 0;
+        int totalMajor = 0;
+        int totalMinor = 0;
         for (MesQcDefectRecordDO record : records) {
             int quantity = ObjUtil.defaultIfNull(record.getQuantity(), 1);
             if (Objects.equals(record.getLevel(), MesQcDefectLevelEnum.CRITICAL.getType())) {
@@ -196,8 +212,7 @@ public class MesQcIpqcServiceImpl implements MesQcIpqcService {
                 throw exception(QC_DEFECT_RECORD_LEVEL_UNKNOWN);
             }
         }
-        // 2.2 计算缺陷率（IPQC 的 checkQuantity 是 BigDecimal）
-        MesQcIpqcDO ipqc = validateIpqcExists(ipqcId);
+        // 2.2 计算缺陷率
         BigDecimal criticalRate = BigDecimal.ZERO;
         BigDecimal majorRate = BigDecimal.ZERO;
         BigDecimal minorRate = BigDecimal.ZERO;

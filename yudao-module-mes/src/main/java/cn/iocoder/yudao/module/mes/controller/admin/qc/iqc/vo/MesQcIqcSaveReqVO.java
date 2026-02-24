@@ -71,16 +71,20 @@ public class MesQcIqcSaveReqVO {
 
     // ========== 检验 ==========
 
+    @Schema(description = "检测人员用户 ID", requiredMode = Schema.RequiredMode.REQUIRED, example = "1")
+    @NotNull(message = "检测人员不能为空")
+    private Long inspectorUserId;
+
+    @Schema(description = "检测日期", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotNull(message = "检测日期不能为空")
+    private LocalDateTime inspectDate;
+
     @Schema(description = "检测结果", example = "1")
     private Integer checkResult;
 
     @Schema(description = "来料日期", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotNull(message = "来料日期不能为空")
     private LocalDateTime receiveDate;
-
-    @Schema(description = "检测日期", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotNull(message = "检测日期不能为空")
-    private LocalDateTime inspectDate;
 
     @Schema(description = "备注", example = "备注")
     private String remark;

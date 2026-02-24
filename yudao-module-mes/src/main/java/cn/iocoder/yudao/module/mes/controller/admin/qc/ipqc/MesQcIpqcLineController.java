@@ -85,13 +85,6 @@ public class MesQcIpqcLineController {
                             .setIndicatorType(indicator.getType()));
             findAndThen(unitMeasureMap, vo.getUnitMeasureId(),
                     unit -> vo.setUnitMeasureName(unit.getName()));
-            // 逐个查询工具名称（工具数量通常较少）
-            if (vo.getToolId() != null) {
-                MesTmToolDO tool = toolService.getTool(vo.getToolId());
-                if (tool != null) {
-                    vo.setToolName(tool.getName());
-                }
-            }
         });
     }
 

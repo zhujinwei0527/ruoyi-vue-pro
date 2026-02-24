@@ -20,6 +20,7 @@ import cn.iocoder.yudao.module.mes.service.md.vendor.MesMdVendorService;
 import cn.iocoder.yudao.module.mes.service.qc.defectrecord.MesQcDefectRecordService;
 import cn.iocoder.yudao.module.mes.service.qc.template.MesQcTemplateDetailService;
 import cn.iocoder.yudao.module.mes.service.wm.arrivalnotice.MesWmArrivalNoticeService;
+import cn.iocoder.yudao.module.system.api.user.AdminUserApi;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -45,9 +46,9 @@ public class MesQcIqcServiceImpl implements MesQcIqcService {
 
     @Resource
     private MesQcIqcMapper iqcMapper;
+
     @Resource
     private MesQcTemplateDetailService templateDetailService;
-
     @Resource
     private MesQcIqcLineService iqcLineService;
     @Resource
@@ -59,17 +60,22 @@ public class MesQcIqcServiceImpl implements MesQcIqcService {
     @Resource
     private MesMdItemService itemService;
 
+    @Resource
+    private AdminUserApi adminUserApi;
+
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public Long createIqc(MesQcIqcSaveReqVO createReqVO, Long inspectorUserId) {
+    public Long createIqc(MesQcIqcSaveReqVO createReqVO) {
         // 1.1 校验编号唯一
         validateIqcCodeUnique(null, createReqVO.getCode());
         // 1.2 校验供应商、物料存在
         vendorService.validateVendorExists(createReqVO.getVendorId());
         itemService.validateItemExists(createReqVO.getItemId());
-        // 1.3 校验来源单据参数，并验证数据存在
+        // 1.3 校验检测人员存在
+        adminUserApi.validateUser(createReqVO.getInspectorUserId());
+        // 1.4 校验来源单据参数，并验证数据存在
         validateSourceDoc(createReqVO.getSourceDocType(), createReqVO.getSourceDocId(), createReqVO.getSourceLineId());
-        // 1.4 通过 itemId + IQC 类型自动查找模板
+        // 1.5 通过 itemId + IQC 类型自动查找模板
         MesQcTemplateItemDO templateItem = templateDetailService.getRequiredTemplateByItemIdAndType(
                 createReqVO.getItemId(), MesQcTypeEnum.IQC.getType());
         Long templateId = templateItem.getTemplateId();
@@ -78,7 +84,6 @@ public class MesQcIqcServiceImpl implements MesQcIqcService {
         MesQcIqcDO iqc = BeanUtils.toBean(createReqVO, MesQcIqcDO.class);
         iqc.setTemplateId(templateId);
         iqc.setCheckQuantity(createReqVO.getQualifiedQuantity().add(createReqVO.getUnqualifiedQuantity()));
-        iqc.setInspectorUserId(inspectorUserId);
         iqc.setStatus(MesOrderStatusEnum.DRAFT.getType());
         iqcMapper.insert(iqc);
 
@@ -88,7 +93,7 @@ public class MesQcIqcServiceImpl implements MesQcIqcService {
     }
 
     @Override
-    public void updateIqc(MesQcIqcSaveReqVO updateReqVO, Long inspectorUserId) {
+    public void updateIqc(MesQcIqcSaveReqVO updateReqVO) {
         // 1.1 校验存在 + 草稿状态
         validateIqcStatusPrepare(updateReqVO.getId());
         // 1.2 校验编号唯一
@@ -96,13 +101,14 @@ public class MesQcIqcServiceImpl implements MesQcIqcService {
         // 1.3 校验供应商、物料存在
         vendorService.validateVendorExists(updateReqVO.getVendorId());
         itemService.validateItemExists(updateReqVO.getItemId());
+        // 1.4 校验检测人员存在
+        adminUserApi.validateUser(updateReqVO.getInspectorUserId());
 
         // 2. 更新主表
         MesQcIqcDO updateObj = BeanUtils.toBean(updateReqVO, MesQcIqcDO.class);
         updateObj.setSourceDocType(null).setSourceDocId(null).setSourceLineId(null); // 不允许修改来源单据
         updateObj.setTemplateId(null); // 不允许修改模板
         updateObj.setCheckQuantity(updateReqVO.getQualifiedQuantity().add(updateReqVO.getUnqualifiedQuantity()));
-        updateObj.setInspectorUserId(inspectorUserId);
         iqcMapper.updateById(updateObj);
     }
 
@@ -110,11 +116,9 @@ public class MesQcIqcServiceImpl implements MesQcIqcService {
     public void completeIqc(Long id) {
         // 1.1 校验存在 + 草稿状态
         MesQcIqcDO iqc = validateIqcStatusPrepare(id);
-        // DONE @AI：已修复，增加 checkResult 必填校验
         if (iqc.getCheckResult() == null) {
             throw exception(QC_IQC_CHECK_RESULT_EMPTY);
         }
-        // DONE @AI：已修复，数量校验已在 MesQcIqcSaveReqVO 的 @AssertTrue 中保证，此处移除
 
         // 2. 更新状态为已完成
         MesQcIqcDO updateObj = new MesQcIqcDO()
@@ -135,7 +139,6 @@ public class MesQcIqcServiceImpl implements MesQcIqcService {
         if (iqc.getSourceDocType() == null) {
             return;
         }
-        // DONE @AI：已修复，使用 ObjectUtil.hasNull() 简化判断
         if (ObjectUtil.hasNull(iqc.getSourceLineId(), iqc.getSourceDocId())) {
             throw new IllegalArgumentException(
                     "IQC 单[" + iqc.getId() + "] sourceDocType 非空但 sourceLineId 或 sourceDocId 为空");

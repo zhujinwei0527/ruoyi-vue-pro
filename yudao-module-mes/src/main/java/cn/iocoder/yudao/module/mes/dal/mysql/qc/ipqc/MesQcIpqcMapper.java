@@ -20,11 +20,9 @@ public interface MesQcIpqcMapper extends BaseMapperX<MesQcIpqcDO> {
                 .likeIfPresent(MesQcIpqcDO::getCode, reqVO.getCode())
                 .eqIfPresent(MesQcIpqcDO::getType, reqVO.getType())
                 .eqIfPresent(MesQcIpqcDO::getWorkOrderId, reqVO.getWorkOrderId())
-                .eqIfPresent(MesQcIpqcDO::getWorkstationId, reqVO.getWorkstationId())
                 .eqIfPresent(MesQcIpqcDO::getItemId, reqVO.getItemId())
                 .eqIfPresent(MesQcIpqcDO::getCheckResult, reqVO.getCheckResult())
                 .eqIfPresent(MesQcIpqcDO::getStatus, reqVO.getStatus())
-                .betweenIfPresent(MesQcIpqcDO::getInspectDate, reqVO.getInspectDate())
                 .eqIfPresent(MesQcIpqcDO::getInspectorUserId, reqVO.getInspectorUserId())
                 .orderByDesc(MesQcIpqcDO::getId));
     }

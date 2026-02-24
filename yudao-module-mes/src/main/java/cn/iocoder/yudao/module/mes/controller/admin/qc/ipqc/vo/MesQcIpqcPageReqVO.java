@@ -26,9 +26,6 @@ public class MesQcIpqcPageReqVO extends PageParam {
     @Schema(description = "生产工单 ID", example = "10")
     private Long workOrderId;
 
-    @Schema(description = "工位 ID", example = "30")
-    private Long workstationId;
-
     @Schema(description = "产品物料 ID", example = "50")
     private Long itemId;
 
@@ -40,9 +37,5 @@ public class MesQcIpqcPageReqVO extends PageParam {
 
     @Schema(description = "检测人员用户 ID", example = "1")
     private Long inspectorUserId;
-
-    @Schema(description = "检测日期")
-    @DateTimeFormat(pattern = FORMAT_YEAR_MONTH_DAY_HOUR_MINUTE_SECOND)
-    private LocalDateTime[] inspectDate;
 
 }

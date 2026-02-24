@@ -65,11 +65,6 @@ public class MesQcIpqcDO extends BaseDO {
      * 来源单据类型
      */
     private String sourceDocType;
-    // TODO @AI：sourceDocCode 是不是不用存储？（晚点在处理，对应模块还没搞完）
-    /**
-     * 来源单据编号
-     */
-    private String sourceDocCode;
     /**
      * 来源单据行 ID
      */

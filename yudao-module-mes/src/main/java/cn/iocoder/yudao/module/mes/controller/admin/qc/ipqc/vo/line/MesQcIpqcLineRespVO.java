@@ -30,11 +30,8 @@ public class MesQcIpqcLineRespVO {
     @Schema(description = "检测指标类型", example = "QUANTITATIVE")
     private String indicatorType;
 
-    @Schema(description = "检测工具 ID", example = "5")
-    private Long toolId;
-
-    @Schema(description = "检测工具名称", example = "卡尺")
-    private String toolName;
+    @Schema(description = "检测工具", example = "卡尺")
+    private String tool;
 
     @Schema(description = "检测方法", example = "目测")
     private String checkMethod;

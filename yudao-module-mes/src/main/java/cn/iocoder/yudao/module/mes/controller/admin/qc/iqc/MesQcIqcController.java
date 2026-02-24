@@ -63,14 +63,14 @@ public class MesQcIqcController {
     @Operation(summary = "创建来料检验单")
     @PreAuthorize("@ss.hasPermission('mes:qc-iqc:create')")
     public CommonResult<Long> createIqc(@Valid @RequestBody MesQcIqcSaveReqVO createReqVO) {
-        return success(iqcService.createIqc(createReqVO, getLoginUserId()));
+        return success(iqcService.createIqc(createReqVO));
     }
 
     @PutMapping("/update")
     @Operation(summary = "更新来料检验单")
     @PreAuthorize("@ss.hasPermission('mes:qc-iqc:update')")
     public CommonResult<Boolean> updateIqc(@Valid @RequestBody MesQcIqcSaveReqVO updateReqVO) {
-        iqcService.updateIqc(updateReqVO, getLoginUserId());
+        iqcService.updateIqc(updateReqVO);
         return success(true);
     }
 
