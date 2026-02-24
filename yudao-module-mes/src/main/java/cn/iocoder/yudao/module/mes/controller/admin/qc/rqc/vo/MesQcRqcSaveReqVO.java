@@ -57,6 +57,8 @@ public class MesQcRqcSaveReqVO {
 
     // ========== 数量 ==========
 
+    // TODO @AI：参考 iqc 的参数校验；
+
     @Schema(description = "检测数量", example = "100")
     private BigDecimal checkQuantity;
 

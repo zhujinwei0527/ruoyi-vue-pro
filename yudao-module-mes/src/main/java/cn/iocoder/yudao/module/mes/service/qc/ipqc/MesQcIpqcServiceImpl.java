@@ -67,11 +67,13 @@ public class MesQcIpqcServiceImpl implements MesQcIpqcService {
         // 1.3 校验工位存在
         workstationService.validateWorkstationExists(createReqVO.getWorkstationId());
         // 1.4 根据产品 + 检验类型自动匹配模板
+        // TODO @AI：参考 iqc，应该通过 getRequiredTemplatesByItemIdAndType 方法；
         MesQcTemplateDO template = templateDetailService.getTemplateByItemIdAndType(
                 workOrder.getProductId(), MesQcTypeEnum.IPQC.getType());
         if (template == null) {
             throw exception(QC_IPQC_NO_TEMPLATE);
         }
+        // TODO @AI：processId 不应该是前端传递，而是通过 workstation + work order + route 表，联合查询出来的；
 
         // 2. 插入主表
         MesQcIpqcDO ipqc = BeanUtils.toBean(createReqVO, MesQcIpqcDO.class);

@@ -57,7 +57,9 @@ public class MesQcOqcServiceImpl implements MesQcOqcService {
     public Long createOqc(MesQcOqcSaveReqVO createReqVO) {
         // 1.1 校验编号唯一
         validateOqcCodeUnique(null, createReqVO.getCode());
+        // TODO @AI：关联字段的校验！
         // 1.2 校验模板存在且包含 OQC 类型
+        // TODO @AI：不用前端传递，而是类似 iqc 后端计算
         Long templateId = createReqVO.getTemplateId();
         MesQcTemplateDO template = templateService.validateTemplateExists(templateId);
         if (!CollUtil.contains(template.getTypes(), MesQcTypeEnum.OQC.getType())) {
@@ -66,6 +68,7 @@ public class MesQcOqcServiceImpl implements MesQcOqcService {
 
         // 1.3 从模板的产品关联中获取检测参数
         // TODO @芋艿：【暂时不用删除】到底 miniCheckQuantity 和 maxUnqualifiedQuantity 是否有必要存储？
+        // TODO @AI：去掉这 2 个字段的设置，包括数据的存储，也去掉！
         MesQcTemplateItemDO templateItem = templateDetailService.getTemplateItemByTemplateIdAndItemId(
                 templateId, createReqVO.getItemId());
         if (templateItem != null) {

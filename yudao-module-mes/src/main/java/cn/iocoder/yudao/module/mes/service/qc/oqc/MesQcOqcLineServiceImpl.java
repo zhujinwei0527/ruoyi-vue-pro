@@ -57,6 +57,7 @@ public class MesQcOqcLineServiceImpl implements MesQcOqcLineService {
 
     @Override
     public void createLinesFromTemplate(Long oqcId, Long templateId) {
+        // TODO @AI：tool 存储
         List<MesQcTemplateIndicatorDO> indicators = templateIndicatorMapper.selectListByTemplateId(templateId);
         List<MesQcOqcLineDO> lines = convertList(indicators, indicator -> new MesQcOqcLineDO()
                 .setOqcId(oqcId).setIndicatorId(indicator.getIndicatorId())

@@ -53,6 +53,7 @@ public class MesQcRqcServiceImpl implements MesQcRqcService {
         // TODO @AI：关联的物资等存在的校验；
         // 1.2 校验检验模板存在且支持 RQC 类型
         Long templateId = createReqVO.getTemplateId();
+        // TODO @AI：参考 iqc 获取 templateId；不在依赖前端传递；
         MesQcTemplateDO template = templateService.validateTemplateExists(templateId);
         if (!CollUtil.contains(template.getTypes(), MesQcTypeEnum.RQC.getType())) {
             throw exception(QC_RQC_NO_TEMPLATE);

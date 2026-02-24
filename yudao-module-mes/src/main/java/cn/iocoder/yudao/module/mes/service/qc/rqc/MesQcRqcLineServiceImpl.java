@@ -60,7 +60,7 @@ public class MesQcRqcLineServiceImpl implements MesQcRqcLineService {
         List<MesQcTemplateIndicatorDO> indicators = templateIndicatorMapper.selectListByTemplateId(templateId);
         List<MesQcRqcLineDO> lines = convertList(indicators, indicator -> new MesQcRqcLineDO()
                 .setRqcId(rqcId).setIndicatorId(indicator.getIndicatorId())
-                .setToolId(null) // TODO @芋艿：模板指标暂无 toolId，后续可扩展
+                .setToolId(null) // TODO @芋艿：模板指标暂无 toolId，后续可扩展;todo @AI：改成 tool；参考 iqc
                 .setCheckMethod(indicator.getCheckMethod())
                 .setStandardValue(indicator.getStandardValue()).setUnitMeasureId(indicator.getUnitMeasureId())
                 .setMaxThreshold(indicator.getThresholdMax()).setMinThreshold(indicator.getThresholdMin())

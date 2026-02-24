@@ -32,12 +32,13 @@ public class MesQcIpqcSaveReqVO {
 
     // ========== 来源单据 ==========
 
-    @Schema(description = "来源单据 ID", example = "200")
-    private Long sourceDocId;
-
     @Schema(description = "来源单据类型", example = "FEEDBACK")
     private String sourceDocType;
 
+    @Schema(description = "来源单据 ID", example = "200")
+    private Long sourceDocId;
+
+    // TODO @AI：
     @Schema(description = "来源单据编号", example = "FB20250101001")
     private String sourceDocCode;
 

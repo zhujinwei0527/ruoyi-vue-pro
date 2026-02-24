@@ -159,9 +159,6 @@ public class MesQcIqcDO extends BaseDO {
      */
     private LocalDateTime inspectDate;
     /**
-     * 检测人员
-     */
-    /**
      * 检测人员用户 ID
      *
      * 关联 AdminUserDO 的 id

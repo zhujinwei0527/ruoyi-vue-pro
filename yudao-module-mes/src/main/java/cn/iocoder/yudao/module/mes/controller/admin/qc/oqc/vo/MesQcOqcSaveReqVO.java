@@ -58,6 +58,7 @@ public class MesQcOqcSaveReqVO {
 
     // ========== 数量 ==========
 
+    // TODO @AI：这 2 个字段去掉，minCheckQuantity、maxUnqualifiedQuantity；前后端都是；
     @Schema(description = "最低检测数", example = "5")
     private Integer minCheckQuantity;
 
@@ -67,6 +68,8 @@ public class MesQcOqcSaveReqVO {
     @Schema(description = "本次出货数量", requiredMode = Schema.RequiredMode.REQUIRED, example = "100")
     @NotNull(message = "本次出货数量不能为空")
     private BigDecimal outQuantity;
+
+    // TODO @AI：checkQuantity = qualifiedQuantity + unqualifiedQuantity；校验下相等；必须的；参考 iqc
 
     @Schema(description = "本次检测数量", example = "10")
     private Integer checkQuantity;
