@@ -1,6 +1,7 @@
 package cn.iocoder.yudao.module.mes.controller.admin.wm.arrivalnotice.vo.line;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
@@ -21,19 +22,14 @@ public class MesWmArrivalNoticeLineSaveReqVO {
     @NotNull(message = "物料编号不能为空")
     private Long itemId;
 
-    // TODO @AI：必须大于 0；前端也校验下；
     @Schema(description = "到货数量", requiredMode = Schema.RequiredMode.REQUIRED, example = "500.00")
     @NotNull(message = "到货数量不能为空")
+    @DecimalMin(value = "0.01", message = "到货数量必须大于 0")
     private BigDecimal arrivalQuantity;
 
-    @Schema(description = "合格数量", example = "500.00")
-    private BigDecimal qualifiedQuantity;
-
-    @Schema(description = "是否需要来料检验", example = "true")
+    @Schema(description = "是否需要来料检验", requiredMode = Schema.RequiredMode.REQUIRED, example = "true")
+    @NotNull(message = "是否需要来料检验不能为空")
     private Boolean iqcCheckFlag;
-
-    @Schema(description = "来料检验单编号", example = "1")
-    private Long iqcId;
 
     @Schema(description = "备注", example = "备注")
     private String remark;

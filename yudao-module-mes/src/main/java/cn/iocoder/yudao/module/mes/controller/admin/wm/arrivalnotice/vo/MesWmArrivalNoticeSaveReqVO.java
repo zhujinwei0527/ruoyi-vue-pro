@@ -17,7 +17,8 @@ public class MesWmArrivalNoticeSaveReqVO {
     @NotEmpty(message = "通知单编码不能为空")
     private String code;
 
-    @Schema(description = "通知单名称", example = "2 月份钢板到货")
+    @Schema(description = "通知单名称", requiredMode = Schema.RequiredMode.REQUIRED, example = "2 月份钢板到货")
+    @NotEmpty(message = "通知单名称不能为空")
     private String name;
 
     @Schema(description = "采购订单编号", example = "PO20260101")
