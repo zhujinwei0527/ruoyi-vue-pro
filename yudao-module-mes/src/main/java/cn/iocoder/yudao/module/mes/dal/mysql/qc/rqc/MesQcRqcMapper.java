@@ -19,12 +19,10 @@ public interface MesQcRqcMapper extends BaseMapperX<MesQcRqcDO> {
         return selectPage(reqVO, new LambdaQueryWrapperX<MesQcRqcDO>()
                 .likeIfPresent(MesQcRqcDO::getCode, reqVO.getCode())
                 .eqIfPresent(MesQcRqcDO::getSourceDocType, reqVO.getSourceDocType())
-                .likeIfPresent(MesQcRqcDO::getSourceDocCode, reqVO.getSourceDocCode())
                 .eqIfPresent(MesQcRqcDO::getItemId, reqVO.getItemId())
-                .eqIfPresent(MesQcRqcDO::getRqcType, reqVO.getRqcType())
+                .likeIfPresent(MesQcRqcDO::getBatchCode, reqVO.getBatchCode())
                 .eqIfPresent(MesQcRqcDO::getCheckResult, reqVO.getCheckResult())
                 .eqIfPresent(MesQcRqcDO::getStatus, reqVO.getStatus())
-                .betweenIfPresent(MesQcRqcDO::getInspectDate, reqVO.getInspectDate())
                 .eqIfPresent(MesQcRqcDO::getInspectorUserId, reqVO.getInspectorUserId())
                 .orderByDesc(MesQcRqcDO::getId));
     }

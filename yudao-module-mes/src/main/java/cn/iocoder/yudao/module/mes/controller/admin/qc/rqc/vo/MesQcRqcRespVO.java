@@ -36,9 +36,6 @@ public class MesQcRqcRespVO {
     @Schema(description = "来源单据类型", example = "RTISSUE")
     private String sourceDocType;
 
-    @Schema(description = "来源单据编号", example = "RT20250101001")
-    private String sourceDocCode;
-
     @Schema(description = "来源单据行 ID", example = "300")
     private Long sourceLineId;
 
@@ -46,7 +43,7 @@ public class MesQcRqcRespVO {
 
     @Schema(description = "检验类型", example = "1")
     @ExcelProperty("检验类型")
-    private Integer rqcType;
+    private Integer type;
 
     // ========== 物料 ==========
 
@@ -109,6 +106,26 @@ public class MesQcRqcRespVO {
     @Schema(description = "备注", example = "备注")
     @ExcelProperty("备注")
     private String remark;
+
+    // ========== 缺陷统计 ==========
+
+    @Schema(description = "致命缺陷数量", example = "5")
+    private Integer criticalQuantity;
+
+    @Schema(description = "严重缺陷数量", example = "10")
+    private Integer majorQuantity;
+
+    @Schema(description = "轻微缺陷数量", example = "15")
+    private Integer minorQuantity;
+
+    @Schema(description = "致命缺陷率（%）", example = "5.00")
+    private BigDecimal criticalRate;
+
+    @Schema(description = "严重缺陷率（%）", example = "10.00")
+    private BigDecimal majorRate;
+
+    @Schema(description = "轻微缺陷率（%）", example = "15.00")
+    private BigDecimal minorRate;
 
     @Schema(description = "创建时间", requiredMode = Schema.RequiredMode.REQUIRED)
     @ExcelProperty("创建时间")

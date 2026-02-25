@@ -1,6 +1,5 @@
 package cn.iocoder.yudao.module.mes.service.qc.rqc;
 
-import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.ObjUtil;
 import cn.iocoder.yudao.framework.common.pojo.PageResult;
 import cn.iocoder.yudao.framework.common.util.object.BeanUtils;
@@ -8,12 +7,15 @@ import cn.iocoder.yudao.module.mes.controller.admin.qc.rqc.vo.MesQcRqcPageReqVO;
 import cn.iocoder.yudao.module.mes.controller.admin.qc.rqc.vo.MesQcRqcSaveReqVO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.qc.defectrecord.MesQcDefectRecordDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.qc.rqc.MesQcRqcDO;
-import cn.iocoder.yudao.module.mes.dal.dataobject.qc.template.MesQcTemplateDO;
+import cn.iocoder.yudao.module.mes.dal.dataobject.qc.template.MesQcTemplateItemDO;
 import cn.iocoder.yudao.module.mes.dal.mysql.qc.rqc.MesQcRqcMapper;
 import cn.iocoder.yudao.module.mes.enums.MesOrderStatusEnum;
+import cn.iocoder.yudao.module.mes.enums.qc.MesQcDefectLevelEnum;
 import cn.iocoder.yudao.module.mes.enums.qc.MesQcTypeEnum;
+import cn.iocoder.yudao.module.mes.service.md.item.MesMdItemService;
 import cn.iocoder.yudao.module.mes.service.qc.defectrecord.MesQcDefectRecordService;
-import cn.iocoder.yudao.module.mes.service.qc.template.MesQcTemplateService;
+import cn.iocoder.yudao.module.mes.service.qc.template.MesQcTemplateDetailService;
+import cn.iocoder.yudao.module.system.api.user.AdminUserApi;
 import jakarta.annotation.Resource;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
@@ -21,7 +23,9 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.List;
+import java.util.Objects;
 
 import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception;
 import static cn.iocoder.yudao.module.mes.enums.ErrorCodeConstants.*;
@@ -38,29 +42,35 @@ public class MesQcRqcServiceImpl implements MesQcRqcService {
     @Resource
     private MesQcRqcMapper rqcMapper;
     @Resource
-    private MesQcTemplateService templateService;
+    private MesQcTemplateDetailService templateDetailService;
     @Resource
     private MesQcRqcLineService rqcLineService;
     @Resource
     @Lazy
+    private MesMdItemService itemService;
+    @Resource
+    @Lazy
     private MesQcDefectRecordService defectRecordService;
+
+    @Resource
+    private AdminUserApi adminUserApi;
 
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Long createRqc(MesQcRqcSaveReqVO createReqVO) {
         // 1.1 校验编号唯一
         validateRqcCodeUnique(null, createReqVO.getCode());
-        // TODO @AI：关联的物资等存在的校验；
-        // 1.2 校验检验模板存在且支持 RQC 类型
-        Long templateId = createReqVO.getTemplateId();
-        // TODO @AI：参考 iqc 获取 templateId；不在依赖前端传递；
-        MesQcTemplateDO template = templateService.validateTemplateExists(templateId);
-        if (!CollUtil.contains(template.getTypes(), MesQcTypeEnum.RQC.getType())) {
-            throw exception(QC_RQC_NO_TEMPLATE);
-        }
+        // 1.2 校验物料、检测人员存在
+        itemService.validateItemExists(createReqVO.getItemId());
+        adminUserApi.validateUser(createReqVO.getInspectorUserId());
+        // 1.3 根据物料 + 检验类型自动匹配模板
+        MesQcTemplateItemDO templateItem = templateDetailService.getRequiredTemplateByItemIdAndType(
+                createReqVO.getItemId(), createReqVO.getType());
+        Long templateId = templateItem.getTemplateId();
 
         // 2. 插入主表
         MesQcRqcDO rqc = BeanUtils.toBean(createReqVO, MesQcRqcDO.class)
+                .setTemplateId(templateId)
                 .setStatus(MesOrderStatusEnum.DRAFT.getType());
         rqcMapper.insert(rqc);
 
@@ -75,6 +85,9 @@ public class MesQcRqcServiceImpl implements MesQcRqcService {
         validateRqcStatusPrepare(updateReqVO.getId());
         // 1.2 校验编号唯一
         validateRqcCodeUnique(updateReqVO.getId(), updateReqVO.getCode());
+        // 1.3 校验物料、检测人员存在
+        itemService.validateItemExists(updateReqVO.getItemId());
+        adminUserApi.validateUser(updateReqVO.getInspectorUserId());
 
         // 2. 更新
         MesQcRqcDO updateObj = BeanUtils.toBean(updateReqVO, MesQcRqcDO.class);
@@ -160,10 +173,44 @@ public class MesQcRqcServiceImpl implements MesQcRqcService {
 
     @Override
     public void recalculateDefectStats(Long rqcId, List<MesQcDefectRecordDO> records) {
-        // RQC 只更新行级缺陷统计，主表不存储缺陷统计字段
+        MesQcRqcDO rqc = validateRqcExists(rqcId);
+        // 1. 行级缺陷统计
         rqcLineService.recalculateLineDefectStats(rqcId, records);
 
-        // TODO @AI：还是对齐其他的
+        // 2.1 汇总主表的缺陷数量
+        int totalCritical = 0;
+        int totalMajor = 0;
+        int totalMinor = 0;
+        for (MesQcDefectRecordDO record : records) {
+            int quantity = ObjUtil.defaultIfNull(record.getQuantity(), 1);
+            if (Objects.equals(record.getLevel(), MesQcDefectLevelEnum.CRITICAL.getType())) {
+                totalCritical += quantity;
+            } else if (Objects.equals(record.getLevel(), MesQcDefectLevelEnum.MAJOR.getType())) {
+                totalMajor += quantity;
+            } else if (Objects.equals(record.getLevel(), MesQcDefectLevelEnum.MINOR.getType())) {
+                totalMinor += quantity;
+            } else {
+                throw exception(QC_DEFECT_RECORD_LEVEL_UNKNOWN);
+            }
+        }
+        // 2.2 计算缺陷率
+        BigDecimal criticalRate = BigDecimal.ZERO;
+        BigDecimal majorRate = BigDecimal.ZERO;
+        BigDecimal minorRate = BigDecimal.ZERO;
+        if (rqc.getCheckQuantity() != null && rqc.getCheckQuantity().compareTo(BigDecimal.ZERO) > 0) {
+            BigDecimal checkQty = rqc.getCheckQuantity();
+            criticalRate = BigDecimal.valueOf(totalCritical).multiply(BigDecimal.valueOf(100))
+                    .divide(checkQty, 2, RoundingMode.HALF_UP);
+            majorRate = BigDecimal.valueOf(totalMajor).multiply(BigDecimal.valueOf(100))
+                    .divide(checkQty, 2, RoundingMode.HALF_UP);
+            minorRate = BigDecimal.valueOf(totalMinor).multiply(BigDecimal.valueOf(100))
+                    .divide(checkQty, 2, RoundingMode.HALF_UP);
+        }
+        // 2.3 更新主表
+        MesQcRqcDO updateRqc = new MesQcRqcDO().setId(rqcId)
+                .setCriticalQuantity(totalCritical).setMajorQuantity(totalMajor).setMinorQuantity(totalMinor)
+                .setCriticalRate(criticalRate).setMajorRate(majorRate).setMinorRate(minorRate);
+        rqcMapper.updateById(updateRqc);
     }
 
 }

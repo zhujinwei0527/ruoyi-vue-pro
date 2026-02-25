@@ -3,7 +3,6 @@ package cn.iocoder.yudao.module.mes.dal.dataobject.qc.rqc;
 import cn.iocoder.yudao.framework.mybatis.core.dataobject.BaseDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.md.unitmeasure.MesMdUnitMeasureDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.qc.indicator.MesQcIndicatorDO;
-import cn.iocoder.yudao.module.mes.dal.dataobject.tm.tool.MesTmToolDO;
 import com.baomidou.mybatisplus.annotation.KeySequence;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
@@ -44,11 +43,11 @@ public class MesQcRqcLineDO extends BaseDO {
      */
     private Long indicatorId;
     /**
-     * 检测工具 ID
+     * 检测工具
      *
-     * 关联 {@link MesTmToolDO#getId()}
+     * 冗余 {@link MesQcIndicatorDO#getTool()}
      */
-    private Long toolId;
+    private String tool;
     /**
      * 检测方法
      */
