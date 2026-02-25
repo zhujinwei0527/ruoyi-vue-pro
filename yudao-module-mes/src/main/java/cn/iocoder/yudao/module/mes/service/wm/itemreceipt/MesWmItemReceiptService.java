@@ -61,7 +61,7 @@ public interface MesWmItemReceiptService {
      *
      * @param id 编号
      */
-    void shelvingItemReceipt(Long id);
+    void stockItemReceipt(Long id);
 
     /**
      * 执行入库（待入库 → 已完成），更新库存台账
@@ -81,7 +81,8 @@ public interface MesWmItemReceiptService {
      * 校验采购入库单存在且处于可编辑状态（草稿或待上架）
      *
      * @param id 编号
+     * @return 采购入库单
      */
-    void validateItemReceiptEditable(Long id);
+    MesWmItemReceiptDO validateItemReceiptEditable(Long id);
 
 }

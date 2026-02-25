@@ -17,7 +17,7 @@ public class MesWmItemReceiptLineRespVO {
     private Long receiptId;
 
     @Schema(description = "到货通知单行编号", example = "1")
-    private Long noticeLineId;
+    private Long arrivalNoticeLineId;
 
     @Schema(description = "物料编号", requiredMode = Schema.RequiredMode.REQUIRED, example = "1")
     private Long itemId;
@@ -40,24 +40,6 @@ public class MesWmItemReceiptLineRespVO {
     @Schema(description = "批次编号", example = "1")
     private Long batchId;
 
-    @Schema(description = "仓库编号", example = "1")
-    private Long warehouseId;
-
-    @Schema(description = "仓库名称", example = "原料仓")
-    private String warehouseName;
-
-    @Schema(description = "库区编号", example = "1")
-    private Long locationId;
-
-    @Schema(description = "库区名称", example = "A 区")
-    private String locationName;
-
-    @Schema(description = "库位编号", example = "1")
-    private Long areaId;
-
-    @Schema(description = "库位名称", example = "A-01")
-    private String areaName;
-
     @Schema(description = "生产日期")
     private LocalDateTime productionDate;
 
@@ -66,15 +48,6 @@ public class MesWmItemReceiptLineRespVO {
 
     @Schema(description = "生产批号", example = "PB20260110")
     private String productionBatchNumber;
-
-    @Schema(description = "是否需要来料检验", example = "true")
-    private Boolean iqcCheckFlag;
-
-    @Schema(description = "来料检验单编号", example = "1")
-    private Long iqcId;
-
-    @Schema(description = "来料检验单编码", example = "IQC20260201")
-    private String iqcCode;
 
     @Schema(description = "备注", example = "备注")
     private String remark;

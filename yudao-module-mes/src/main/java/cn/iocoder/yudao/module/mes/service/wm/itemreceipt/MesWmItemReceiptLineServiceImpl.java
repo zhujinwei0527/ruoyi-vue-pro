@@ -7,8 +7,7 @@ import cn.iocoder.yudao.module.mes.controller.admin.wm.itemreceipt.vo.line.MesWm
 import cn.iocoder.yudao.module.mes.dal.dataobject.wm.itemreceipt.MesWmItemReceiptDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.wm.itemreceipt.MesWmItemReceiptLineDO;
 import cn.iocoder.yudao.module.mes.dal.mysql.wm.itemreceipt.MesWmItemReceiptLineMapper;
-import cn.hutool.core.util.ObjUtil;
-import cn.iocoder.yudao.module.mes.enums.wm.MesWmItemReceiptStatusEnum;
+import cn.iocoder.yudao.module.mes.service.wm.arrivalnotice.MesWmArrivalNoticeLineService;
 import jakarta.annotation.Resource;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
@@ -37,11 +36,16 @@ public class MesWmItemReceiptLineServiceImpl implements MesWmItemReceiptLineServ
     @Resource
     private MesWmItemReceiptDetailService itemReceiptDetailService;
 
+    @Resource
+    @Lazy
+    private MesWmArrivalNoticeLineService arrivalNoticeLineService;
+
     @Override
     public Long createItemReceiptLine(MesWmItemReceiptLineSaveReqVO createReqVO) {
-        // 校验父单据存在且为草稿状态
-        validateReceiptStatusDraft(createReqVO.getReceiptId());
-        // TODO @AI：校验关联订单；
+        // 校验父单据存在且为可编辑状态
+        MesWmItemReceiptDO receipt = itemReceiptService.validateItemReceiptEditable(createReqVO.getReceiptId());
+        // 校验关联到货通知单行存在
+        validateArrivalNoticeLine(receipt, createReqVO.getArrivalNoticeLineId());
 
         // 新增
         MesWmItemReceiptLineDO line = BeanUtils.toBean(createReqVO, MesWmItemReceiptLineDO.class);
@@ -55,9 +59,10 @@ public class MesWmItemReceiptLineServiceImpl implements MesWmItemReceiptLineServ
     public void updateItemReceiptLine(MesWmItemReceiptLineSaveReqVO updateReqVO) {
         // 校验存在
         MesWmItemReceiptLineDO line = validateItemReceiptLineExists(updateReqVO.getId());
-        // 校验父单据存在且为草稿状态
-        validateReceiptStatusDraft(line.getReceiptId());
-        // TODO @AI：校验关联订单；
+        // 校验父单据存在且为可编辑状态
+        MesWmItemReceiptDO receipt = itemReceiptService.validateItemReceiptEditable(line.getReceiptId());
+        // 校验关联到货通知单行存在
+        validateArrivalNoticeLine(receipt, updateReqVO.getArrivalNoticeLineId());
 
         // 更新
         MesWmItemReceiptLineDO updateObj = BeanUtils.toBean(updateReqVO, MesWmItemReceiptLineDO.class);
@@ -98,26 +103,35 @@ public class MesWmItemReceiptLineServiceImpl implements MesWmItemReceiptLineServ
         itemReceiptLineMapper.deleteByReceiptId(receiptId);
     }
 
+    /**
+     * 校验到货通知单行
+     *
+     * @param receipt 入库单
+     * @param arrivalNoticeLineId 到货通知单行编号
+     */
+    private void validateArrivalNoticeLine(MesWmItemReceiptDO receipt, Long arrivalNoticeLineId) {
+        // 情况一：如果入库单关联了到货通知单，则必须关联到货通知单行
+        if (receipt.getNoticeId() != null) {
+            if (arrivalNoticeLineId == null) {
+                throw exception(WM_ITEM_RECEIPT_LINE_ARRIVAL_NOTICE_LINE_REQUIRED);
+            }
+            arrivalNoticeLineService.validateArrivalNoticeLineExists(
+                    arrivalNoticeLineId, receipt.getNoticeId());
+            return;
+        }
+
+        // 情况二：如果入库单没有关联到货通知单，则不允许关联到货通知单行
+        if (arrivalNoticeLineId != null) {
+            throw exception(WM_ITEM_RECEIPT_LINE_ARRIVAL_NOTICE_LINE_NOT_ALLOWED);
+        }
+    }
+
     private MesWmItemReceiptLineDO validateItemReceiptLineExists(Long id) {
         MesWmItemReceiptLineDO line = itemReceiptLineMapper.selectById(id);
         if (line == null) {
             throw exception(WM_ITEM_RECEIPT_LINE_NOT_EXISTS);
         }
         return line;
-    }
-
-    // TODO @AI：这个应该在 itemReceiptService 中；
-    /**
-     * 校验父采购入库单存在且为草稿状态
-     */
-    private void validateReceiptStatusDraft(Long receiptId) {
-        MesWmItemReceiptDO receipt = itemReceiptService.getItemReceipt(receiptId);
-        if (receipt == null) {
-            throw exception(WM_ITEM_RECEIPT_NOT_EXISTS);
-        }
-        if (ObjUtil.notEqual(MesWmItemReceiptStatusEnum.PREPARE.getStatus(), receipt.getStatus())) {
-            throw exception(WM_ITEM_RECEIPT_STATUS_NOT_PREPARE);
-        }
     }
 
 }

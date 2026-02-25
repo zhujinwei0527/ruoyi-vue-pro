@@ -76,4 +76,21 @@ public interface MesWmArrivalNoticeLineService {
      */
     void updateByIqcComplete(Long lineId, Long iqcId, BigDecimal qualifiedQuantity);
 
+    /**
+     * 校验到货通知单行存在
+     *
+     * @param id 编号
+     * @return 到货通知单行
+     */
+    MesWmArrivalNoticeLineDO validateArrivalNoticeLineExists(Long id);
+
+    /**
+     * 校验到货通知单行存在且属于指定的到货通知单
+     *
+     * @param lineId 行编号
+     * @param noticeId 到货通知单编号
+     * @return 到货通知单行
+     */
+    MesWmArrivalNoticeLineDO validateArrivalNoticeLineExists(Long lineId, Long noticeId);
+
 }

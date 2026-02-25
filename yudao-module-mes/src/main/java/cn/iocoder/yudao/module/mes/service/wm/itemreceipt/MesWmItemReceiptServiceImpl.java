@@ -115,13 +115,13 @@ public class MesWmItemReceiptServiceImpl implements MesWmItemReceiptService {
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public void shelvingItemReceipt(Long id) {
+    public void stockItemReceipt(Long id) {
         // 校验存在
         MesWmItemReceiptDO receipt = validateItemReceiptExists(id);
         if (ObjUtil.notEqual(MesWmItemReceiptStatusEnum.APPROVING.getStatus(), receipt.getStatus())) {
             throw exception(WM_ITEM_RECEIPT_STATUS_ERROR);
         }
-        // 校验每行的 SUM(detail.quantity) = line.receivedQuantity
+        // 校验每行明细数量之和是否等于行入库数量
         List<MesWmItemReceiptLineDO> lines = itemReceiptLineService.getItemReceiptLineListByReceiptId(id);
         for (MesWmItemReceiptLineDO line : lines) {
             List<MesWmItemReceiptDetailDO> details = itemReceiptDetailService.getItemReceiptDetailListByLineId(line.getId());
@@ -147,7 +147,7 @@ public class MesWmItemReceiptServiceImpl implements MesWmItemReceiptService {
         }
 
         // 遍历所有明细，更新库存台账
-        // TODO @AI：这里可能有点问题；缺少库存更新；后面在弄；
+        // TODO @AI：【后续在弄】这里可能有点问题；缺少库存更新；后面在弄；
         List<MesWmItemReceiptDetailDO> details = itemReceiptDetailService.getItemReceiptDetailListByReceiptId(id);
         for (MesWmItemReceiptDetailDO detail : details) {
             materialStockService.increaseStock(
@@ -183,7 +183,7 @@ public class MesWmItemReceiptServiceImpl implements MesWmItemReceiptService {
     }
 
     @Override
-    public void validateItemReceiptEditable(Long id) {
+    public MesWmItemReceiptDO validateItemReceiptEditable(Long id) {
         MesWmItemReceiptDO receipt = validateItemReceiptExists(id);
         // TODO DONE @AI：已使用 ObjectUtils.equalsAny 简化多值判断，方法已迁移到 Service 层
         // TODO @AI：ObjectUtils 封装一个方法，避免取反；脑子理解起来麻烦
@@ -192,6 +192,7 @@ public class MesWmItemReceiptServiceImpl implements MesWmItemReceiptService {
                 MesWmItemReceiptStatusEnum.APPROVING.getStatus())) {
             throw exception(WM_ITEM_RECEIPT_STATUS_NOT_PREPARE);
         }
+        return receipt;
     }
 
     private MesWmItemReceiptDO validateItemReceiptExists(Long id) {

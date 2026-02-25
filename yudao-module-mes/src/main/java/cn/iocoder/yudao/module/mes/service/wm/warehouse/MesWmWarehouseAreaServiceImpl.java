@@ -7,6 +7,7 @@ import cn.iocoder.yudao.framework.common.util.object.BeanUtils;
 import cn.iocoder.yudao.module.mes.controller.admin.wm.warehouse.vo.area.MesWmWarehouseAreaPageReqVO;
 import cn.iocoder.yudao.module.mes.controller.admin.wm.warehouse.vo.area.MesWmWarehouseAreaSaveReqVO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.wm.warehouse.MesWmWarehouseAreaDO;
+import cn.iocoder.yudao.module.mes.dal.dataobject.wm.warehouse.MesWmWarehouseLocationDO;
 import cn.iocoder.yudao.module.mes.dal.mysql.wm.warehouse.MesWmWarehouseAreaMapper;
 import cn.iocoder.yudao.module.mes.service.md.workstation.MesMdWorkstationService;
 import cn.iocoder.yudao.module.mes.service.wm.materialstock.MesWmMaterialStockService;
@@ -141,6 +142,30 @@ public class MesWmWarehouseAreaServiceImpl implements MesWmWarehouseAreaService 
     @Override
     public Long getWarehouseAreaCountByLocationId(Long locationId) {
         return areaMapper.selectCountByLocationId(locationId);
+    }
+
+    @Override
+    public void validateWarehouseAreaExists(Long warehouseId, Long locationId, Long areaId) {
+        if (areaId == null) {
+            return;
+        }
+        // 1.1 校验库位存在
+        MesWmWarehouseAreaDO area = validateWarehouseAreaExists(areaId);
+        // 1.2 校验库位所属的库区是否匹配
+        if (locationId != null && ObjUtil.notEqual(area.getLocationId(), locationId)) {
+            throw exception(WM_WAREHOUSE_AREA_RELATION_INVALID);
+        }
+        // 2. 校验库区存在
+        if (locationId != null) {
+            locationService.validateWarehouseLocationExists(locationId);
+        }
+        // 3. 校验仓库存在（通过库区的 locationId 关联查询）
+        if (warehouseId != null) {
+            MesWmWarehouseLocationDO location = locationService.validateWarehouseLocationExists(area.getLocationId());
+            if (location != null && ObjUtil.notEqual(location.getWarehouseId(), warehouseId)) {
+                throw exception(WM_WAREHOUSE_AREA_WAREHOUSE_MISMATCH);
+            }
+        }
     }
 
 }

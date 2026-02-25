@@ -10,18 +10,10 @@ import cn.iocoder.yudao.module.mes.controller.admin.wm.itemreceipt.vo.line.MesWm
 import cn.iocoder.yudao.module.mes.controller.admin.wm.itemreceipt.vo.line.MesWmItemReceiptLineSaveReqVO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.md.item.MesMdItemDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.md.unitmeasure.MesMdUnitMeasureDO;
-import cn.iocoder.yudao.module.mes.dal.dataobject.qc.iqc.MesQcIqcDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.wm.itemreceipt.MesWmItemReceiptLineDO;
-import cn.iocoder.yudao.module.mes.dal.dataobject.wm.warehouse.MesWmWarehouseAreaDO;
-import cn.iocoder.yudao.module.mes.dal.dataobject.wm.warehouse.MesWmWarehouseDO;
-import cn.iocoder.yudao.module.mes.dal.dataobject.wm.warehouse.MesWmWarehouseLocationDO;
 import cn.iocoder.yudao.module.mes.service.md.item.MesMdItemService;
 import cn.iocoder.yudao.module.mes.service.md.unitmeasure.MesMdUnitMeasureService;
-import cn.iocoder.yudao.module.mes.service.qc.iqc.MesQcIqcService;
 import cn.iocoder.yudao.module.mes.service.wm.itemreceipt.MesWmItemReceiptLineService;
-import cn.iocoder.yudao.module.mes.service.wm.warehouse.MesWmWarehouseAreaService;
-import cn.iocoder.yudao.module.mes.service.wm.warehouse.MesWmWarehouseLocationService;
-import cn.iocoder.yudao.module.mes.service.wm.warehouse.MesWmWarehouseService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -52,18 +44,6 @@ public class MesWmItemReceiptLineController {
 
     @Resource
     private MesMdUnitMeasureService unitMeasureService;
-
-    @Resource
-    private MesWmWarehouseService warehouseService;
-
-    @Resource
-    private MesWmWarehouseLocationService locationService;
-
-    @Resource
-    private MesWmWarehouseAreaService areaService;
-
-    @Resource
-    private MesQcIqcService iqcService;
 
     @PostMapping("/create")
     @Operation(summary = "创建采购入库单行")
@@ -121,14 +101,6 @@ public class MesWmItemReceiptLineController {
                 convertSet(list, MesWmItemReceiptLineDO::getItemId));
         Map<Long, MesMdUnitMeasureDO> unitMeasureMap = unitMeasureService.getUnitMeasureMap(
                 convertSet(itemMap.values(), MesMdItemDO::getUnitMeasureId));
-        Map<Long, MesWmWarehouseDO> warehouseMap = warehouseService.getWarehouseMap(
-                convertSet(list, MesWmItemReceiptLineDO::getWarehouseId));
-        Map<Long, MesWmWarehouseLocationDO> locationMap = locationService.getWarehouseLocationMap(
-                convertSet(list, MesWmItemReceiptLineDO::getLocationId));
-        Map<Long, MesWmWarehouseAreaDO> areaMap = areaService.getWarehouseAreaMap(
-                convertSet(list, MesWmItemReceiptLineDO::getAreaId));
-        Map<Long, MesQcIqcDO> iqcMap = iqcService.getIqcMap(
-                convertSet(list, MesWmItemReceiptLineDO::getIqcId));
         // 2. 构建结果
         return BeanUtils.toBean(list, MesWmItemReceiptLineRespVO.class, vo -> {
             MapUtils.findAndThen(itemMap, vo.getItemId(), item -> {
@@ -136,14 +108,6 @@ public class MesWmItemReceiptLineController {
                 MapUtils.findAndThen(unitMeasureMap, item.getUnitMeasureId(),
                         unitMeasure -> vo.setUnitMeasureName(unitMeasure.getName()));
             });
-            MapUtils.findAndThen(warehouseMap, vo.getWarehouseId(),
-                    warehouse -> vo.setWarehouseName(warehouse.getName()));
-            MapUtils.findAndThen(locationMap, vo.getLocationId(),
-                    location -> vo.setLocationName(location.getName()));
-            MapUtils.findAndThen(areaMap, vo.getAreaId(),
-                    area -> vo.setAreaName(area.getName()));
-            MapUtils.findAndThen(iqcMap, vo.getIqcId(),
-                    iqc -> vo.setIqcCode(iqc.getCode()));
         });
     }
 

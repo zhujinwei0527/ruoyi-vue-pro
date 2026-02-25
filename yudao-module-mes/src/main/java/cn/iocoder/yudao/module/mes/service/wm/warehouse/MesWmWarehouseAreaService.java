@@ -91,4 +91,13 @@ public interface MesWmWarehouseAreaService {
      */
     Long getWarehouseAreaCountByLocationId(Long locationId);
 
+    /**
+     * 校验仓库、库区、库位的父子关系
+     *
+     * @param warehouseId 仓库编号
+     * @param locationId 库区编号
+     * @param areaId 库位编号
+     */
+    void validateWarehouseAreaExists(Long warehouseId, Long locationId, Long areaId);
+
 }

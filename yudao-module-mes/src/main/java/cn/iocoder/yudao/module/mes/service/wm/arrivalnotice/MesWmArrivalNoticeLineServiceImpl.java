@@ -108,10 +108,21 @@ public class MesWmArrivalNoticeLineServiceImpl implements MesWmArrivalNoticeLine
                 .setId(lineId).setIqcId(iqcId).setQualifiedQuantity(qualifiedQuantity));
     }
 
-    private MesWmArrivalNoticeLineDO validateArrivalNoticeLineExists(Long id) {
+    @Override
+    public MesWmArrivalNoticeLineDO validateArrivalNoticeLineExists(Long id) {
         MesWmArrivalNoticeLineDO line = arrivalNoticeLineMapper.selectById(id);
         if (line == null) {
             throw exception(WM_ARRIVAL_NOTICE_LINE_NOT_EXISTS);
+        }
+        return line;
+    }
+
+    @Override
+    public MesWmArrivalNoticeLineDO validateArrivalNoticeLineExists(Long lineId, Long noticeId) {
+        MesWmArrivalNoticeLineDO line = validateArrivalNoticeLineExists(lineId);
+        // 进一步校验行的 noticeId 与传入的 noticeId 是否匹配
+        if (noticeId != null && ObjUtil.notEqual(line.getNoticeId(), noticeId)) {
+            throw exception(WM_ARRIVAL_NOTICE_LINE_NOT_MATCH);
         }
         return line;
     }

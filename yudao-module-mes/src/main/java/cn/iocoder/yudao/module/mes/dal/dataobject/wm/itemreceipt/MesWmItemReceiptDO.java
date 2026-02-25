@@ -53,37 +53,12 @@ public class MesWmItemReceiptDO extends BaseDO {
      * 关联 {@link MesWmArrivalNoticeDO#getId()}
      */
     private Long noticeId;
-    // TODO DONE @AI：保留该冗余字段。虽然可通过 noticeId 间接获取，但查询/展示场景频繁使用，冗余存储避免多表关联，提升性能
-    // TODO @AI：这个拼接下就好，基本可以忽略不计的性能；并且，它没有筛选的诉求；
-    /**
-     * 采购订单编号
-     */
-    private String purchaseOrderCode;
     /**
      * 供应商编号
      *
      * 关联 {@link MesMdVendorDO#getId()}
      */
     private Long vendorId;
-    // TODO @AI：warehouseId、locationId、areaId 这几个字段，是不是不需要；只需要在 detaildo 里存储就好了；
-    /**
-     * 仓库编号
-     *
-     * 关联 {@link MesWmWarehouseDO#getId()}
-     */
-    private Long warehouseId;
-    /**
-     * 库区编号
-     *
-     * 关联 {@link MesWmWarehouseLocationDO#getId()}
-     */
-    private Long locationId;
-    /**
-     * 库位编号
-     *
-     * 关联 {@link MesWmWarehouseAreaDO#getId()}
-     */
-    private Long areaId;
     /**
      * 入库日期
      */

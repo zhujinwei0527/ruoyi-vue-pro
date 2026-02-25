@@ -4,6 +4,7 @@ import cn.iocoder.yudao.framework.common.util.object.BeanUtils;
 import cn.iocoder.yudao.module.mes.controller.admin.wm.itemreceipt.vo.detail.MesWmItemReceiptDetailSaveReqVO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.wm.itemreceipt.MesWmItemReceiptDetailDO;
 import cn.iocoder.yudao.module.mes.dal.mysql.wm.itemreceipt.MesWmItemReceiptDetailMapper;
+import cn.iocoder.yudao.module.mes.service.wm.warehouse.MesWmWarehouseAreaService;
 import jakarta.annotation.Resource;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
@@ -28,12 +29,17 @@ public class MesWmItemReceiptDetailServiceImpl implements MesWmItemReceiptDetail
     @Lazy
     private MesWmItemReceiptService itemReceiptService;
 
+    @Resource
+    private MesWmWarehouseAreaService warehouseAreaService;
+
     @Override
     public Long createItemReceiptDetail(MesWmItemReceiptDetailSaveReqVO createReqVO) {
-        // TODO @AI：warehouseId、locationId、areaId 存在，并且是父子关系！最好在 areaService 中提供一个方法，校验这三个 ID 的关系！（并且存在）
-        // 校验父单据存在且为草稿状态
+        // 校验父单据存在且为可编辑状态
         itemReceiptService.validateItemReceiptEditable(createReqVO.getReceiptId());
-        // TODO @AI：超过数量验证；
+        // 校验库区关系
+        warehouseAreaService.validateWarehouseAreaExists(
+                createReqVO.getWarehouseId(), createReqVO.getLocationId(), createReqVO.getAreaId());
+        // TODO @芋艿：【后续搞】超过数量验证；
 
         // TODO @芋艿：【后续搞】不允许物资混放
 
@@ -44,12 +50,14 @@ public class MesWmItemReceiptDetailServiceImpl implements MesWmItemReceiptDetail
 
     @Override
     public void updateItemReceiptDetail(MesWmItemReceiptDetailSaveReqVO updateReqVO) {
-        // TODO @AI：warehouseId、locationId、areaId 存在，并且是父子关系！最好在 areaService 中提供一个方法，校验这三个 ID 的关系！（并且存在）
         // 校验存在
         MesWmItemReceiptDetailDO detail = validateItemReceiptDetailExists(updateReqVO.getId());
-        // 校验父单据存在且为草稿状态
+        // 校验父单据存在且为可编辑状态
         itemReceiptService.validateItemReceiptEditable(detail.getReceiptId());
-        // TODO @AI：超过数量验证；
+        // 校验库区关系
+        warehouseAreaService.validateWarehouseAreaExists(
+                updateReqVO.getWarehouseId(), updateReqVO.getLocationId(), updateReqVO.getAreaId());
+        // TODO @芋艿：【后续搞】超过数量验证；
 
         // TODO @芋艿：【后续搞】不允许物资混放
 

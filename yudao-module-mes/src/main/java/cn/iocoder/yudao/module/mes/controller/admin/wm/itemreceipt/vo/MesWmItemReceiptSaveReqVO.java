@@ -2,6 +2,7 @@ package cn.iocoder.yudao.module.mes.controller.admin.wm.itemreceipt.vo;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
 import java.time.LocalDateTime;
@@ -26,22 +27,12 @@ public class MesWmItemReceiptSaveReqVO {
     @Schema(description = "到货通知单编号", example = "1")
     private Long noticeId;
 
-    @Schema(description = "采购订单编号", example = "PO20260101")
-    private String purchaseOrderCode;
-
-    @Schema(description = "供应商编号", example = "1")
+    @Schema(description = "供应商编号", requiredMode = Schema.RequiredMode.REQUIRED, example = "1")
+    @NotNull(message = "供应商不能为空")
     private Long vendorId;
 
-    @Schema(description = "仓库编号", example = "1")
-    private Long warehouseId;
-
-    @Schema(description = "库区编号", example = "1")
-    private Long locationId;
-
-    @Schema(description = "库位编号", example = "1")
-    private Long areaId;
-
-    @Schema(description = "入库日期")
+    @Schema(description = "入库日期", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotNull(message = "入库日期不能为空")
     private LocalDateTime receiptDate;
 
     @Schema(description = "备注", example = "备注")

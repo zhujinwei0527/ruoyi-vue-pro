@@ -23,17 +23,11 @@ public class MesWmItemReceiptPageReqVO extends PageParam {
     @Schema(description = "入库单名称", example = "钢板入库单")
     private String name;
 
-    @Schema(description = "采购订单编号", example = "PO20260101")
-    private String purchaseOrderCode;
-
     @Schema(description = "供应商编号", example = "1")
     private Long vendorId;
 
     @Schema(description = "入库日期")
     @DateTimeFormat(pattern = FORMAT_YEAR_MONTH_DAY_HOUR_MINUTE_SECOND)
     private LocalDateTime[] receiptDate;
-
-    @Schema(description = "状态", example = "0")
-    private Integer status;
 
 }

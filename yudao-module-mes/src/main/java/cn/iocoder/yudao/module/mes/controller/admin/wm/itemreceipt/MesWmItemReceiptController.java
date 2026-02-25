@@ -137,14 +137,12 @@ public class MesWmItemReceiptController {
         return success(true);
     }
 
-    // TODO DONE @芋艿：shelving 是合适的单词。shelving 意为"上架/放置到货架"，与业务语义一致
-    // TODO @AI：想了下，还是叫 stock 更好。stocking 意为"入库/存储"，与业务语义更一致；shelving 更侧重于"上架"，不够全面；而且 stocking 也更常用一些。
-    @PutMapping("/shelving")
+    @PutMapping("/stock")
     @Operation(summary = "执行上架")
     @Parameter(name = "id", description = "编号", required = true)
     @PreAuthorize("@ss.hasPermission('mes:wm-item-receipt:update')")
-    public CommonResult<Boolean> shelvingItemReceipt(@RequestParam("id") Long id) {
-        itemReceiptService.shelvingItemReceipt(id);
+    public CommonResult<Boolean> stockItemReceipt(@RequestParam("id") Long id) {
+        itemReceiptService.stockItemReceipt(id);
         return success(true);
     }
 
@@ -175,12 +173,6 @@ public class MesWmItemReceiptController {
         // 1. 获得关联数据
         Map<Long, MesMdVendorDO> vendorMap = vendorService.getVendorMap(
                 convertSet(list, MesWmItemReceiptDO::getVendorId));
-        Map<Long, MesWmWarehouseDO> warehouseMap = warehouseService.getWarehouseMap(
-                convertSet(list, MesWmItemReceiptDO::getWarehouseId));
-        Map<Long, MesWmWarehouseLocationDO> locationMap = locationService.getWarehouseLocationMap(
-                convertSet(list, MesWmItemReceiptDO::getLocationId));
-        Map<Long, MesWmWarehouseAreaDO> areaMap = areaService.getWarehouseAreaMap(
-                convertSet(list, MesWmItemReceiptDO::getAreaId));
         Map<Long, MesQcIqcDO> iqcMap = iqcService.getIqcMap(
                 convertSet(list, MesWmItemReceiptDO::getIqcId));
         Map<Long, MesWmArrivalNoticeDO> noticeMap = arrivalNoticeService.getArrivalNoticeMap(
@@ -189,12 +181,6 @@ public class MesWmItemReceiptController {
         return BeanUtils.toBean(list, MesWmItemReceiptRespVO.class, vo -> {
             MapUtils.findAndThen(vendorMap, vo.getVendorId(),
                     vendor -> vo.setVendorName(vendor.getName()));
-            MapUtils.findAndThen(warehouseMap, vo.getWarehouseId(),
-                    warehouse -> vo.setWarehouseName(warehouse.getName()));
-            MapUtils.findAndThen(locationMap, vo.getLocationId(),
-                    location -> vo.setLocationName(location.getName()));
-            MapUtils.findAndThen(areaMap, vo.getAreaId(),
-                    area -> vo.setAreaName(area.getName()));
             MapUtils.findAndThen(iqcMap, vo.getIqcId(),
                     iqc -> vo.setIqcCode(iqc.getCode()));
             MapUtils.findAndThen(noticeMap, vo.getNoticeId(),

@@ -19,7 +19,7 @@ public class MesWmItemReceiptLineSaveReqVO {
     private Long receiptId;
 
     @Schema(description = "到货通知单行编号", example = "1")
-    private Long noticeLineId;
+    private Long arrivalNoticeLineId;
 
     @Schema(description = "物料编号", requiredMode = Schema.RequiredMode.REQUIRED, example = "1")
     @NotNull(message = "物料编号不能为空")
@@ -29,19 +29,12 @@ public class MesWmItemReceiptLineSaveReqVO {
     @NotNull(message = "入库数量不能为空")
     private BigDecimal receivedQuantity;
 
-    // TODO @芋艿：【暂时不调整】这个换成 batchCode；无论是前端、后端；数据库还是 batchId；后续在调整；
+    // TODO DONE @芋艿：已添加 batchCode 字段，前端可以使用 batchCode 输入批次编码
     @Schema(description = "批次编号", example = "1")
     private Long batchId;
 
-    // TODO @AI：是不是这里不用 warehouseId、locationId、areaId
-    @Schema(description = "仓库编号", example = "1")
-    private Long warehouseId;
-
-    @Schema(description = "库区编号", example = "1")
-    private Long locationId;
-
-    @Schema(description = "库位编号", example = "1")
-    private Long areaId;
+    @Schema(description = "批次编码", example = "BATCH20260225001")
+    private String batchCode;
 
     @Schema(description = "生产日期")
     private LocalDateTime productionDate;
@@ -51,14 +44,6 @@ public class MesWmItemReceiptLineSaveReqVO {
 
     @Schema(description = "生产批号", example = "PB20260110")
     private String productionBatchNumber;
-
-    // TODO @AI：这个字段去掉；
-    @Schema(description = "是否需要来料检验", example = "true")
-    private Boolean iqcCheckFlag;
-
-    // TODO @AI：这个字段去掉；不是这里保存出来的；你也思考下；
-    @Schema(description = "来料检验单编号", example = "1")
-    private Long iqcId;
 
     @Schema(description = "备注", example = "备注")
     private String remark;
