@@ -79,7 +79,8 @@ public class MesMdClientServiceImpl implements MesMdClientService {
         clientMapper.deleteById(id);
     }
 
-    private void validateClientExists(Long id) {
+    @Override
+    public void validateClientExists(Long id) {
         if (clientMapper.selectById(id) == null) {
             throw exception(MD_CLIENT_NOT_EXISTS);
         }

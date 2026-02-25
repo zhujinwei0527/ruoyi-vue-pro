@@ -162,6 +162,8 @@ public class MesQcRqcServiceImpl implements MesQcRqcService {
     public void recalculateDefectStats(Long rqcId, List<MesQcDefectRecordDO> records) {
         // RQC 只更新行级缺陷统计，主表不存储缺陷统计字段
         rqcLineService.recalculateLineDefectStats(rqcId, records);
+
+        // TODO @AI：还是对齐其他的
     }
 
 }

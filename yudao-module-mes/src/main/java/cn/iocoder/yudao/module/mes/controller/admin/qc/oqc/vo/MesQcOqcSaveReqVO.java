@@ -1,8 +1,9 @@
 package cn.iocoder.yudao.module.mes.controller.admin.qc.oqc.vo;
 
+import cn.hutool.core.util.ObjUtil;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.*;
 import lombok.Data;
 
 import java.math.BigDecimal;
@@ -22,10 +23,6 @@ public class MesQcOqcSaveReqVO {
     @Schema(description = "检验单名称", requiredMode = Schema.RequiredMode.REQUIRED, example = "物料A出货检验")
     @NotEmpty(message = "检验单名称不能为空")
     private String name;
-
-    @Schema(description = "检验模板 ID", requiredMode = Schema.RequiredMode.REQUIRED, example = "100")
-    @NotNull(message = "检验模板不能为空")
-    private Long templateId;
 
     // ========== 来源单据 ==========
 
@@ -58,43 +55,53 @@ public class MesQcOqcSaveReqVO {
 
     // ========== 数量 ==========
 
-    // TODO @AI：这 2 个字段去掉，minCheckQuantity、maxUnqualifiedQuantity；前后端都是；
-    @Schema(description = "最低检测数", example = "5")
-    private Integer minCheckQuantity;
-
-    @Schema(description = "最大不合格数", example = "0")
-    private Integer maxUnqualifiedQuantity;
-
     @Schema(description = "本次出货数量", requiredMode = Schema.RequiredMode.REQUIRED, example = "100")
     @NotNull(message = "本次出货数量不能为空")
+    @DecimalMin(value = "0", message = "本次出货数量不能小于 0")
     private BigDecimal outQuantity;
 
-    // TODO @AI：checkQuantity = qualifiedQuantity + unqualifiedQuantity；校验下相等；必须的；参考 iqc
-
-    @Schema(description = "本次检测数量", example = "10")
+    @Schema(description = "本次检测数量", requiredMode = Schema.RequiredMode.REQUIRED, example = "10")
+    @NotNull(message = "本次检测数量不能为空")
+    @Min(value = 1, message = "本次检测数量必须大于 0")
     private Integer checkQuantity;
 
-    @Schema(description = "合格品数量", example = "9")
+    @Schema(description = "合格品数量", requiredMode = Schema.RequiredMode.REQUIRED, example = "9")
+    @NotNull(message = "合格品数量不能为空")
+    @Min(value = 0, message = "合格品数量不能小于 0")
     private Integer qualifiedQuantity;
 
-    @Schema(description = "不合格品数量", example = "1")
+    @Schema(description = "不合格品数量", requiredMode = Schema.RequiredMode.REQUIRED, example = "1")
+    @NotNull(message = "不合格品数量不能为空")
+    @Min(value = 0, message = "不合格品数量不能小于 0")
     private Integer unqualifiedQuantity;
 
     // ========== 检验 ==========
 
+    @Schema(description = "检测人员用户 ID", requiredMode = Schema.RequiredMode.REQUIRED, example = "1")
+    @NotNull(message = "检测人员不能为空")
+    private Long inspectorUserId;
+
+    @Schema(description = "出货日期", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotNull(message = "出货日期不能为空")
+    private LocalDateTime outDate;
+
+    @Schema(description = "检测日期", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotNull(message = "检测日期不能为空")
+    private LocalDateTime inspectDate;
+
     @Schema(description = "检测结果", example = "1")
     private Integer checkResult;
 
-    @Schema(description = "出货日期")
-    private LocalDateTime outDate;
-
-    @Schema(description = "检测日期")
-    private LocalDateTime inspectDate;
-
-    @Schema(description = "检测人员用户 ID", example = "1")
-    private Long inspectorUserId;
-
     @Schema(description = "备注", example = "备注")
     private String remark;
+
+    @AssertTrue(message = "检测数量必须等于合格品数量与不合格品数量之和")
+    @JsonIgnore
+    public boolean isQuantityValid() {
+        if (ObjUtil.hasNull(checkQuantity, qualifiedQuantity, unqualifiedQuantity)) {
+            return true; // @NotNull 会处理 null
+        }
+        return checkQuantity.equals(qualifiedQuantity + unqualifiedQuantity);
+    }
 
 }

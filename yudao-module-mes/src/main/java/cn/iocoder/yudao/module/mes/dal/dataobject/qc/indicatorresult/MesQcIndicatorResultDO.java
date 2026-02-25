@@ -2,7 +2,10 @@ package cn.iocoder.yudao.module.mes.dal.dataobject.qc.indicatorresult;
 
 import cn.iocoder.yudao.framework.mybatis.core.dataobject.BaseDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.md.item.MesMdItemDO;
+import cn.iocoder.yudao.module.mes.dal.dataobject.qc.ipqc.MesQcIpqcDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.qc.iqc.MesQcIqcDO;
+import cn.iocoder.yudao.module.mes.dal.dataobject.qc.oqc.MesQcOqcDO;
+import cn.iocoder.yudao.module.mes.dal.dataobject.qc.rqc.MesQcRqcDO;
 import cn.iocoder.yudao.module.mes.enums.qc.MesQcTypeEnum;
 import com.baomidou.mybatisplus.annotation.KeySequence;
 import com.baomidou.mybatisplus.annotation.TableId;
@@ -37,7 +40,9 @@ public class MesQcIndicatorResultDO extends BaseDO {
      * 关联质检单 ID（IQC/IPQC/OQC/RQC 的 id）
      *
      * 关联 IQC {@link MesQcIqcDO#getId()}
-     * TODO @芋艿：IPQC/OQC/RQC 关联补充
+     * 关联 IPQC {@link MesQcIpqcDO#getId()}
+     * 关联 OQC {@link MesQcOqcDO#getId()}
+     * 关联 RQC {@link MesQcRqcDO#getId()}
      */
     private Long qcId;
     /**

@@ -86,6 +86,13 @@ public interface MesMdClientService {
     }
 
     /**
+     * 校验客户是否存在
+     *
+     * @param id 编号
+     */
+    void validateClientExists(Long id);
+
+    /**
      * 批量导入客户
      *
      * @param importClients 导入客户列表

@@ -43,6 +43,12 @@ public class MesQcOqcLineDO extends BaseDO {
      */
     private Long indicatorId;
     /**
+     * 检测工具
+     *
+     * 冗余 {@link MesQcIndicatorDO#getTool()}
+     */
+    private String tool;
+    /**
      * 检测方法
      */
     private String checkMethod;

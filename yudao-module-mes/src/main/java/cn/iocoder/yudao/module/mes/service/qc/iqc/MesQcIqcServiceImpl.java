@@ -68,14 +68,13 @@ public class MesQcIqcServiceImpl implements MesQcIqcService {
     public Long createIqc(MesQcIqcSaveReqVO createReqVO) {
         // 1.1 校验编号唯一
         validateIqcCodeUnique(null, createReqVO.getCode());
-        // 1.2 校验供应商、物料存在
+        // 1.2 校验供应商、物料、检测人员存在
         vendorService.validateVendorExists(createReqVO.getVendorId());
         itemService.validateItemExists(createReqVO.getItemId());
-        // 1.3 校验检测人员存在
         adminUserApi.validateUser(createReqVO.getInspectorUserId());
-        // 1.4 校验来源单据参数，并验证数据存在
+        // 1.3 校验来源单据参数，并验证数据存在
         validateSourceDoc(createReqVO.getSourceDocType(), createReqVO.getSourceDocId(), createReqVO.getSourceLineId());
-        // 1.5 通过 itemId + IQC 类型自动查找模板
+        // 1.4 通过 itemId + IQC 类型自动查找模板
         MesQcTemplateItemDO templateItem = templateDetailService.getRequiredTemplateByItemIdAndType(
                 createReqVO.getItemId(), MesQcTypeEnum.IQC.getType());
         Long templateId = templateItem.getTemplateId();
@@ -98,10 +97,9 @@ public class MesQcIqcServiceImpl implements MesQcIqcService {
         validateIqcStatusPrepare(updateReqVO.getId());
         // 1.2 校验编号唯一
         validateIqcCodeUnique(updateReqVO.getId(), updateReqVO.getCode());
-        // 1.3 校验供应商、物料存在
+        // 1.3 校验供应商、物料、检测人员存在
         vendorService.validateVendorExists(updateReqVO.getVendorId());
         itemService.validateItemExists(updateReqVO.getItemId());
-        // 1.4 校验检测人员存在
         adminUserApi.validateUser(updateReqVO.getInspectorUserId());
 
         // 2. 更新主表
@@ -264,8 +262,7 @@ public class MesQcIqcServiceImpl implements MesQcIqcService {
             minorRate = BigDecimal.valueOf(totalMinor).multiply(BigDecimal.valueOf(100))
                     .divide(checkQty, 2, RoundingMode.HALF_UP);
         }
-
-        // 3. 更新主表
+        // 2.3 更新主表
         MesQcIqcDO updateIqc = new MesQcIqcDO().setId(iqcId)
                 .setCriticalQuantity(totalCritical).setMajorQuantity(totalMajor).setMinorQuantity(totalMinor)
                 .setCriticalRate(criticalRate).setMajorRate(majorRate).setMinorRate(minorRate);

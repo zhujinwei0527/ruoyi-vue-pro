@@ -1,6 +1,5 @@
 package cn.iocoder.yudao.module.mes.service.qc.oqc;
 
-import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.ObjUtil;
 import cn.iocoder.yudao.framework.common.pojo.PageResult;
 import cn.iocoder.yudao.framework.common.util.object.BeanUtils;
@@ -8,15 +7,16 @@ import cn.iocoder.yudao.module.mes.controller.admin.qc.oqc.vo.MesQcOqcPageReqVO;
 import cn.iocoder.yudao.module.mes.controller.admin.qc.oqc.vo.MesQcOqcSaveReqVO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.qc.defectrecord.MesQcDefectRecordDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.qc.oqc.MesQcOqcDO;
-import cn.iocoder.yudao.module.mes.dal.dataobject.qc.template.MesQcTemplateDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.qc.template.MesQcTemplateItemDO;
 import cn.iocoder.yudao.module.mes.dal.mysql.qc.oqc.MesQcOqcMapper;
 import cn.iocoder.yudao.module.mes.enums.qc.MesQcDefectLevelEnum;
 import cn.iocoder.yudao.module.mes.enums.qc.MesQcOqcStatusEnum;
 import cn.iocoder.yudao.module.mes.enums.qc.MesQcTypeEnum;
+import cn.iocoder.yudao.module.mes.service.md.client.MesMdClientService;
+import cn.iocoder.yudao.module.mes.service.md.item.MesMdItemService;
 import cn.iocoder.yudao.module.mes.service.qc.defectrecord.MesQcDefectRecordService;
 import cn.iocoder.yudao.module.mes.service.qc.template.MesQcTemplateDetailService;
-import cn.iocoder.yudao.module.mes.service.qc.template.MesQcTemplateService;
+import cn.iocoder.yudao.module.system.api.user.AdminUserApi;
 import jakarta.annotation.Resource;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
@@ -43,45 +43,38 @@ public class MesQcOqcServiceImpl implements MesQcOqcService {
     @Resource
     private MesQcOqcMapper oqcMapper;
     @Resource
-    private MesQcTemplateService templateService;
-    @Resource
     private MesQcTemplateDetailService templateDetailService;
     @Resource
     private MesQcOqcLineService oqcLineService;
     @Resource
     @Lazy
     private MesQcDefectRecordService defectRecordService;
+    @Resource
+    @Lazy
+    private MesMdClientService clientService;
+    @Resource
+    @Lazy
+    private MesMdItemService itemService;
+    @Resource
+    private AdminUserApi adminUserApi;
 
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Long createOqc(MesQcOqcSaveReqVO createReqVO) {
         // 1.1 校验编号唯一
         validateOqcCodeUnique(null, createReqVO.getCode());
-        // TODO @AI：关联字段的校验！
-        // 1.2 校验模板存在且包含 OQC 类型
-        // TODO @AI：不用前端传递，而是类似 iqc 后端计算
-        Long templateId = createReqVO.getTemplateId();
-        MesQcTemplateDO template = templateService.validateTemplateExists(templateId);
-        if (!CollUtil.contains(template.getTypes(), MesQcTypeEnum.OQC.getType())) {
-            throw exception(QC_OQC_NO_TEMPLATE);
-        }
-
-        // 1.3 从模板的产品关联中获取检测参数
-        // TODO @芋艿：【暂时不用删除】到底 miniCheckQuantity 和 maxUnqualifiedQuantity 是否有必要存储？
-        // TODO @AI：去掉这 2 个字段的设置，包括数据的存储，也去掉！
-        MesQcTemplateItemDO templateItem = templateDetailService.getTemplateItemByTemplateIdAndItemId(
-                templateId, createReqVO.getItemId());
-        if (templateItem != null) {
-            if (createReqVO.getMinCheckQuantity() == null) {
-                createReqVO.setMinCheckQuantity(templateItem.getQuantityCheck());
-            }
-            if (createReqVO.getMaxUnqualifiedQuantity() == null) {
-                createReqVO.setMaxUnqualifiedQuantity(templateItem.getQuantityUnqualified());
-            }
-        }
+        // 1.2 校验客户、物料、检测人员存在
+        clientService.validateClientExists(createReqVO.getClientId());
+        itemService.validateItemExists(createReqVO.getItemId());
+        adminUserApi.validateUser(createReqVO.getInspectorUserId());
+        // 1.3 根据产品 + 检验类型自动匹配模板
+        MesQcTemplateItemDO templateItem = templateDetailService.getRequiredTemplateByItemIdAndType(
+                createReqVO.getItemId(), MesQcTypeEnum.OQC.getType());
+        Long templateId = templateItem.getTemplateId();
 
         // 2. 插入主表
         MesQcOqcDO oqc = BeanUtils.toBean(createReqVO, MesQcOqcDO.class);
+        oqc.setTemplateId(templateId);
         oqc.setStatus(MesQcOqcStatusEnum.PREPARE.getType());
         oqcMapper.insert(oqc);
 
@@ -96,6 +89,10 @@ public class MesQcOqcServiceImpl implements MesQcOqcService {
         validateOqcStatusPrepare(updateReqVO.getId());
         // 1.2 校验编号唯一
         validateOqcCodeUnique(updateReqVO.getId(), updateReqVO.getCode());
+        // 1.3 校验客户、物料、检测人员存在
+        clientService.validateClientExists(updateReqVO.getClientId());
+        itemService.validateItemExists(updateReqVO.getItemId());
+        adminUserApi.validateUser(updateReqVO.getInspectorUserId());
 
         // 2. 更新
         MesQcOqcDO updateObj = BeanUtils.toBean(updateReqVO, MesQcOqcDO.class);
@@ -104,16 +101,8 @@ public class MesQcOqcServiceImpl implements MesQcOqcService {
 
     @Override
     public void completeOqc(Long id) {
-        // 1.1 校验存在 + 草稿状态
-        MesQcOqcDO oqc = validateOqcStatusPrepare(id);
-        // 1.2 校验合格品 + 不合格品 = 检测数量
-        if (oqc.getCheckQuantity() != null && oqc.getCheckQuantity() > 0) {
-            int total = (oqc.getQualifiedQuantity() != null ? oqc.getQualifiedQuantity() : 0)
-                    + (oqc.getUnqualifiedQuantity() != null ? oqc.getUnqualifiedQuantity() : 0);
-            if (total != oqc.getCheckQuantity()) {
-                throw exception(QC_OQC_QUANTITY_MISMATCH);
-            }
-        }
+        // 1. 校验存在 + 草稿状态
+        validateOqcStatusPrepare(id);
 
         // 2. 更新状态为已完成
         MesQcOqcDO updateObj = new MesQcOqcDO()
@@ -210,8 +199,7 @@ public class MesQcOqcServiceImpl implements MesQcOqcService {
             minorRate = BigDecimal.valueOf(totalMinor).multiply(BigDecimal.valueOf(100))
                     .divide(checkQty, 2, RoundingMode.HALF_UP);
         }
-
-        // 3. 更新主表
+        // 2.3 更新主表
         MesQcOqcDO updateOqc = new MesQcOqcDO().setId(oqcId)
                 .setCriticalQuantity(totalCritical).setMajorQuantity(totalMajor).setMinorQuantity(totalMinor)
                 .setCriticalRate(criticalRate).setMajorRate(majorRate).setMinorRate(minorRate);
