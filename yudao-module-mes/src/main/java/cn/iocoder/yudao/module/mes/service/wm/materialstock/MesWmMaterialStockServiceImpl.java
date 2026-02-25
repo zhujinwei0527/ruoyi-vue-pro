@@ -118,7 +118,6 @@ public class MesWmMaterialStockServiceImpl implements MesWmMaterialStockService 
 
         // 2a. 存在则增加数量
         if (stock != null) {
-            // TODO DONE @AI：已在 Mapper 新增 incrQuantityOnhand 方法，使用 SQL 原子更新避免并发问题
             materialStockMapper.incrQuantityOnhand(stock.getId(), quantity);
             return;
         }

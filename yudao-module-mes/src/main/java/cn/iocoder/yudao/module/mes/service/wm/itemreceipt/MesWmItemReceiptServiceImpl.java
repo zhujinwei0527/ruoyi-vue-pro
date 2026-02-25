@@ -171,7 +171,6 @@ public class MesWmItemReceiptServiceImpl implements MesWmItemReceiptService {
         // 校验存在
         MesWmItemReceiptDO receipt = validateItemReceiptExists(id);
         // 已完成和已取消不允许取消
-        // TODO DONE @芋艿：确认只有已完成和已取消 2 个状态不允许取消
         if (ObjectUtils.equalsAny(receipt.getStatus(),
                 MesWmItemReceiptStatusEnum.FINISHED.getStatus(),
                 MesWmItemReceiptStatusEnum.CANCELED.getStatus())) {
@@ -185,9 +184,7 @@ public class MesWmItemReceiptServiceImpl implements MesWmItemReceiptService {
     @Override
     public MesWmItemReceiptDO validateItemReceiptEditable(Long id) {
         MesWmItemReceiptDO receipt = validateItemReceiptExists(id);
-        // TODO DONE @AI：已使用 ObjectUtils.equalsAny 简化多值判断，方法已迁移到 Service 层
-        // TODO @AI：ObjectUtils 封装一个方法，避免取反；脑子理解起来麻烦
-        if (!ObjectUtils.equalsAny(receipt.getStatus(),
+        if (ObjectUtils.notEqualsAny(receipt.getStatus(),
                 MesWmItemReceiptStatusEnum.PREPARE.getStatus(),
                 MesWmItemReceiptStatusEnum.APPROVING.getStatus())) {
             throw exception(WM_ITEM_RECEIPT_STATUS_NOT_PREPARE);
