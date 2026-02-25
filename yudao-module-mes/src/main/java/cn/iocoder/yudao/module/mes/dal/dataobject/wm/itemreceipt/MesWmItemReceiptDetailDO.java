@@ -80,6 +80,7 @@ public class MesWmItemReceiptDetailDO extends BaseDO {
      * 备注
      */
     private String remark;
+
     /**
      * 预留字段1
      */

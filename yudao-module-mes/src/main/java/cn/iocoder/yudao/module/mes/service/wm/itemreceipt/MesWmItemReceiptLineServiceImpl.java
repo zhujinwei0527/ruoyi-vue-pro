@@ -41,10 +41,13 @@ public class MesWmItemReceiptLineServiceImpl implements MesWmItemReceiptLineServ
     public Long createItemReceiptLine(MesWmItemReceiptLineSaveReqVO createReqVO) {
         // 校验父单据存在且为草稿状态
         validateReceiptStatusDraft(createReqVO.getReceiptId());
+        // TODO @AI：校验关联订单；
 
         // 新增
         MesWmItemReceiptLineDO line = BeanUtils.toBean(createReqVO, MesWmItemReceiptLineDO.class);
         itemReceiptLineMapper.insert(line);
+
+        // TODO @芋艿：【暂时不处理】wmBatchService 需要生成下；基于 batchCode
         return line.getId();
     }
 
@@ -54,10 +57,13 @@ public class MesWmItemReceiptLineServiceImpl implements MesWmItemReceiptLineServ
         MesWmItemReceiptLineDO line = validateItemReceiptLineExists(updateReqVO.getId());
         // 校验父单据存在且为草稿状态
         validateReceiptStatusDraft(line.getReceiptId());
+        // TODO @AI：校验关联订单；
 
         // 更新
         MesWmItemReceiptLineDO updateObj = BeanUtils.toBean(updateReqVO, MesWmItemReceiptLineDO.class);
         itemReceiptLineMapper.updateById(updateObj);
+
+        // TODO @芋艿：【暂时不处理】wmBatchService 需要生成下；基于 batchCode
     }
 
     @Override
@@ -100,6 +106,7 @@ public class MesWmItemReceiptLineServiceImpl implements MesWmItemReceiptLineServ
         return line;
     }
 
+    // TODO @AI：这个应该在 itemReceiptService 中；
     /**
      * 校验父采购入库单存在且为草稿状态
      */

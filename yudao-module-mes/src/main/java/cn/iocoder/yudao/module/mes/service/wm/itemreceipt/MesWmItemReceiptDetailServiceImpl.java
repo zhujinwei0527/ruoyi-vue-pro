@@ -30,8 +30,12 @@ public class MesWmItemReceiptDetailServiceImpl implements MesWmItemReceiptDetail
 
     @Override
     public Long createItemReceiptDetail(MesWmItemReceiptDetailSaveReqVO createReqVO) {
+        // TODO @AI：warehouseId、locationId、areaId 存在，并且是父子关系！最好在 areaService 中提供一个方法，校验这三个 ID 的关系！（并且存在）
         // 校验父单据存在且为草稿状态
         itemReceiptService.validateItemReceiptEditable(createReqVO.getReceiptId());
+        // TODO @AI：超过数量验证；
+
+        // TODO @芋艿：【后续搞】不允许物资混放
 
         MesWmItemReceiptDetailDO detail = BeanUtils.toBean(createReqVO, MesWmItemReceiptDetailDO.class);
         itemReceiptDetailMapper.insert(detail);
@@ -40,10 +44,14 @@ public class MesWmItemReceiptDetailServiceImpl implements MesWmItemReceiptDetail
 
     @Override
     public void updateItemReceiptDetail(MesWmItemReceiptDetailSaveReqVO updateReqVO) {
+        // TODO @AI：warehouseId、locationId、areaId 存在，并且是父子关系！最好在 areaService 中提供一个方法，校验这三个 ID 的关系！（并且存在）
         // 校验存在
         MesWmItemReceiptDetailDO detail = validateItemReceiptDetailExists(updateReqVO.getId());
         // 校验父单据存在且为草稿状态
         itemReceiptService.validateItemReceiptEditable(detail.getReceiptId());
+        // TODO @AI：超过数量验证；
+
+        // TODO @芋艿：【后续搞】不允许物资混放
 
         // 更新
         MesWmItemReceiptDetailDO updateObj = BeanUtils.toBean(updateReqVO, MesWmItemReceiptDetailDO.class);

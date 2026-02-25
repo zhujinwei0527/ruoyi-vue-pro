@@ -38,6 +38,7 @@ public class MesWmItemReceiptLineDO extends BaseDO {
      * 关联 {@link MesWmItemReceiptDO#getId()}
      */
     private Long receiptId;
+    // TODO @AI：字段要不完整点，更好维护；arrivalNoticeLineId；因为 noticeLineId 关联到 arrivalNoticeLineId；不然会有歧义；
     /**
      * 到货通知单行编号
      *
@@ -60,6 +61,7 @@ public class MesWmItemReceiptLineDO extends BaseDO {
      * TODO DONE @芋艿：保留。待 mes_wm_batch 模块迁移后补充 @link 关联
      */
     private Long batchId;
+    // TODO @AI：warehouseId、locationId、areaId 这几个字段，是不是不需要；只需要在 detaildo 里存储就好了；
     /**
      * 仓库编号
      *
@@ -90,11 +92,13 @@ public class MesWmItemReceiptLineDO extends BaseDO {
      * 生产批号
      */
     private String productionBatchNumber;
+    // TODO @AI：貌似不用 iqcCheckFlag 存储；因为 noticeLineId 可以关联到
     /**
      * 是否需要来料检验
      */
     private Boolean iqcCheckFlag;
     // TODO DONE @AI：已添加关联注释。因 QC 模块 DO 类尚未迁移，暂用表名标识
+    // TODO @AI：可以添加了；
     /**
      * 来料检验单编号
      *
@@ -105,6 +109,7 @@ public class MesWmItemReceiptLineDO extends BaseDO {
      * 备注
      */
     private String remark;
+
     /**
      * 预留字段1
      */

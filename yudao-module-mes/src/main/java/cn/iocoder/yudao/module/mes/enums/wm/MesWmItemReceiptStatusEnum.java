@@ -6,6 +6,7 @@ import lombok.Getter;
 
 import java.util.Arrays;
 
+// TODO @AI：应该使用 MesOrderStatusEnum 替代掉，只是使用其中的部分状态。需要在对应的 DO 说明下；当然，字典还是独立的！
 /**
  * MES 采购入库单状态枚举
  *

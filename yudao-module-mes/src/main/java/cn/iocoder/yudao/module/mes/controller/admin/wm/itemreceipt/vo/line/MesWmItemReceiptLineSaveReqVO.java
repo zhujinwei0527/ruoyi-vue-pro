@@ -29,9 +29,11 @@ public class MesWmItemReceiptLineSaveReqVO {
     @NotNull(message = "入库数量不能为空")
     private BigDecimal receivedQuantity;
 
+    // TODO @芋艿：【暂时不调整】这个换成 batchCode；无论是前端、后端；数据库还是 batchId；后续在调整；
     @Schema(description = "批次编号", example = "1")
     private Long batchId;
 
+    // TODO @AI：是不是这里不用 warehouseId、locationId、areaId
     @Schema(description = "仓库编号", example = "1")
     private Long warehouseId;
 
@@ -50,9 +52,11 @@ public class MesWmItemReceiptLineSaveReqVO {
     @Schema(description = "生产批号", example = "PB20260110")
     private String productionBatchNumber;
 
+    // TODO @AI：这个字段去掉；
     @Schema(description = "是否需要来料检验", example = "true")
     private Boolean iqcCheckFlag;
 
+    // TODO @AI：这个字段去掉；不是这里保存出来的；你也思考下；
     @Schema(description = "来料检验单编号", example = "1")
     private Long iqcId;
 

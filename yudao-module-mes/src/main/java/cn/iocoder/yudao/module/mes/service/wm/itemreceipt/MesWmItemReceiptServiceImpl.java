@@ -147,6 +147,7 @@ public class MesWmItemReceiptServiceImpl implements MesWmItemReceiptService {
         }
 
         // 遍历所有明细，更新库存台账
+        // TODO @AI：这里可能有点问题；缺少库存更新；后面在弄；
         List<MesWmItemReceiptDetailDO> details = itemReceiptDetailService.getItemReceiptDetailListByReceiptId(id);
         for (MesWmItemReceiptDetailDO detail : details) {
             materialStockService.increaseStock(
@@ -157,6 +158,7 @@ public class MesWmItemReceiptServiceImpl implements MesWmItemReceiptService {
         // 更新入库单状态
         itemReceiptMapper.updateById(new MesWmItemReceiptDO()
                 .setId(id).setStatus(MesWmItemReceiptStatusEnum.FINISHED.getStatus()));
+
         // 更新关联的到货通知单状态
         if (receipt.getNoticeId() != null) {
             arrivalNoticeService.finishArrivalNotice(receipt.getNoticeId());

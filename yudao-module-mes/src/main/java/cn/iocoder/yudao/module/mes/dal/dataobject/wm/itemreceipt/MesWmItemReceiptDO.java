@@ -65,6 +65,7 @@ public class MesWmItemReceiptDO extends BaseDO {
      * 关联 {@link MesMdVendorDO#getId()}
      */
     private Long vendorId;
+    // TODO @AI：warehouseId、locationId、areaId 这几个字段，是不是不需要；只需要在 detaildo 里存储就好了；
     /**
      * 仓库编号
      *
@@ -97,6 +98,7 @@ public class MesWmItemReceiptDO extends BaseDO {
      * 备注
      */
     private String remark;
+
     /**
      * 预留字段1
      */
