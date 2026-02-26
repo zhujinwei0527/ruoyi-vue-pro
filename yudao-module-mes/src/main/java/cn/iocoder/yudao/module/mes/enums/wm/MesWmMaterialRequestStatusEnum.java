@@ -1,11 +1,13 @@
 package cn.iocoder.yudao.module.mes.enums.wm;
 
 import cn.iocoder.yudao.framework.common.core.ArrayValuable;
+import cn.iocoder.yudao.module.mes.enums.MesOrderStatusConstants;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 import java.util.Arrays;
 
+// TODO @AI：这里需要迁移下；
 /**
  * MES 领料申请单状态枚举
  *
@@ -15,11 +17,11 @@ import java.util.Arrays;
 @AllArgsConstructor
 public enum MesWmMaterialRequestStatusEnum implements ArrayValuable<Integer> {
 
-    PREPARE(0, "草稿"),
-    PREPARING(1, "备料中"),
-    WAITING(2, "待领料"),
-    FINISHED(3, "已完成"),
-    CANCELED(4, "已取消");
+    PREPARE(MesOrderStatusConstants.PREPARE, "草稿"),
+    PREPARING(MesOrderStatusConstants.APPROVING, "备料中"),
+    WAITING(MesOrderStatusConstants.APPROVED, "待领料"),
+    FINISHED(MesOrderStatusConstants.FINISHED, "已完成"),
+    CANCELED(MesOrderStatusConstants.CANCELLED, "已取消");
 
     public static final Integer[] ARRAYS = Arrays.stream(values()).map(MesWmMaterialRequestStatusEnum::getStatus).toArray(Integer[]::new);
 

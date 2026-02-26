@@ -1,12 +1,14 @@
 package cn.iocoder.yudao.module.mes.enums.wm;
 
 import cn.iocoder.yudao.framework.common.core.ArrayValuable;
+import cn.iocoder.yudao.module.mes.controller.admin.wm.itemreceipt.vo.MesWmItemReceiptSaveReqVO;
+import cn.iocoder.yudao.module.mes.enums.MesOrderStatusConstants;
+import cn.iocoder.yudao.module.mes.service.wm.itemreceipt.MesWmItemReceiptService;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 import java.util.Arrays;
 
-// TODO @AI：应该使用 MesOrderStatusEnum 替代掉，只是使用其中的部分状态。需要在对应的 DO 说明下；当然，字典还是独立的！
 /**
  * MES 采购入库单状态枚举
  *
@@ -16,11 +18,36 @@ import java.util.Arrays;
 @AllArgsConstructor
 public enum MesWmItemReceiptStatusEnum implements ArrayValuable<Integer> {
 
-    PREPARE(0, "草稿"),
-    APPROVING(1, "待上架"),
-    APPROVED(2, "待入库"),
-    FINISHED(3, "已完成"),
-    CANCELED(4, "已取消");
+    /**
+     * 草稿
+     *
+     * 对应方法：{@link MesWmItemReceiptService#createItemReceipt(MesWmItemReceiptSaveReqVO)}
+     */
+    PREPARE(MesOrderStatusConstants.PREPARE, "草稿"),
+    /**
+     * 待上架
+     *
+     * 对应方法：{@link MesWmItemReceiptService#submitItemReceipt(Long)}
+     */
+    APPROVING(MesOrderStatusConstants.APPROVING, "待上架"),
+    /**
+     * 待入库
+     *
+     * 对应方法：{@link MesWmItemReceiptService#stockItemReceipt(Long)}
+     */
+    APPROVED(MesOrderStatusConstants.APPROVED, "待执行入库"),
+    /**
+     * 已完成
+     *
+     * 对应方法：{@link MesWmItemReceiptService#executeItemReceipt(Long)}
+     */
+    FINISHED(MesOrderStatusConstants.FINISHED, "已完成"),
+    /**
+     * 已取消
+     *
+     * 对应方法：{@link MesWmItemReceiptService#cancelItemReceipt(Long)}
+     */
+    CANCELED(MesOrderStatusConstants.CANCELLED, "已取消");
 
     public static final Integer[] ARRAYS = Arrays.stream(values()).map(MesWmItemReceiptStatusEnum::getStatus).toArray(Integer[]::new);
 
