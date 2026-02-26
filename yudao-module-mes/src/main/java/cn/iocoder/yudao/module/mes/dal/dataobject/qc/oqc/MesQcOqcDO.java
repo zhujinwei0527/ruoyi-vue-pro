@@ -159,7 +159,7 @@ public class MesQcOqcDO extends BaseDO {
     /**
      * 状态
      *
-     * 枚举 {@link cn.iocoder.yudao.module.mes.enums.qc.MesQcOqcStatusEnum}
+     * 枚举 {@link cn.iocoder.yudao.module.mes.enums.qc.MesQcStatusEnum}
      */
     private Integer status;
     /**

@@ -6,8 +6,8 @@ import cn.iocoder.yudao.module.mes.dal.dataobject.md.vendor.MesMdVendorDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.qc.template.MesQcTemplateDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.wm.arrivalnotice.MesWmArrivalNoticeDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.wm.arrivalnotice.MesWmArrivalNoticeLineDO;
-import cn.iocoder.yudao.module.mes.enums.MesOrderStatusEnum;
 import cn.iocoder.yudao.module.mes.enums.qc.MesQcSourceDocTypeEnum;
+import cn.iocoder.yudao.module.mes.enums.qc.MesQcStatusEnum;
 import com.baomidou.mybatisplus.annotation.KeySequence;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
@@ -167,8 +167,7 @@ public class MesQcIqcDO extends BaseDO {
     /**
      * 状态
      *
-     * 枚举 {@link MesOrderStatusEnum}
-     * 当前使用：{@link MesOrderStatusEnum#DRAFT}、{@link MesOrderStatusEnum#FINISHED}
+     * 枚举 {@link MesQcStatusEnum}
      */
     private Integer status;
     /**

@@ -5,7 +5,7 @@ import cn.iocoder.yudao.module.mes.dal.dataobject.md.item.MesMdItemDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.md.workstation.MesMdWorkstationDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.pro.workorder.MesProWorkOrderDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.qc.template.MesQcTemplateDO;
-import cn.iocoder.yudao.module.mes.enums.MesOrderStatusEnum;
+import cn.iocoder.yudao.module.mes.enums.qc.MesQcStatusEnum;
 import com.baomidou.mybatisplus.annotation.KeySequence;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
@@ -181,8 +181,7 @@ public class MesQcIpqcDO extends BaseDO {
     /**
      * 状态
      *
-     * 枚举 {@link MesOrderStatusEnum}
-     * 当前使用：{@link MesOrderStatusEnum#DRAFT}、{@link MesOrderStatusEnum#FINISHED}
+     * 枚举 {@link MesQcStatusEnum}
      */
     private Integer status;
     /**

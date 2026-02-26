@@ -13,7 +13,7 @@ import cn.iocoder.yudao.module.mes.dal.dataobject.qc.template.MesQcTemplateItemD
 import cn.iocoder.yudao.module.mes.dal.mysql.qc.iqc.MesQcIqcMapper;
 import cn.iocoder.yudao.module.mes.enums.MesBizTypeConstants;
 import cn.iocoder.yudao.module.mes.enums.qc.MesQcDefectLevelEnum;
-import cn.iocoder.yudao.module.mes.enums.MesOrderStatusEnum;
+import cn.iocoder.yudao.module.mes.enums.qc.MesQcStatusEnum;
 import cn.iocoder.yudao.module.mes.enums.qc.MesQcTypeEnum;
 import cn.iocoder.yudao.module.mes.service.md.item.MesMdItemService;
 import cn.iocoder.yudao.module.mes.service.md.vendor.MesMdVendorService;
@@ -83,7 +83,7 @@ public class MesQcIqcServiceImpl implements MesQcIqcService {
         MesQcIqcDO iqc = BeanUtils.toBean(createReqVO, MesQcIqcDO.class);
         iqc.setTemplateId(templateId);
         iqc.setCheckQuantity(createReqVO.getQualifiedQuantity().add(createReqVO.getUnqualifiedQuantity()));
-        iqc.setStatus(MesOrderStatusEnum.DRAFT.getType());
+        iqc.setStatus(MesQcStatusEnum.DRAFT.getStatus());
         iqcMapper.insert(iqc);
 
         // 3. 从模板指标自动生成检验行
@@ -120,7 +120,7 @@ public class MesQcIqcServiceImpl implements MesQcIqcService {
 
         // 2. 更新状态为已完成
         MesQcIqcDO updateObj = new MesQcIqcDO()
-                .setId(id).setStatus(MesOrderStatusEnum.FINISHED.getType());
+                .setId(id).setStatus(MesQcStatusEnum.FINISHED.getStatus());
         iqcMapper.updateById(updateObj);
 
         // 3. 回写来源单据
@@ -181,7 +181,7 @@ public class MesQcIqcServiceImpl implements MesQcIqcService {
      */
     private MesQcIqcDO validateIqcStatusPrepare(Long id) {
         MesQcIqcDO iqc = validateIqcExists(id);
-        if (ObjUtil.notEqual(iqc.getStatus(), MesOrderStatusEnum.DRAFT.getType())) {
+        if (ObjUtil.notEqual(iqc.getStatus(), MesQcStatusEnum.DRAFT.getStatus())) {
             throw exception(QC_IQC_NOT_PREPARE);
         }
         return iqc;

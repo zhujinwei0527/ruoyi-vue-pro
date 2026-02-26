@@ -11,7 +11,7 @@ import cn.iocoder.yudao.module.mes.dal.dataobject.qc.ipqc.MesQcIpqcDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.qc.template.MesQcTemplateItemDO;
 import cn.iocoder.yudao.module.mes.dal.mysql.qc.ipqc.MesQcIpqcMapper;
 import cn.iocoder.yudao.module.mes.enums.qc.MesQcDefectLevelEnum;
-import cn.iocoder.yudao.module.mes.enums.MesOrderStatusEnum;
+import cn.iocoder.yudao.module.mes.enums.qc.MesQcStatusEnum;
 import cn.iocoder.yudao.module.mes.enums.qc.MesQcTypeEnum;
 import cn.iocoder.yudao.module.mes.service.md.item.MesMdItemService;
 import cn.iocoder.yudao.module.mes.service.md.workstation.MesMdWorkstationService;
@@ -84,7 +84,7 @@ public class MesQcIpqcServiceImpl implements MesQcIpqcService {
         // 2. 插入主表
         MesQcIpqcDO ipqc = BeanUtils.toBean(createReqVO, MesQcIpqcDO.class);
         ipqc.setItemId(workOrder.getProductId());
-        ipqc.setTemplateId(templateId).setStatus(MesOrderStatusEnum.DRAFT.getType());
+        ipqc.setTemplateId(templateId).setStatus(MesQcStatusEnum.DRAFT.getStatus());
         ipqcMapper.insert(ipqc);
 
         // 3. 从模板指标自动生成检验行
@@ -121,7 +121,7 @@ public class MesQcIpqcServiceImpl implements MesQcIpqcService {
         // 2. 更新状态为已完成
         MesQcIpqcDO updateObj = new MesQcIpqcDO();
         updateObj.setId(id);
-        updateObj.setStatus(MesOrderStatusEnum.FINISHED.getType());
+        updateObj.setStatus(MesQcStatusEnum.FINISHED.getStatus());
         ipqcMapper.updateById(updateObj);
 
         // TODO @芋艿：IPQC 完成时的 PRO/WM 联动（报工反馈更新、产品产出单拆分），待 WM 模块迁移后对接
@@ -158,7 +158,7 @@ public class MesQcIpqcServiceImpl implements MesQcIpqcService {
      */
     private MesQcIpqcDO validateIpqcStatusPrepare(Long id) {
         MesQcIpqcDO ipqc = validateIpqcExists(id);
-        if (ObjUtil.notEqual(ipqc.getStatus(), MesOrderStatusEnum.DRAFT.getType())) {
+        if (ObjUtil.notEqual(ipqc.getStatus(), MesQcStatusEnum.DRAFT.getStatus())) {
             throw exception(QC_IPQC_NOT_PREPARE);
         }
         return ipqc;

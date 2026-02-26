@@ -10,7 +10,7 @@ import cn.iocoder.yudao.module.mes.dal.dataobject.qc.oqc.MesQcOqcDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.qc.template.MesQcTemplateItemDO;
 import cn.iocoder.yudao.module.mes.dal.mysql.qc.oqc.MesQcOqcMapper;
 import cn.iocoder.yudao.module.mes.enums.qc.MesQcDefectLevelEnum;
-import cn.iocoder.yudao.module.mes.enums.qc.MesQcOqcStatusEnum;
+import cn.iocoder.yudao.module.mes.enums.qc.MesQcStatusEnum;
 import cn.iocoder.yudao.module.mes.enums.qc.MesQcTypeEnum;
 import cn.iocoder.yudao.module.mes.service.md.client.MesMdClientService;
 import cn.iocoder.yudao.module.mes.service.md.item.MesMdItemService;
@@ -75,7 +75,7 @@ public class MesQcOqcServiceImpl implements MesQcOqcService {
         // 2. 插入主表
         MesQcOqcDO oqc = BeanUtils.toBean(createReqVO, MesQcOqcDO.class);
         oqc.setTemplateId(templateId);
-        oqc.setStatus(MesQcOqcStatusEnum.PREPARE.getType());
+        oqc.setStatus(MesQcStatusEnum.DRAFT.getStatus());
         oqcMapper.insert(oqc);
 
         // 3. 从模板指标自动生成检验行
@@ -106,7 +106,7 @@ public class MesQcOqcServiceImpl implements MesQcOqcService {
 
         // 2. 更新状态为已完成
         MesQcOqcDO updateObj = new MesQcOqcDO()
-                .setId(id).setStatus(MesQcOqcStatusEnum.FINISHED.getType());
+                .setId(id).setStatus(MesQcStatusEnum.FINISHED.getStatus());
         oqcMapper.updateById(updateObj);
 
         // TODO @芋艿：WM 模块迁移后，更新销售出库单行的检验结果
@@ -140,7 +140,7 @@ public class MesQcOqcServiceImpl implements MesQcOqcService {
      */
     private MesQcOqcDO validateOqcStatusPrepare(Long id) {
         MesQcOqcDO oqc = validateOqcExists(id);
-        if (ObjUtil.notEqual(oqc.getStatus(), MesQcOqcStatusEnum.PREPARE.getType())) {
+        if (ObjUtil.notEqual(oqc.getStatus(), MesQcStatusEnum.DRAFT.getStatus())) {
             throw exception(QC_OQC_NOT_PREPARE);
         }
         return oqc;
