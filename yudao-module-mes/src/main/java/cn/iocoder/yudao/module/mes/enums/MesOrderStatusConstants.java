@@ -10,22 +10,31 @@ package cn.iocoder.yudao.module.mes.enums;
  */
 public final class MesOrderStatusConstants {
 
-    /** 草稿 */
-    public static final int DRAFT = 0;
+    /**
+     * 草稿
+     */
+    public static final int PREPARE = 0;
 
-    /** 已确认 */
+    /**
+     * 已确认
+     */
     public static final int CONFIRMED = 1;
-
-    /** 审批中 */
+    /**
+     * 审批中
+     */
     public static final int APPROVING = 2;
-
-    /** 已审批 */
+    /**
+     * 已审批
+     */
     public static final int APPROVED = 3;
 
-    /** 已完成 */
+    /**
+     * 已完成
+     */
     public static final int FINISHED = 4;
-
-    /** 已取消 */
+    /**
+     * 已取消
+     */
     public static final int CANCELLED = 5;
 
 }

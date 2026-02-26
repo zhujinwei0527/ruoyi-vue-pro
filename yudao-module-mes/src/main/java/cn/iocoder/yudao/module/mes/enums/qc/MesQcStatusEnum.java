@@ -18,7 +18,7 @@ import java.util.Arrays;
 @AllArgsConstructor
 public enum MesQcStatusEnum implements ArrayValuable<Integer> {
 
-    DRAFT(MesOrderStatusConstants.DRAFT, "草稿"),
+    DRAFT(MesOrderStatusConstants.PREPARE, "草稿"),
     FINISHED(MesOrderStatusConstants.FINISHED, "已完成");
 
     public static final Integer[] ARRAYS = Arrays.stream(values())

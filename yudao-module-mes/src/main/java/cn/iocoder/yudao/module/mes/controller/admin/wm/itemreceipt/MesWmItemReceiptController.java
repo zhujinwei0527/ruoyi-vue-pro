@@ -57,15 +57,6 @@ public class MesWmItemReceiptController {
     private MesMdVendorService vendorService;
 
     @Resource
-    private MesWmWarehouseService warehouseService;
-
-    @Resource
-    private MesWmWarehouseLocationService locationService;
-
-    @Resource
-    private MesWmWarehouseAreaService areaService;
-
-    @Resource
     private MesQcIqcService iqcService;
 
     @Resource
