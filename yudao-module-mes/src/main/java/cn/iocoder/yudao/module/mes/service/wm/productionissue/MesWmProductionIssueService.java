@@ -53,21 +53,7 @@ public interface MesWmProductionIssueService {
     PageResult<MesWmProductionIssueDO> getIssuePage(MesWmProductionIssuePageReqVO pageReqVO);
 
     /**
-     * 审批领料出库单（准备中 → 已审批，扣减库存）
-     *
-     * @param id 编号
-     */
-    void approveIssue(Long id);
-
-    /**
-     * 反审批领料出库单（已审批 → 准备中，恢复库存）
-     *
-     * @param id 编号
-     */
-    void unapproveIssue(Long id);
-
-    /**
-     * 完成领料出库单（已审批 → 已完成）
+     * 完成领料出库单（草稿 → 已完成，执行出库）
      *
      * @param id 编号
      */

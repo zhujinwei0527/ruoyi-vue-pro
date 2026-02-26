@@ -357,4 +357,17 @@ public interface ErrorCodeConstants {
     ErrorCode WM_OUTSOURCE_ISSUE_QUANTITY_MISMATCH = new ErrorCode(1_040_707_002, "出库单行数量与明细数量不一致");
     ErrorCode WM_OUTSOURCE_ISSUE_LINE_NOT_EXISTS = new ErrorCode(1_040_707_100, "外协出库单行不存在");
 
+    // ========== MES 仓库管理-生产领料出库单（1-040-708-000） ==========
+    ErrorCode WM_PRODUCTION_ISSUE_NOT_EXISTS = new ErrorCode(1_040_708_000, "生产领料出库单不存在");
+    ErrorCode WM_PRODUCTION_ISSUE_STATUS_INVALID = new ErrorCode(1_040_708_001, "生产领料出库单状态不正确，无法执行该操作");
+    // TODO @AI：不需要的错误码，需要处理下。
+    ErrorCode WM_PRODUCTION_ISSUE_WAREHOUSE_NOT_EXISTS = new ErrorCode(1_040_708_002, "仓库不存在");
+    ErrorCode WM_PRODUCTION_ISSUE_ITEM_NOT_EXISTS = new ErrorCode(1_040_708_003, "物料不存在");
+    ErrorCode WM_PRODUCTION_ISSUE_WORKORDER_NOT_EXISTS = new ErrorCode(1_040_708_004, "生产工单不存在");
+    ErrorCode WM_PRODUCTION_ISSUE_WORKSTATION_NOT_EXISTS = new ErrorCode(1_040_708_005, "工作站不存在");
+    ErrorCode WM_PRODUCTION_ISSUE_NO_LINE = new ErrorCode(1_040_708_006, "至少需要一条行项目");
+    ErrorCode WM_PRODUCTION_ISSUE_QUANTITY_MISMATCH = new ErrorCode(1_040_708_007, "领料单行数量与明细数量不一致");
+    ErrorCode WM_PRODUCTION_ISSUE_LINE_NOT_EXISTS = new ErrorCode(1_040_708_100, "生产领料出库单行不存在");
+    ErrorCode WM_PRODUCTION_ISSUE_DETAIL_NOT_EXISTS = new ErrorCode(1_040_708_200, "生产领料出库单明细不存在");
+
 }

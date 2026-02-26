@@ -34,6 +34,9 @@ import static cn.iocoder.yudao.framework.apilog.core.enums.OperateTypeEnum.EXPOR
 import static cn.iocoder.yudao.framework.common.pojo.CommonResult.success;
 import static cn.iocoder.yudao.framework.common.util.collection.CollectionUtils.convertSet;
 
+// TODO @AI：方法的排序，参考别的模块；
+// TODO @AI：controller、service、包括其他的，都需要全。createProductitonIssue 这种；其它模块也是；
+// TODO @AI：需要新增 line、detail 的 controller；参考 /Users/yunai/Java/yudao-all-in-one/ruoyi-vue-pro/yudao-module-mes/src/main/java/cn/iocoder/yudao/module/mes/controller/admin/wm/itemreceipt
 @Tag(name = "管理后台 - MES 领料出库单")
 @RestController
 @RequestMapping("/mes/wm/production-issue")
@@ -102,24 +105,6 @@ public class MesWmProductionIssueController {
                 buildRespVOList(pageResult.getList()));
     }
 
-    @PutMapping("/approve")
-    @Operation(summary = "审批领料出库单")
-    @Parameter(name = "id", description = "编号", required = true)
-    @PreAuthorize("@ss.hasPermission('mes:wm-production-issue:update-status')")
-    public CommonResult<Boolean> approveIssue(@RequestParam("id") Long id) {
-        issueService.approveIssue(id);
-        return success(true);
-    }
-
-    @PutMapping("/unapprove")
-    @Operation(summary = "反审批领料出库单")
-    @Parameter(name = "id", description = "编号", required = true)
-    @PreAuthorize("@ss.hasPermission('mes:wm-production-issue:update-status')")
-    public CommonResult<Boolean> unapproveIssue(@RequestParam("id") Long id) {
-        issueService.unapproveIssue(id);
-        return success(true);
-    }
-
     @PutMapping("/finish")
     @Operation(summary = "完成领料出库单")
     @Parameter(name = "id", description = "编号", required = true)
@@ -131,6 +116,7 @@ public class MesWmProductionIssueController {
 
     // ==================== 拼接 VO ====================
 
+    // TODO @AI：这个方法的拼接，在优化下；
     private List<MesWmProductionIssueRespVO> buildRespVOList(List<MesWmProductionIssueDO> list) {
         if (CollUtil.isEmpty(list)) {
             return Collections.emptyList();
