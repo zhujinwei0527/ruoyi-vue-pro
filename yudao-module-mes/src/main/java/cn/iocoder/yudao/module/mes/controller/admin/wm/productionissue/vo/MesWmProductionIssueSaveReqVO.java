@@ -1,10 +1,11 @@
 package cn.iocoder.yudao.module.mes.controller.admin.wm.productionissue.vo;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Schema(description = "管理后台 - MES 领料出库单新增/修改 Request VO")
 @Data
@@ -13,25 +14,23 @@ public class MesWmProductionIssueSaveReqVO {
     @Schema(description = "编号", example = "1024")
     private Long id;
 
-    // TODO @AI：必须传递
-    @Schema(description = "领料单编号", example = "ISSUE20250226001")
+    @Schema(description = "领料单编号", requiredMode = Schema.RequiredMode.REQUIRED, example = "ISSUE20250226001")
+    @NotBlank(message = "领料单编号不能为空")
     private String code;
 
-    // TODO @AI：必须传递
     @Schema(description = "领料单名称", requiredMode = Schema.RequiredMode.REQUIRED, example = "生产领料")
+    @NotBlank(message = "领料单名称不能为空")
     private String name;
 
-    // TODO @AI：必须传递
-    // TODO @AI：service 需要校验存在
-    @Schema(description = "工作站 ID", example = "1")
+    @Schema(description = "工作站 ID", requiredMode = Schema.RequiredMode.REQUIRED, example = "1")
+    @NotNull(message = "工作站ID不能为空")
     private Long workstationId;
 
     @Schema(description = "生产工单 ID", example = "1")
-    // TODO @AI：service 需要校验存在
     private Long workorderId;
 
-    @Schema(description = "需求时间")
-    // TODO @AI：必须传递
+    @Schema(description = "需求时间", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotNull(message = "需求时间不能为空")
     private LocalDateTime requiredTime;
 
     @Schema(description = "备注", example = "备注")
@@ -48,9 +47,5 @@ public class MesWmProductionIssueSaveReqVO {
 
     @Schema(description = "预留字段4")
     private Integer attribute4;
-
-    // TODO @AI：应该单独接口，传递这个；参考别的模块；
-    @Schema(description = "领料单行列表")
-    private List<MesWmProductionIssueLineSaveReqVO> lines;
 
 }

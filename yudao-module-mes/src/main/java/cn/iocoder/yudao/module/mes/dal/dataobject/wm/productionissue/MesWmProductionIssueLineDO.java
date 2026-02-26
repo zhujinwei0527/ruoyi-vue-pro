@@ -39,11 +39,10 @@ public class MesWmProductionIssueLineDO extends BaseDO {
      * 关联 {@link MesMdItemDO#getId()}
      */
     private Long itemId;
-    // TODO @AI：是不是精简成 quantity？
     /**
      * 领料数量
      */
-    private BigDecimal quantityIssued;
+    private BigDecimal quantity;
     /**
      * 批次 ID
      */

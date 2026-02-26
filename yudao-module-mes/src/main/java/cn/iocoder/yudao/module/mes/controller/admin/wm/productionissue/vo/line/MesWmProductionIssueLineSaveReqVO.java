@@ -1,4 +1,4 @@
-package cn.iocoder.yudao.module.mes.controller.admin.wm.productionissue.vo;
+package cn.iocoder.yudao.module.mes.controller.admin.wm.productionissue.vo.line;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
@@ -16,7 +16,7 @@ public class MesWmProductionIssueLineSaveReqVO {
     private Long itemId;
 
     @Schema(description = "领料数量", requiredMode = Schema.RequiredMode.REQUIRED, example = "100.00")
-    private BigDecimal quantityIssued;
+    private BigDecimal quantity;
 
     @Schema(description = "批次ID", example = "1")
     private Long batchId;

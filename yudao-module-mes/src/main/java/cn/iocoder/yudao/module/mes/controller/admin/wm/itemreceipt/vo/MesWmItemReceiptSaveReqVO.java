@@ -18,7 +18,8 @@ public class MesWmItemReceiptSaveReqVO {
     @NotEmpty(message = "入库单编码不能为空")
     private String code;
 
-    @Schema(description = "入库单名称", example = "钢板入库单")
+    @Schema(description = "入库单名称", requiredMode = Schema.RequiredMode.REQUIRED, example = "钢板入库单")
+    @NotEmpty(message = "入库单名称不能为空")
     private String name;
 
     @Schema(description = "来料检验单编号", example = "1")

@@ -1,4 +1,4 @@
-package cn.iocoder.yudao.module.mes.controller.admin.wm.productionissue.vo;
+package cn.iocoder.yudao.module.mes.controller.admin.wm.productionissue.vo.line;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
@@ -19,8 +19,20 @@ public class MesWmProductionIssueLineRespVO {
     @Schema(description = "物料ID", example = "1")
     private Long itemId;
 
+    @Schema(description = "物料编码", example = "M001")
+    private String itemCode;
+
+    @Schema(description = "物料名称", example = "钢板")
+    private String itemName;
+
+    @Schema(description = "规格型号", example = "10mm*100mm")
+    private String specification;
+
+    @Schema(description = "计量单位名称", example = "千克")
+    private String unitMeasureName;
+
     @Schema(description = "领料数量", example = "100.00")
-    private BigDecimal quantityIssued;
+    private BigDecimal quantity;
 
     @Schema(description = "批次ID", example = "1")
     private Long batchId;

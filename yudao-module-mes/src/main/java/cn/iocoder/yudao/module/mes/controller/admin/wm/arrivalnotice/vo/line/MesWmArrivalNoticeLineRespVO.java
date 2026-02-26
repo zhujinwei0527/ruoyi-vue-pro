@@ -31,13 +31,13 @@ public class MesWmArrivalNoticeLineRespVO {
     @Schema(description = "计量单位名称", example = "千克")
     private String unitMeasureName;
 
-    @Schema(description = "到货数量", example = "500.00")
+    @Schema(description = "到货数量", requiredMode = Schema.RequiredMode.REQUIRED, example = "500.00")
     private BigDecimal arrivalQuantity;
 
     @Schema(description = "合格数量", example = "500.00")
     private BigDecimal qualifiedQuantity;
 
-    @Schema(description = "是否需要来料检验", example = "true")
+    @Schema(description = "是否需要来料检验", requiredMode = Schema.RequiredMode.REQUIRED, example = "true")
     private Boolean iqcCheckFlag;
 
     @Schema(description = "来料检验单编号", example = "1")

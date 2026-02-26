@@ -20,7 +20,7 @@ public class MesWmArrivalNoticeRespVO {
     @ExcelProperty("通知单编码")
     private String code;
 
-    @Schema(description = "通知单名称", example = "2 月份钢板到货")
+    @Schema(description = "通知单名称", requiredMode = Schema.RequiredMode.REQUIRED, example = "2 月份钢板到货")
     @ExcelProperty("通知单名称")
     private String name;
 
@@ -28,7 +28,7 @@ public class MesWmArrivalNoticeRespVO {
     @ExcelProperty("采购订单编号")
     private String purchaseOrderCode;
 
-    @Schema(description = "供应商编号", example = "1")
+    @Schema(description = "供应商编号", requiredMode = Schema.RequiredMode.REQUIRED, example = "1")
     private Long vendorId;
 
     @Schema(description = "供应商编码", example = "V001")
@@ -39,7 +39,7 @@ public class MesWmArrivalNoticeRespVO {
     @ExcelProperty("供应商名称")
     private String vendorName;
 
-    @Schema(description = "到货日期")
+    @Schema(description = "到货日期", requiredMode = Schema.RequiredMode.REQUIRED)
     @ExcelProperty("到货日期")
     private LocalDateTime arrivalDate;
 

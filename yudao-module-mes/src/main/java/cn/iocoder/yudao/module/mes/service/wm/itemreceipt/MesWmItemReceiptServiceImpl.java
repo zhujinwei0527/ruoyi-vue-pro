@@ -184,9 +184,8 @@ public class MesWmItemReceiptServiceImpl implements MesWmItemReceiptService {
     @Override
     public MesWmItemReceiptDO validateItemReceiptEditable(Long id) {
         MesWmItemReceiptDO receipt = validateItemReceiptExists(id);
-        if (ObjectUtils.notEqualsAny(receipt.getStatus(),
-                MesWmItemReceiptStatusEnum.PREPARE.getStatus(),
-                MesWmItemReceiptStatusEnum.APPROVING.getStatus())) {
+        if (ObjUtil.notEqual(receipt.getStatus(), MesWmItemReceiptStatusEnum.PREPARE.getStatus())
+                && ObjUtil.notEqual(receipt.getStatus(), MesWmItemReceiptStatusEnum.APPROVING.getStatus())) {
             throw exception(WM_ITEM_RECEIPT_STATUS_NOT_PREPARE);
         }
         return receipt;
