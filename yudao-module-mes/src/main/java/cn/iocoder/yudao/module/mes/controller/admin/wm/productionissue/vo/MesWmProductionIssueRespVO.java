@@ -18,17 +18,17 @@ public class MesWmProductionIssueRespVO {
     @Schema(description = "领料单名称", requiredMode = Schema.RequiredMode.REQUIRED, example = "生产领料")
     private String name;
 
-    @Schema(description = "工作站 ID", requiredMode = Schema.RequiredMode.REQUIRED, example = "1")
+    @Schema(description = "生产工单 ID", requiredMode = Schema.RequiredMode.REQUIRED, example = "1")
+    private Long workOrderId;
+
+    @Schema(description = "生产工单编号", requiredMode = Schema.RequiredMode.REQUIRED, example = "WO20250226001")
+    private String workOrderCode;
+
+    @Schema(description = "工作站 ID", example = "1")
     private Long workstationId;
 
     @Schema(description = "工作站名称", example = "装配工作站")
     private String workstationName;
-
-    @Schema(description = "生产工单 ID", example = "1")
-    private Long workOrderId;
-
-    @Schema(description = "生产工单编号", example = "WO20250226001")
-    private String workOrderCode;
 
     @Schema(description = "生产任务 ID", example = "1")
     private Long taskId;
