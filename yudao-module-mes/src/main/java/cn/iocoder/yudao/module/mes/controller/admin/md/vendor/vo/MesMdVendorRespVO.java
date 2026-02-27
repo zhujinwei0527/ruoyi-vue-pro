@@ -95,18 +95,6 @@ public class MesMdVendorRespVO {
     @ExcelProperty("统一社会信用代码")
     private String creditCode;
 
-    @Schema(description = "预留字段1")
-    private String attribute1;
-
-    @Schema(description = "预留字段2")
-    private String attribute2;
-
-    @Schema(description = "预留字段3")
-    private Integer attribute3;
-
-    @Schema(description = "预留字段4")
-    private Integer attribute4;
-
     @Schema(description = "状态", requiredMode = Schema.RequiredMode.REQUIRED, example = "0")
     @ExcelProperty(value = "状态", converter = DictConvert.class)
     @DictFormat(cn.iocoder.yudao.module.system.enums.DictTypeConstants.COMMON_STATUS)

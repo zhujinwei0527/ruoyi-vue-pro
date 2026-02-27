@@ -49,16 +49,4 @@ public class MesDvMachinerySaveReqVO {
     @Schema(description = "备注", example = "备注")
     private String remark;
 
-    @Schema(description = "预留字段1")
-    private String attribute1;
-
-    @Schema(description = "预留字段2")
-    private String attribute2;
-
-    @Schema(description = "预留字段3")
-    private Integer attribute3;
-
-    @Schema(description = "预留字段4")
-    private Integer attribute4;
-
-}
+    }

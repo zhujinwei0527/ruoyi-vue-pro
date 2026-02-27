@@ -101,22 +101,6 @@ public class MesMdClientDO extends BaseDO {
      */
     private String creditCode;
     /**
-     * 预留字段1
-     */
-    private String attribute1;
-    /**
-     * 预留字段2
-     */
-    private String attribute2;
-    /**
-     * 预留字段3
-     */
-    private Integer attribute3;
-    /**
-     * 预留字段4
-     */
-    private Integer attribute4;
-    /**
      * 状态
      *
      * 枚举 {@link cn.iocoder.yudao.framework.common.enums.CommonStatusEnum}

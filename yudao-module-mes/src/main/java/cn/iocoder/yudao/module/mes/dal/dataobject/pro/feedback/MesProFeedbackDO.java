@@ -160,21 +160,5 @@ public class MesProFeedbackDO extends BaseDO {
      * 备注
      */
     private String remark;
-    /**
-     * 预留字段1
-     */
-    private String attribute1;
-    /**
-     * 预留字段2
-     */
-    private String attribute2;
-    /**
-     * 预留字段3
-     */
-    private Integer attribute3;
-    /**
-     * 预留字段4
-     */
-    private Integer attribute4;
 
 }

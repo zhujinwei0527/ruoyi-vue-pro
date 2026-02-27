@@ -87,23 +87,4 @@ public class MesQcOqcLineDO extends BaseDO {
      */
     private String remark;
 
-    // ========== 预留字段 ==========
-
-    /**
-     * 预留字段 1
-     */
-    private String attribute1;
-    /**
-     * 预留字段 2
-     */
-    private String attribute2;
-    /**
-     * 预留字段 3
-     */
-    private Integer attribute3;
-    /**
-     * 预留字段 4
-     */
-    private Integer attribute4;
-
 }
