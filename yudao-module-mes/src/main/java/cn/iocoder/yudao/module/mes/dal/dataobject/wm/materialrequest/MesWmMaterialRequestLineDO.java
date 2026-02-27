@@ -54,6 +54,8 @@ public class MesWmMaterialRequestLineDO extends BaseDO {
      * 备注
      */
     private String remark;
+
+    // TODO @AI：删除 attribute1-4 字段
     /**
      * 预留字段1
      */

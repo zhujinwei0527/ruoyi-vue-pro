@@ -366,6 +366,7 @@ public interface ErrorCodeConstants {
     ErrorCode WM_PRODUCTION_ISSUE_WORKSTATION_NOT_EXISTS = new ErrorCode(1_040_708_005, "工作站不存在");
     ErrorCode WM_PRODUCTION_ISSUE_CANCEL_NOT_ALLOWED = new ErrorCode(1_040_708_006, "生产领料出库单已完成或已取消，无法取消");
     ErrorCode WM_PRODUCTION_ISSUE_LINE_NOT_EXISTS = new ErrorCode(1_040_708_100, "生产领料出库单行不存在");
+    ErrorCode WM_PRODUCTION_ISSUE_LINE_ITEM_NOT_IN_BOM = new ErrorCode(1_040_708_101, "当前物料不在生产工单的 BOM 物料清单中");
     ErrorCode WM_PRODUCTION_ISSUE_DETAIL_NOT_EXISTS = new ErrorCode(1_040_708_200, "生产领料出库单明细不存在");
 
 }

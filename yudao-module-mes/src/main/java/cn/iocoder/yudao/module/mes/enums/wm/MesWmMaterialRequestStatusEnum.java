@@ -7,7 +7,6 @@ import lombok.Getter;
 
 import java.util.Arrays;
 
-// TODO @AI：这里需要迁移下；
 /**
  * MES 领料申请单状态枚举
  *
