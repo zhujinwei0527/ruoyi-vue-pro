@@ -66,4 +66,12 @@ public interface MesWmProductionIssueLineService {
      */
     void deleteProductionIssueLineByIssueId(Long issueId);
 
+    /**
+     * 校验领料出库单行是否存在
+     *
+     * @param id 编号
+     * @return 领料出库单行
+     */
+    MesWmProductionIssueLineDO validateProductionIssueLineExists(Long id);
+
 }

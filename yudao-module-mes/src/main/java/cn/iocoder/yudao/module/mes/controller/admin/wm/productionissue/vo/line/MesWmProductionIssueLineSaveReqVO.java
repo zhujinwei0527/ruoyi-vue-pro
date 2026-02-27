@@ -12,6 +12,9 @@ public class MesWmProductionIssueLineSaveReqVO {
     @Schema(description = "行ID", example = "1")
     private Long id;
 
+    @Schema(description = "领料单ID", requiredMode = Schema.RequiredMode.REQUIRED, example = "1")
+    private Long issueId;
+
     @Schema(description = "物料ID", requiredMode = Schema.RequiredMode.REQUIRED, example = "1")
     private Long itemId;
 

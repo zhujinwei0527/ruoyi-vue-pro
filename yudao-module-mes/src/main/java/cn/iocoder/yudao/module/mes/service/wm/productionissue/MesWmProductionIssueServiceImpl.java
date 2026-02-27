@@ -1,11 +1,16 @@
 package cn.iocoder.yudao.module.mes.service.wm.productionissue;
 
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.ObjUtil;
 import cn.iocoder.yudao.framework.common.pojo.PageResult;
+import cn.iocoder.yudao.framework.common.util.collection.CollectionUtils;
 import cn.iocoder.yudao.framework.common.util.object.BeanUtils;
+import cn.iocoder.yudao.framework.common.util.object.ObjectUtils;
 import cn.iocoder.yudao.module.mes.controller.admin.wm.productionissue.vo.MesWmProductionIssuePageReqVO;
 import cn.iocoder.yudao.module.mes.controller.admin.wm.productionissue.vo.MesWmProductionIssueSaveReqVO;
+import cn.iocoder.yudao.module.mes.dal.dataobject.wm.productionissue.MesWmProductionIssueDetailDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.wm.productionissue.MesWmProductionIssueDO;
+import cn.iocoder.yudao.module.mes.dal.dataobject.wm.productionissue.MesWmProductionIssueLineDO;
 import cn.iocoder.yudao.module.mes.dal.mysql.wm.productionissue.MesWmProductionIssueMapper;
 import cn.iocoder.yudao.module.mes.enums.wm.MesWmProductionIssueStatusEnum;
 import cn.iocoder.yudao.module.mes.service.md.workstation.MesMdWorkstationService;
@@ -14,6 +19,9 @@ import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
+
+import java.math.BigDecimal;
+import java.util.List;
 
 import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception;
 import static cn.iocoder.yudao.module.mes.enums.ErrorCodeConstants.*;
@@ -41,9 +49,9 @@ public class MesWmProductionIssueServiceImpl implements MesWmProductionIssueServ
     @Transactional(rollbackFor = Exception.class)
     public Long createProductionIssue(MesWmProductionIssueSaveReqVO createReqVO) {
         // 1. 校验关联数据
-        workstationService.validateWorkstationExists(createReqVO.getWorkstationId());
-        if (createReqVO.getWorkorderId() != null) {
-            workOrderService.validateWorkOrderExists(createReqVO.getWorkorderId());
+        workOrderService.validateWorkOrderExists(createReqVO.getWorkOrderId());
+        if (createReqVO.getWorkstationId() != null) {
+            workstationService.validateWorkstationExists(createReqVO.getWorkstationId());
         }
 
         // 2. 插入主表
@@ -57,11 +65,11 @@ public class MesWmProductionIssueServiceImpl implements MesWmProductionIssueServ
     @Transactional(rollbackFor = Exception.class)
     public void updateProductionIssue(MesWmProductionIssueSaveReqVO updateReqVO) {
         // 1.1 校验存在 + 准备中状态
-        validateIssueExistsAndPrepare(updateReqVO.getId());
+        validateProductionIssueExistsAndPrepare(updateReqVO.getId());
         // 1.2 校验关联数据
-        workstationService.validateWorkstationExists(updateReqVO.getWorkstationId());
-        if (updateReqVO.getWorkorderId() != null) {
-            workOrderService.validateWorkOrderExists(updateReqVO.getWorkorderId());
+        workOrderService.validateWorkOrderExists(updateReqVO.getWorkOrderId());
+        if (updateReqVO.getWorkstationId() != null) {
+            workstationService.validateWorkstationExists(updateReqVO.getWorkstationId());
         }
 
         // 2. 更新主表
@@ -73,7 +81,7 @@ public class MesWmProductionIssueServiceImpl implements MesWmProductionIssueServ
     @Transactional(rollbackFor = Exception.class)
     public void deleteProductionIssue(Long id) {
         // 1. 校验存在 + 准备中状态
-        validateIssueExistsAndPrepare(id);
+        validateProductionIssueExistsAndPrepare(id);
 
         // 2.1 级联删除明细
         issueDetailService.deleteProductionIssueDetailByIssueId(id);
@@ -95,21 +103,85 @@ public class MesWmProductionIssueServiceImpl implements MesWmProductionIssueServ
 
     @Override
     @Transactional(rollbackFor = Exception.class)
+    public void submitProductionIssue(Long id) {
+        // 校验存在 + 草稿状态
+        validateProductionIssueExistsAndPrepare(id);
+        // 校验至少有一条行
+        List<MesWmProductionIssueLineDO> lines = issueLineService.getProductionIssueLineListByIssueId(id);
+        if (CollUtil.isEmpty(lines)) {
+            throw exception(WM_PRODUCTION_ISSUE_NO_LINE);
+        }
+
+        // 提交（草稿 → 待拣货）
+        issueMapper.updateById(new MesWmProductionIssueDO()
+                .setId(id).setStatus(MesWmProductionIssueStatusEnum.APPROVING.getStatus()));
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void stockProductionIssue(Long id) {
+        // 校验存在
+        MesWmProductionIssueDO issue = validateProductionIssueExists(id);
+        if (ObjUtil.notEqual(MesWmProductionIssueStatusEnum.APPROVING.getStatus(), issue.getStatus())) {
+            throw exception(WM_PRODUCTION_ISSUE_STATUS_INVALID);
+        }
+        // 校验每行明细数量之和是否等于行领料数量
+        List<MesWmProductionIssueLineDO> lines = issueLineService.getProductionIssueLineListByIssueId(id);
+        for (MesWmProductionIssueLineDO line : lines) {
+            List<MesWmProductionIssueDetailDO> details = issueDetailService.getProductionIssueDetailListByLineId(line.getId());
+            BigDecimal totalDetailQty = CollectionUtils.getSumValue(details,
+                    MesWmProductionIssueDetailDO::getQuantity, BigDecimal::add, BigDecimal.ZERO);
+            if (line.getQuantity() != null && totalDetailQty.compareTo(line.getQuantity()) != 0) {
+                throw exception(WM_PRODUCTION_ISSUE_DETAIL_QUANTITY_MISMATCH);
+            }
+        }
+
+        // 执行拣货（待拣货 → 待执行领出）
+        issueMapper.updateById(new MesWmProductionIssueDO()
+                .setId(id).setStatus(MesWmProductionIssueStatusEnum.APPROVED.getStatus()));
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
     public void finishProductionIssue(Long id) {
-        // 1.1 校验存在
-        MesWmProductionIssueDO issue = validateIssueExists(id);
-        // 1.2 校验状态：只有草稿才允许完成
-        if (ObjUtil.notEqual(MesWmProductionIssueStatusEnum.PREPARE.getStatus(), issue.getStatus())) {
+        // 校验存在
+        MesWmProductionIssueDO issue = validateProductionIssueExists(id);
+        if (ObjUtil.notEqual(MesWmProductionIssueStatusEnum.APPROVED.getStatus(), issue.getStatus())) {
             throw exception(WM_PRODUCTION_ISSUE_STATUS_INVALID);
         }
 
-        // 2. 草稿 → 已完成
-        // TODO @芋艿：库存扣减逻辑待完善（需要确定仓库ID的来源，可能需要在 line 或 detail 表中添加 warehouseId 字段）
+        // 遍历所有明细，更新库存台账（扣减库存）
+        // TODO @芋艿：【后续在弄】这里可能有点问题；缺少库存更新；后面在弄；
+        List<MesWmProductionIssueDetailDO> details = issueDetailService.getProductionIssueDetailListByIssueId(id);
+        for (MesWmProductionIssueDetailDO detail : details) {
+            // materialStockService.decreaseStock(
+            //         detail.getItemId(), detail.getWarehouseId(), detail.getLocationId(), detail.getAreaId(),
+            //         detail.getBatchId(), detail.getQuantity(), issue.getWorkOrderId(), null, null);
+        }
+
+        // 更新出库单状态
         issueMapper.updateById(new MesWmProductionIssueDO()
                 .setId(id).setStatus(MesWmProductionIssueStatusEnum.FINISHED.getStatus()));
     }
 
-    private MesWmProductionIssueDO validateIssueExists(Long id) {
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void cancelProductionIssue(Long id) {
+        // 校验存在
+        MesWmProductionIssueDO issue = validateProductionIssueExists(id);
+        // 已完成和已取消不允许取消
+        if (ObjectUtils.equalsAny(issue.getStatus(),
+                MesWmProductionIssueStatusEnum.FINISHED.getStatus(),
+                MesWmProductionIssueStatusEnum.CANCELED.getStatus())) {
+            throw exception(WM_PRODUCTION_ISSUE_CANCEL_NOT_ALLOWED);
+        }
+        // 取消
+        issueMapper.updateById(new MesWmProductionIssueDO()
+                .setId(id).setStatus(MesWmProductionIssueStatusEnum.CANCELED.getStatus()));
+    }
+
+    @Override
+    public MesWmProductionIssueDO validateProductionIssueExists(Long id) {
         MesWmProductionIssueDO issue = issueMapper.selectById(id);
         if (issue == null) {
             throw exception(WM_PRODUCTION_ISSUE_NOT_EXISTS);
@@ -120,8 +192,8 @@ public class MesWmProductionIssueServiceImpl implements MesWmProductionIssueServ
     /**
      * 校验领料出库单存在且为准备中状态
      */
-    private MesWmProductionIssueDO validateIssueExistsAndPrepare(Long id) {
-        MesWmProductionIssueDO issue = validateIssueExists(id);
+    private MesWmProductionIssueDO validateProductionIssueExistsAndPrepare(Long id) {
+        MesWmProductionIssueDO issue = validateProductionIssueExists(id);
         if (ObjUtil.notEqual(MesWmProductionIssueStatusEnum.PREPARE.getStatus(), issue.getStatus())) {
             throw exception(WM_PRODUCTION_ISSUE_STATUS_INVALID);
         }

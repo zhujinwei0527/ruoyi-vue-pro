@@ -25,10 +25,10 @@ public class MesWmProductionIssueRespVO {
     private String workstationName;
 
     @Schema(description = "生产工单 ID", example = "1")
-    private Long workorderId;
+    private Long workOrderId;
 
     @Schema(description = "生产工单编号", example = "WO20250226001")
-    private String workorderCode;
+    private String workOrderCode;
 
     @Schema(description = "生产任务 ID", example = "1")
     private Long taskId;

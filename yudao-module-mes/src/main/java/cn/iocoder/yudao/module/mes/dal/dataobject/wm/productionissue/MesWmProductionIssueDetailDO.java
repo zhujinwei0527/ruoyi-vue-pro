@@ -16,8 +16,8 @@ import java.math.BigDecimal;
 /**
  * MES 领料出库明细 DO
  */
-@TableName("mes_wm_issue_detail")
-@KeySequence("mes_wm_issue_detail_seq")
+@TableName("mes_wm_production_issue_detail")
+@KeySequence("mes_wm_production_issue_detail_seq")
 @Data
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
@@ -85,21 +85,5 @@ public class MesWmProductionIssueDetailDO extends BaseDO {
      * 备注
      */
     private String remark;
-    /**
-     * 预留字段1
-     */
-    private String attribute1;
-    /**
-     * 预留字段2
-     */
-    private String attribute2;
-    /**
-     * 预留字段3
-     */
-    private Integer attribute3;
-    /**
-     * 预留字段4
-     */
-    private Integer attribute4;
 
 }

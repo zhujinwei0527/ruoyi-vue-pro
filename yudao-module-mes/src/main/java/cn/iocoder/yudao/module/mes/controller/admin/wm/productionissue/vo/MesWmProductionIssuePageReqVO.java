@@ -25,7 +25,7 @@ public class MesWmProductionIssuePageReqVO extends PageParam {
     private Long workstationId;
 
     @Schema(description = "生产工单ID", example = "1")
-    private Long workorderId;
+    private Long workOrderId;
 
     @Schema(description = "生产任务ID", example = "1")
     private Long taskId;

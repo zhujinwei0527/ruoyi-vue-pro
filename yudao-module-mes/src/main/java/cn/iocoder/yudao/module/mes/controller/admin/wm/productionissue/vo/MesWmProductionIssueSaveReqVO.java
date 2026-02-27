@@ -23,11 +23,12 @@ public class MesWmProductionIssueSaveReqVO {
     private String name;
 
     @Schema(description = "工作站 ID", requiredMode = Schema.RequiredMode.REQUIRED, example = "1")
-    @NotNull(message = "工作站ID不能为空")
+    @NotNull(message = "工作站 ID 不能为空")
     private Long workstationId;
 
-    @Schema(description = "生产工单 ID", example = "1")
-    private Long workorderId;
+    @Schema(description = "生产工单 ID", requiredMode = Schema.RequiredMode.REQUIRED, example = "1")
+    @NotNull(message = "生产工单 ID 不能为空")
+    private Long workOrderId;
 
     @Schema(description = "需求时间", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotNull(message = "需求时间不能为空")

@@ -109,13 +109,40 @@ public class MesWmProductionIssueController {
     @PutMapping("/finish")
     @Operation(summary = "完成领料出库单")
     @Parameter(name = "id", description = "编号", required = true)
-    @PreAuthorize("@ss.hasPermission('mes:wm-production-issue:update-status')")
+    @PreAuthorize("@ss.hasPermission('mes:wm-production-issue:execute')")
     public CommonResult<Boolean> finishProductionIssue(@RequestParam("id") Long id) {
         issueService.finishProductionIssue(id);
         return success(true);
     }
 
-    // TODO @AI：check quantity
+    @PutMapping("/submit")
+    @Operation(summary = "提交领料出库单")
+    @Parameter(name = "id", description = "编号", required = true)
+    @PreAuthorize("@ss.hasPermission('mes:wm-production-issue:update')")
+    public CommonResult<Boolean> submitProductionIssue(@RequestParam("id") Long id) {
+        issueService.submitProductionIssue(id);
+        return success(true);
+    }
+
+    @PutMapping("/stock")
+    @Operation(summary = "执行拣货")
+    @Parameter(name = "id", description = "编号", required = true)
+    @PreAuthorize("@ss.hasPermission('mes:wm-production-issue:update')")
+    public CommonResult<Boolean> stockProductionIssue(@RequestParam("id") Long id) {
+        issueService.stockProductionIssue(id);
+        return success(true);
+    }
+
+    @PutMapping("/cancel")
+    @Operation(summary = "取消领料出库单")
+    @Parameter(name = "id", description = "编号", required = true)
+    @PreAuthorize("@ss.hasPermission('mes:wm-production-issue:update')")
+    public CommonResult<Boolean> cancelProductionIssue(@RequestParam("id") Long id) {
+        issueService.cancelProductionIssue(id);
+        return success(true);
+    }
+
+    // TODO @AI：【芋艿】check quantity；晚点搞；
 
     // ==================== 拼接 VO ====================
 
@@ -127,15 +154,15 @@ public class MesWmProductionIssueController {
         Map<Long, MesMdWorkstationDO> workstationMap = workstationService.getWorkstationMap(
                 convertSet(list, MesWmProductionIssueDO::getWorkstationId));
         Map<Long, MesProWorkOrderDO> workOrderMap = workOrderService.getWorkOrderMap(
-                convertSet(list, MesWmProductionIssueDO::getWorkorderId));
+                convertSet(list, MesWmProductionIssueDO::getWorkOrderId));
         // 2. 构建结果
         return BeanUtils.toBean(list, MesWmProductionIssueRespVO.class, vo -> {
             // 2.1 填充工作站名称
             MapUtils.findAndThen(workstationMap, vo.getWorkstationId(),
                     workstation -> vo.setWorkstationName(workstation.getName()));
             // 2.2 填充工单编号
-            MapUtils.findAndThen(workOrderMap, vo.getWorkorderId(),
-                    workOrder -> vo.setWorkorderCode(workOrder.getCode()));
+            MapUtils.findAndThen(workOrderMap, vo.getWorkOrderId(),
+                    workOrder -> vo.setWorkOrderCode(workOrder.getCode()));
         });
     }
 

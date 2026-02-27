@@ -6,8 +6,9 @@ import cn.iocoder.yudao.module.mes.controller.admin.wm.productionissue.vo.line.M
 import cn.iocoder.yudao.module.mes.controller.admin.wm.productionissue.vo.line.MesWmProductionIssueLineSaveReqVO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.wm.productionissue.MesWmProductionIssueLineDO;
 import cn.iocoder.yudao.module.mes.dal.mysql.wm.productionissue.MesWmProductionIssueLineMapper;
-import cn.iocoder.yudao.module.mes.dal.mysql.wm.productionissue.MesWmProductionIssueMapper;
+import cn.iocoder.yudao.module.mes.service.md.item.MesMdItemService;
 import jakarta.annotation.Resource;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 
@@ -15,7 +16,6 @@ import java.util.List;
 
 import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception;
 import static cn.iocoder.yudao.module.mes.enums.ErrorCodeConstants.WM_PRODUCTION_ISSUE_LINE_NOT_EXISTS;
-import static cn.iocoder.yudao.module.mes.enums.ErrorCodeConstants.WM_PRODUCTION_ISSUE_NOT_EXISTS;
 
 /**
  * MES 领料出库单行 Service 实现类
@@ -26,13 +26,19 @@ public class MesWmProductionIssueLineServiceImpl implements MesWmProductionIssue
 
     @Resource
     private MesWmProductionIssueLineMapper issueLineMapper;
+
     @Resource
-    private MesWmProductionIssueMapper issueMapper;
+    @Lazy
+    private MesWmProductionIssueService issueService;
+    @Resource
+    private MesMdItemService itemService;
 
     @Override
     public Long createProductionIssueLine(MesWmProductionIssueLineSaveReqVO createReqVO) {
         // 校验父数据存在
-        validateParentIssueExists(createReqVO.getIssueId());
+        issueService.validateProductionIssueExists(createReqVO.getIssueId());
+        // 校验物料存在
+        itemService.validateItemExists(createReqVO.getItemId());
 
         // 插入
         MesWmProductionIssueLineDO line = BeanUtils.toBean(createReqVO, MesWmProductionIssueLineDO.class);
@@ -43,9 +49,11 @@ public class MesWmProductionIssueLineServiceImpl implements MesWmProductionIssue
     @Override
     public void updateProductionIssueLine(MesWmProductionIssueLineSaveReqVO updateReqVO) {
         // 校验存在
-        validateIssueLineExists(updateReqVO.getId());
+        validateProductionIssueLineExists(updateReqVO.getId());
         // 校验父数据存在
-        validateParentIssueExists(updateReqVO.getIssueId());
+        issueService.validateProductionIssueExists(updateReqVO.getIssueId());
+        // 校验物料存在
+        itemService.validateItemExists(updateReqVO.getItemId());
 
         // 更新
         MesWmProductionIssueLineDO updateObj = BeanUtils.toBean(updateReqVO, MesWmProductionIssueLineDO.class);
@@ -55,7 +63,7 @@ public class MesWmProductionIssueLineServiceImpl implements MesWmProductionIssue
     @Override
     public void deleteProductionIssueLine(Long id) {
         // 校验存在
-        validateIssueLineExists(id);
+        validateProductionIssueLineExists(id);
         // 删除
         issueLineMapper.deleteById(id);
     }
@@ -80,16 +88,13 @@ public class MesWmProductionIssueLineServiceImpl implements MesWmProductionIssue
         issueLineMapper.deleteByIssueId(issueId);
     }
 
-    private void validateIssueLineExists(Long id) {
-        if (issueLineMapper.selectById(id) == null) {
+    @Override
+    public MesWmProductionIssueLineDO validateProductionIssueLineExists(Long id) {
+        MesWmProductionIssueLineDO line = issueLineMapper.selectById(id);
+        if (line == null) {
             throw exception(WM_PRODUCTION_ISSUE_LINE_NOT_EXISTS);
         }
-    }
-
-    private void validateParentIssueExists(Long issueId) {
-        if (issueMapper.selectById(issueId) == null) {
-            throw exception(WM_PRODUCTION_ISSUE_NOT_EXISTS);
-        }
+        return line;
     }
 
 }

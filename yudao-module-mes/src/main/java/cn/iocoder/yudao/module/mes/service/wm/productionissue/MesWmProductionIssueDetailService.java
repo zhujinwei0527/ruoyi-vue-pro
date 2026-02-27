@@ -50,6 +50,14 @@ public interface MesWmProductionIssueDetailService {
     List<MesWmProductionIssueDetailDO> getProductionIssueDetailListByLineId(Long lineId);
 
     /**
+     * 根据领料单ID获取明细列表
+     *
+     * @param issueId 领料单ID
+     * @return 明细列表
+     */
+    List<MesWmProductionIssueDetailDO> getProductionIssueDetailListByIssueId(Long issueId);
+
+    /**
      * 根据领料单ID删除明细
      *
      * @param issueId 领料单ID

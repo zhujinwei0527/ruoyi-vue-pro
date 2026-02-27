@@ -1,7 +1,6 @@
 package cn.iocoder.yudao.module.mes.dal.dataobject.wm.productionissue;
 
 import cn.iocoder.yudao.framework.mybatis.core.dataobject.BaseDO;
-import cn.iocoder.yudao.module.mes.dal.dataobject.md.client.MesMdClientDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.md.workstation.MesMdWorkstationDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.pro.task.MesProTaskDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.pro.workorder.MesProWorkOrderDO;
@@ -13,12 +12,11 @@ import lombok.*;
 
 import java.time.LocalDateTime;
 
-// TODO @AI：【需要一起讨论】不要直接改；是不是叫 issueheader 包？主要后续别的表也有 issue，希望区分下；还是加个合理的前缀？就像 wm_outsource_issue 这种；
 /**
  * MES 领料出库单 DO
  */
-@TableName("mes_wm_issue_header")
-@KeySequence("mes_wm_issue_header_seq")
+@TableName("mes_wm_production_issue")
+@KeySequence("mes_wm_production_issue_seq")
 @Data
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
@@ -46,28 +44,20 @@ public class MesWmProductionIssueDO extends BaseDO {
      * 关联 {@link MesMdWorkstationDO#getId()}
      */
     private Long workstationId;
-    // TODO @AI：workOrderId；
     /**
      * 生产工单 ID
      *
      * 关联 {@link MesProWorkOrderDO#getId()}
      */
-    private Long workorderId;
-    // TODO @芋艿：【疑问】这个字段的来源？
+    private Long workOrderId;
+    // TODO @芋艿：【疑问，不要动】这个字段的来源？
     /**
      * 生产任务 ID
      *
      * 关联 {@link MesProTaskDO#getId()}
      */
     private Long taskId;
-    // TODO @AI：应该不用记录？因为 workorderId 字段的；
-    /**
-     * 客户 ID
-     *
-     * 关联 {@link MesMdClientDO#getId()}
-     */
-    private Long clientId;
-    // TODO @芋艿：【疑问】这个字段的更新时间；
+    // TODO @芋艿：【疑问，不要动】这个字段的更新时间；
     /**
      * 领料日期
      */
@@ -86,21 +76,5 @@ public class MesWmProductionIssueDO extends BaseDO {
      * 备注
      */
     private String remark;
-    /**
-     * 预留字段 1
-     */
-    private String attribute1;
-    /**
-     * 预留字段 2
-     */
-    private String attribute2;
-    /**
-     * 预留字段 3
-     */
-    private Integer attribute3;
-    /**
-     * 预留字段 4
-     */
-    private Integer attribute4;
 
 }

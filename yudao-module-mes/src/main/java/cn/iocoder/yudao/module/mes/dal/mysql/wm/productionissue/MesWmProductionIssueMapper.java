@@ -18,9 +18,7 @@ public interface MesWmProductionIssueMapper extends BaseMapperX<MesWmProductionI
                 .likeIfPresent(MesWmProductionIssueDO::getCode, reqVO.getCode())
                 .likeIfPresent(MesWmProductionIssueDO::getName, reqVO.getName())
                 .eqIfPresent(MesWmProductionIssueDO::getWorkstationId, reqVO.getWorkstationId())
-                .eqIfPresent(MesWmProductionIssueDO::getWorkorderId, reqVO.getWorkorderId())
-                .eqIfPresent(MesWmProductionIssueDO::getTaskId, reqVO.getTaskId())
-                .eqIfPresent(MesWmProductionIssueDO::getClientId, reqVO.getClientId())
+                .eqIfPresent(MesWmProductionIssueDO::getWorkOrderId, reqVO.getWorkOrderId())
                 .eqIfPresent(MesWmProductionIssueDO::getStatus, reqVO.getStatus())
                 .betweenIfPresent(MesWmProductionIssueDO::getIssueDate, reqVO.getIssueDate())
                 .orderByDesc(MesWmProductionIssueDO::getId));
