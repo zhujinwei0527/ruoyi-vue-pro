@@ -142,7 +142,13 @@ public class MesWmProductionIssueController {
         return success(true);
     }
 
-    // TODO @AI：【芋艿】check quantity；晚点搞；
+    @GetMapping("/check-quantity")
+    @Operation(summary = "校验领料出库单数量", description = "校验每行明细数量之和是否等于行领料数量")
+    @Parameter(name = "id", description = "编号", required = true)
+    @PreAuthorize("@ss.hasPermission('mes:wm-production-issue:query')")
+    public CommonResult<Boolean> checkProductionIssueQuantity(@RequestParam("id") Long id) {
+        return success(issueService.checkProductionIssueQuantity(id));
+    }
 
     // ==================== 拼接 VO ====================
 

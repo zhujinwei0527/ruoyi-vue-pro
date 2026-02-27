@@ -85,4 +85,12 @@ public interface MesWmProductionIssueService {
      */
     void cancelProductionIssue(Long id);
 
+    /**
+     * 校验领料出库单的数量：每行明细数量之和是否等于行领料数量
+     *
+     * @param id 编号
+     * @return 是否全部一致
+     */
+    Boolean checkProductionIssueQuantity(Long id);
+
 }

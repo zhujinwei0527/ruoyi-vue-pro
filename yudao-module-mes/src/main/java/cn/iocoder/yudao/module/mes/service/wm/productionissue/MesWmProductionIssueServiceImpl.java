@@ -125,17 +125,6 @@ public class MesWmProductionIssueServiceImpl implements MesWmProductionIssueServ
         if (ObjUtil.notEqual(MesWmProductionIssueStatusEnum.APPROVING.getStatus(), issue.getStatus())) {
             throw exception(WM_PRODUCTION_ISSUE_STATUS_INVALID);
         }
-        // 校验每行明细数量之和是否等于行领料数量
-        List<MesWmProductionIssueLineDO> lines = issueLineService.getProductionIssueLineListByIssueId(id);
-        for (MesWmProductionIssueLineDO line : lines) {
-            List<MesWmProductionIssueDetailDO> details = issueDetailService.getProductionIssueDetailListByLineId(line.getId());
-            BigDecimal totalDetailQty = CollectionUtils.getSumValue(details,
-                    MesWmProductionIssueDetailDO::getQuantity, BigDecimal::add, BigDecimal.ZERO);
-            if (line.getQuantity() != null && totalDetailQty.compareTo(line.getQuantity()) != 0) {
-                throw exception(WM_PRODUCTION_ISSUE_DETAIL_QUANTITY_MISMATCH);
-            }
-        }
-
         // 执行拣货（待拣货 → 待执行领出）
         issueMapper.updateById(new MesWmProductionIssueDO()
                 .setId(id).setStatus(MesWmProductionIssueStatusEnum.APPROVED.getStatus()));
@@ -175,9 +164,24 @@ public class MesWmProductionIssueServiceImpl implements MesWmProductionIssueServ
                 MesWmProductionIssueStatusEnum.CANCELED.getStatus())) {
             throw exception(WM_PRODUCTION_ISSUE_CANCEL_NOT_ALLOWED);
         }
+
         // 取消
         issueMapper.updateById(new MesWmProductionIssueDO()
                 .setId(id).setStatus(MesWmProductionIssueStatusEnum.CANCELED.getStatus()));
+    }
+
+    @Override
+    public Boolean checkProductionIssueQuantity(Long id) {
+        List<MesWmProductionIssueLineDO> lines = issueLineService.getProductionIssueLineListByIssueId(id);
+        for (MesWmProductionIssueLineDO line : lines) {
+            List<MesWmProductionIssueDetailDO> details = issueDetailService.getProductionIssueDetailListByLineId(line.getId());
+            BigDecimal totalDetailQty = CollectionUtils.getSumValue(details,
+                    MesWmProductionIssueDetailDO::getQuantity, BigDecimal::add, BigDecimal.ZERO);
+            if (line.getQuantity() != null && totalDetailQty.compareTo(line.getQuantity()) != 0) {
+                return false;
+            }
+        }
+        return true;
     }
 
     @Override
