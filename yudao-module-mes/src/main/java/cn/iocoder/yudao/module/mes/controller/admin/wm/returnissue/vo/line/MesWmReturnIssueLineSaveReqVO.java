@@ -30,7 +30,8 @@ public class MesWmReturnIssueLineSaveReqVO {
     @Schema(description = "批次 ID", example = "1")
     private Long batchId;
 
-    @Schema(description = "是否需要质检", example = "false")
+    @Schema(description = "是否需要质检", requiredMode = Schema.RequiredMode.REQUIRED, example = "false")
+    @NotNull(message = "是否需要质检不能为空")
     private Boolean qcFlag;
 
     @Schema(description = "备注", example = "备注")
