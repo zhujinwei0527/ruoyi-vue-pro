@@ -369,4 +369,13 @@ public interface ErrorCodeConstants {
     ErrorCode WM_PRODUCTION_ISSUE_LINE_ITEM_NOT_IN_BOM = new ErrorCode(1_040_708_101, "当前物料不在生产工单的 BOM 物料清单中");
     ErrorCode WM_PRODUCTION_ISSUE_DETAIL_NOT_EXISTS = new ErrorCode(1_040_708_200, "生产领料出库单明细不存在");
 
+    // ========== MES 仓库管理-生产入库单（1-040-709-000） ==========
+    ErrorCode WM_PRODUCT_PRODUCE_NOT_EXISTS = new ErrorCode(1_040_709_000, "生产入库单不存在");
+    ErrorCode WM_PRODUCT_PRODUCE_STATUS_INVALID = new ErrorCode(1_040_709_001, "生产入库单状态不正确，无法执行该操作");
+    ErrorCode WM_PRODUCT_PRODUCE_NO_LINE = new ErrorCode(1_040_709_002, "生产入库单至少需要一条行数据");
+    ErrorCode WM_PRODUCT_PRODUCE_DETAIL_QUANTITY_MISMATCH = new ErrorCode(1_040_709_003, "生产入库单行数量与明细数量不一致");
+    ErrorCode WM_PRODUCT_PRODUCE_CANCEL_NOT_ALLOWED = new ErrorCode(1_040_709_004, "生产入库单已完成或已取消，无法取消");
+    ErrorCode WM_PRODUCT_PRODUCE_LINE_NOT_EXISTS = new ErrorCode(1_040_709_100, "生产入库单行不存在");
+    ErrorCode WM_PRODUCT_PRODUCE_DETAIL_NOT_EXISTS = new ErrorCode(1_040_709_200, "生产入库单明细不存在");
+
 }

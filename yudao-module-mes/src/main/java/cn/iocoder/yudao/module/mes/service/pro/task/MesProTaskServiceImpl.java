@@ -10,6 +10,7 @@ import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 
+import java.util.Collection;
 import java.util.List;
 
 import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception;
@@ -70,6 +71,11 @@ public class MesProTaskServiceImpl implements MesProTaskService {
         if (taskMapper.selectById(id) == null) {
             throw exception(PRO_TASK_NOT_EXISTS);
         }
+    }
+
+    @Override
+    public List<MesProTaskDO> getTaskList(Collection<Long> ids) {
+        return taskMapper.selectBatchIds(ids);
     }
 
 }

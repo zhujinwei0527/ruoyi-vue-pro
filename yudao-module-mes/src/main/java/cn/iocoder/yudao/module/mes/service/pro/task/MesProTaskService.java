@@ -6,7 +6,11 @@ import cn.iocoder.yudao.module.mes.controller.admin.pro.task.vo.MesProTaskSaveRe
 import cn.iocoder.yudao.module.mes.dal.dataobject.pro.task.MesProTaskDO;
 import jakarta.validation.Valid;
 
+import java.util.Collection;
 import java.util.List;
+import java.util.Map;
+
+import static cn.iocoder.yudao.framework.common.util.collection.CollectionUtils.convertMap;
 
 /**
  * MES 生产任务 Service 接口
@@ -67,5 +71,23 @@ public interface MesProTaskService {
      * @param id 编号
      */
     void validateTaskExists(Long id);
+
+    /**
+     * 获得生产任务列表
+     *
+     * @param ids 编号列表
+     * @return 生产任务列表
+     */
+    List<MesProTaskDO> getTaskList(Collection<Long> ids);
+
+    /**
+     * 获得生产任务 Map
+     *
+     * @param ids 编号列表
+     * @return 生产任务 Map
+     */
+    default Map<Long, MesProTaskDO> getTaskMap(Collection<Long> ids) {
+        return convertMap(getTaskList(ids), MesProTaskDO::getId);
+    }
 
 }
