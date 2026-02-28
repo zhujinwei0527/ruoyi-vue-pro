@@ -16,12 +16,12 @@ public interface MesWmReturnVendorDetailMapper extends BaseMapperX<MesWmReturnVe
         return selectList(MesWmReturnVendorDetailDO::getLineId, lineId);
     }
 
-    default List<MesWmReturnVendorDetailDO> selectListByReturnVendorId(Long returnVendorId) {
-        return selectList(MesWmReturnVendorDetailDO::getReturnVendorId, returnVendorId);
+    default List<MesWmReturnVendorDetailDO> selectListByReturnId(Long returnId) {
+        return selectList(MesWmReturnVendorDetailDO::getReturnId, returnId);
     }
 
-    default void deleteByReturnVendorId(Long returnVendorId) {
-        delete(MesWmReturnVendorDetailDO::getReturnVendorId, returnVendorId);
+    default void deleteByReturnId(Long returnId) {
+        delete(MesWmReturnVendorDetailDO::getReturnId, returnId);
     }
 
 }

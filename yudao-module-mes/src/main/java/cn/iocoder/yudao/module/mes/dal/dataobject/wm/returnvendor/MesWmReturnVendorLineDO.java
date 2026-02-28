@@ -27,13 +27,12 @@ public class MesWmReturnVendorLineDO extends BaseDO {
      */
     @TableId
     private Long id;
-    // TODO @AI：使用 returnId，是不是更简洁一点；
     /**
      * 退货单 ID
      *
      * 关联 {@link MesWmReturnVendorDO#getId()}
      */
-    private Long returnVendorId;
+    private Long returnId;
     /**
      * 物料 ID
      *

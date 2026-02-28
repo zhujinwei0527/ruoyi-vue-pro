@@ -17,16 +17,16 @@ public interface MesWmReturnVendorLineMapper extends BaseMapperX<MesWmReturnVend
 
     default PageResult<MesWmReturnVendorLineDO> selectPage(MesWmReturnVendorLinePageReqVO reqVO) {
         return selectPage(reqVO, new LambdaQueryWrapperX<MesWmReturnVendorLineDO>()
-                .eqIfPresent(MesWmReturnVendorLineDO::getReturnVendorId, reqVO.getReturnVendorId())
+                .eqIfPresent(MesWmReturnVendorLineDO::getReturnId, reqVO.getReturnId())
                 .orderByDesc(MesWmReturnVendorLineDO::getId));
     }
 
-    default List<MesWmReturnVendorLineDO> selectListByReturnVendorId(Long returnVendorId) {
-        return selectList(MesWmReturnVendorLineDO::getReturnVendorId, returnVendorId);
+    default List<MesWmReturnVendorLineDO> selectListByReturnId(Long returnId) {
+        return selectList(MesWmReturnVendorLineDO::getReturnId, returnId);
     }
 
-    default void deleteByReturnVendorId(Long returnVendorId) {
-        delete(MesWmReturnVendorLineDO::getReturnVendorId, returnVendorId);
+    default void deleteByReturnId(Long returnId) {
+        delete(MesWmReturnVendorLineDO::getReturnId, returnId);
     }
 
 }

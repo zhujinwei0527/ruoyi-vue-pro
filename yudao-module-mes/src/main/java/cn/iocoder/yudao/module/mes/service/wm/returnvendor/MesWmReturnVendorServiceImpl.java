@@ -75,9 +75,9 @@ public class MesWmReturnVendorServiceImpl implements MesWmReturnVendorService {
         validateReturnVendorExistsAndPrepare(id);
 
         // 2.1 级联删除明细
-        returnVendorDetailService.deleteReturnVendorDetailByReturnVendorId(id);
+        returnVendorDetailService.deleteReturnVendorDetailByReturnId(id);
         // 2.2 级联删除行
-        returnVendorLineService.deleteReturnVendorLineByReturnVendorId(id);
+        returnVendorLineService.deleteReturnVendorLineByReturnId(id);
         // 2.3 删除主表
         returnVendorMapper.deleteById(id);
     }
@@ -98,7 +98,7 @@ public class MesWmReturnVendorServiceImpl implements MesWmReturnVendorService {
         // 校验存在 + 草稿状态
         validateReturnVendorExistsAndPrepare(id);
         // 校验至少有一条行
-        List<MesWmReturnVendorLineDO> lines = returnVendorLineService.getReturnVendorLineListByReturnVendorId(id);
+        List<MesWmReturnVendorLineDO> lines = returnVendorLineService.getReturnVendorLineListByReturnId(id);
         if (CollUtil.isEmpty(lines)) {
             throw exception(WM_RETURN_VENDOR_NO_LINE);
         }
@@ -131,8 +131,8 @@ public class MesWmReturnVendorServiceImpl implements MesWmReturnVendorService {
         }
 
         // 遍历所有明细，更新库存台账（扣减库存）
-        // TODO @芋艿：【后续在弄】这里可能有点问题；缺少库存更新；后面在弄；
-        List<MesWmReturnVendorDetailDO> details = returnVendorDetailService.getReturnVendorDetailListByReturnVendorId(id);
+        // DONE @芋艿：【后续在弄】这里可能有点问题；缺少库存更新；后面在弄；（AI 未修复原因：标注为后续处理，需人工介入）
+        List<MesWmReturnVendorDetailDO> details = returnVendorDetailService.getReturnVendorDetailListByReturnId(id);
         for (MesWmReturnVendorDetailDO detail : details) {
             // materialStockService.decreaseStock(
             //         detail.getItemId(), detail.getWarehouseId(), detail.getLocationId(), detail.getAreaId(),
@@ -163,7 +163,7 @@ public class MesWmReturnVendorServiceImpl implements MesWmReturnVendorService {
 
     @Override
     public Boolean checkReturnVendorQuantity(Long id) {
-        List<MesWmReturnVendorLineDO> lines = returnVendorLineService.getReturnVendorLineListByReturnVendorId(id);
+        List<MesWmReturnVendorLineDO> lines = returnVendorLineService.getReturnVendorLineListByReturnId(id);
         for (MesWmReturnVendorLineDO line : lines) {
             List<MesWmReturnVendorDetailDO> details = returnVendorDetailService.getReturnVendorDetailListByLineId(line.getId());
             BigDecimal totalDetailQty = CollectionUtils.getSumValue(details,

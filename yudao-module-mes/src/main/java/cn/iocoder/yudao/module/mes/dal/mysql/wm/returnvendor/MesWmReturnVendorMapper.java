@@ -17,9 +17,8 @@ public interface MesWmReturnVendorMapper extends BaseMapperX<MesWmReturnVendorDO
         return selectPage(reqVO, new LambdaQueryWrapperX<MesWmReturnVendorDO>()
                 .likeIfPresent(MesWmReturnVendorDO::getCode, reqVO.getCode())
                 .likeIfPresent(MesWmReturnVendorDO::getName, reqVO.getName())
+                .likeIfPresent(MesWmReturnVendorDO::getPurchaseOrderCode, reqVO.getPurchaseOrderCode())
                 .eqIfPresent(MesWmReturnVendorDO::getVendorId, reqVO.getVendorId())
-                .eqIfPresent(MesWmReturnVendorDO::getStatus, reqVO.getStatus())
-                .betweenIfPresent(MesWmReturnVendorDO::getReturnDate, reqVO.getReturnDate())
                 .orderByDesc(MesWmReturnVendorDO::getId));
     }
 

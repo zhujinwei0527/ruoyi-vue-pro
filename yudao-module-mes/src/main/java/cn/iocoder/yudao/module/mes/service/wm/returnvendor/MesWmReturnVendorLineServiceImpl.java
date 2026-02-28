@@ -36,7 +36,7 @@ public class MesWmReturnVendorLineServiceImpl implements MesWmReturnVendorLineSe
     @Override
     public Long createReturnVendorLine(MesWmReturnVendorLineSaveReqVO createReqVO) {
         // 校验父数据存在
-        returnVendorService.validateReturnVendorExists(createReqVO.getReturnVendorId());
+        returnVendorService.validateReturnVendorExists(createReqVO.getReturnId());
         // 校验物料存在
         itemService.validateItemExists(createReqVO.getItemId());
 
@@ -51,7 +51,7 @@ public class MesWmReturnVendorLineServiceImpl implements MesWmReturnVendorLineSe
         // 校验存在
         validateReturnVendorLineExists(updateReqVO.getId());
         // 校验父数据存在
-        returnVendorService.validateReturnVendorExists(updateReqVO.getReturnVendorId());
+        returnVendorService.validateReturnVendorExists(updateReqVO.getReturnId());
         // 校验物料存在
         itemService.validateItemExists(updateReqVO.getItemId());
 
@@ -79,13 +79,13 @@ public class MesWmReturnVendorLineServiceImpl implements MesWmReturnVendorLineSe
     }
 
     @Override
-    public List<MesWmReturnVendorLineDO> getReturnVendorLineListByReturnVendorId(Long returnVendorId) {
-        return returnVendorLineMapper.selectListByReturnVendorId(returnVendorId);
+    public List<MesWmReturnVendorLineDO> getReturnVendorLineListByReturnId(Long returnId) {
+        return returnVendorLineMapper.selectListByReturnId(returnId);
     }
 
     @Override
-    public void deleteReturnVendorLineByReturnVendorId(Long returnVendorId) {
-        returnVendorLineMapper.deleteByReturnVendorId(returnVendorId);
+    public void deleteReturnVendorLineByReturnId(Long returnId) {
+        returnVendorLineMapper.deleteByReturnId(returnId);
     }
 
     @Override

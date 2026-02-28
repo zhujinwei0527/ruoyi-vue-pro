@@ -24,14 +24,14 @@ public class MesWmReturnVendorRespVO {
     @Schema(description = "供应商 ID", requiredMode = Schema.RequiredMode.REQUIRED, example = "1")
     private Long vendorId;
 
+    @Schema(description = "供应商编码", example = "V001")
+    private String vendorCode;
+
     @Schema(description = "供应商名称", example = "XX供应商")
     private String vendorName;
 
     @Schema(description = "供应商简称", example = "XX")
     private String vendorNickname;
-
-    @Schema(description = "批次号", example = "BATCH001")
-    private String batchCode;
 
     @Schema(description = "退货日期")
     private LocalDateTime returnDate;

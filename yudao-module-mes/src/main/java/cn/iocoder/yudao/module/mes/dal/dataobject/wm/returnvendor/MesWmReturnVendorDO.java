@@ -36,21 +36,16 @@ public class MesWmReturnVendorDO extends BaseDO {
      * 退货单名称
      */
     private String name;
-    // TODO @AI：还是类似 purchase_order_code 全称
     /**
      * 采购订单编号
      */
-    private String poCode;
+    private String purchaseOrderCode;
     /**
      * 供应商 ID
      *
      * 关联 {@link MesMdVendorDO#getId()}
      */
     private Long vendorId;
-    /**
-     * 批次号
-     */
-    private String batchCode;
     /**
      * 退货日期
      */

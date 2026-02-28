@@ -52,16 +52,16 @@ public interface MesWmReturnVendorDetailService {
     /**
      * 根据退货单ID获取明细列表
      *
-     * @param returnVendorId 退货单ID
+     * @param returnId 退货单ID
      * @return 明细列表
      */
-    List<MesWmReturnVendorDetailDO> getReturnVendorDetailListByReturnVendorId(Long returnVendorId);
+    List<MesWmReturnVendorDetailDO> getReturnVendorDetailListByReturnId(Long returnId);
 
     /**
      * 根据退货单ID删除明细
      *
-     * @param returnVendorId 退货单ID
+     * @param returnId 退货单ID
      */
-    void deleteReturnVendorDetailByReturnVendorId(Long returnVendorId);
+    void deleteReturnVendorDetailByReturnId(Long returnId);
 
 }

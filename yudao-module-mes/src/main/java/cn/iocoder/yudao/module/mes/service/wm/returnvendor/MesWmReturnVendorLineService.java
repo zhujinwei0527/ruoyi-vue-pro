@@ -54,17 +54,17 @@ public interface MesWmReturnVendorLineService {
     /**
      * 根据退货单ID获取行列表
      *
-     * @param returnVendorId 退货单ID
+     * @param returnId 退货单ID
      * @return 行列表
      */
-    List<MesWmReturnVendorLineDO> getReturnVendorLineListByReturnVendorId(Long returnVendorId);
+    List<MesWmReturnVendorLineDO> getReturnVendorLineListByReturnId(Long returnId);
 
     /**
      * 根据退货单ID删除行
      *
-     * @param returnVendorId 退货单ID
+     * @param returnId 退货单ID
      */
-    void deleteReturnVendorLineByReturnVendorId(Long returnVendorId);
+    void deleteReturnVendorLineByReturnId(Long returnId);
 
     /**
      * 校验供应商退货单行是否存在

@@ -92,11 +92,11 @@ public class MesWmReturnVendorLineController {
 
     @GetMapping("/list-by-return-vendor")
     @Operation(summary = "获得供应商退货单行列表（按退货单编号）")
-    @Parameter(name = "returnVendorId", description = "退货单编号", required = true, example = "1024")
+    @Parameter(name = "returnId", description = "退货单编号", required = true, example = "1024")
     @PreAuthorize("@ss.hasPermission('mes:wm-return-vendor:query')")
-    public CommonResult<List<MesWmReturnVendorLineRespVO>> getReturnVendorLineListByReturnVendorId(
-            @RequestParam("returnVendorId") Long returnVendorId) {
-        List<MesWmReturnVendorLineDO> list = returnVendorLineService.getReturnVendorLineListByReturnVendorId(returnVendorId);
+    public CommonResult<List<MesWmReturnVendorLineRespVO>> getReturnVendorLineListByReturnId(
+            @RequestParam("returnId") Long returnId) {
+        List<MesWmReturnVendorLineDO> list = returnVendorLineService.getReturnVendorLineListByReturnId(returnId);
         return success(buildRespVOList(list));
     }
 

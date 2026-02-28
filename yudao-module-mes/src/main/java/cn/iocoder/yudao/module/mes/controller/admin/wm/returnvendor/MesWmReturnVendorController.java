@@ -158,7 +158,7 @@ public class MesWmReturnVendorController {
         // 2. 构建结果
         return BeanUtils.toBean(list, MesWmReturnVendorRespVO.class, vo ->
                 MapUtils.findAndThen(vendorMap, vo.getVendorId(), vendor ->
-                        vo.setVendorName(vendor.getName()).setVendorNickname(vendor.getNickname())));
+                        vo.setVendorCode(vendor.getCode()).setVendorName(vendor.getName()).setVendorNickname(vendor.getNickname())));
     }
 
 }

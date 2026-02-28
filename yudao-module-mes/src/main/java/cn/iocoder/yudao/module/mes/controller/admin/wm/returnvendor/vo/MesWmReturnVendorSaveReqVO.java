@@ -29,9 +29,6 @@ public class MesWmReturnVendorSaveReqVO {
     @NotNull(message = "供应商 ID 不能为空")
     private Long vendorId;
 
-    @Schema(description = "批次号", example = "BATCH001")
-    private String batchCode;
-
     @Schema(description = "退货日期", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotNull(message = "退货日期不能为空")
     private LocalDateTime returnDate;
