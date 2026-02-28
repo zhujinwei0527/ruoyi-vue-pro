@@ -115,17 +115,8 @@ public class MesWmReturnIssueController {
         return success(true);
     }
 
-    @PutMapping("/confirm")
-    @Operation(summary = "确认生产退料单")
-    @Parameter(name = "id", description = "编号", required = true)
-    @PreAuthorize("@ss.hasPermission('mes:wm-return-issue:update')")
-    public CommonResult<Boolean> confirmReturnIssue(@RequestParam("id") Long id) {
-        issueService.confirmReturnIssue(id);
-        return success(true);
-    }
-
     @PutMapping("/submit")
-    @Operation(summary = "提交生产退料单")
+    @Operation(summary = "提交生产退料单（草稿 → 待检验/待上架）")
     @Parameter(name = "id", description = "编号", required = true)
     @PreAuthorize("@ss.hasPermission('mes:wm-return-issue:update')")
     public CommonResult<Boolean> submitReturnIssue(@RequestParam("id") Long id) {

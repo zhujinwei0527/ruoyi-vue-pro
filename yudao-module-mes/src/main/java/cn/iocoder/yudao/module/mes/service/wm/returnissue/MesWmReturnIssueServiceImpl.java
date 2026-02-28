@@ -8,10 +8,11 @@ import cn.iocoder.yudao.framework.common.util.object.BeanUtils;
 import cn.iocoder.yudao.framework.common.util.object.ObjectUtils;
 import cn.iocoder.yudao.module.mes.controller.admin.wm.returnissue.vo.MesWmReturnIssuePageReqVO;
 import cn.iocoder.yudao.module.mes.controller.admin.wm.returnissue.vo.MesWmReturnIssueSaveReqVO;
-import cn.iocoder.yudao.module.mes.dal.dataobject.wm.returnissue.MesWmReturnIssueDetailDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.wm.returnissue.MesWmReturnIssueDO;
+import cn.iocoder.yudao.module.mes.dal.dataobject.wm.returnissue.MesWmReturnIssueDetailDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.wm.returnissue.MesWmReturnIssueLineDO;
 import cn.iocoder.yudao.module.mes.dal.mysql.wm.returnissue.MesWmReturnIssueMapper;
+import cn.iocoder.yudao.module.mes.enums.wm.MesWmQualityStatusEnum;
 import cn.iocoder.yudao.module.mes.enums.wm.MesWmReturnIssueStatusEnum;
 import cn.iocoder.yudao.module.mes.service.md.workstation.MesMdWorkstationService;
 import cn.iocoder.yudao.module.mes.service.pro.workorder.MesProWorkOrderService;
@@ -108,7 +109,7 @@ public class MesWmReturnIssueServiceImpl implements MesWmReturnIssueService {
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public void confirmReturnIssue(Long id) {
+    public void submitReturnIssue(Long id) {
         // 校验存在 + 草稿状态
         validateReturnIssueExistsAndPrepare(id);
         // 校验至少有一条行
@@ -117,37 +118,25 @@ public class MesWmReturnIssueServiceImpl implements MesWmReturnIssueService {
             throw exception(WM_RETURN_ISSUE_NO_LINE);
         }
 
-        // 确认（草稿 → 待检验）
-        issueMapper.updateById(new MesWmReturnIssueDO()
-                .setId(id).setStatus(MesWmReturnIssueStatusEnum.CONFIRMED.getStatus()));
-    }
+        // 2.1.1 检查是否有待检验的物料
+        boolean hasPendingQc = CollUtil.contains(lines,
+                line -> MesWmQualityStatusEnum.PENDING.getStatus().equals(line.getQualityStatus()));
+        // 2.1.2 确定目标状态：1）有待检验物料 → 待检验状态；2）无待检验物料 → 待上架状态
+        // TODO @芋艿：RQC 质量检测的接入
+        Integer targetStatus = hasPendingQc ? MesWmReturnIssueStatusEnum.CONFIRMED.getStatus()
+                : MesWmReturnIssueStatusEnum.APPROVING.getStatus();
 
-    @Override
-    @Transactional(rollbackFor = Exception.class)
-    public void submitReturnIssue(Long id) {
-        // 校验存在 + 待检验状态
-        MesWmReturnIssueDO issue = validateReturnIssueExists(id);
-        if (ObjUtil.notEqual(MesWmReturnIssueStatusEnum.CONFIRMED.getStatus(), issue.getStatus())) {
-            throw exception(WM_RETURN_ISSUE_STATUS_INVALID);
-        }
-        // 校验至少有一条行
-        List<MesWmReturnIssueLineDO> lines = issueLineService.getReturnIssueLineListByIssueId(id);
-        if (CollUtil.isEmpty(lines)) {
-            throw exception(WM_RETURN_ISSUE_NO_LINE);
-        }
-
-        // 提交（待检验 → 待上架）
-        issueMapper.updateById(new MesWmReturnIssueDO()
-                .setId(id).setStatus(MesWmReturnIssueStatusEnum.APPROVING.getStatus()));
+        // 2.2 提交（草稿 → 待检验/待上架）
+        issueMapper.updateById(new MesWmReturnIssueDO().setId(id).setStatus(targetStatus));
     }
 
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void stockReturnIssue(Long id) {
-        // 校验存在
+        // 校验存在 + 待上架状态
         MesWmReturnIssueDO issue = validateReturnIssueExists(id);
         if (ObjUtil.notEqual(MesWmReturnIssueStatusEnum.APPROVING.getStatus(), issue.getStatus())) {
-            throw exception(WM_RETURN_ISSUE_STATUS_INVALID);
+            throw exception(WM_RETURN_ISSUE_NOT_APPROVING);
         }
         // 入库上架（待上架 → 待执行退料）
         issueMapper.updateById(new MesWmReturnIssueDO()
@@ -157,10 +146,10 @@ public class MesWmReturnIssueServiceImpl implements MesWmReturnIssueService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void finishReturnIssue(Long id) {
-        // 校验存在
+        // 校验存在 + 待执行退料状态
         MesWmReturnIssueDO issue = validateReturnIssueExists(id);
         if (ObjUtil.notEqual(MesWmReturnIssueStatusEnum.APPROVED.getStatus(), issue.getStatus())) {
-            throw exception(WM_RETURN_ISSUE_STATUS_INVALID);
+            throw exception(WM_RETURN_ISSUE_NOT_APPROVED);
         }
 
         // 完成退料（待执行退料 → 已完成），更新库存台账
@@ -224,7 +213,7 @@ public class MesWmReturnIssueServiceImpl implements MesWmReturnIssueService {
     private MesWmReturnIssueDO validateReturnIssueExistsAndPrepare(Long id) {
         MesWmReturnIssueDO issue = validateReturnIssueExists(id);
         if (ObjUtil.notEqual(MesWmReturnIssueStatusEnum.PREPARE.getStatus(), issue.getStatus())) {
-            throw exception(WM_RETURN_ISSUE_STATUS_INVALID);
+            throw exception(WM_RETURN_ISSUE_NOT_PREPARE);
         }
         return issue;
     }

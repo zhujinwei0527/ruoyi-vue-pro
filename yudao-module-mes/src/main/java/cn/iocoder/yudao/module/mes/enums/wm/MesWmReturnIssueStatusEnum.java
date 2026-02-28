@@ -27,7 +27,7 @@ public enum MesWmReturnIssueStatusEnum implements ArrayValuable<Integer> {
     /**
      * 待检验（已确认，等待质检）
      *
-     * 对应方法：{@link MesWmReturnIssueService#confirmReturnIssue(Long)}
+     * 对应方法：{@link MesWmReturnIssueService#submitReturnIssue(Long)}
      */
     CONFIRMED(MesOrderStatusConstants.CONFIRMED, "待检验"), // "UNCHECK"
     /**
