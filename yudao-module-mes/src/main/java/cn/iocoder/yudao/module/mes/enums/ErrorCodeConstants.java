@@ -378,4 +378,22 @@ public interface ErrorCodeConstants {
     ErrorCode WM_PRODUCT_PRODUCE_LINE_NOT_EXISTS = new ErrorCode(1_040_709_100, "生产入库单行不存在");
     ErrorCode WM_PRODUCT_PRODUCE_DETAIL_NOT_EXISTS = new ErrorCode(1_040_709_200, "生产入库单明细不存在");
 
+    // ========== MES 仓库管理-生产退料单（1-040-710-000） ==========
+    ErrorCode WM_RETURN_ISSUE_NOT_EXISTS = new ErrorCode(1_040_710_000, "生产退料单不存在");
+    ErrorCode WM_RETURN_ISSUE_STATUS_INVALID = new ErrorCode(1_040_710_001, "生产退料单状态不正确，无法执行该操作");
+    ErrorCode WM_RETURN_ISSUE_NO_LINE = new ErrorCode(1_040_710_002, "生产退料单至少需要一条行数据");
+    ErrorCode WM_RETURN_ISSUE_DETAIL_QUANTITY_MISMATCH = new ErrorCode(1_040_710_003, "退料单行数量与明细数量不一致");
+    ErrorCode WM_RETURN_ISSUE_CANCEL_NOT_ALLOWED = new ErrorCode(1_040_710_004, "生产退料单已完成或已取消，无法取消");
+    ErrorCode WM_RETURN_ISSUE_LINE_NOT_EXISTS = new ErrorCode(1_040_710_100, "生产退料单行不存在");
+    ErrorCode WM_RETURN_ISSUE_DETAIL_NOT_EXISTS = new ErrorCode(1_040_710_200, "生产退料单明细不存在");
+
+    // ========== MES 仓库管理-供应商退货单（1-040-711-000） ==========
+    ErrorCode WM_RETURN_VENDOR_NOT_EXISTS = new ErrorCode(1_040_711_000, "供应商退货单不存在");
+    ErrorCode WM_RETURN_VENDOR_STATUS_INVALID = new ErrorCode(1_040_711_001, "供应商退货单状态不正确，无法执行该操作");
+    ErrorCode WM_RETURN_VENDOR_NO_LINE = new ErrorCode(1_040_711_002, "供应商退货单至少需要一条行数据");
+    ErrorCode WM_RETURN_VENDOR_DETAIL_QUANTITY_MISMATCH = new ErrorCode(1_040_711_003, "供应商退货单行数量与明细数量不一致");
+    ErrorCode WM_RETURN_VENDOR_CANCEL_NOT_ALLOWED = new ErrorCode(1_040_711_004, "供应商退货单已完成或已取消，无法取消");
+    ErrorCode WM_RETURN_VENDOR_LINE_NOT_EXISTS = new ErrorCode(1_040_711_100, "供应商退货单行不存在");
+    ErrorCode WM_RETURN_VENDOR_DETAIL_NOT_EXISTS = new ErrorCode(1_040_711_200, "供应商退货单明细不存在");
+
 }

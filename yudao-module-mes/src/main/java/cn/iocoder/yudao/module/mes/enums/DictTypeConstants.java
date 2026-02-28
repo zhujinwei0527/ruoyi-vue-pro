@@ -48,5 +48,7 @@ public interface DictTypeConstants {
     String MES_WM_ITEM_RECEIPT_STATUS = "mes_wm_item_receipt_status"; // MES 采购入库单状态
     String MES_WM_PRODUCT_PRODUCE_STATUS = "mes_product_produce_status"; // MES 生产入库单状态
     String MES_WM_QUALITY_STATUS = "mes_wm_quality_status"; // MES 质量状态（待检/合格/不合格）
+    String MES_WM_RETURN_ISSUE_STATUS = "mes_return_issue_status"; // MES 生产退料单状态
+    String MES_WM_RETURN_ISSUE_TYPE = "mes_return_issue_type"; // MES 生产退料类型
 
 }
