@@ -142,14 +142,6 @@ public class MesWmReturnIssueController {
         return success(true);
     }
 
-    @GetMapping("/check-quantity")
-    @Operation(summary = "校验生产退料单数量", description = "校验每行明细数量之和是否等于行退料数量")
-    @Parameter(name = "id", description = "编号", required = true)
-    @PreAuthorize("@ss.hasPermission('mes:wm-return-issue:query')")
-    public CommonResult<Boolean> checkReturnIssueQuantity(@RequestParam("id") Long id) {
-        return success(issueService.checkReturnIssueQuantity(id));
-    }
-
     // ==================== 拼接 VO ====================
 
     private List<MesWmReturnIssueRespVO> buildRespVOList(List<MesWmReturnIssueDO> list) {

@@ -8,12 +8,14 @@ import cn.iocoder.yudao.framework.common.util.object.BeanUtils;
 import cn.iocoder.yudao.framework.common.util.object.ObjectUtils;
 import cn.iocoder.yudao.module.mes.controller.admin.wm.returnissue.vo.MesWmReturnIssuePageReqVO;
 import cn.iocoder.yudao.module.mes.controller.admin.wm.returnissue.vo.MesWmReturnIssueSaveReqVO;
+import cn.iocoder.yudao.module.mes.dal.dataobject.md.item.MesMdItemDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.wm.returnissue.MesWmReturnIssueDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.wm.returnissue.MesWmReturnIssueDetailDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.wm.returnissue.MesWmReturnIssueLineDO;
 import cn.iocoder.yudao.module.mes.dal.mysql.wm.returnissue.MesWmReturnIssueMapper;
 import cn.iocoder.yudao.module.mes.enums.wm.MesWmQualityStatusEnum;
 import cn.iocoder.yudao.module.mes.enums.wm.MesWmReturnIssueStatusEnum;
+import cn.iocoder.yudao.module.mes.service.md.item.MesMdItemService;
 import cn.iocoder.yudao.module.mes.service.md.workstation.MesMdWorkstationService;
 import cn.iocoder.yudao.module.mes.service.pro.workorder.MesProWorkOrderService;
 import jakarta.annotation.Resource;
@@ -23,6 +25,7 @@ import org.springframework.validation.annotation.Validated;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Map;
 
 import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception;
 import static cn.iocoder.yudao.module.mes.enums.ErrorCodeConstants.*;
@@ -45,6 +48,8 @@ public class MesWmReturnIssueServiceImpl implements MesWmReturnIssueService {
     private MesMdWorkstationService workstationService;
     @Resource
     private MesProWorkOrderService workOrderService;
+    @Resource
+    private MesMdItemService itemService;
 
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -133,12 +138,33 @@ public class MesWmReturnIssueServiceImpl implements MesWmReturnIssueService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void stockReturnIssue(Long id) {
-        // 校验存在 + 待上架状态
+        // 1.1 校验存在 + 待上架状态
         MesWmReturnIssueDO issue = validateReturnIssueExists(id);
         if (ObjUtil.notEqual(MesWmReturnIssueStatusEnum.APPROVING.getStatus(), issue.getStatus())) {
             throw exception(WM_RETURN_ISSUE_NOT_APPROVING);
         }
-        // 入库上架（待上架 → 待执行退料）
+        // 1.2 检查每个行的明细数量是否完成上架
+        List<MesWmReturnIssueLineDO> lines = issueLineService.getReturnIssueLineListByIssueId(id);
+        if (CollUtil.isNotEmpty(lines)) {
+            // 批量查询所有明细
+            List<MesWmReturnIssueDetailDO> allDetails = issueDetailService.getReturnIssueDetailListByIssueId(id);
+            Map<Long, List<MesWmReturnIssueDetailDO>> detailMap = CollectionUtils.convertMultiMap(
+                    allDetails, MesWmReturnIssueDetailDO::getLineId);
+            // 检查每行的明细数量
+            for (MesWmReturnIssueLineDO line : lines) {
+                List<MesWmReturnIssueDetailDO> details = detailMap.getOrDefault(line.getId(), List.of());
+                BigDecimal totalDetailQuantity = CollectionUtils.getSumValue(details,
+                        MesWmReturnIssueDetailDO::getQuantity, BigDecimal::add, BigDecimal.ZERO);
+                // 对比行数量与明细总数量，不满足直接抛出
+                if (line.getQuantity().compareTo(totalDetailQuantity) > 0) {
+                    MesMdItemDO item = itemService.validateItemExists(line.getItemId());
+                    throw exception(WM_RETURN_ISSUE_DETAIL_QUANTITY_MISMATCH,
+                            item.getCode() + " " + item.getName() + " 未完成上架");
+                }
+            }
+        }
+
+        // 2. 入库上架（待上架 → 待执行退料）
         issueMapper.updateById(new MesWmReturnIssueDO()
                 .setId(id).setStatus(MesWmReturnIssueStatusEnum.APPROVED.getStatus()));
     }
@@ -182,20 +208,6 @@ public class MesWmReturnIssueServiceImpl implements MesWmReturnIssueService {
         // 取消
         issueMapper.updateById(new MesWmReturnIssueDO()
                 .setId(id).setStatus(MesWmReturnIssueStatusEnum.CANCELED.getStatus()));
-    }
-
-    @Override
-    public Boolean checkReturnIssueQuantity(Long id) {
-        List<MesWmReturnIssueLineDO> lines = issueLineService.getReturnIssueLineListByIssueId(id);
-        for (MesWmReturnIssueLineDO line : lines) {
-            List<MesWmReturnIssueDetailDO> details = issueDetailService.getReturnIssueDetailListByLineId(line.getId());
-            BigDecimal totalDetailQty = CollectionUtils.getSumValue(details,
-                    MesWmReturnIssueDetailDO::getQuantity, BigDecimal::add, BigDecimal.ZERO);
-            if (line.getQuantity() != null && totalDetailQty.compareTo(line.getQuantity()) != 0) {
-                return false;
-            }
-        }
-        return true;
     }
 
     @Override
