@@ -19,7 +19,7 @@ public interface MesWmReturnIssueMapper extends BaseMapperX<MesWmReturnIssueDO> 
                 .likeIfPresent(MesWmReturnIssueDO::getName, reqVO.getName())
                 .eqIfPresent(MesWmReturnIssueDO::getWorkstationId, reqVO.getWorkstationId())
                 .eqIfPresent(MesWmReturnIssueDO::getWorkOrderId, reqVO.getWorkOrderId())
-                .eqIfPresent(MesWmReturnIssueDO::getReturnType, reqVO.getReturnType())
+                .eqIfPresent(MesWmReturnIssueDO::getType, reqVO.getType())
                 .eqIfPresent(MesWmReturnIssueDO::getStatus, reqVO.getStatus())
                 .betweenIfPresent(MesWmReturnIssueDO::getReturnDate, reqVO.getReturnDate())
                 .orderByDesc(MesWmReturnIssueDO::getId));

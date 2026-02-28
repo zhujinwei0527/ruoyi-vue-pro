@@ -1,7 +1,9 @@
 package cn.iocoder.yudao.module.mes.enums.wm;
 
 import cn.iocoder.yudao.framework.common.core.ArrayValuable;
+import cn.iocoder.yudao.module.mes.controller.admin.wm.returnissue.vo.MesWmReturnIssueSaveReqVO;
 import cn.iocoder.yudao.module.mes.enums.MesOrderStatusConstants;
+import cn.iocoder.yudao.module.mes.service.wm.returnissue.MesWmReturnIssueService;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -16,25 +18,40 @@ import java.util.Arrays;
 @AllArgsConstructor
 public enum MesWmReturnIssueStatusEnum implements ArrayValuable<Integer> {
 
-    // TODO @AI：参考 /Users/yunai/Java/yudao-all-in-one/ruoyi-vue-pro/yudao-module-mes/src/main/java/cn/iocoder/yudao/module/mes/enums/wm/MesWmArrivalNoticeStatusEnum.java 增加注释
     /**
      * 草稿
+     *
+     * 对应方法：{@link MesWmReturnIssueService#createReturnIssue(MesWmReturnIssueSaveReqVO)}
      */
     PREPARE(MesOrderStatusConstants.PREPARE, "草稿"),
     /**
-     * 待入库（已提交，等待仓库上架入库）
+     * 待检验（已确认，等待质检）
+     *
+     * 对应方法：{@link MesWmReturnIssueService#confirmReturnIssue(Long)}
      */
-    APPROVING(MesOrderStatusConstants.APPROVING, "待入库"),
+    CONFIRMED(MesOrderStatusConstants.CONFIRMED, "待检验"), // "UNCHECK"
     /**
-     * 已入库（上架完成，等待最终确认）
+     * 待上架（检验完成，等待仓库上架）
+     *
+     * 对应方法：{@link MesWmReturnIssueService#submitReturnIssue(Long)}
      */
-    APPROVED(MesOrderStatusConstants.APPROVED, "已入库"),
+    APPROVING(MesOrderStatusConstants.APPROVING, "待上架"), // "UNSTOCK"
     /**
-     * 已完成
+     * 待执行退料（上架完成，等待执行退料操作）
+     *
+     * 对应方法：{@link MesWmReturnIssueService#stockReturnIssue(Long)}
+     */
+    APPROVED(MesOrderStatusConstants.APPROVED, "待执行退料"), // "UNEXECUTE"
+    /**
+     * 已完成（退料执行完成，库存已更新）
+     *
+     * 对应方法：{@link MesWmReturnIssueService#finishReturnIssue(Long)}
      */
     FINISHED(MesOrderStatusConstants.FINISHED, "已完成"),
     /**
      * 已取消
+     *
+     * 对应方法：{@link MesWmReturnIssueService#cancelReturnIssue(Long)}
      */
     CANCELED(MesOrderStatusConstants.CANCELLED, "已取消");
 
@@ -55,3 +72,5 @@ public enum MesWmReturnIssueStatusEnum implements ArrayValuable<Integer> {
     }
 
 }
+
+// DONE @AI：状态流转逻辑已在 MesWmReturnIssueServiceImpl 中实现，参考 confirmReturnIssue、submitReturnIssue、stockReturnIssue、finishReturnIssue 方法

@@ -58,21 +58,28 @@ public interface MesWmReturnIssueService {
     MesWmReturnIssueDO validateReturnIssueExists(Long id);
 
     /**
-     * 提交生产退料单（草稿 → 待入库）
+     * 确认生产退料单（草稿 → 待检验）
+     *
+     * @param id 编号
+     */
+    void confirmReturnIssue(Long id);
+
+    /**
+     * 提交生产退料单（待检验 → 待上架）
      *
      * @param id 编号
      */
     void submitReturnIssue(Long id);
 
     /**
-     * 入库上架（待入库 → 已入库）
+     * 入库上架（待上架 → 待执行退料）
      *
      * @param id 编号
      */
     void stockReturnIssue(Long id);
 
     /**
-     * 完成退料（已入库 → 已完成），更新库存台账
+     * 完成退料（待执行退料 → 已完成），更新库存台账
      *
      * @param id 编号
      */

@@ -1,6 +1,7 @@
 package cn.iocoder.yudao.module.mes.controller.admin.wm.returnissue.vo.detail;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
@@ -27,6 +28,7 @@ public class MesWmReturnIssueDetailSaveReqVO {
 
     @Schema(description = "退料数量", requiredMode = Schema.RequiredMode.REQUIRED, example = "300.00")
     @NotNull(message = "退料数量不能为空")
+    @DecimalMin(value = "0", inclusive = false, message = "退料数量必须大于0")
     private BigDecimal quantity;
 
     @Schema(description = "批次编号", example = "1")
@@ -35,13 +37,16 @@ public class MesWmReturnIssueDetailSaveReqVO {
     @Schema(description = "批次号", example = "BATCH20260101001")
     private String batchCode;
 
-    @Schema(description = "仓库编号", example = "1")
+    @Schema(description = "仓库编号", requiredMode = Schema.RequiredMode.REQUIRED, example = "1")
+    @NotNull(message = "仓库编号不能为空")
     private Long warehouseId;
 
-    @Schema(description = "库区编号", example = "1")
+    @Schema(description = "库区编号", requiredMode = Schema.RequiredMode.REQUIRED, example = "1")
+    @NotNull(message = "库区编号不能为空")
     private Long locationId;
 
-    @Schema(description = "库位编号", example = "1")
+    @Schema(description = "库位编号", requiredMode = Schema.RequiredMode.REQUIRED, example = "1")
+    @NotNull(message = "库位编号不能为空")
     private Long areaId;
 
     @Schema(description = "备注", example = "备注")

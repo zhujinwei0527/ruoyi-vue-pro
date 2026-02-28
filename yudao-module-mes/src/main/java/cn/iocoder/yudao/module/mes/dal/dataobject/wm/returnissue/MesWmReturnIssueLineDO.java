@@ -59,12 +59,10 @@ public class MesWmReturnIssueLineDO extends BaseDO {
      * 是否需要质检
      */
     private Boolean qcFlag;
-    // TODO @AI：额外加个枚举类；
-    // TODO @芋艿：是这些么？
     /**
      * 质量状态
      *
-     * 字典 {@link cn.iocoder.yudao.module.mes.enums.DictTypeConstants#MES_WM_QUALITY_STATUS}
+     * 枚举 {@link cn.iocoder.yudao.module.mes.enums.wm.MesWmQualityStatusEnum}
      */
     private Integer qualityStatus;
     /**

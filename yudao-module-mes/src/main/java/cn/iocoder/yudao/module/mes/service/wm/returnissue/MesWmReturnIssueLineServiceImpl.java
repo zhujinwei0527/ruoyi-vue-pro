@@ -1,5 +1,6 @@
 package cn.iocoder.yudao.module.mes.service.wm.returnissue;
 
+import cn.hutool.core.util.ObjUtil;
 import cn.iocoder.yudao.framework.common.pojo.PageResult;
 import cn.iocoder.yudao.framework.common.util.object.BeanUtils;
 import cn.iocoder.yudao.module.mes.controller.admin.wm.returnissue.vo.line.MesWmReturnIssueLinePageReqVO;
@@ -7,6 +8,8 @@ import cn.iocoder.yudao.module.mes.controller.admin.wm.returnissue.vo.line.MesWm
 import cn.iocoder.yudao.module.mes.dal.dataobject.wm.returnissue.MesWmReturnIssueDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.wm.returnissue.MesWmReturnIssueLineDO;
 import cn.iocoder.yudao.module.mes.dal.mysql.wm.returnissue.MesWmReturnIssueLineMapper;
+import cn.iocoder.yudao.module.mes.enums.wm.MesWmQualityStatusEnum;
+import cn.iocoder.yudao.module.mes.enums.wm.MesWmReturnIssueTypeEnum;
 import cn.iocoder.yudao.module.mes.service.md.item.MesMdItemService;
 import jakarta.annotation.Resource;
 import org.springframework.context.annotation.Lazy;
@@ -44,14 +47,7 @@ public class MesWmReturnIssueLineServiceImpl implements MesWmReturnIssueLineServ
         // 插入
         MesWmReturnIssueLineDO line = BeanUtils.toBean(createReqVO, MesWmReturnIssueLineDO.class);
         // 质量状态自动赋值
-        // TODO @AI：这里需要在 review 下 @芋艿；
-        if (Boolean.TRUE.equals(createReqVO.getQcFlag())) {
-            line.setQualityStatus(0); // 待检
-        } else if ("RMR".equals(issue.getReturnType())) {
-            line.setQualityStatus(1); // 合格（余料退回直接合格）
-        } else {
-            line.setQualityStatus(2); // 不合格
-        }
+        line.setQualityStatus(calculateQualityStatus(line.getQcFlag(), issue.getType()));
         issueLineMapper.insert(line);
         return line.getId();
     }
@@ -61,12 +57,14 @@ public class MesWmReturnIssueLineServiceImpl implements MesWmReturnIssueLineServ
         // 校验存在
         validateReturnIssueLineExists(updateReqVO.getId());
         // 校验父数据存在
-        issueService.validateReturnIssueExists(updateReqVO.getIssueId());
+        MesWmReturnIssueDO issue = issueService.validateReturnIssueExists(updateReqVO.getIssueId());
         // 校验物料存在
         itemService.validateItemExists(updateReqVO.getItemId());
 
         // 更新
         MesWmReturnIssueLineDO updateObj = BeanUtils.toBean(updateReqVO, MesWmReturnIssueLineDO.class);
+        // 质量状态自动赋值
+        updateObj.setQualityStatus(calculateQualityStatus(updateObj.getQcFlag(), issue.getType()));
         issueLineMapper.updateById(updateObj);
     }
 
@@ -105,6 +103,35 @@ public class MesWmReturnIssueLineServiceImpl implements MesWmReturnIssueLineServ
             throw exception(WM_RETURN_ISSUE_LINE_NOT_EXISTS);
         }
         return line;
+    }
+
+    @Override
+    public void updateReturnIssueQualityStatusByIssueId(Long issueId, Integer issueType) {
+        List<MesWmReturnIssueLineDO> lines = issueLineMapper.selectListByIssueId(issueId);
+        for (MesWmReturnIssueLineDO line : lines) {
+            Integer newStatus = calculateQualityStatus(line.getQcFlag(), issueType);
+            if (ObjUtil.notEqual(newStatus, line.getQualityStatus())) {
+                issueLineMapper.updateById(new MesWmReturnIssueLineDO()
+                        .setId(line.getId()).setQualityStatus(newStatus));
+            }
+        }
+    }
+
+    /**
+     * 根据 qcFlag 和退料类型，计算质量状态
+     *
+     * @param qcFlag 是否需要质检
+     * @param issueType 退料类型
+     * @return 质量状态
+     */
+    private Integer calculateQualityStatus(Boolean qcFlag, Integer issueType) {
+        if (Boolean.TRUE.equals(qcFlag)) {
+            return MesWmQualityStatusEnum.PENDING.getStatus(); // 待检
+        }
+        if (MesWmReturnIssueTypeEnum.REMAINDER.getType().equals(issueType)) {
+            return MesWmQualityStatusEnum.PASS.getStatus(); // 合格（余料退回直接合格）
+        }
+        return MesWmQualityStatusEnum.FAIL.getStatus(); // 不合格
     }
 
 }

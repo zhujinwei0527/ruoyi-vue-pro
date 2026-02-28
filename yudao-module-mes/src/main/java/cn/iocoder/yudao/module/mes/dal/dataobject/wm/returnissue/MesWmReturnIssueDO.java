@@ -43,19 +43,19 @@ public class MesWmReturnIssueDO extends BaseDO {
      * 关联 {@link MesProWorkOrderDO#getId()}
      */
     private Long workOrderId;
+    // TODO @芋艿：可能不需要这个字段。界面上没有；
     /**
      * 工作站 ID
      *
      * 关联 {@link MesMdWorkstationDO#getId()}
      */
     private Long workstationId;
-    // TODO @AI：可以改成 type 字段；简化；
     /**
      * 退料类型
      *
-     * 字典 {@link cn.iocoder.yudao.module.mes.enums.DictTypeConstants#MES_WM_RETURN_ISSUE_TYPE}
+     * 枚举 {@link cn.iocoder.yudao.module.mes.enums.wm.MesWmReturnIssueTypeEnum}
      */
-    private String returnType;
+    private Integer type;
     /**
      * 退料日期
      */

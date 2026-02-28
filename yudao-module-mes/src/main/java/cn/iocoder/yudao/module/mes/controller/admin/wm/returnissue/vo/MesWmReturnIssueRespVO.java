@@ -18,20 +18,20 @@ public class MesWmReturnIssueRespVO {
     @Schema(description = "退料单名称", requiredMode = Schema.RequiredMode.REQUIRED, example = "生产退料")
     private String name;
 
-    @Schema(description = "生产工单 ID", example = "1")
+    @Schema(description = "生产工单 ID", requiredMode = Schema.RequiredMode.REQUIRED, example = "1")
     private Long workOrderId;
 
-    @Schema(description = "生产工单编号", example = "WO20250226001")
+    @Schema(description = "生产工单编号", requiredMode = Schema.RequiredMode.REQUIRED, example = "WO20250226001")
     private String workOrderCode;
 
-    @Schema(description = "工作站 ID", example = "1")
+    @Schema(description = "工作站 ID", requiredMode = Schema.RequiredMode.REQUIRED, example = "1")
     private Long workstationId;
 
     @Schema(description = "工作站名称", example = "装配工作站")
     private String workstationName;
 
-    @Schema(description = "退料类型", example = "RMR")
-    private String returnType;
+    @Schema(description = "退料类型", example = "1")
+    private Integer type;
 
     @Schema(description = "退料日期")
     private LocalDateTime returnDate;

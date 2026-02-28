@@ -74,4 +74,12 @@ public interface MesWmReturnIssueLineService {
      */
     MesWmReturnIssueLineDO validateReturnIssueLineExists(Long id);
 
+    /**
+     * 刷新退料单下所有行的质量状态（退料类型变更时调用）
+     *
+     * @param issueId 退料单 ID
+     * @param issueType 退料类型
+     */
+    void updateReturnIssueQualityStatusByIssueId(Long issueId, Integer issueType);
+
 }

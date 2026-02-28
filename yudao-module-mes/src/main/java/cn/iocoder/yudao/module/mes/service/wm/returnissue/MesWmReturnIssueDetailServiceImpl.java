@@ -1,18 +1,23 @@
 package cn.iocoder.yudao.module.mes.service.wm.returnissue;
 
+import cn.iocoder.yudao.framework.common.util.collection.CollectionUtils;
 import cn.iocoder.yudao.framework.common.util.object.BeanUtils;
 import cn.iocoder.yudao.module.mes.controller.admin.wm.returnissue.vo.detail.MesWmReturnIssueDetailSaveReqVO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.wm.returnissue.MesWmReturnIssueDetailDO;
+import cn.iocoder.yudao.module.mes.dal.dataobject.wm.returnissue.MesWmReturnIssueLineDO;
 import cn.iocoder.yudao.module.mes.dal.mysql.wm.returnissue.MesWmReturnIssueDetailMapper;
+import cn.iocoder.yudao.module.mes.service.wm.warehouse.MesWmWarehouseAreaService;
 import jakarta.annotation.Resource;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception;
 import static cn.iocoder.yudao.module.mes.enums.ErrorCodeConstants.WM_RETURN_ISSUE_DETAIL_NOT_EXISTS;
+import static cn.iocoder.yudao.module.mes.enums.ErrorCodeConstants.WM_RETURN_ISSUE_DETAIL_QUANTITY_EXCEED;
 
 /**
  * MES 生产退料明细 Service 实现类
@@ -28,11 +33,19 @@ public class MesWmReturnIssueDetailServiceImpl implements MesWmReturnIssueDetail
     @Lazy
     private MesWmReturnIssueLineService issueLineService;
 
+    @Resource
+    private MesWmWarehouseAreaService warehouseAreaService;
+
     @Override
     public Long createReturnIssueDetail(MesWmReturnIssueDetailSaveReqVO createReqVO) {
         // 校验父数据存在
-        issueLineService.validateReturnIssueLineExists(createReqVO.getLineId());
-        // TODO @AI：校验物料存在
+        MesWmReturnIssueLineDO line = issueLineService.validateReturnIssueLineExists(createReqVO.getLineId());
+        // 校验仓库、库区、库位的关联关系
+        warehouseAreaService.validateWarehouseAreaExists(
+                createReqVO.getWarehouseId(), createReqVO.getLocationId(), createReqVO.getAreaId());
+        // 校验明细总数量不超过行数量
+        validateDetailQuantityNotExceed(createReqVO.getLineId(), createReqVO.getQuantity(), null, line);
+        // TODO @芋艿：【后续搞】不允许物资混放
 
         // 插入
         MesWmReturnIssueDetailDO detail = BeanUtils.toBean(createReqVO, MesWmReturnIssueDetailDO.class);
@@ -45,8 +58,13 @@ public class MesWmReturnIssueDetailServiceImpl implements MesWmReturnIssueDetail
         // 校验存在
         validateReturnIssueDetailExists(updateReqVO.getId());
         // 校验父数据存在
-        issueLineService.validateReturnIssueLineExists(updateReqVO.getLineId());
-        // TODO @AI：校验物料存在
+        MesWmReturnIssueLineDO line = issueLineService.validateReturnIssueLineExists(updateReqVO.getLineId());
+        // 校验仓库、库区、库位的关联关系
+        warehouseAreaService.validateWarehouseAreaExists(
+                updateReqVO.getWarehouseId(), updateReqVO.getLocationId(), updateReqVO.getAreaId());
+        // 校验明细总数量不超过行数量（排除自身）
+        validateDetailQuantityNotExceed(updateReqVO.getLineId(), updateReqVO.getQuantity(), updateReqVO.getId(), line);
+        // TODO @芋艿：【后续搞】不允许物资混放
 
         // 更新
         MesWmReturnIssueDetailDO updateObj = BeanUtils.toBean(updateReqVO, MesWmReturnIssueDetailDO.class);
@@ -84,6 +102,28 @@ public class MesWmReturnIssueDetailServiceImpl implements MesWmReturnIssueDetail
     private void validateReturnIssueDetailExists(Long id) {
         if (issueDetailMapper.selectById(id) == null) {
             throw exception(WM_RETURN_ISSUE_DETAIL_NOT_EXISTS);
+        }
+    }
+
+    /**
+     * 校验明细总数量不超过行数量
+     *
+     * @param lineId 行 ID
+     * @param newQuantity 本次新增/修改的数量
+     * @param excludeDetailId 排除的明细 ID（更新时排除自身，新增时传 null）
+     * @param line 退料单行
+     */
+    private void validateDetailQuantityNotExceed(Long lineId, BigDecimal newQuantity,
+                                                  Long excludeDetailId, MesWmReturnIssueLineDO line) {
+        // 计算已有明细总数量（排除自身）
+        List<MesWmReturnIssueDetailDO> details = issueDetailMapper.selectListByLineId(lineId);
+        BigDecimal existingTotal = CollectionUtils.getSumValue(details,
+                detail -> excludeDetailId != null && excludeDetailId.equals(detail.getId())
+                        ? BigDecimal.ZERO : detail.getQuantity(),
+                BigDecimal::add, BigDecimal.ZERO);
+        // 校验：已有 + 本次 <= 行数量
+        if (existingTotal.add(newQuantity).compareTo(line.getQuantity()) > 0) {
+            throw exception(WM_RETURN_ISSUE_DETAIL_QUANTITY_EXCEED);
         }
     }
 

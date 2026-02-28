@@ -27,8 +27,8 @@ public class MesWmReturnIssuePageReqVO extends PageParam {
     @Schema(description = "生产工单 ID", example = "1")
     private Long workOrderId;
 
-    @Schema(description = "退料类型", example = "RMR")
-    private String returnType;
+    @Schema(description = "退料类型", example = "1")
+    private Integer type;
 
     @Schema(description = "状态", example = "0")
     private Integer status;
