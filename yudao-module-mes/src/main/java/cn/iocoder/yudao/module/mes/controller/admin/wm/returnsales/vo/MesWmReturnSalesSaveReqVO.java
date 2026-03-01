@@ -38,7 +38,8 @@ public class MesWmReturnSalesSaveReqVO {
     @NotNull(message = "退货日期不能为空")
     private LocalDateTime returnDate;
 
-    @Schema(description = "退货原因", example = "质量问题")
+    @Schema(description = "退货原因", requiredMode = Schema.RequiredMode.REQUIRED, example = "质量问题")
+    @NotBlank(message = "退货原因不能为空")
     private String returnReason;
 
     @Schema(description = "备注", example = "备注")

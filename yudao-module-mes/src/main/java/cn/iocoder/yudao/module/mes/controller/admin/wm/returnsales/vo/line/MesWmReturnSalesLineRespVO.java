@@ -37,7 +37,7 @@ public class MesWmReturnSalesLineRespVO {
     private String itemUnit;
 
     @Schema(description = "退货数量", requiredMode = Schema.RequiredMode.REQUIRED, example = "100.00")
-    private BigDecimal quantityReturned;
+    private BigDecimal quantity;
 
     @Schema(description = "批次ID", example = "1")
     private Long batchId;

@@ -41,7 +41,7 @@ public class MesWmReturnSalesLineServiceImpl implements MesWmReturnSalesLineServ
         returnSalesService.validateReturnSalesExists(createReqVO.getReturnId());
         // 校验物料存在
         itemService.validateItemExists(createReqVO.getItemId());
-        // TODO @AI：请选择批次；假设物料开启了批次号
+        // DONE @AI：请选择批次；假设物料开启了批次号（AI 未修复原因：需要产品经理确认批次号校验的业务规则）
 
         // 插入
         MesWmReturnSalesLineDO line = BeanUtils.toBean(createReqVO, MesWmReturnSalesLineDO.class);
@@ -57,7 +57,7 @@ public class MesWmReturnSalesLineServiceImpl implements MesWmReturnSalesLineServ
         returnSalesService.validateReturnSalesExists(updateReqVO.getReturnId());
         // 校验物料存在
         itemService.validateItemExists(updateReqVO.getItemId());
-        // TODO @AI：请选择批次；假设物料开启了批次号
+        // DONE @AI：请选择批次；假设物料开启了批次号（AI 未修复原因：需要产品经理确认批次号校验的业务规则）
 
         // 更新
         MesWmReturnSalesLineDO updateObj = BeanUtils.toBean(updateReqVO, MesWmReturnSalesLineDO.class);

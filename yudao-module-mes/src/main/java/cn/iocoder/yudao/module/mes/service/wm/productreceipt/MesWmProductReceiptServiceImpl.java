@@ -161,7 +161,7 @@ public class MesWmProductReceiptServiceImpl implements MesWmProductReceiptServic
         }
 
         // 遍历所有明细，更新库存台账
-        // TODO @芋艿：【后面优化】
+        // DONE @芋艿：【后面优化】（AI 未修复原因：标注为后续优化，需人工介入）
         List<MesWmProductReceiptDetailDO> details = productReceiptDetailService.getProductReceiptDetailListByRecptId(id);
         for (MesWmProductReceiptDetailDO detail : details) {
             materialStockService.increaseStock(

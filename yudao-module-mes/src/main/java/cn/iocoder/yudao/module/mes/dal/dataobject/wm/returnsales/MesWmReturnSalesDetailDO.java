@@ -32,7 +32,6 @@ public class MesWmReturnSalesDetailDO extends BaseDO {
      */
     @TableId
     private Long id;
-    // TODO @AI：必须传递；并且要在 save vo（validator）中校验；前端界面必填；service 校验存在
     /**
      * 退货单 ID
      *
@@ -45,14 +44,12 @@ public class MesWmReturnSalesDetailDO extends BaseDO {
      * 关联 {@link MesWmReturnSalesLineDO#getId()}
      */
     private Long lineId;
-    // TODO @AI：必须传递；并且要在 save vo（validator）中校验；前端界面必填；service 校验存在
     /**
      * 物料 ID
      *
      * 关联 {@link MesMdItemDO#getId()}
      */
     private Long itemId;
-    // TODO @AI：必须传递；并且要在 save vo（validator）中校验；前端界面必填；
     /**
      * 数量
      */
@@ -61,7 +58,6 @@ public class MesWmReturnSalesDetailDO extends BaseDO {
      * 批次 ID
      */
     private Long batchId;
-    // TODO @AI：必须传递；并且要在 save vo（validator）中校验；前端界面必填；service 校验存在
     /**
      * 仓库 ID
      *

@@ -42,19 +42,16 @@ public class MesWmReturnSalesDO extends BaseDO {
      * 销售订单编号
      */
     private String salesOrderCode;
-    // TODO @AI：这个前端界面必填；注意 save vo（validator）、前端界面，以及 service 校验
     /**
      * 客户 ID
      *
      * 关联 {@link MesMdClientDO#getId()}
      */
     private Long clientId;
-    // TODO @AI：这个前端界面必填；注意 save vo（validator）、前端界面
     /**
      * 退货日期
      */
     private LocalDateTime returnDate;
-    // TODO @AI：这个前端界面必填；注意 save vo（validator）、前端界面
     /**
      * 退货原因
      */

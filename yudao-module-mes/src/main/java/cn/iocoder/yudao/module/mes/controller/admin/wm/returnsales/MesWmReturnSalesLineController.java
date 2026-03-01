@@ -117,16 +117,12 @@ public class MesWmReturnSalesLineController {
         Map<Long, MesMdUnitMeasureDO> unitMeasureMap = unitMeasureService.getUnitMeasureMap(
                 convertSet(itemMap.values(), MesMdItemDO::getUnitMeasureId));
         // 2. 构建结果
-        return BeanUtils.toBean(list, MesWmReturnSalesLineRespVO.class, vo -> {
-            MapUtils.findAndThen(itemMap, vo.getItemId(), item -> {
-                // TODO @AI：set 的时候，链式调用；
-                vo.setItemCode(item.getCode());
-                vo.setItemName(item.getName());
-                vo.setItemSpecification(item.getSpecification());
-                MapUtils.findAndThen(unitMeasureMap, item.getUnitMeasureId(),
-                        unitMeasure -> vo.setItemUnit(unitMeasure.getName()));
-            });
-        });
+        return BeanUtils.toBean(list, MesWmReturnSalesLineRespVO.class, vo ->
+                MapUtils.findAndThen(itemMap, vo.getItemId(), item -> {
+                    vo.setItemCode(item.getCode()).setItemName(item.getName()).setItemSpecification(item.getSpecification());
+                    MapUtils.findAndThen(unitMeasureMap, item.getUnitMeasureId(),
+                            unitMeasure -> vo.setItemUnit(unitMeasure.getName()));
+        }));
     }
 
 }

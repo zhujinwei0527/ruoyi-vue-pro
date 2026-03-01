@@ -16,25 +16,34 @@ import java.util.Arrays;
 @AllArgsConstructor
 public enum MesWmReturnSalesStatusEnum implements ArrayValuable<Integer> {
 
-    // TODO @AI：参考 {@link MesWmProductReceiptStatusEnum}，增加注释，说明每个状态对应的业务含义，以及对应的方法（如果有的话）。方便开发人员理解。
     /**
      * 草稿
+     *
+     * 对应方法：{@link cn.iocoder.yudao.module.mes.service.wm.returnsales.MesWmReturnSalesService#createReturnSales}
      */
     PREPARE(MesOrderStatusConstants.PREPARE, "草稿"),
     /**
      * 待执行
+     *
+     * 对应方法：{@link cn.iocoder.yudao.module.mes.service.wm.returnsales.MesWmReturnSalesService#submitReturnSales}
      */
     APPROVING(MesOrderStatusConstants.APPROVING, "待执行"),
     /**
      * 待上架
+     *
+     * 对应方法：{@link cn.iocoder.yudao.module.mes.service.wm.returnsales.MesWmReturnSalesService#executeReturnSales}
      */
     APPROVED(MesOrderStatusConstants.APPROVED, "待上架"),
     /**
      * 已完成
+     *
+     * 对应方法：{@link cn.iocoder.yudao.module.mes.service.wm.returnsales.MesWmReturnSalesService#stockReturnSales}
      */
     FINISHED(MesOrderStatusConstants.FINISHED, "已完成"),
     /**
      * 已取消
+     *
+     * 对应方法：{@link cn.iocoder.yudao.module.mes.service.wm.returnsales.MesWmReturnSalesService#cancelReturnSales}
      */
     CANCELED(MesOrderStatusConstants.CANCELLED, "已取消");
 

@@ -128,29 +128,20 @@ public class MesWmReturnSalesDetailController {
                 convertSet(list, MesWmReturnSalesDetailDO::getAreaId));
         // 2. 构建结果
         return BeanUtils.toBean(list, MesWmReturnSalesDetailRespVO.class, vo -> {
-            // TODO @AI：set 的时候，链式调用；
             MapUtils.findAndThen(itemMap, vo.getItemId(), item -> {
-                vo.setItemCode(item.getCode());
-                vo.setItemName(item.getName());
-                vo.setItemSpecification(item.getSpecification());
+                vo.setItemCode(item.getCode()).setItemName(item.getName()).setItemSpecification(item.getSpecification());
                 MapUtils.findAndThen(unitMeasureMap, item.getUnitMeasureId(),
                         unitMeasure -> vo.setItemUnit(unitMeasure.getName()));
             });
-            MapUtils.findAndThen(warehouseMap, vo.getWarehouseId(), warehouse -> {
-                // TODO @AI：set 的时候，链式调用；
-                vo.setWarehouseCode(warehouse.getCode());
-                vo.setWarehouseName(warehouse.getName());
-            });
-            MapUtils.findAndThen(locationMap, vo.getLocationId(), location -> {
-                // TODO @AI：set 的时候，链式调用；
-                vo.setLocationCode(location.getCode());
-                vo.setLocationName(location.getName());
-            });
-            MapUtils.findAndThen(areaMap, vo.getAreaId(), area -> {
-                // TODO @AI：set 的时候，链式调用；
-                vo.setAreaCode(area.getCode());
-                vo.setAreaName(area.getName());
-            });
+            MapUtils.findAndThen(warehouseMap, vo.getWarehouseId(), warehouse ->
+                vo.setWarehouseCode(warehouse.getCode()).setWarehouseName(warehouse.getName())
+            );
+            MapUtils.findAndThen(locationMap, vo.getLocationId(), location ->
+                vo.setLocationCode(location.getCode()).setLocationName(location.getName())
+            );
+            MapUtils.findAndThen(areaMap, vo.getAreaId(), area ->
+                vo.setAreaCode(area.getCode()).setAreaName(area.getName())
+            );
         });
     }
 

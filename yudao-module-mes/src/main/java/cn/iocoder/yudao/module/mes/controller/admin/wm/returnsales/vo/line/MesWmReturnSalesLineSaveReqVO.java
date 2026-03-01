@@ -30,7 +30,7 @@ public class MesWmReturnSalesLineSaveReqVO {
     @Schema(description = "退货数量", requiredMode = Schema.RequiredMode.REQUIRED, example = "100.00")
     @NotNull(message = "退货数量不能为空")
     @DecimalMin(value = "0", inclusive = false, message = "退货数量必须大于 0")
-    private BigDecimal quantityReturned;
+    private BigDecimal quantity;
 
     @Schema(description = "批次ID", example = "1")
     private Long batchId;

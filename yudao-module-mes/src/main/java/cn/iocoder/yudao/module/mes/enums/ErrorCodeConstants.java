@@ -425,4 +425,19 @@ public interface ErrorCodeConstants {
     ErrorCode WM_RETURN_SALES_LINE_NOT_EXISTS = new ErrorCode(1_040_713_100, "销售退货单行不存在");
     ErrorCode WM_RETURN_SALES_DETAIL_NOT_EXISTS = new ErrorCode(1_040_713_200, "销售退货单明细不存在");
 
+    // ========== MES 仓库管理-销售出库单（1-040-714-000） ==========
+    ErrorCode WM_PRODUCT_SALES_NOT_EXISTS = new ErrorCode(1_040_714_000, "销售出库单不存在");
+    ErrorCode WM_PRODUCT_SALES_CODE_DUPLICATE = new ErrorCode(1_040_714_001, "销售出库单号已存在");
+    ErrorCode WM_PRODUCT_SALES_NOT_PREPARE = new ErrorCode(1_040_714_002, "只有草稿状态才可操作");
+    ErrorCode WM_PRODUCT_SALES_LINES_EMPTY = new ErrorCode(1_040_714_003, "销售出库单行不能为空");
+    ErrorCode WM_PRODUCT_SALES_CANNOT_SUBMIT = new ErrorCode(1_040_714_004, "当前状态不允许提交");
+    ErrorCode WM_PRODUCT_SALES_CANNOT_PICK = new ErrorCode(1_040_714_005, "当前状态不允许拣货");
+    ErrorCode WM_PRODUCT_SALES_CANNOT_EXECUTE = new ErrorCode(1_040_714_006, "当前状态不允许执行出库");
+    ErrorCode WM_PRODUCT_SALES_CANNOT_CANCEL = new ErrorCode(1_040_714_007, "当前状态不允许取消");
+    ErrorCode WM_PRODUCT_SALES_DETAILS_EMPTY = new ErrorCode(1_040_714_008, "拣货明细不能为空");
+    ErrorCode WM_PRODUCT_SALES_DETAIL_QUANTITY_MISMATCH = new ErrorCode(1_040_714_009, "拣货数量与出库数量不匹配");
+    ErrorCode WM_PRODUCT_SALES_LINE_NOT_EXISTS = new ErrorCode(1_040_714_010, "销售出库单行不存在");
+    ErrorCode WM_PRODUCT_SALES_DETAIL_NOT_EXISTS = new ErrorCode(1_040_714_011, "销售出库明细不存在");
+    ErrorCode WM_PRODUCT_SALES_STOCK_INSUFFICIENT = new ErrorCode(1_040_714_012, "库存不足，无法拣货");
+
 }

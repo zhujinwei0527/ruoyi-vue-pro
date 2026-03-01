@@ -41,18 +41,18 @@ public class MesWmReturnSalesLineDO extends BaseDO {
      * 关联 {@link MesMdItemDO#getId()}
      */
     private Long itemId;
-    // TODO @AI：这个改成 quantity；简化（听我的）
     /**
      * 退货数量
      */
-    private BigDecimal quantityReturned;
+    private BigDecimal quantity;
     /**
      * 批次 ID
      */
     private Long batchId;
-    // TODO @AI：需要 @下对应的枚举类，方便理解；
     /**
      * 质量状态
+     *
+     * 枚举 {@link cn.iocoder.yudao.module.mes.enums.wm.MesWmQualityStatusEnum}
      */
     private String qualityStatus;
     /**
