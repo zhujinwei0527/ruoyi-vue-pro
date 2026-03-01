@@ -2,6 +2,7 @@ package cn.iocoder.yudao.module.mes.controller.admin.wm.productrecpt.vo.line;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
 import lombok.Data;
 
 import java.math.BigDecimal;
@@ -23,6 +24,7 @@ public class MesWmProductRecptLineSaveReqVO {
 
     @Schema(description = "收货数量", requiredMode = Schema.RequiredMode.REQUIRED, example = "100.00")
     @NotNull(message = "收货数量不能为空")
+    @Positive(message = "收货数量必须大于 0")
     private BigDecimal quantity;
 
     @Schema(description = "批次编号", example = "1")

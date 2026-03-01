@@ -85,4 +85,12 @@ public interface MesWmProductRecptService {
      */
     MesWmProductRecptDO validateProductRecptEditable(Long id);
 
+    /**
+     * 校验产品收货单明细数量（每行明细数量之和是否等于行收货数量）
+     *
+     * @param id 编号
+     * @return 是否匹配
+     */
+    Boolean checkProductRecptQuantity(Long id);
+
 }

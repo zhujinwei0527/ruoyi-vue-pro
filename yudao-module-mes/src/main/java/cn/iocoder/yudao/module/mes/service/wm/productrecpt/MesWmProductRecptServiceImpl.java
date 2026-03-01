@@ -8,6 +8,7 @@ import cn.iocoder.yudao.framework.common.util.object.BeanUtils;
 import cn.iocoder.yudao.framework.common.util.object.ObjectUtils;
 import cn.iocoder.yudao.module.mes.controller.admin.wm.productrecpt.vo.MesWmProductRecptPageReqVO;
 import cn.iocoder.yudao.module.mes.controller.admin.wm.productrecpt.vo.MesWmProductRecptSaveReqVO;
+import cn.iocoder.yudao.module.mes.dal.dataobject.pro.workorder.MesProWorkOrderDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.wm.productrecpt.MesWmProductRecptDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.wm.productrecpt.MesWmProductRecptDetailDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.wm.productrecpt.MesWmProductRecptLineDO;
@@ -44,13 +45,22 @@ public class MesWmProductRecptServiceImpl implements MesWmProductRecptService {
     @Resource
     private MesWmMaterialStockService materialStockService;
 
+    @Resource
+    private cn.iocoder.yudao.module.mes.service.pro.workorder.MesProWorkOrderService workOrderService;
+
     @Override
     public Long createProductRecpt(MesWmProductRecptSaveReqVO createReqVO) {
         // 校验编码唯一
         validateCodeUnique(null, createReqVO.getCode());
+        // 校验工单存在并设置 itemId
+        MesProWorkOrderDO workOrder = createReqVO.getWorkOrderId() != null ?
+                workOrderService.validateWorkOrderExists(createReqVO.getWorkOrderId()) : null;
 
         // 插入
         MesWmProductRecptDO recpt = BeanUtils.toBean(createReqVO, MesWmProductRecptDO.class);
+        if (workOrder != null) {
+            recpt.setItemId(workOrder.getProductId());
+        }
         recpt.setStatus(MesWmProductRecptStatusEnum.PREPARE.getStatus());
         productRecptMapper.insert(recpt);
         return recpt.getId();
@@ -62,9 +72,15 @@ public class MesWmProductRecptServiceImpl implements MesWmProductRecptService {
         validateProductRecptExistsAndDraft(updateReqVO.getId());
         // 校验编码唯一
         validateCodeUnique(updateReqVO.getId(), updateReqVO.getCode());
+        // 校验工单存在
+        MesProWorkOrderDO workOrder = updateReqVO.getWorkOrderId() != null ?
+                workOrderService.validateWorkOrderExists(updateReqVO.getWorkOrderId()) : null;
 
         // 更新
         MesWmProductRecptDO updateObj = BeanUtils.toBean(updateReqVO, MesWmProductRecptDO.class);
+        if (workOrder != null) {
+            updateObj.setItemId(workOrder.getProductId());
+        }
         productRecptMapper.updateById(updateObj);
     }
 
@@ -115,20 +131,24 @@ public class MesWmProductRecptServiceImpl implements MesWmProductRecptService {
         if (ObjUtil.notEqual(MesWmProductRecptStatusEnum.APPROVING.getStatus(), recpt.getStatus())) {
             throw exception(WM_PRODUCT_RECPT_STATUS_ERROR);
         }
-        // 校验每行明细数量之和是否等于行收货数量
+
+        // 执行上架（待上架 → 待入库）
+        productRecptMapper.updateById(new MesWmProductRecptDO()
+                .setId(id).setStatus(MesWmProductRecptStatusEnum.APPROVED.getStatus()));
+    }
+
+    @Override
+    public Boolean checkProductRecptQuantity(Long id) {
         List<MesWmProductRecptLineDO> lines = productRecptLineService.getProductRecptLineListByRecptId(id);
         for (MesWmProductRecptLineDO line : lines) {
             List<MesWmProductRecptDetailDO> details = productRecptDetailService.getProductRecptDetailListByLineId(line.getId());
             BigDecimal totalDetailQty = CollectionUtils.getSumValue(details,
                     MesWmProductRecptDetailDO::getQuantity, BigDecimal::add, BigDecimal.ZERO);
             if (line.getQuantity() != null && totalDetailQty.compareTo(line.getQuantity()) != 0) {
-                throw exception(WM_PRODUCT_RECPT_DETAIL_QUANTITY_MISMATCH);
+                return false;
             }
         }
-
-        // 执行上架（待上架 → 待入库）
-        productRecptMapper.updateById(new MesWmProductRecptDO()
-                .setId(id).setStatus(MesWmProductRecptStatusEnum.APPROVED.getStatus()));
+        return true;
     }
 
     @Override
@@ -141,6 +161,7 @@ public class MesWmProductRecptServiceImpl implements MesWmProductRecptService {
         }
 
         // 遍历所有明细，更新库存台账
+        // TODO @芋艿：【后面优化】
         List<MesWmProductRecptDetailDO> details = productRecptDetailService.getProductRecptDetailListByRecptId(id);
         for (MesWmProductRecptDetailDO detail : details) {
             materialStockService.increaseStock(
@@ -164,6 +185,7 @@ public class MesWmProductRecptServiceImpl implements MesWmProductRecptService {
                 MesWmProductRecptStatusEnum.CANCELED.getStatus())) {
             throw exception(WM_PRODUCT_RECPT_CANCEL_NOT_ALLOWED);
         }
+
         // 取消
         productRecptMapper.updateById(new MesWmProductRecptDO()
                 .setId(id).setStatus(MesWmProductRecptStatusEnum.CANCELED.getStatus()));

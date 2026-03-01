@@ -149,6 +149,14 @@ public class MesWmProductRecptController {
         return success(true);
     }
 
+    @GetMapping("/check-quantity")
+    @Operation(summary = "校验产品收货单明细数量")
+    @Parameter(name = "id", description = "编号", required = true)
+    @PreAuthorize("@ss.hasPermission('mes:wm-product-recpt:query')")
+    public CommonResult<Boolean> checkProductRecptQuantity(@RequestParam("id") Long id) {
+        return success(productRecptService.checkProductRecptQuantity(id));
+    }
+
     // ==================== 拼接 VO ====================
 
     private List<MesWmProductRecptRespVO> buildRespVOList(List<MesWmProductRecptDO> list) {

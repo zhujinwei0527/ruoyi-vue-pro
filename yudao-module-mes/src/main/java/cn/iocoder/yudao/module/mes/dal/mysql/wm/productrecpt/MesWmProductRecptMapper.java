@@ -19,8 +19,6 @@ public interface MesWmProductRecptMapper extends BaseMapperX<MesWmProductRecptDO
                 .likeIfPresent(MesWmProductRecptDO::getName, reqVO.getName())
                 .eqIfPresent(MesWmProductRecptDO::getWorkOrderId, reqVO.getWorkOrderId())
                 .eqIfPresent(MesWmProductRecptDO::getItemId, reqVO.getItemId())
-                .eqIfPresent(MesWmProductRecptDO::getStatus, reqVO.getStatus())
-                .betweenIfPresent(MesWmProductRecptDO::getReceiptDate, reqVO.getReceiptDate())
                 .orderByDesc(MesWmProductRecptDO::getId));
     }
 

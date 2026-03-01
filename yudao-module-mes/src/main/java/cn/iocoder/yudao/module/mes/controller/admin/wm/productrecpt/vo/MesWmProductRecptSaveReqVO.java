@@ -22,15 +22,8 @@ public class MesWmProductRecptSaveReqVO {
     @NotEmpty(message = "收货单名称不能为空")
     private String name;
 
-    @Schema(description = "生产工单编号", requiredMode = Schema.RequiredMode.REQUIRED, example = "1")
-    // TODO @AI：workOrderId 必须要非必传
-    @NotNull(message = "生产工单不能为空")
+    @Schema(description = "生产工单编号", example = "1")
     private Long workOrderId;
-
-    @Schema(description = "产品物料编号", requiredMode = Schema.RequiredMode.REQUIRED, example = "1")
-    @NotNull(message = "产品物料不能为空")
-    // TODO @AI：workOrderId 必须要非必传
-    private Long itemId;
 
     @Schema(description = "收货日期", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotNull(message = "收货日期不能为空")
