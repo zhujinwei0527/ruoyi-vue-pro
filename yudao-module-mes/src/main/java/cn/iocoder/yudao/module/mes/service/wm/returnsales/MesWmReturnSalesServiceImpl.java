@@ -1,0 +1,200 @@
+package cn.iocoder.yudao.module.mes.service.wm.returnsales;
+
+import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.util.ObjUtil;
+import cn.iocoder.yudao.framework.common.pojo.PageResult;
+import cn.iocoder.yudao.framework.common.util.collection.CollectionUtils;
+import cn.iocoder.yudao.framework.common.util.object.BeanUtils;
+import cn.iocoder.yudao.framework.common.util.object.ObjectUtils;
+import cn.iocoder.yudao.module.mes.controller.admin.wm.returnsales.vo.MesWmReturnSalesPageReqVO;
+import cn.iocoder.yudao.module.mes.controller.admin.wm.returnsales.vo.MesWmReturnSalesSaveReqVO;
+import cn.iocoder.yudao.module.mes.dal.dataobject.wm.returnsales.MesWmReturnSalesDO;
+import cn.iocoder.yudao.module.mes.dal.dataobject.wm.returnsales.MesWmReturnSalesDetailDO;
+import cn.iocoder.yudao.module.mes.dal.dataobject.wm.returnsales.MesWmReturnSalesLineDO;
+import cn.iocoder.yudao.module.mes.dal.mysql.wm.returnsales.MesWmReturnSalesMapper;
+import cn.iocoder.yudao.module.mes.enums.wm.MesWmReturnSalesStatusEnum;
+import cn.iocoder.yudao.module.mes.service.md.client.MesMdClientService;
+import jakarta.annotation.Resource;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.validation.annotation.Validated;
+
+import java.math.BigDecimal;
+import java.util.List;
+
+import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception;
+import static cn.iocoder.yudao.module.mes.enums.ErrorCodeConstants.*;
+
+/**
+ *
+ * @author 芋道源码
+ * MES 销售退货单 Service 实现类
+ */
+@Service
+@Validated
+public class MesWmReturnSalesServiceImpl implements MesWmReturnSalesService {
+
+    @Resource
+    private MesWmReturnSalesMapper returnSalesMapper;
+
+    @Resource
+    private MesWmReturnSalesLineService returnSalesLineService;
+    @Resource
+    private MesWmReturnSalesDetailService returnSalesDetailService;
+    @Resource
+    private MesMdClientService clientService;
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public Long createReturnSales(MesWmReturnSalesSaveReqVO createReqVO) {
+        // 1. 校验关联数据
+        clientService.validateClientExists(createReqVO.getClientId());
+
+        // 2. 插入主表
+        MesWmReturnSalesDO returnSales = BeanUtils.toBean(createReqVO, MesWmReturnSalesDO.class);
+        returnSales.setStatus(MesWmReturnSalesStatusEnum.PREPARE.getStatus());
+        returnSalesMapper.insert(returnSales);
+        return returnSales.getId();
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void updateReturnSales(MesWmReturnSalesSaveReqVO updateReqVO) {
+        // 1.1 校验存在 + 准备中状态
+        validateReturnSalesExistsAndPrepare(updateReqVO.getId());
+        // 1.2 校验关联数据
+        clientService.validateClientExists(updateReqVO.getClientId());
+
+        // 2. 更新主表
+        MesWmReturnSalesDO updateObj = BeanUtils.toBean(updateReqVO, MesWmReturnSalesDO.class);
+        returnSalesMapper.updateById(updateObj);
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void deleteReturnSales(Long id) {
+        // 1. 校验存在 + 准备中状态
+        validateReturnSalesExistsAndPrepare(id);
+
+        // 2.1 级联删除明细
+        returnSalesDetailService.deleteReturnSalesDetailByReturnId(id);
+        // 2.2 级联删除行
+        returnSalesLineService.deleteReturnSalesLineByReturnId(id);
+        // 2.3 删除主表
+        returnSalesMapper.deleteById(id);
+    }
+
+    @Override
+    public MesWmReturnSalesDO getReturnSales(Long id) {
+        return returnSalesMapper.selectById(id);
+    }
+
+    @Override
+    public PageResult<MesWmReturnSalesDO> getReturnSalesPage(MesWmReturnSalesPageReqVO pageReqVO) {
+        return returnSalesMapper.selectPage(pageReqVO);
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void submitReturnSales(Long id) {
+        // 校验存在 + 草稿状态
+        validateReturnSalesExistsAndPrepare(id);
+        // 校验至少有一条行
+        List<MesWmReturnSalesLineDO> lines = returnSalesLineService.getReturnSalesLineListByReturnId(id);
+        if (CollUtil.isEmpty(lines)) {
+            throw exception(WM_RETURN_SALES_NO_LINE);
+        }
+
+        // 提交（草稿 -> 待执行）
+        returnSalesMapper.updateById(new MesWmReturnSalesDO()
+                .setId(id).setStatus(MesWmReturnSalesStatusEnum.APPROVING.getStatus()));
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void executeReturnSales(Long id) {
+        // 校验存在
+        MesWmReturnSalesDO returnSales = validateReturnSalesExists(id);
+        if (ObjUtil.notEqual(MesWmReturnSalesStatusEnum.APPROVING.getStatus(), returnSales.getStatus())) {
+            throw exception(WM_RETURN_SALES_STATUS_NOT_APPROVING);
+        }
+        // 执行退货（待执行 -> 待上架）
+        returnSalesMapper.updateById(new MesWmReturnSalesDO()
+                .setId(id).setStatus(MesWmReturnSalesStatusEnum.APPROVED.getStatus()));
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void stockReturnSales(Long id) {
+        // 校验存在
+        MesWmReturnSalesDO returnSales = validateReturnSalesExists(id);
+        if (ObjUtil.notEqual(MesWmReturnSalesStatusEnum.APPROVED.getStatus(), returnSales.getStatus())) {
+            throw exception(WM_RETURN_SALES_STATUS_NOT_APPROVED);
+        }
+
+        // 遍历所有明细，更新库存台账（增加库存）
+        // TODO @芋艿：【后续在弄】这里需要库存更新；后面在弄
+        List<MesWmReturnSalesDetailDO> details = returnSalesDetailService.getReturnSalesDetailListByReturnId(id);
+        for (MesWmReturnSalesDetailDO detail : details) {
+            // materialStockService.increaseStock(
+            //         detail.getItemId(), detail.getWarehouseId(), detail.getLocationId(), detail.getAreaId(),
+            //         detail.getBatchId(), detail.getQuantity(), null, null, null);
+        }
+
+        // 更新退货单状态
+        returnSalesMapper.updateById(new MesWmReturnSalesDO()
+                .setId(id).setStatus(MesWmReturnSalesStatusEnum.FINISHED.getStatus()));
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void cancelReturnSales(Long id) {
+        // 校验存在
+        MesWmReturnSalesDO returnSales = validateReturnSalesExists(id);
+        // 已完成和已取消不允许取消
+        if (ObjectUtils.equalsAny(returnSales.getStatus(),
+                MesWmReturnSalesStatusEnum.FINISHED.getStatus(),
+                MesWmReturnSalesStatusEnum.CANCELED.getStatus())) {
+            throw exception(WM_RETURN_SALES_CANCEL_NOT_ALLOWED);
+        }
+
+        // 取消
+        returnSalesMapper.updateById(new MesWmReturnSalesDO()
+                .setId(id).setStatus(MesWmReturnSalesStatusEnum.CANCELED.getStatus()));
+    }
+
+    @Override
+    public Boolean checkReturnSalesQuantity(Long id) {
+        List<MesWmReturnSalesLineDO> lines = returnSalesLineService.getReturnSalesLineListByReturnId(id);
+        for (MesWmReturnSalesLineDO line : lines) {
+            List<MesWmReturnSalesDetailDO> details = returnSalesDetailService.getReturnSalesDetailListByLineId(line.getId());
+            BigDecimal totalDetailQty = CollectionUtils.getSumValue(details,
+                    MesWmReturnSalesDetailDO::getQuantity, BigDecimal::add, BigDecimal.ZERO);
+            if (line.getQuantityReturned() != null && totalDetailQty.compareTo(line.getQuantityReturned()) != 0) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    @Override
+    public MesWmReturnSalesDO validateReturnSalesExists(Long id) {
+        MesWmReturnSalesDO returnSales = returnSalesMapper.selectById(id);
+        if (returnSales == null) {
+            throw exception(WM_RETURN_SALES_NOT_EXISTS);
+        }
+        return returnSales;
+    }
+
+    /**
+     * 校验销售退货单存在且为准备中状态
+     */
+    private MesWmReturnSalesDO validateReturnSalesExistsAndPrepare(Long id) {
+        MesWmReturnSalesDO returnSales = validateReturnSalesExists(id);
+        if (ObjUtil.notEqual(MesWmReturnSalesStatusEnum.PREPARE.getStatus(), returnSales.getStatus())) {
+            throw exception(WM_RETURN_SALES_STATUS_NOT_PREPARE);
+        }
+        return returnSales;
+    }
+
+}
