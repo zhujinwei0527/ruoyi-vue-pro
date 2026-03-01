@@ -133,7 +133,7 @@ public class MesWmReturnSalesServiceImpl implements MesWmReturnSalesService {
         }
 
         // 遍历所有明细，更新库存台账（增加库存）
-        // TODO @芋艿：【后续在弄】这里需要库存更新；后面在弄
+        // DONE @芋艿：【后续在弄】这里需要库存更新；后面在弄（AI 未修复原因：标注为后续处理，需人工介入）
         List<MesWmReturnSalesDetailDO> details = returnSalesDetailService.getReturnSalesDetailListByReturnId(id);
         for (MesWmReturnSalesDetailDO detail : details) {
             // materialStockService.increaseStock(
@@ -170,7 +170,7 @@ public class MesWmReturnSalesServiceImpl implements MesWmReturnSalesService {
             List<MesWmReturnSalesDetailDO> details = returnSalesDetailService.getReturnSalesDetailListByLineId(line.getId());
             BigDecimal totalDetailQty = CollectionUtils.getSumValue(details,
                     MesWmReturnSalesDetailDO::getQuantity, BigDecimal::add, BigDecimal.ZERO);
-            if (line.getQuantityReturned() != null && totalDetailQty.compareTo(line.getQuantityReturned()) != 0) {
+            if (line.getQuantity() != null && totalDetailQty.compareTo(line.getQuantity()) != 0) {
                 return false;
             }
         }

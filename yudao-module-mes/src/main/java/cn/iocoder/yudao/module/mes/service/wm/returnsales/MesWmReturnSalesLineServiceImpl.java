@@ -4,6 +4,7 @@ import cn.iocoder.yudao.framework.common.pojo.PageResult;
 import cn.iocoder.yudao.framework.common.util.object.BeanUtils;
 import cn.iocoder.yudao.module.mes.controller.admin.wm.returnsales.vo.line.MesWmReturnSalesLinePageReqVO;
 import cn.iocoder.yudao.module.mes.controller.admin.wm.returnsales.vo.line.MesWmReturnSalesLineSaveReqVO;
+import cn.iocoder.yudao.module.mes.dal.dataobject.md.item.MesMdItemDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.wm.returnsales.MesWmReturnSalesLineDO;
 import cn.iocoder.yudao.module.mes.dal.mysql.wm.returnsales.MesWmReturnSalesLineMapper;
 import cn.iocoder.yudao.module.mes.service.md.item.MesMdItemService;
@@ -15,6 +16,7 @@ import org.springframework.validation.annotation.Validated;
 import java.util.List;
 
 import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception;
+import static cn.iocoder.yudao.module.mes.enums.ErrorCodeConstants.MD_ITEM_BATCH_REQUIRED;
 import static cn.iocoder.yudao.module.mes.enums.ErrorCodeConstants.WM_RETURN_SALES_LINE_NOT_EXISTS;
 
 /**
@@ -40,8 +42,7 @@ public class MesWmReturnSalesLineServiceImpl implements MesWmReturnSalesLineServ
         // 校验父数据存在
         returnSalesService.validateReturnSalesExists(createReqVO.getReturnId());
         // 校验物料存在
-        itemService.validateItemExists(createReqVO.getItemId());
-        // DONE @AI：请选择批次；假设物料开启了批次号（AI 未修复原因：需要产品经理确认批次号校验的业务规则）
+        validateItemBatchManagement(createReqVO.getItemId(), createReqVO.getBatchId());
 
         // 插入
         MesWmReturnSalesLineDO line = BeanUtils.toBean(createReqVO, MesWmReturnSalesLineDO.class);
@@ -56,8 +57,7 @@ public class MesWmReturnSalesLineServiceImpl implements MesWmReturnSalesLineServ
         // 校验父数据存在
         returnSalesService.validateReturnSalesExists(updateReqVO.getReturnId());
         // 校验物料存在
-        itemService.validateItemExists(updateReqVO.getItemId());
-        // DONE @AI：请选择批次；假设物料开启了批次号（AI 未修复原因：需要产品经理确认批次号校验的业务规则）
+        validateItemBatchManagement(updateReqVO.getItemId(), updateReqVO.getBatchId());
 
         // 更新
         MesWmReturnSalesLineDO updateObj = BeanUtils.toBean(updateReqVO, MesWmReturnSalesLineDO.class);
@@ -99,6 +99,20 @@ public class MesWmReturnSalesLineServiceImpl implements MesWmReturnSalesLineServ
             throw exception(WM_RETURN_SALES_LINE_NOT_EXISTS);
         }
         return line;
+    }
+
+    /**
+     * 校验物料批次管理
+     *
+     * @param itemId 物料ID
+     * @param batchId 批次ID
+     */
+    private void validateItemBatchManagement(Long itemId, Long batchId) {
+        MesMdItemDO item = itemService.validateItemExists(itemId);
+        // 如果物料启用了批次管理，则必须选择批次
+        if (Boolean.TRUE.equals(item.getBatchFlag()) && batchId == null) {
+            throw exception(MD_ITEM_BATCH_REQUIRED);
+        }
     }
 
 }
