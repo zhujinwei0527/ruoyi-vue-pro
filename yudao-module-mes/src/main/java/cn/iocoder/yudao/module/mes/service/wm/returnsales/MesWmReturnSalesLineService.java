@@ -76,4 +76,12 @@ public interface MesWmReturnSalesLineService {
      */
     MesWmReturnSalesLineDO validateReturnSalesLineExists(Long id);
 
+    /**
+     * 批量更新退货单行的质量状态
+     *
+     * @param returnId 退货单ID
+     * @param qualityStatus 质量状态
+     */
+    void updateQualityStatusByReturnId(Long returnId, String qualityStatus);
+
 }

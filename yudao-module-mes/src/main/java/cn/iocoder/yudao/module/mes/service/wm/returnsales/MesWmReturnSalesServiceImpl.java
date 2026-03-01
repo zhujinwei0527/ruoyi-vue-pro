@@ -8,12 +8,15 @@ import cn.iocoder.yudao.framework.common.util.object.BeanUtils;
 import cn.iocoder.yudao.framework.common.util.object.ObjectUtils;
 import cn.iocoder.yudao.module.mes.controller.admin.wm.returnsales.vo.MesWmReturnSalesPageReqVO;
 import cn.iocoder.yudao.module.mes.controller.admin.wm.returnsales.vo.MesWmReturnSalesSaveReqVO;
+import cn.iocoder.yudao.module.mes.dal.dataobject.md.item.MesMdItemDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.wm.returnsales.MesWmReturnSalesDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.wm.returnsales.MesWmReturnSalesDetailDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.wm.returnsales.MesWmReturnSalesLineDO;
 import cn.iocoder.yudao.module.mes.dal.mysql.wm.returnsales.MesWmReturnSalesMapper;
+import cn.iocoder.yudao.module.mes.enums.wm.MesWmQualityStatusEnum;
 import cn.iocoder.yudao.module.mes.enums.wm.MesWmReturnSalesStatusEnum;
 import cn.iocoder.yudao.module.mes.service.md.client.MesMdClientService;
+import cn.iocoder.yudao.module.mes.service.md.item.MesMdItemService;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,6 +24,7 @@ import org.springframework.validation.annotation.Validated;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Map;
 
 import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception;
 import static cn.iocoder.yudao.module.mes.enums.ErrorCodeConstants.*;
@@ -43,6 +47,8 @@ public class MesWmReturnSalesServiceImpl implements MesWmReturnSalesService {
     private MesWmReturnSalesDetailService returnSalesDetailService;
     @Resource
     private MesMdClientService clientService;
+    @Resource
+    private MesMdItemService itemService;
 
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -108,6 +114,10 @@ public class MesWmReturnSalesServiceImpl implements MesWmReturnSalesService {
         // 提交（草稿 -> 待执行）
         returnSalesMapper.updateById(new MesWmReturnSalesDO()
                 .setId(id).setStatus(MesWmReturnSalesStatusEnum.APPROVING.getStatus()));
+
+        // DONE @AI：全部的行设置为待检验状态
+        returnSalesLineService.updateQualityStatusByReturnId(id,
+                String.valueOf(MesWmQualityStatusEnum.PENDING.getStatus()));
     }
 
     @Override
@@ -126,13 +136,33 @@ public class MesWmReturnSalesServiceImpl implements MesWmReturnSalesService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void stockReturnSales(Long id) {
-        // 校验存在
+        // 1.1 校验存在 + 待上架状态
         MesWmReturnSalesDO returnSales = validateReturnSalesExists(id);
         if (ObjUtil.notEqual(MesWmReturnSalesStatusEnum.APPROVED.getStatus(), returnSales.getStatus())) {
             throw exception(WM_RETURN_SALES_STATUS_NOT_APPROVED);
         }
+        // 1.2 检查每个行的明细数量是否完成上架
+        List<MesWmReturnSalesLineDO> lines = returnSalesLineService.getReturnSalesLineListByReturnId(id);
+        if (CollUtil.isNotEmpty(lines)) {
+            // 批量查询所有明细
+            List<MesWmReturnSalesDetailDO> allDetails = returnSalesDetailService.getReturnSalesDetailListByReturnId(id);
+            Map<Long, List<MesWmReturnSalesDetailDO>> detailMap = CollectionUtils.convertMultiMap(
+                    allDetails, MesWmReturnSalesDetailDO::getLineId);
+            // 检查每行的明细数量
+            for (MesWmReturnSalesLineDO line : lines) {
+                List<MesWmReturnSalesDetailDO> details = detailMap.getOrDefault(line.getId(), List.of());
+                BigDecimal totalDetailQuantity = CollectionUtils.getSumValue(details,
+                        MesWmReturnSalesDetailDO::getQuantity, BigDecimal::add, BigDecimal.ZERO);
+                // 对比行数量与明细总数量，不满足直接抛出
+                if (line.getQuantity().compareTo(totalDetailQuantity) > 0) {
+                    MesMdItemDO item = itemService.validateItemExists(line.getItemId());
+                    throw exception(WM_RETURN_SALES_DETAIL_QUANTITY_MISMATCH,
+                            item.getCode() + " " + item.getName() + " 未完成上架");
+                }
+            }
+        }
 
-        // 遍历所有明细，更新库存台账（增加库存）
+        // 2. 遍历所有明细，更新库存台账（增加库存）
         // DONE @芋艿：【后续在弄】这里需要库存更新；后面在弄（AI 未修复原因：标注为后续处理，需人工介入）
         List<MesWmReturnSalesDetailDO> details = returnSalesDetailService.getReturnSalesDetailListByReturnId(id);
         for (MesWmReturnSalesDetailDO detail : details) {
@@ -141,7 +171,7 @@ public class MesWmReturnSalesServiceImpl implements MesWmReturnSalesService {
             //         detail.getBatchId(), detail.getQuantity(), null, null, null);
         }
 
-        // 更新退货单状态
+        // 3. 更新退货单状态
         returnSalesMapper.updateById(new MesWmReturnSalesDO()
                 .setId(id).setStatus(MesWmReturnSalesStatusEnum.FINISHED.getStatus()));
     }

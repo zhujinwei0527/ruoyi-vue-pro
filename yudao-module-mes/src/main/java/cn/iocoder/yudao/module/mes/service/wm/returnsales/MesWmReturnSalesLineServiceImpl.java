@@ -101,6 +101,16 @@ public class MesWmReturnSalesLineServiceImpl implements MesWmReturnSalesLineServ
         return line;
     }
 
+    @Override
+    public void updateQualityStatusByReturnId(Long returnId, String qualityStatus) {
+        List<MesWmReturnSalesLineDO> lines = returnSalesLineMapper.selectListByReturnId(returnId);
+        for (MesWmReturnSalesLineDO line : lines) {
+            returnSalesLineMapper.updateById(new MesWmReturnSalesLineDO()
+                    .setId(line.getId())
+                    .setQualityStatus(qualityStatus));
+        }
+    }
+
     /**
      * 校验物料批次管理
      *
