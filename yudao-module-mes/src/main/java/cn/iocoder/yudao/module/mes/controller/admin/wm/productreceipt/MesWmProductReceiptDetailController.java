@@ -1,20 +1,20 @@
-package cn.iocoder.yudao.module.mes.controller.admin.wm.productrecpt;
+package cn.iocoder.yudao.module.mes.controller.admin.wm.productreceipt;
 
 import cn.hutool.core.collection.CollUtil;
 import cn.iocoder.yudao.framework.common.pojo.CommonResult;
 import cn.iocoder.yudao.framework.common.util.collection.MapUtils;
 import cn.iocoder.yudao.framework.common.util.object.BeanUtils;
-import cn.iocoder.yudao.module.mes.controller.admin.wm.productrecpt.vo.detail.MesWmProductRecptDetailRespVO;
-import cn.iocoder.yudao.module.mes.controller.admin.wm.productrecpt.vo.detail.MesWmProductRecptDetailSaveReqVO;
+import cn.iocoder.yudao.module.mes.controller.admin.wm.productreceipt.vo.detail.MesWmProductReceiptDetailRespVO;
+import cn.iocoder.yudao.module.mes.controller.admin.wm.productreceipt.vo.detail.MesWmProductReceiptDetailSaveReqVO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.md.item.MesMdItemDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.md.unitmeasure.MesMdUnitMeasureDO;
-import cn.iocoder.yudao.module.mes.dal.dataobject.wm.productrecpt.MesWmProductRecptDetailDO;
+import cn.iocoder.yudao.module.mes.dal.dataobject.wm.productreceipt.MesWmProductReceiptDetailDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.wm.warehouse.MesWmWarehouseAreaDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.wm.warehouse.MesWmWarehouseDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.wm.warehouse.MesWmWarehouseLocationDO;
 import cn.iocoder.yudao.module.mes.service.md.item.MesMdItemService;
 import cn.iocoder.yudao.module.mes.service.md.unitmeasure.MesMdUnitMeasureService;
-import cn.iocoder.yudao.module.mes.service.wm.productrecpt.MesWmProductRecptDetailService;
+import cn.iocoder.yudao.module.mes.service.wm.productreceipt.MesWmProductReceiptDetailService;
 import cn.iocoder.yudao.module.mes.service.wm.warehouse.MesWmWarehouseAreaService;
 import cn.iocoder.yudao.module.mes.service.wm.warehouse.MesWmWarehouseLocationService;
 import cn.iocoder.yudao.module.mes.service.wm.warehouse.MesWmWarehouseService;
@@ -36,12 +36,12 @@ import static cn.iocoder.yudao.framework.common.util.collection.CollectionUtils.
 
 @Tag(name = "管理后台 - MES 产品收货单明细")
 @RestController
-@RequestMapping("/mes/wm/product-recpt-detail")
+@RequestMapping("/mes/wm/product-receipt-detail")
 @Validated
-public class MesWmProductRecptDetailController {
+public class MesWmProductReceiptDetailController {
 
     @Resource
-    private MesWmProductRecptDetailService productRecptDetailService;
+    private MesWmProductReceiptDetailService productReceiptDetailService;
 
     @Resource
     private MesMdItemService itemService;
@@ -60,34 +60,34 @@ public class MesWmProductRecptDetailController {
 
     @PostMapping("/create")
     @Operation(summary = "创建产品收货单明细")
-    @PreAuthorize("@ss.hasPermission('mes:wm-product-recpt:create')")
-    public CommonResult<Long> createProductRecptDetail(@Valid @RequestBody MesWmProductRecptDetailSaveReqVO createReqVO) {
-        return success(productRecptDetailService.createProductRecptDetail(createReqVO));
+    @PreAuthorize("@ss.hasPermission('mes:wm-product-receipt:create')")
+    public CommonResult<Long> createProductReceiptDetail(@Valid @RequestBody MesWmProductReceiptDetailSaveReqVO createReqVO) {
+        return success(productReceiptDetailService.createProductReceiptDetail(createReqVO));
     }
 
     @PutMapping("/update")
     @Operation(summary = "修改产品收货单明细")
-    @PreAuthorize("@ss.hasPermission('mes:wm-product-recpt:update')")
-    public CommonResult<Boolean> updateProductRecptDetail(@Valid @RequestBody MesWmProductRecptDetailSaveReqVO updateReqVO) {
-        productRecptDetailService.updateProductRecptDetail(updateReqVO);
+    @PreAuthorize("@ss.hasPermission('mes:wm-product-receipt:update')")
+    public CommonResult<Boolean> updateProductReceiptDetail(@Valid @RequestBody MesWmProductReceiptDetailSaveReqVO updateReqVO) {
+        productReceiptDetailService.updateProductReceiptDetail(updateReqVO);
         return success(true);
     }
 
     @DeleteMapping("/delete")
     @Operation(summary = "删除产品收货单明细")
     @Parameter(name = "id", description = "编号", required = true)
-    @PreAuthorize("@ss.hasPermission('mes:wm-product-recpt:delete')")
-    public CommonResult<Boolean> deleteProductRecptDetail(@RequestParam("id") Long id) {
-        productRecptDetailService.deleteProductRecptDetail(id);
+    @PreAuthorize("@ss.hasPermission('mes:wm-product-receipt:delete')")
+    public CommonResult<Boolean> deleteProductReceiptDetail(@RequestParam("id") Long id) {
+        productReceiptDetailService.deleteProductReceiptDetail(id);
         return success(true);
     }
 
     @GetMapping("/get")
     @Operation(summary = "获得产品收货单明细")
     @Parameter(name = "id", description = "编号", required = true, example = "1024")
-    @PreAuthorize("@ss.hasPermission('mes:wm-product-recpt:query')")
-    public CommonResult<MesWmProductRecptDetailRespVO> getProductRecptDetail(@RequestParam("id") Long id) {
-        MesWmProductRecptDetailDO detail = productRecptDetailService.getProductRecptDetail(id);
+    @PreAuthorize("@ss.hasPermission('mes:wm-product-receipt:query')")
+    public CommonResult<MesWmProductReceiptDetailRespVO> getProductReceiptDetail(@RequestParam("id") Long id) {
+        MesWmProductReceiptDetailDO detail = productReceiptDetailService.getProductReceiptDetail(id);
         if (detail == null) {
             return success(null);
         }
@@ -97,32 +97,32 @@ public class MesWmProductRecptDetailController {
     @GetMapping("/list-by-line")
     @Operation(summary = "获得产品收货单明细列表（按行编号）")
     @Parameter(name = "lineId", description = "行编号", required = true, example = "1024")
-    @PreAuthorize("@ss.hasPermission('mes:wm-product-recpt:query')")
-    public CommonResult<List<MesWmProductRecptDetailRespVO>> getProductRecptDetailListByLineId(
+    @PreAuthorize("@ss.hasPermission('mes:wm-product-receipt:query')")
+    public CommonResult<List<MesWmProductReceiptDetailRespVO>> getProductReceiptDetailListByLineId(
             @RequestParam("lineId") Long lineId) {
-        List<MesWmProductRecptDetailDO> list = productRecptDetailService.getProductRecptDetailListByLineId(lineId);
+        List<MesWmProductReceiptDetailDO> list = productReceiptDetailService.getProductReceiptDetailListByLineId(lineId);
         return success(buildRespVOList(list));
     }
 
     // ==================== 拼接 VO ====================
 
-    private List<MesWmProductRecptDetailRespVO> buildRespVOList(List<MesWmProductRecptDetailDO> list) {
+    private List<MesWmProductReceiptDetailRespVO> buildRespVOList(List<MesWmProductReceiptDetailDO> list) {
         if (CollUtil.isEmpty(list)) {
             return Collections.emptyList();
         }
         // 1. 获得关联数据
         Map<Long, MesMdItemDO> itemMap = itemService.getItemMap(
-                convertSet(list, MesWmProductRecptDetailDO::getItemId));
+                convertSet(list, MesWmProductReceiptDetailDO::getItemId));
         Map<Long, MesMdUnitMeasureDO> unitMeasureMap = unitMeasureService.getUnitMeasureMap(
                 convertSet(itemMap.values(), MesMdItemDO::getUnitMeasureId));
         Map<Long, MesWmWarehouseDO> warehouseMap = warehouseService.getWarehouseMap(
-                convertSet(list, MesWmProductRecptDetailDO::getWarehouseId));
+                convertSet(list, MesWmProductReceiptDetailDO::getWarehouseId));
         Map<Long, MesWmWarehouseLocationDO> locationMap = locationService.getWarehouseLocationMap(
-                convertSet(list, MesWmProductRecptDetailDO::getLocationId));
+                convertSet(list, MesWmProductReceiptDetailDO::getLocationId));
         Map<Long, MesWmWarehouseAreaDO> areaMap = areaService.getWarehouseAreaMap(
-                convertSet(list, MesWmProductRecptDetailDO::getAreaId));
+                convertSet(list, MesWmProductReceiptDetailDO::getAreaId));
         // 2. 构建结果
-        return BeanUtils.toBean(list, MesWmProductRecptDetailRespVO.class, vo -> {
+        return BeanUtils.toBean(list, MesWmProductReceiptDetailRespVO.class, vo -> {
             MapUtils.findAndThen(itemMap, vo.getItemId(), item -> {
                 vo.setItemCode(item.getCode()).setItemName(item.getName()).setSpecification(item.getSpecification());
                 MapUtils.findAndThen(unitMeasureMap, item.getUnitMeasureId(),

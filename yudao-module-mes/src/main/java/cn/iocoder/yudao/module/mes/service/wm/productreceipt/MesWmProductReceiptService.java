@@ -1,15 +1,15 @@
-package cn.iocoder.yudao.module.mes.service.wm.productrecpt;
+package cn.iocoder.yudao.module.mes.service.wm.productreceipt;
 
 import cn.iocoder.yudao.framework.common.pojo.PageResult;
-import cn.iocoder.yudao.module.mes.controller.admin.wm.productrecpt.vo.MesWmProductRecptPageReqVO;
-import cn.iocoder.yudao.module.mes.controller.admin.wm.productrecpt.vo.MesWmProductRecptSaveReqVO;
-import cn.iocoder.yudao.module.mes.dal.dataobject.wm.productrecpt.MesWmProductRecptDO;
+import cn.iocoder.yudao.module.mes.controller.admin.wm.productreceipt.vo.MesWmProductReceiptPageReqVO;
+import cn.iocoder.yudao.module.mes.controller.admin.wm.productreceipt.vo.MesWmProductReceiptSaveReqVO;
+import cn.iocoder.yudao.module.mes.dal.dataobject.wm.productreceipt.MesWmProductReceiptDO;
 import jakarta.validation.Valid;
 
 /**
  * MES 产品收货单 Service 接口
  */
-public interface MesWmProductRecptService {
+public interface MesWmProductReceiptService {
 
     /**
      * 创建产品收货单
@@ -17,21 +17,21 @@ public interface MesWmProductRecptService {
      * @param createReqVO 创建信息
      * @return 编号
      */
-    Long createProductRecpt(@Valid MesWmProductRecptSaveReqVO createReqVO);
+    Long createProductReceipt(@Valid MesWmProductReceiptSaveReqVO createReqVO);
 
     /**
      * 修改产品收货单
      *
      * @param updateReqVO 修改信息
      */
-    void updateProductRecpt(@Valid MesWmProductRecptSaveReqVO updateReqVO);
+    void updateProductReceipt(@Valid MesWmProductReceiptSaveReqVO updateReqVO);
 
     /**
      * 删除产品收货单（级联删除行+明细）
      *
      * @param id 编号
      */
-    void deleteProductRecpt(Long id);
+    void deleteProductReceipt(Long id);
 
     /**
      * 获得产品收货单
@@ -39,7 +39,7 @@ public interface MesWmProductRecptService {
      * @param id 编号
      * @return 产品收货单
      */
-    MesWmProductRecptDO getProductRecpt(Long id);
+    MesWmProductReceiptDO getProductReceipt(Long id);
 
     /**
      * 获得产品收货单分页
@@ -47,35 +47,35 @@ public interface MesWmProductRecptService {
      * @param pageReqVO 分页参数
      * @return 产品收货单分页
      */
-    PageResult<MesWmProductRecptDO> getProductRecptPage(MesWmProductRecptPageReqVO pageReqVO);
+    PageResult<MesWmProductReceiptDO> getProductReceiptPage(MesWmProductReceiptPageReqVO pageReqVO);
 
     /**
      * 提交产品收货单（草稿 → 待上架）
      *
      * @param id 编号
      */
-    void submitProductRecpt(Long id);
+    void submitProductReceipt(Long id);
 
     /**
      * 执行上架（待上架 → 待入库）
      *
      * @param id 编号
      */
-    void stockProductRecpt(Long id);
+    void stockProductReceipt(Long id);
 
     /**
      * 执行入库（待入库 → 已完成），更新库存台账
      *
      * @param id 编号
      */
-    void executeProductRecpt(Long id);
+    void executeProductReceipt(Long id);
 
     /**
      * 取消产品收货单（任意非已完成/已取消状态 → 已取消）
      *
      * @param id 编号
      */
-    void cancelProductRecpt(Long id);
+    void cancelProductReceipt(Long id);
 
     /**
      * 校验产品收货单存在且处于可编辑状态（草稿或待上架）
@@ -83,7 +83,7 @@ public interface MesWmProductRecptService {
      * @param id 编号
      * @return 产品收货单
      */
-    MesWmProductRecptDO validateProductRecptEditable(Long id);
+    MesWmProductReceiptDO validateProductReceiptEditable(Long id);
 
     /**
      * 校验产品收货单明细数量（每行明细数量之和是否等于行收货数量）
@@ -91,6 +91,6 @@ public interface MesWmProductRecptService {
      * @param id 编号
      * @return 是否匹配
      */
-    Boolean checkProductRecptQuantity(Long id);
+    Boolean checkProductReceiptQuantity(Long id);
 
 }

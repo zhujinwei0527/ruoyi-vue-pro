@@ -1,4 +1,4 @@
-package cn.iocoder.yudao.module.mes.controller.admin.wm.productrecpt.vo.line;
+package cn.iocoder.yudao.module.mes.controller.admin.wm.productreceipt.vo.line;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
@@ -9,14 +9,14 @@ import java.math.BigDecimal;
 
 @Schema(description = "管理后台 - MES 产品收货单行新增/修改 Request VO")
 @Data
-public class MesWmProductRecptLineSaveReqVO {
+public class MesWmProductReceiptLineSaveReqVO {
 
     @Schema(description = "编号", example = "1024")
     private Long id;
 
     @Schema(description = "收货单编号", requiredMode = Schema.RequiredMode.REQUIRED, example = "1")
     @NotNull(message = "收货单编号不能为空")
-    private Long recptId;
+    private Long receiptId;
 
     @Schema(description = "物料编号", requiredMode = Schema.RequiredMode.REQUIRED, example = "1")
     @NotNull(message = "物料编号不能为空")

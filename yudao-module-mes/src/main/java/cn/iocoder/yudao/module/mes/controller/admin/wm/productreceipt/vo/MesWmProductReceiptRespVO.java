@@ -1,4 +1,4 @@
-package cn.iocoder.yudao.module.mes.controller.admin.wm.productrecpt.vo;
+package cn.iocoder.yudao.module.mes.controller.admin.wm.productreceipt.vo;
 
 import cn.idev.excel.annotation.ExcelIgnoreUnannotated;
 import cn.idev.excel.annotation.ExcelProperty;
@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 @Schema(description = "管理后台 - MES 产品收货单 Response VO")
 @Data
 @ExcelIgnoreUnannotated
-public class MesWmProductRecptRespVO {
+public class MesWmProductReceiptRespVO {
 
     @Schema(description = "编号", requiredMode = Schema.RequiredMode.REQUIRED, example = "1024")
     @ExcelProperty("编号")

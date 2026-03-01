@@ -1,9 +1,9 @@
-package cn.iocoder.yudao.module.mes.dal.dataobject.wm.productrecpt;
+package cn.iocoder.yudao.module.mes.dal.dataobject.wm.productreceipt;
 
 import cn.iocoder.yudao.framework.mybatis.core.dataobject.BaseDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.md.item.MesMdItemDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.pro.workorder.MesProWorkOrderDO;
-import cn.iocoder.yudao.module.mes.enums.wm.MesWmProductRecptStatusEnum;
+import cn.iocoder.yudao.module.mes.enums.wm.MesWmProductReceiptStatusEnum;
 import com.baomidou.mybatisplus.annotation.KeySequence;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
@@ -14,15 +14,15 @@ import java.time.LocalDateTime;
 /**
  * MES 产品收货（入库）单 DO
  */
-@TableName("mes_wm_product_recpt")
-@KeySequence("mes_wm_product_recpt_seq")
+@TableName("mes_wm_product_receipt")
+@KeySequence("mes_wm_product_receipt_seq")
 @Data
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class MesWmProductRecptDO extends BaseDO {
+public class MesWmProductReceiptDO extends BaseDO {
 
     /**
      * 编号
@@ -56,7 +56,7 @@ public class MesWmProductRecptDO extends BaseDO {
     /**
      * 状态
      *
-     * 枚举 {@link MesWmProductRecptStatusEnum}
+     * 枚举 {@link MesWmProductReceiptStatusEnum}
      */
     private Integer status;
     /**

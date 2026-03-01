@@ -1,4 +1,4 @@
-package cn.iocoder.yudao.module.mes.controller.admin.wm.productrecpt.vo;
+package cn.iocoder.yudao.module.mes.controller.admin.wm.productreceipt.vo;
 
 import cn.iocoder.yudao.framework.common.pojo.PageParam;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -10,7 +10,7 @@ import lombok.ToString;
 @Data
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
-public class MesWmProductRecptPageReqVO extends PageParam {
+public class MesWmProductReceiptPageReqVO extends PageParam {
 
     @Schema(description = "收货单编码", example = "PR202603010001")
     private String code;

@@ -1,9 +1,9 @@
 package cn.iocoder.yudao.module.mes.enums.wm;
 
 import cn.iocoder.yudao.framework.common.core.ArrayValuable;
-import cn.iocoder.yudao.module.mes.controller.admin.wm.productrecpt.vo.MesWmProductRecptSaveReqVO;
+import cn.iocoder.yudao.module.mes.controller.admin.wm.productreceipt.vo.MesWmProductReceiptSaveReqVO;
 import cn.iocoder.yudao.module.mes.enums.MesOrderStatusConstants;
-import cn.iocoder.yudao.module.mes.service.wm.productrecpt.MesWmProductRecptService;
+import cn.iocoder.yudao.module.mes.service.wm.productreceipt.MesWmProductReceiptService;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -16,40 +16,40 @@ import java.util.Arrays;
  */
 @Getter
 @AllArgsConstructor
-public enum MesWmProductRecptStatusEnum implements ArrayValuable<Integer> {
+public enum MesWmProductReceiptStatusEnum implements ArrayValuable<Integer> {
 
     /**
      * 草稿
      *
-     * 对应方法：{@link MesWmProductRecptService#createProductRecpt(MesWmProductRecptSaveReqVO)}
+     * 对应方法：{@link MesWmProductReceiptService#createProductReceipt(MesWmProductReceiptSaveReqVO)}
      */
     PREPARE(MesOrderStatusConstants.PREPARE, "草稿"),
     /**
      * 待上架
      *
-     * 对应方法：{@link MesWmProductRecptService#submitProductRecpt(Long)}
+     * 对应方法：{@link MesWmProductReceiptService#submitProductReceipt(Long)}
      */
     APPROVING(MesOrderStatusConstants.APPROVING, "待上架"),
     /**
      * 待执行入库
      *
-     * 对应方法：{@link MesWmProductRecptService#stockProductRecpt(Long)}
+     * 对应方法：{@link MesWmProductReceiptService#stockProductReceipt(Long)}
      */
     APPROVED(MesOrderStatusConstants.APPROVED, "待执行入库"),
     /**
      * 已完成
      *
-     * 对应方法：{@link MesWmProductRecptService#executeProductRecpt(Long)}
+     * 对应方法：{@link MesWmProductReceiptService#executeProductReceipt(Long)}
      */
     FINISHED(MesOrderStatusConstants.FINISHED, "已完成"),
     /**
      * 已取消
      *
-     * 对应方法：{@link MesWmProductRecptService#cancelProductRecpt(Long)}
+     * 对应方法：{@link MesWmProductReceiptService#cancelProductReceipt(Long)}
      */
     CANCELED(MesOrderStatusConstants.CANCELLED, "已取消");
 
-    public static final Integer[] ARRAYS = Arrays.stream(values()).map(MesWmProductRecptStatusEnum::getStatus).toArray(Integer[]::new);
+    public static final Integer[] ARRAYS = Arrays.stream(values()).map(MesWmProductReceiptStatusEnum::getStatus).toArray(Integer[]::new);
 
     /**
      * 状态值

@@ -1,4 +1,4 @@
-package cn.iocoder.yudao.module.mes.dal.dataobject.wm.productrecpt;
+package cn.iocoder.yudao.module.mes.dal.dataobject.wm.productreceipt;
 
 import cn.iocoder.yudao.framework.mybatis.core.dataobject.BaseDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.md.item.MesMdItemDO;
@@ -15,15 +15,15 @@ import java.math.BigDecimal;
 /**
  * MES 产品收货（入库）单明细 DO
  */
-@TableName("mes_wm_product_recpt_detail")
-@KeySequence("mes_wm_product_recpt_detail_seq")
+@TableName("mes_wm_product_receipt_detail")
+@KeySequence("mes_wm_product_receipt_detail_seq")
 @Data
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class MesWmProductRecptDetailDO extends BaseDO {
+public class MesWmProductReceiptDetailDO extends BaseDO {
 
     /**
      * 编号
@@ -33,15 +33,15 @@ public class MesWmProductRecptDetailDO extends BaseDO {
     /**
      * 收货单行编号
      *
-     * 关联 {@link MesWmProductRecptLineDO#getId()}
+     * 关联 {@link MesWmProductReceiptLineDO#getId()}
      */
     private Long lineId;
     /**
      * 收货单编号
      *
-     * 关联 {@link MesWmProductRecptDO#getId()}
+     * 关联 {@link MesWmProductReceiptDO#getId()}
      */
-    private Long recptId;
+    private Long receiptId;
     /**
      * 物料编号
      *
