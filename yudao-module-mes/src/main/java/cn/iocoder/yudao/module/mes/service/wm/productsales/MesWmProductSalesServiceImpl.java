@@ -117,6 +117,7 @@ public class MesWmProductSalesServiceImpl implements MesWmProductSalesService {
                 .setId(id).setStatus(MesWmProductSalesStatusEnum.APPROVING.getStatus()));
     }
 
+    // TODO @AI：前后端方法名，都改成 stock；保持整体都是对齐的；
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void pickProductSales(Long id) {
@@ -126,6 +127,7 @@ public class MesWmProductSalesServiceImpl implements MesWmProductSalesService {
             throw exception(WM_PRODUCT_SALES_CANNOT_PICK);
         }
         // 校验每行明细数量之和是否等于行出库数量
+        // TODO @AI：这里挪成独立的 checkQuantiy 接口，不在这个方法里，保持对齐；然后前端调用；类似 /Users/yunai/Java/yudao-all-in-one/yudao-ui-admin-vue3/src/views/mes/wm/returnvendor/ReturnVendorForm.vue 这种；
         List<MesWmProductSalesLineDO> lines = productSalesLineService.getProductSalesLineListBySalesId(id);
         for (MesWmProductSalesLineDO line : lines) {
             List<MesWmProductSalesDetailDO> details = productSalesDetailService.getProductSalesDetailListByLineId(line.getId());
