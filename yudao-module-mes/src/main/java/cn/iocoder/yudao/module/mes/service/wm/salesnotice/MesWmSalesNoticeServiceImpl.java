@@ -9,6 +9,7 @@ import cn.iocoder.yudao.module.mes.controller.admin.wm.salesnotice.vo.MesWmSales
 import cn.iocoder.yudao.module.mes.dal.dataobject.wm.salesnotice.MesWmSalesNoticeDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.wm.salesnotice.MesWmSalesNoticeLineDO;
 import cn.iocoder.yudao.module.mes.dal.mysql.wm.salesnotice.MesWmSalesNoticeMapper;
+import cn.iocoder.yudao.module.mes.service.md.client.MesMdClientService;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -37,10 +38,15 @@ public class MesWmSalesNoticeServiceImpl implements MesWmSalesNoticeService {
     @Resource
     private MesWmSalesNoticeLineService salesNoticeLineService;
 
+    @Resource
+    private MesMdClientService clientService;
+
     @Override
     public Long createSalesNotice(MesWmSalesNoticeSaveReqVO createReqVO) {
         // 校验编码唯一
         validateNoticeCodeUnique(null, createReqVO.getNoticeCode());
+        // DONE @AI：clientId 存在；
+        clientService.validateClientExists(createReqVO.getClientId());
 
         // 插入
         MesWmSalesNoticeDO notice = BeanUtils.toBean(createReqVO, MesWmSalesNoticeDO.class);
@@ -55,6 +61,8 @@ public class MesWmSalesNoticeServiceImpl implements MesWmSalesNoticeService {
         validateSalesNoticeExistsAndDraft(updateReqVO.getId());
         // 校验编码唯一
         validateNoticeCodeUnique(updateReqVO.getId(), updateReqVO.getNoticeCode());
+        // 校验客户存在
+        clientService.validateClientExists(updateReqVO.getClientId());
 
         // 更新
         MesWmSalesNoticeDO updateObj = BeanUtils.toBean(updateReqVO, MesWmSalesNoticeDO.class);
