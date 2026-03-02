@@ -64,7 +64,7 @@ public class MesWmSalesNoticeDO extends BaseDO {
     /**
      * 状态
      *
-     * 0-草稿，1-已提交
+     * 枚举 {@link cn.iocoder.yudao.module.mes.enums.wm.MesWmSalesNoticeStatusEnum}
      */
     private Integer status;
     /**

@@ -21,6 +21,7 @@ import java.util.List;
 
 import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception;
 import static cn.iocoder.yudao.module.mes.enums.ErrorCodeConstants.*;
+import static cn.iocoder.yudao.module.mes.enums.wm.MesWmSalesNoticeStatusEnum.*;
 
 /**
  * MES 发货通知单 Service 实现类
@@ -43,7 +44,7 @@ public class MesWmSalesNoticeServiceImpl implements MesWmSalesNoticeService {
 
         // 插入
         MesWmSalesNoticeDO notice = BeanUtils.toBean(createReqVO, MesWmSalesNoticeDO.class);
-        notice.setStatus(0); // 草稿状态
+        notice.setStatus(PREPARE.getStatus()); // 草稿状态
         salesNoticeMapper.insert(notice);
         return notice.getId();
     }
@@ -93,9 +94,9 @@ public class MesWmSalesNoticeServiceImpl implements MesWmSalesNoticeService {
             throw exception(WM_SALES_NOTICE_LINE_EMPTY);
         }
 
-        // 2. 更新状态：草稿 → 已提交
+        // 2. 更新状态：草稿 → 待出库
         salesNoticeMapper.updateById(new MesWmSalesNoticeDO()
-                .setId(id).setStatus(1));
+                .setId(id).setStatus(APPROVED.getStatus()));
     }
 
     @Override
@@ -127,7 +128,7 @@ public class MesWmSalesNoticeServiceImpl implements MesWmSalesNoticeService {
      */
     private MesWmSalesNoticeDO validateSalesNoticeExistsAndDraft(Long id) {
         MesWmSalesNoticeDO notice = validateSalesNoticeExists(id);
-        if (ObjUtil.notEqual(0, notice.getStatus())) {
+        if (ObjUtil.notEqual(PREPARE.getStatus(), notice.getStatus())) {
             throw exception(WM_SALES_NOTICE_STATUS_NOT_ALLOW_DELETE);
         }
         return notice;
