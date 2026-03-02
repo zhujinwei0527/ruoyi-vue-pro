@@ -3,6 +3,7 @@ package cn.iocoder.yudao.module.mes.service.wm.productsales;
 import cn.iocoder.yudao.framework.common.pojo.PageResult;
 import cn.iocoder.yudao.module.mes.controller.admin.wm.productsales.vo.MesWmProductSalesPageReqVO;
 import cn.iocoder.yudao.module.mes.controller.admin.wm.productsales.vo.MesWmProductSalesSaveReqVO;
+import cn.iocoder.yudao.module.mes.controller.admin.wm.productsales.vo.MesWmProductSalesShippingReqVO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.wm.productsales.MesWmProductSalesDO;
 import jakarta.validation.Valid;
 
@@ -59,11 +60,26 @@ public interface MesWmProductSalesService {
     void submitProductSales(Long id);
 
     /**
-     * 执行拣货（待拣货 → 待出库）
+     * 校验销售出库单数量是否匹配
+     *
+     * @param id 编号
+     * @return 是否匹配
+     */
+    boolean checkProductSalesQuantity(Long id);
+
+    /**
+     * 执行拣货（待拣货 → 待填写运单）
      *
      * @param id 编号
      */
-    void pickProductSales(Long id);
+    void stockProductSales(Long id);
+
+    /**
+     * 填写运单（待填写运单 → 待执行出库）
+     *
+     * @param reqVO 运单信息
+     */
+    void shippingProductSales(@Valid MesWmProductSalesShippingReqVO reqVO);
 
     /**
      * 执行出库（待出库 → 已完成），扣减库存

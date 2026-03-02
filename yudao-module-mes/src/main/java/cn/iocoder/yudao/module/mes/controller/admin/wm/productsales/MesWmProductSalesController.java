@@ -11,6 +11,7 @@ import cn.iocoder.yudao.framework.excel.core.util.ExcelUtils;
 import cn.iocoder.yudao.module.mes.controller.admin.wm.productsales.vo.MesWmProductSalesPageReqVO;
 import cn.iocoder.yudao.module.mes.controller.admin.wm.productsales.vo.MesWmProductSalesRespVO;
 import cn.iocoder.yudao.module.mes.controller.admin.wm.productsales.vo.MesWmProductSalesSaveReqVO;
+import cn.iocoder.yudao.module.mes.controller.admin.wm.productsales.vo.MesWmProductSalesShippingReqVO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.md.client.MesMdClientDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.wm.productsales.MesWmProductSalesDO;
 import cn.iocoder.yudao.module.mes.service.md.client.MesMdClientService;
@@ -112,12 +113,28 @@ public class MesWmProductSalesController {
         return success(true);
     }
 
-    @PutMapping("/pick")
+    @GetMapping("/check-quantity")
+    @Operation(summary = "校验销售出库单数量")
+    @Parameter(name = "id", description = "编号", required = true)
+    @PreAuthorize("@ss.hasPermission('mes:wm-product-sales:query')")
+    public CommonResult<Boolean> checkProductSalesQuantity(@RequestParam("id") Long id) {
+        return success(productSalesService.checkProductSalesQuantity(id));
+    }
+
+    @PutMapping("/stock")
     @Operation(summary = "执行拣货")
     @Parameter(name = "id", description = "编号", required = true)
-    @PreAuthorize("@ss.hasPermission('mes:wm-product-sales:pick')")
-    public CommonResult<Boolean> pickProductSales(@RequestParam("id") Long id) {
-        productSalesService.pickProductSales(id);
+    @PreAuthorize("@ss.hasPermission('mes:wm-product-sales:stock')")
+    public CommonResult<Boolean> stockProductSales(@RequestParam("id") Long id) {
+        productSalesService.stockProductSales(id);
+        return success(true);
+    }
+
+    @PutMapping("/shipping")
+    @Operation(summary = "填写运单")
+    @PreAuthorize("@ss.hasPermission('mes:wm-product-sales:shipping')")
+    public CommonResult<Boolean> shippingProductSales(@Valid @RequestBody MesWmProductSalesShippingReqVO reqVO) {
+        productSalesService.shippingProductSales(reqVO);
         return success(true);
     }
 

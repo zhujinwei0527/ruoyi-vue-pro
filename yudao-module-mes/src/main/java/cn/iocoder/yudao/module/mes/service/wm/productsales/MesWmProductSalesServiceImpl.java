@@ -8,6 +8,7 @@ import cn.iocoder.yudao.framework.common.util.object.BeanUtils;
 import cn.iocoder.yudao.framework.common.util.object.ObjectUtils;
 import cn.iocoder.yudao.module.mes.controller.admin.wm.productsales.vo.MesWmProductSalesPageReqVO;
 import cn.iocoder.yudao.module.mes.controller.admin.wm.productsales.vo.MesWmProductSalesSaveReqVO;
+import cn.iocoder.yudao.module.mes.controller.admin.wm.productsales.vo.MesWmProductSalesShippingReqVO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.wm.productsales.MesWmProductSalesDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.wm.productsales.MesWmProductSalesDetailDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.wm.productsales.MesWmProductSalesLineDO;
@@ -117,33 +118,53 @@ public class MesWmProductSalesServiceImpl implements MesWmProductSalesService {
                 .setId(id).setStatus(MesWmProductSalesStatusEnum.APPROVING.getStatus()));
     }
 
-    // TODO @AI：前后端方法名，都改成 stock；保持整体都是对齐的；
+    @Override
+    public boolean checkProductSalesQuantity(Long id) {
+        // 校验每行明细数量之和是否等于行出库数量
+        List<MesWmProductSalesLineDO> lines = productSalesLineService.getProductSalesLineListBySalesId(id);
+        for (MesWmProductSalesLineDO line : lines) {
+            List<MesWmProductSalesDetailDO> details = productSalesDetailService.getProductSalesDetailListByLineId(line.getId());
+            if (CollUtil.isEmpty(details)) {
+                return false;
+            }
+            BigDecimal totalDetailQty = CollectionUtils.getSumValue(details,
+                    MesWmProductSalesDetailDO::getQuantity, BigDecimal::add, BigDecimal.ZERO);
+            if (line.getQuantity() != null && totalDetailQty.compareTo(line.getQuantity()) != 0) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public void pickProductSales(Long id) {
+    public void stockProductSales(Long id) {
         // 校验存在
         MesWmProductSalesDO sales = validateProductSalesExists(id);
         if (ObjUtil.notEqual(MesWmProductSalesStatusEnum.APPROVING.getStatus(), sales.getStatus())) {
             throw exception(WM_PRODUCT_SALES_CANNOT_PICK);
         }
-        // 校验每行明细数量之和是否等于行出库数量
-        // TODO @AI：这里挪成独立的 checkQuantiy 接口，不在这个方法里，保持对齐；然后前端调用；类似 /Users/yunai/Java/yudao-all-in-one/yudao-ui-admin-vue3/src/views/mes/wm/returnvendor/ReturnVendorForm.vue 这种；
-        List<MesWmProductSalesLineDO> lines = productSalesLineService.getProductSalesLineListBySalesId(id);
-        for (MesWmProductSalesLineDO line : lines) {
-            List<MesWmProductSalesDetailDO> details = productSalesDetailService.getProductSalesDetailListByLineId(line.getId());
-            if (CollUtil.isEmpty(details)) {
-                throw exception(WM_PRODUCT_SALES_DETAILS_EMPTY);
-            }
-            BigDecimal totalDetailQty = CollectionUtils.getSumValue(details,
-                    MesWmProductSalesDetailDO::getQuantity, BigDecimal::add, BigDecimal.ZERO);
-            if (line.getQuantity() != null && totalDetailQty.compareTo(line.getQuantity()) != 0) {
-                throw exception(WM_PRODUCT_SALES_DETAIL_QUANTITY_MISMATCH);
-            }
+
+        // 执行拣货（待拣货 → 待填写运单）
+        productSalesMapper.updateById(new MesWmProductSalesDO()
+                .setId(id).setStatus(MesWmProductSalesStatusEnum.SHIPPING.getStatus()));
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void shippingProductSales(MesWmProductSalesShippingReqVO reqVO) {
+        // 校验存在
+        MesWmProductSalesDO sales = validateProductSalesExists(reqVO.getId());
+        if (ObjUtil.notEqual(MesWmProductSalesStatusEnum.SHIPPING.getStatus(), sales.getStatus())) {
+            throw exception(WM_PRODUCT_SALES_CANNOT_SHIPPING);
         }
 
-        // 执行拣货（待拣货 → 待出库）
+        // 填写运单（待填写运单 → 待执行出库）
         productSalesMapper.updateById(new MesWmProductSalesDO()
-                .setId(id).setStatus(MesWmProductSalesStatusEnum.APPROVED.getStatus()));
+                .setId(reqVO.getId())
+                .setCarrier(reqVO.getCarrier())
+                .setShippingNumber(reqVO.getShippingNumber())
+                .setStatus(MesWmProductSalesStatusEnum.APPROVED.getStatus()));
     }
 
     @Override

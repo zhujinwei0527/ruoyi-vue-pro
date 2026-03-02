@@ -2,6 +2,7 @@ package cn.iocoder.yudao.module.mes.enums.wm;
 
 import cn.iocoder.yudao.framework.common.core.ArrayValuable;
 import cn.iocoder.yudao.module.mes.controller.admin.wm.productsales.vo.MesWmProductSalesSaveReqVO;
+import cn.iocoder.yudao.module.mes.controller.admin.wm.productsales.vo.MesWmProductSalesShippingReqVO;
 import cn.iocoder.yudao.module.mes.enums.MesOrderStatusConstants;
 import cn.iocoder.yudao.module.mes.service.wm.productsales.MesWmProductSalesService;
 import lombok.AllArgsConstructor;
@@ -20,8 +21,6 @@ import java.util.Arrays;
 @AllArgsConstructor
 public enum MesWmProductSalesStatusEnum implements ArrayValuable<Integer> {
 
-    // （草稿）提交 =》（待拣货）执行拣货 =》（待填写运单）填写运单；=》（待执行出库）执行出库=》（已完成）
-
     /**
      * 草稿
      *
@@ -34,12 +33,16 @@ public enum MesWmProductSalesStatusEnum implements ArrayValuable<Integer> {
      * 对应方法：{@link MesWmProductSalesService#submitProductSales(Long)}
      */
     APPROVING(MesOrderStatusConstants.APPROVING, "待拣货"),
-    // TODO @AI：在 APPROVING、APPROVED 之间加一个 10，SHIPPING，待填写运单；执行填写运单方法：{@link MesWmProductSalesService#shippingProductSales(Long)}
-    // TODO @AI：pick 这个方法要改成 stock；
+    /**
+     * 待填写运单
+     *
+     * 对应方法：{@link MesWmProductSalesService#shippingProductSales(MesWmProductSalesShippingReqVO)}
+     */
+    SHIPPING(10, "待填写运单"), // 10 是一个特殊的状态值，不在 MesOrderStatusConstants 中，单独定义
     /**
      * 待执行出库
      *
-     * 对应方法：{@link MesWmProductSalesService#pickProductSales(Long)}
+     * 对应方法：{@link MesWmProductSalesService#stockProductSales(Long)}
      */
     APPROVED(MesOrderStatusConstants.APPROVED, "待执行出库"),
     /**
