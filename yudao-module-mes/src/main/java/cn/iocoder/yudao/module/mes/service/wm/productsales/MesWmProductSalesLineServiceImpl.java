@@ -47,7 +47,6 @@ public class MesWmProductSalesLineServiceImpl implements MesWmProductSalesLineSe
 
         // 新增
         MesWmProductSalesLineDO line = BeanUtils.toBean(createReqVO, MesWmProductSalesLineDO.class);
-        line.setPickedQuantity(BigDecimal.ZERO);
         productSalesLineMapper.insert(line);
         return line.getId();
     }
