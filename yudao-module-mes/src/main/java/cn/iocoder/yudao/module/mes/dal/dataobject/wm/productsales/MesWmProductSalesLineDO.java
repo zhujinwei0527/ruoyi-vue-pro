@@ -45,11 +45,6 @@ public class MesWmProductSalesLineDO extends BaseDO {
      * 出库数量
      */
     private BigDecimal quantity;
-    // TODO @AI：去掉 pickedQuantity 字段；（不存储）
-    /**
-     * 已拣货数量
-     */
-    private BigDecimal pickedQuantity;
     /**
      * 批次ID
      */
@@ -58,24 +53,20 @@ public class MesWmProductSalesLineDO extends BaseDO {
      * 库存记录ID
      */
     private Long materialStockId;
-    // TODO @AI：换成 Boolean；
     /**
-     * 是否出厂检验（Y/N）
+     * 是否出厂检验
      */
-    private String oqcCheck;
+    private Boolean oqcCheck;
     /**
      * 出厂检验单 ID
+     *
+     * 关联 {@link cn.iocoder.yudao.module.mes.dal.dataobject.qc.oqc.MesQcOqcDO#getId()}
      */
-    // TODO @AI：字段关联
     private Long oqcId;
-    // TODO @AI：不用 oqcCode 字段；
-    /**
-     * 出厂检验单编号
-     */
-    private String oqcCode;
-    // TODO @AI：关联枚举类；
     /**
      * 质量状态
+     *
+     * 枚举 {@link cn.iocoder.yudao.module.mes.enums.wm.MesWmQualityStatusEnum}
      */
     private String qualityStatus;
     /**

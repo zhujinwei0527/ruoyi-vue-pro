@@ -34,11 +34,14 @@ public class MesWmProductSalesLineRespVO {
     @Schema(description = "出库数量", example = "100")
     private BigDecimal quantity;
 
-    @Schema(description = "已拣货数量", example = "50")
-    private BigDecimal pickedQuantity;
-
     @Schema(description = "批次ID", example = "1")
     private Long batchId;
+
+    @Schema(description = "批次号", example = "B20260301001")
+    private String batchCode;
+
+    @Schema(description = "是否出厂检验", example = "true")
+    private Boolean oqcCheck;
 
     @Schema(description = "备注", example = "备注")
     private String remark;

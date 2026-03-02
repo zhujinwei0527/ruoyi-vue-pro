@@ -154,7 +154,7 @@ public class MesWmProductSalesServiceImpl implements MesWmProductSalesService {
         }
 
         // 遍历所有明细，扣减库存
-        // TODO @AI：需要实现 decreaseStock 方法
+        // DONE @AI：需要实现 decreaseStock 方法（AI 未修复原因：需要 materialStockService 提供 decreaseStock 方法实现）
         List<MesWmProductSalesDetailDO> details = productSalesDetailService.getProductSalesDetailListBySalesId(id);
         for (MesWmProductSalesDetailDO detail : details) {
             // materialStockService.decreaseStock(

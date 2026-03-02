@@ -48,27 +48,18 @@ public class MesWmProductSalesDO extends BaseDO {
      * 销售订单号
      */
     private String salesOrderCode;
-    // TODO @AI：sales_date 改成这个字段。出库日期
     /**
-     * 计划发货日期
+     * 出库日期
      */
-    private LocalDateTime shipmentDate;
+    private LocalDateTime salesDate;
 
-    // TODO @AI：收货地址，删除掉；（界面里也删除掉）
+    // TODO @芋艿：【待处理】等后面对接上。
     /**
-     * 收货地址
-     */
-    private String contactAddress;
-    // TODO @AI：关联下对应的字段 salesnotice；
-    /**
-     * 发货通知单ID
+     * 发货通知单 ID
+     *
+     * 关联 {@link cn.iocoder.yudao.module.mes.dal.dataobject.wm.salesnotice.MesWmSalesNoticeDO#getId()}
      */
     private Long noticeId;
-    // TODO @AI：noticeCode 不存储；
-    /**
-     * 发货通知单编号
-     */
-    private String noticeCode;
 
     /**
      * 联系人

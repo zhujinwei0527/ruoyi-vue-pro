@@ -29,18 +29,24 @@ public class MesWmProductSalesSaveReqVO {
     @Schema(description = "销售订单号", example = "SO2026030001")
     private String salesOrderCode;
 
-    @Schema(description = "计划发货日期", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotNull(message = "计划发货日期不能为空")
-    private LocalDateTime shipmentDate;
+    @Schema(description = "出库日期", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotNull(message = "出库日期不能为空")
+    private LocalDateTime salesDate;
 
-    @Schema(description = "联系人", example = "张三")
+    @Schema(description = "发货通知单ID", example = "1")
+    private Long noticeId;
+
+    @Schema(description = "收货人", example = "张三")
     private String contactName;
 
-    @Schema(description = "联系电话", example = "13800138000")
+    @Schema(description = "联系方式", example = "13800138000")
     private String contactTelephone;
 
-    @Schema(description = "收货地址", example = "北京市朝阳区xxx")
-    private String contactAddress;
+    @Schema(description = "承运商", example = "顺丰快递")
+    private String carrier;
+
+    @Schema(description = "运输单号", example = "SF1234567890")
+    private String shippingNumber;
 
     @Schema(description = "备注", example = "备注")
     private String remark;

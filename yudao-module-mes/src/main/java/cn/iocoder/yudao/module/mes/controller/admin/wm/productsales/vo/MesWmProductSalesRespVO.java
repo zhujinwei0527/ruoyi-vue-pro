@@ -35,21 +35,40 @@ public class MesWmProductSalesRespVO {
     @ExcelProperty("销售订单号")
     private String salesOrderCode;
 
-    @Schema(description = "计划发货日期")
-    @ExcelProperty("计划发货日期")
-    private LocalDateTime shipmentDate;
+    @Schema(description = "出库日期")
+    @ExcelProperty("出库日期")
+    private LocalDateTime salesDate;
 
-    @Schema(description = "联系人", example = "张三")
-    @ExcelProperty("联系人")
+    @Schema(description = "发货通知单ID", example = "1")
+    private Long noticeId;
+
+    @Schema(description = "发货通知单编号", example = "SN2026030001")
+    @ExcelProperty("发货通知单编号")
+    private String noticeCode;
+
+    @Schema(description = "客户编码", example = "C001")
+    @ExcelProperty("客户编码")
+    private String clientCode;
+
+    @Schema(description = "收货人", example = "张三")
+    @ExcelProperty("收货人")
     private String contactName;
 
-    @Schema(description = "联系电话", example = "13800138000")
-    @ExcelProperty("联系电话")
+    @Schema(description = "联系方式", example = "13800138000")
+    @ExcelProperty("联系方式")
     private String contactTelephone;
 
     @Schema(description = "收货地址", example = "北京市朝阳区xxx")
     @ExcelProperty("收货地址")
     private String contactAddress;
+
+    @Schema(description = "承运商", example = "顺丰快递")
+    @ExcelProperty("承运商")
+    private String carrier;
+
+    @Schema(description = "运输单号", example = "SF1234567890")
+    @ExcelProperty("运输单号")
+    private String shippingNumber;
 
     @Schema(description = "状态", requiredMode = Schema.RequiredMode.REQUIRED, example = "0")
     @ExcelProperty("状态")
