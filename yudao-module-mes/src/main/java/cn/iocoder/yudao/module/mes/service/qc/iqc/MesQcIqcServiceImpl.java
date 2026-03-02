@@ -111,7 +111,7 @@ public class MesQcIqcServiceImpl implements MesQcIqcService {
     }
 
     @Override
-    public void completeIqc(Long id) {
+    public void finishIqc(Long id) {
         // 1.1 校验存在 + 草稿状态
         MesQcIqcDO iqc = validateIqcStatusPrepare(id);
         if (iqc.getCheckResult() == null) {

@@ -36,7 +36,7 @@ public interface MesQcIpqcService {
      *
      * @param id 编号
      */
-    void completeIpqc(Long id);
+    void finishIpqc(Long id);
 
     /**
      * 删除过程检验单

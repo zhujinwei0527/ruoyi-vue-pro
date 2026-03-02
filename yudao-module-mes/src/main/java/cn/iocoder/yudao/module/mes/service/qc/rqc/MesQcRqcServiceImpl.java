@@ -95,7 +95,7 @@ public class MesQcRqcServiceImpl implements MesQcRqcService {
     }
 
     @Override
-    public void completeRqc(Long id) {
+    public void finishRqc(Long id) {
         // 1.1 校验存在 + 草稿状态
         MesQcRqcDO rqc = validateRqcStatusPrepare(id);
         // 1.2 校验合格品 + 不合格品 = 检测数量

@@ -100,7 +100,7 @@ public class MesQcOqcServiceImpl implements MesQcOqcService {
     }
 
     @Override
-    public void completeOqc(Long id) {
+    public void finishOqc(Long id) {
         // 1. 校验存在 + 草稿状态
         validateOqcStatusPrepare(id);
 

@@ -110,7 +110,7 @@ public class MesQcIpqcServiceImpl implements MesQcIpqcService {
     }
 
     @Override
-    public void completeIpqc(Long id) {
+    public void finishIpqc(Long id) {
         // 1.1 校验存在 + 草稿状态
         MesQcIpqcDO ipqc = validateIpqcStatusPrepare(id);
         // 1.2 校验检测结论必填

@@ -36,7 +36,7 @@ public interface MesQcRqcService {
      *
      * @param id 编号
      */
-    void completeRqc(Long id);
+    void finishRqc(Long id);
 
     /**
      * 删除退货检验单

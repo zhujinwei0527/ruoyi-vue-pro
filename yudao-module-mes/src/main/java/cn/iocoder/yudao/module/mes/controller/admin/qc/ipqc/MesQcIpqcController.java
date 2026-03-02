@@ -82,12 +82,12 @@ public class MesQcIpqcController {
         return success(true);
     }
 
-    @PutMapping("/complete")
+    @PutMapping("/finish")
     @Operation(summary = "完成过程检验单")
     @Parameter(name = "id", description = "编号", required = true)
-    @PreAuthorize("@ss.hasPermission('mes:qc-ipqc:update')")
-    public CommonResult<Boolean> completeIpqc(@RequestParam("id") Long id) {
-        ipqcService.completeIpqc(id);
+    @PreAuthorize("@ss.hasPermission('mes:qc-ipqc:finish')")
+    public CommonResult<Boolean> finishIpqc(@RequestParam("id") Long id) {
+        ipqcService.finishIpqc(id);
         return success(true);
     }
 

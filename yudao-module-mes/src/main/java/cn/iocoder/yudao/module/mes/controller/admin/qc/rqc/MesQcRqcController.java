@@ -69,12 +69,12 @@ public class MesQcRqcController {
         return success(true);
     }
 
-    @PutMapping("/complete")
+    @PutMapping("/finish")
     @Operation(summary = "完成退货检验单")
     @Parameter(name = "id", description = "编号", required = true)
-    @PreAuthorize("@ss.hasPermission('mes:qc-rqc:update')")
-    public CommonResult<Boolean> completeRqc(@RequestParam("id") Long id) {
-        rqcService.completeRqc(id);
+    @PreAuthorize("@ss.hasPermission('mes:qc-rqc:finish')")
+    public CommonResult<Boolean> finishRqc(@RequestParam("id") Long id) {
+        rqcService.finishRqc(id);
         return success(true);
     }
 

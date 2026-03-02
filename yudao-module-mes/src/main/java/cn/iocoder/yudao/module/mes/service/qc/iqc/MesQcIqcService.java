@@ -38,7 +38,7 @@ public interface MesQcIqcService {
      *
      * @param id 编号
      */
-    void completeIqc(Long id);
+    void finishIqc(Long id);
 
     /**
      * 删除来料检验单
