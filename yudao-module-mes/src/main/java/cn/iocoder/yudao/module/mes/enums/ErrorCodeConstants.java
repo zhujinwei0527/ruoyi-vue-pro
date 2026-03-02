@@ -434,7 +434,7 @@ public interface ErrorCodeConstants {
     ErrorCode WM_PRODUCT_SALES_CANNOT_SUBMIT = new ErrorCode(1_040_714_004, "当前状态不允许提交");
     ErrorCode WM_PRODUCT_SALES_CANNOT_PICK = new ErrorCode(1_040_714_005, "当前状态不允许拣货");
     ErrorCode WM_PRODUCT_SALES_CANNOT_SHIPPING = new ErrorCode(1_040_714_006, "当前状态不允许填写运单");
-    ErrorCode WM_PRODUCT_SALES_CANNOT_EXECUTE = new ErrorCode(1_040_714_007, "当前状态不允许执行出库");
+    ErrorCode WM_PRODUCT_SALES_CANNOT_FINISH = new ErrorCode(1_040_714_007, "当前状态不允许执行出库");
     ErrorCode WM_PRODUCT_SALES_CANNOT_CANCEL = new ErrorCode(1_040_714_008, "当前状态不允许取消");
     ErrorCode WM_PRODUCT_SALES_DETAILS_EMPTY = new ErrorCode(1_040_714_009, "拣货明细不能为空");
     ErrorCode WM_PRODUCT_SALES_DETAIL_QUANTITY_MISMATCH = new ErrorCode(1_040_714_010, "拣货数量与出库数量不匹配");

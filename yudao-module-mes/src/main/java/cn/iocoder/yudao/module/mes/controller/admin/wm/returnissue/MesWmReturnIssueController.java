@@ -109,7 +109,7 @@ public class MesWmReturnIssueController {
     @PutMapping("/finish")
     @Operation(summary = "完成生产退料单")
     @Parameter(name = "id", description = "编号", required = true)
-    @PreAuthorize("@ss.hasPermission('mes:wm-return-issue:execute')")
+    @PreAuthorize("@ss.hasPermission('mes:wm-return-issue:finish')")
     public CommonResult<Boolean> finishReturnIssue(@RequestParam("id") Long id) {
         issueService.finishReturnIssue(id);
         return success(true);

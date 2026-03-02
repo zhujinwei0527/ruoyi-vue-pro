@@ -153,7 +153,7 @@ public class MesWmProductReceiptServiceImpl implements MesWmProductReceiptServic
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public void executeProductReceipt(Long id) {
+    public void finishProductReceipt(Long id) {
         // 校验存在
         MesWmProductReceiptDO receipt = validateProductReceiptExists(id);
         if (ObjUtil.notEqual(MesWmProductReceiptStatusEnum.APPROVED.getStatus(), receipt.getStatus())) {

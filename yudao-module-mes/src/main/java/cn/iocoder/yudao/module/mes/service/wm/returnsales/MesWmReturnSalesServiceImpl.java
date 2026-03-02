@@ -122,7 +122,7 @@ public class MesWmReturnSalesServiceImpl implements MesWmReturnSalesService {
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public void executeReturnSales(Long id) {
+    public void finishReturnSales(Long id) {
         // 校验存在
         MesWmReturnSalesDO returnSales = validateReturnSalesExists(id);
         if (ObjUtil.notEqual(MesWmReturnSalesStatusEnum.APPROVING.getStatus(), returnSales.getStatus())) {

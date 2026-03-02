@@ -39,7 +39,7 @@ public enum MesWmItemReceiptStatusEnum implements ArrayValuable<Integer> {
     /**
      * 已完成
      *
-     * 对应方法：{@link MesWmItemReceiptService#executeItemReceipt(Long)}
+     * 对应方法：{@link MesWmItemReceiptService#finishItemReceipt(Long)}
      */
     FINISHED(MesOrderStatusConstants.FINISHED, "已完成"),
     /**

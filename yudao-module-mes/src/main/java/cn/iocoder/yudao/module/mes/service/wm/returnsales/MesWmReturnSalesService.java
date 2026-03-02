@@ -71,7 +71,7 @@ public interface MesWmReturnSalesService {
      *
      * @param id 编号
      */
-    void executeReturnSales(Long id);
+    void finishReturnSales(Long id);
 
     /**
      * 执行上架（待上架 -> 已完成），更新库存台账

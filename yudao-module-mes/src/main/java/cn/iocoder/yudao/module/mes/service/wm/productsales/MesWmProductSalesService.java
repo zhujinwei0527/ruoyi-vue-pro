@@ -86,7 +86,7 @@ public interface MesWmProductSalesService {
      *
      * @param id 编号
      */
-    void executeProductSales(Long id);
+    void finishProductSales(Long id);
 
     /**
      * 取消销售出库单（任意非已完成/已取消状态 → 已取消）

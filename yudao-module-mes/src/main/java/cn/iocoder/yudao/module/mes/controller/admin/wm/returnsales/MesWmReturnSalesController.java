@@ -116,12 +116,12 @@ public class MesWmReturnSalesController {
         return success(true);
     }
 
-    @PutMapping("/execute")
+    @PutMapping("/finish")
     @Operation(summary = "执行退货")
     @Parameter(name = "id", description = "编号", required = true)
-    @PreAuthorize("@ss.hasPermission('mes:wm-return-sales:execute')")
-    public CommonResult<Boolean> executeReturnSales(@RequestParam("id") Long id) {
-        returnSalesService.executeReturnSales(id);
+    @PreAuthorize("@ss.hasPermission('mes:wm-return-sales:finish')")
+    public CommonResult<Boolean> finishReturnSales(@RequestParam("id") Long id) {
+        returnSalesService.finishReturnSales(id);
         return success(true);
     }
 

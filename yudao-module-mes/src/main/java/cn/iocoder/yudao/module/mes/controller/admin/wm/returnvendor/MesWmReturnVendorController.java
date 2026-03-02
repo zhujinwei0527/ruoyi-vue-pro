@@ -123,7 +123,7 @@ public class MesWmReturnVendorController {
     @PutMapping("/finish")
     @Operation(summary = "完成供应商退货单")
     @Parameter(name = "id", description = "编号", required = true)
-    @PreAuthorize("@ss.hasPermission('mes:wm-return-vendor:execute')")
+    @PreAuthorize("@ss.hasPermission('mes:wm-return-vendor:finish')")
     public CommonResult<Boolean> finishReturnVendor(@RequestParam("id") Long id) {
         returnVendorService.finishReturnVendor(id);
         return success(true);

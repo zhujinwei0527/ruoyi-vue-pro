@@ -154,12 +154,12 @@ public class MesProFeedbackController {
         return success(true);
     }
 
-    @PutMapping("/execute")
+    @PutMapping("/finish")
     @Operation(summary = "执行报工")
     @Parameter(name = "id", description = "编号", required = true)
-    @PreAuthorize("@ss.hasPermission('mes:pro-feedback:update')")
-    public CommonResult<Boolean> executeFeedback(@RequestParam("id") Long id) {
-        feedbackService.executeFeedback(id);
+    @PreAuthorize("@ss.hasPermission('mes:pro-feedback:finish')")
+    public CommonResult<Boolean> finishFeedback(@RequestParam("id") Long id) {
+        feedbackService.finishFeedback(id);
         return success(true);
     }
 

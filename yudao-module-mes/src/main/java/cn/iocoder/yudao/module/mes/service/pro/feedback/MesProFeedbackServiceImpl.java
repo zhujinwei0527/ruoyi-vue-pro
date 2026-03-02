@@ -108,7 +108,7 @@ public class MesProFeedbackServiceImpl implements MesProFeedbackService {
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public void executeFeedback(Long id) {
+    public void finishFeedback(Long id) {
         // 1. 校验存在 + 审批中状态
         MesProFeedbackDO feedback = validateFeedbackStatusApproving(id);
 

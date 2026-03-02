@@ -68,7 +68,7 @@ public interface MesWmProductReceiptService {
      *
      * @param id 编号
      */
-    void executeProductReceipt(Long id);
+    void finishProductReceipt(Long id);
 
     /**
      * 取消产品收货单（任意非已完成/已取消状态 → 已取消）

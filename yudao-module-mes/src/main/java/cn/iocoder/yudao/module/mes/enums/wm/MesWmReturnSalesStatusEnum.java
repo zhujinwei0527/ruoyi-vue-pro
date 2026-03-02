@@ -31,7 +31,7 @@ public enum MesWmReturnSalesStatusEnum implements ArrayValuable<Integer> {
     /**
      * 待上架
      *
-     * 对应方法：{@link cn.iocoder.yudao.module.mes.service.wm.returnsales.MesWmReturnSalesService#executeReturnSales}
+     * 对应方法：{@link cn.iocoder.yudao.module.mes.service.wm.returnsales.MesWmReturnSalesService#finishReturnSales}
      */
     APPROVED(MesOrderStatusConstants.APPROVED, "待上架"),
     /**

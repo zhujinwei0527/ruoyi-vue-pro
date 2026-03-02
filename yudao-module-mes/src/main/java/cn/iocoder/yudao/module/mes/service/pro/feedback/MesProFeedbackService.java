@@ -70,7 +70,7 @@ public interface MesProFeedbackService {
      *
      * @param id 编号
      */
-    void executeFeedback(Long id);
+    void finishFeedback(Long id);
 
     /**
      * 取消报工

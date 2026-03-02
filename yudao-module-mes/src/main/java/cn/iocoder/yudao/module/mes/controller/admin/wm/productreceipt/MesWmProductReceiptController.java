@@ -131,12 +131,12 @@ public class MesWmProductReceiptController {
         return success(true);
     }
 
-    @PutMapping("/execute")
+    @PutMapping("/finish")
     @Operation(summary = "执行入库")
     @Parameter(name = "id", description = "编号", required = true)
-    @PreAuthorize("@ss.hasPermission('mes:wm-product-receipt:execute')")
-    public CommonResult<Boolean> executeProductReceipt(@RequestParam("id") Long id) {
-        productReceiptService.executeProductReceipt(id);
+    @PreAuthorize("@ss.hasPermission('mes:wm-product-receipt:finish')")
+    public CommonResult<Boolean> finishProductReceipt(@RequestParam("id") Long id) {
+        productReceiptService.finishProductReceipt(id);
         return success(true);
     }
 

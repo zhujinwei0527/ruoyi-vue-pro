@@ -169,11 +169,11 @@ public class MesWmProductSalesServiceImpl implements MesWmProductSalesService {
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public void executeProductSales(Long id) {
+    public void finishProductSales(Long id) {
         // 校验存在
         MesWmProductSalesDO sales = validateProductSalesExists(id);
         if (ObjUtil.notEqual(MesWmProductSalesStatusEnum.APPROVED.getStatus(), sales.getStatus())) {
-            throw exception(WM_PRODUCT_SALES_CANNOT_EXECUTE);
+            throw exception(WM_PRODUCT_SALES_CANNOT_FINISH);
         }
 
         // 遍历所有明细，扣减库存

@@ -109,7 +109,7 @@ public class MesWmProductionIssueController {
     @PutMapping("/finish")
     @Operation(summary = "完成领料出库单")
     @Parameter(name = "id", description = "编号", required = true)
-    @PreAuthorize("@ss.hasPermission('mes:wm-production-issue:execute')")
+    @PreAuthorize("@ss.hasPermission('mes:wm-production-issue:finish')")
     public CommonResult<Boolean> finishProductionIssue(@RequestParam("id") Long id) {
         issueService.finishProductionIssue(id);
         return success(true);

@@ -138,12 +138,12 @@ public class MesWmProductSalesController {
         return success(true);
     }
 
-    @PutMapping("/execute")
+    @PutMapping("/finish")
     @Operation(summary = "执行出库")
     @Parameter(name = "id", description = "编号", required = true)
-    @PreAuthorize("@ss.hasPermission('mes:wm-product-sales:execute')")
-    public CommonResult<Boolean> executeProductSales(@RequestParam("id") Long id) {
-        productSalesService.executeProductSales(id);
+    @PreAuthorize("@ss.hasPermission('mes:wm-product-sales:finish')")
+    public CommonResult<Boolean> finishProductSales(@RequestParam("id") Long id) {
+        productSalesService.finishProductSales(id);
         return success(true);
     }
 

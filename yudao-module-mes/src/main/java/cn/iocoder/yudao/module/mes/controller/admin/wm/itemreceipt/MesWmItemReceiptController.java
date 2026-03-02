@@ -137,12 +137,12 @@ public class MesWmItemReceiptController {
         return success(true);
     }
 
-    @PutMapping("/execute")
+    @PutMapping("/finish")
     @Operation(summary = "执行入库")
     @Parameter(name = "id", description = "编号", required = true)
-    @PreAuthorize("@ss.hasPermission('mes:wm-item-receipt:execute')")
-    public CommonResult<Boolean> executeItemReceipt(@RequestParam("id") Long id) {
-        itemReceiptService.executeItemReceipt(id);
+    @PreAuthorize("@ss.hasPermission('mes:wm-item-receipt:finish')")
+    public CommonResult<Boolean> finishItemReceipt(@RequestParam("id") Long id) {
+        itemReceiptService.finishItemReceipt(id);
         return success(true);
     }
 

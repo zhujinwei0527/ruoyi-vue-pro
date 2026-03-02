@@ -68,7 +68,7 @@ public interface MesWmItemReceiptService {
      *
      * @param id 编号
      */
-    void executeItemReceipt(Long id);
+    void finishItemReceipt(Long id);
 
     /**
      * 取消采购入库单（任意非已完成/已取消状态 → 已取消）

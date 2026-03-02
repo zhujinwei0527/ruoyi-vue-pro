@@ -139,7 +139,7 @@ public class MesWmItemReceiptServiceImpl implements MesWmItemReceiptService {
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public void executeItemReceipt(Long id) {
+    public void finishItemReceipt(Long id) {
         // 校验存在
         MesWmItemReceiptDO receipt = validateItemReceiptExists(id);
         if (ObjUtil.notEqual(MesWmItemReceiptStatusEnum.APPROVED.getStatus(), receipt.getStatus())) {
