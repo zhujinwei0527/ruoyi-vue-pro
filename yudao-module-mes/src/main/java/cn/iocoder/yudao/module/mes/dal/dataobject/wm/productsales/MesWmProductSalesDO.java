@@ -53,7 +53,6 @@ public class MesWmProductSalesDO extends BaseDO {
      */
     private LocalDateTime salesDate;
 
-    // TODO @芋艿：【待处理】等后面对接上。
     /**
      * 发货通知单 ID
      *
