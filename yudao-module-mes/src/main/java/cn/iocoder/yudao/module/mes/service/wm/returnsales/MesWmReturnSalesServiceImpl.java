@@ -30,9 +30,9 @@ import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionU
 import static cn.iocoder.yudao.module.mes.enums.ErrorCodeConstants.*;
 
 /**
+ * MES 销售退货单 Service 实现类
  *
  * @author 芋道源码
- * MES 销售退货单 Service 实现类
  */
 @Service
 @Validated

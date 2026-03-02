@@ -7,9 +7,9 @@ import cn.iocoder.yudao.module.mes.dal.dataobject.wm.returnsales.MesWmReturnSale
 import jakarta.validation.Valid;
 
 /**
+ * MES 销售退货单 Service 接口
  *
  * @author 芋道源码
- * MES 销售退货单 Service 接口
  */
 public interface MesWmReturnSalesService {
 

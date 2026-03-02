@@ -20,9 +20,9 @@ import static cn.iocoder.yudao.module.mes.enums.ErrorCodeConstants.MD_ITEM_BATCH
 import static cn.iocoder.yudao.module.mes.enums.ErrorCodeConstants.WM_RETURN_SALES_LINE_NOT_EXISTS;
 
 /**
+ * MES 销售退货单行 Service 实现类
  *
  * @author 芋道源码
- * MES 销售退货单行 Service 实现类
  */
 @Service
 @Validated

@@ -7,9 +7,9 @@ import jakarta.validation.Valid;
 import java.util.List;
 
 /**
+ * MES 销售退货明细 Service 接口
  *
  * @author 芋道源码
- * MES 销售退货明细 Service 接口
  */
 public interface MesWmReturnSalesDetailService {
 

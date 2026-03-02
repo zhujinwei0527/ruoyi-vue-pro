@@ -13,9 +13,9 @@ import lombok.*;
 import java.math.BigDecimal;
 
 /**
+ * MES 销售退货明细 DO
  *
  * @author 芋道源码
- * MES 销售退货明细 DO
  */
 @TableName("mes_wm_return_sales_detail")
 @KeySequence("mes_wm_return_sales_detail_seq")

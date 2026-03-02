@@ -8,9 +8,9 @@ import cn.iocoder.yudao.module.mes.dal.dataobject.wm.returnsales.MesWmReturnSale
 import org.apache.ibatis.annotations.Mapper;
 
 /**
+ * MES 销售退货单 Mapper
  *
  * @author 芋道源码
- * MES 销售退货单 Mapper
  */
 @Mapper
 public interface MesWmReturnSalesMapper extends BaseMapperX<MesWmReturnSalesDO> {

@@ -16,9 +16,9 @@ import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionU
 import static cn.iocoder.yudao.module.mes.enums.ErrorCodeConstants.WM_RETURN_SALES_DETAIL_NOT_EXISTS;
 
 /**
+ * MES 销售退货明细 Service 实现类
  *
  * @author 芋道源码
- * MES 销售退货明细 Service 实现类
  */
 @Service
 @Validated

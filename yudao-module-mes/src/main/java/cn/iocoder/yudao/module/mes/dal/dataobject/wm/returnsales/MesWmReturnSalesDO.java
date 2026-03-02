@@ -11,9 +11,9 @@ import lombok.*;
 import java.time.LocalDateTime;
 
 /**
+ * MES 销售退货单 DO
  *
  * @author 芋道源码
- * MES 销售退货单 DO
  */
 @TableName("mes_wm_return_sales")
 @KeySequence("mes_wm_return_sales_seq")
