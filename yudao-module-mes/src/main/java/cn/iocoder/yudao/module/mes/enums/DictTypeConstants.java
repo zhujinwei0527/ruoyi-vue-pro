@@ -50,5 +50,7 @@ public interface DictTypeConstants {
     String MES_WM_QUALITY_STATUS = "mes_wm_quality_status"; // MES 质量状态（待检/合格/不合格）
     String MES_WM_RETURN_ISSUE_STATUS = "mes_return_issue_status"; // MES 生产退料单状态
     String MES_WM_RETURN_ISSUE_TYPE = "mes_return_issue_type"; // MES 生产退料类型
+    String MES_WM_MISC_ISSUE_TYPE = "mes_wm_misc_issue_type"; // MES 杂项出库类型
+    String MES_WM_MISC_ISSUE_STATUS = "mes_wm_misc_issue_status"; // MES 杂项出库单状态
 
 }

@@ -1,6 +1,8 @@
 package cn.iocoder.yudao.module.mes.enums.wm;
 
 import cn.iocoder.yudao.framework.common.core.ArrayValuable;
+import cn.iocoder.yudao.module.mes.enums.MesOrderStatusConstants;
+import cn.iocoder.yudao.module.mes.service.wm.miscissue.MesWmMiscIssueService;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -9,29 +11,38 @@ import java.util.Arrays;
 /**
  * MES 杂项出库单状态枚举
  *
+ * 对应字典 mes_wm_misc_issue_status
+ *
  * @author 芋道源码
  */
 @Getter
 @AllArgsConstructor
 public enum MesWmMiscIssueStatusEnum implements ArrayValuable<Integer> {
 
-    // TODO @AI：/Users/yunai/Java/yudao-all-in-one/ruoyi-vue-pro/yudao-module-mes/src/main/java/cn/iocoder/yudao/module/mes/enums/wm/MesWmProductSalesStatusEnum.java，关联 orderstatus；然后有“对应方法”
     /**
      * 草稿
+     *
+     * 对应方法：{@link MesWmMiscIssueService#createMiscIssue}
      */
-    PREPARE(0, "草稿"),
+    PREPARE(MesOrderStatusConstants.PREPARE, "草稿"),
     /**
      * 待执行出库
+     *
+     * 对应方法：{@link MesWmMiscIssueService#submitMiscIssue}
      */
-    APPROVED(1, "待执行出库"),
+    APPROVED(MesOrderStatusConstants.APPROVED, "待执行出库"),
     /**
      * 已完成
+     *
+     * 对应方法：{@link MesWmMiscIssueService#finishMiscIssue}
      */
-    FINISHED(2, "已完成"),
+    FINISHED(MesOrderStatusConstants.FINISHED, "已完成"),
     /**
      * 已取消
+     *
+     * 对应方法：{@link MesWmMiscIssueService#cancelMiscIssue}
      */
-    CANCELED(3, "已取消");
+    CANCELED(MesOrderStatusConstants.CANCELLED, "已取消");
 
     public static final Integer[] ARRAYS = Arrays.stream(values()).map(MesWmMiscIssueStatusEnum::getStatus).toArray(Integer[]::new);
 

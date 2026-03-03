@@ -35,9 +35,10 @@ public class MesWmMiscIssueDO extends BaseDO {
      * 出库单名称
      */
     private String name;
-    // TODO @AI：字典；需要写在 dict constants 里；
     /**
      * 杂项类型
+     *
+     * 枚举 {@link cn.iocoder.yudao.module.mes.enums.DictTypeConstants#MES_WM_MISC_ISSUE_TYPE}
      */
     private String type;
     // TODO @芋艿：这里还没定，关联哪些；

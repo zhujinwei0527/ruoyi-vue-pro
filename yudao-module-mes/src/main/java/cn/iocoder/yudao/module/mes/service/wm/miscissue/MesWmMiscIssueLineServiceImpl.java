@@ -6,6 +6,8 @@ import cn.iocoder.yudao.module.mes.controller.admin.wm.miscissue.vo.line.MesWmMi
 import cn.iocoder.yudao.module.mes.controller.admin.wm.miscissue.vo.line.MesWmMiscIssueLineSaveReqVO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.wm.miscissue.MesWmMiscIssueLineDO;
 import cn.iocoder.yudao.module.mes.dal.mysql.wm.miscissue.MesWmMiscIssueLineMapper;
+import cn.iocoder.yudao.module.mes.service.md.item.MesMdItemService;
+import cn.iocoder.yudao.module.mes.service.wm.warehouse.MesWmWarehouseAreaService;
 import jakarta.annotation.Resource;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
@@ -31,12 +33,21 @@ public class MesWmMiscIssueLineServiceImpl implements MesWmMiscIssueLineService 
     @Lazy
     private MesWmMiscIssueService miscIssueService;
 
+    @Resource
+    private MesMdItemService itemService;
+
+    @Resource
+    private MesWmWarehouseAreaService warehouseAreaService;
+
     @Override
     public Long createMiscIssueLine(MesWmMiscIssueLineSaveReqVO createReqVO) {
         // 校验父单据存在且为可编辑状态
         miscIssueService.validateMiscIssueEditable(createReqVO.getIssueId());
-        // TODO AI：item 存在；
-        // TODO @AI：校验 areaid 等字段存在；areaservice 有统一方法；
+        // 校验物料存在
+        itemService.validateItemExists(createReqVO.getItemId());
+        // 校验仓库、库区、库位的父子关系
+        warehouseAreaService.validateWarehouseAreaExists(createReqVO.getWarehouseId(),
+                createReqVO.getLocationId(), createReqVO.getAreaId());
 
         // 新增
         MesWmMiscIssueLineDO line = BeanUtils.toBean(createReqVO, MesWmMiscIssueLineDO.class);
@@ -50,8 +61,11 @@ public class MesWmMiscIssueLineServiceImpl implements MesWmMiscIssueLineService 
         MesWmMiscIssueLineDO line = validateMiscIssueLineExists(updateReqVO.getId());
         // 校验父单据存在且为可编辑状态
         miscIssueService.validateMiscIssueEditable(line.getIssueId());
-        // TODO AI：item 存在；
-        // TODO @AI：校验 areaid 等字段存在；areaservice 有统一方法；
+        // 校验物料存在
+        itemService.validateItemExists(updateReqVO.getItemId());
+        // 校验仓库、库区、库位的父子关系
+        warehouseAreaService.validateWarehouseAreaExists(updateReqVO.getWarehouseId(),
+                updateReqVO.getLocationId(), updateReqVO.getAreaId());
 
         // 更新
         MesWmMiscIssueLineDO updateObj = BeanUtils.toBean(updateReqVO, MesWmMiscIssueLineDO.class);
