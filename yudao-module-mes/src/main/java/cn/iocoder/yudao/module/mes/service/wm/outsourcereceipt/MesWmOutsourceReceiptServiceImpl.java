@@ -3,8 +3,10 @@ package cn.iocoder.yudao.module.mes.service.wm.outsourcereceipt;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.ObjUtil;
 import cn.iocoder.yudao.framework.common.pojo.PageResult;
+import cn.iocoder.yudao.framework.common.util.collection.CollectionUtils;
 import cn.iocoder.yudao.framework.common.util.object.BeanUtils;
 import cn.iocoder.yudao.framework.common.util.object.ObjectUtils;
+import cn.iocoder.yudao.module.mes.dal.dataobject.md.item.MesMdItemDO;
 import cn.iocoder.yudao.module.mes.controller.admin.wm.outsourcereceipt.vo.MesWmOutsourceReceiptPageReqVO;
 import cn.iocoder.yudao.module.mes.controller.admin.wm.outsourcereceipt.vo.MesWmOutsourceReceiptSaveReqVO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.wm.outsourcereceipt.MesWmOutsourceReceiptDO;
@@ -24,7 +26,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 
+import java.math.BigDecimal;
 import java.util.List;
+import java.util.Map;
 
 import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception;
 import static cn.iocoder.yudao.module.mes.enums.ErrorCodeConstants.*;
@@ -132,14 +136,33 @@ public class MesWmOutsourceReceiptServiceImpl implements MesWmOutsourceReceiptSe
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void stockOutsourceReceipt(Long id) {
-        // 校验存在
+        // 1.1 校验存在 + 待上架状态
         MesWmOutsourceReceiptDO receipt = validateOutsourceReceiptExists(id);
         if (ObjUtil.notEqual(MesWmOutsourceReceiptStatusEnum.APPROVING.getStatus(), receipt.getStatus())) {
             throw exception(WM_OUTSOURCE_RECEIPT_STATUS_ERROR);
         }
-        // DONE @AI：这个校验，不需要了；已删除明细数量校验逻辑
+        // 1.2 检查每个行的明细数量是否完成上架
+        List<MesWmOutsourceReceiptLineDO> lines = outsourceReceiptLineMapper.selectListByReceiptId(id);
+        if (CollUtil.isNotEmpty(lines)) {
+            // 批量查询所有明细
+            List<MesWmOutsourceReceiptDetailDO> allDetails = outsourceReceiptDetailMapper.selectListByReceiptId(id);
+            Map<Long, List<MesWmOutsourceReceiptDetailDO>> detailMap = CollectionUtils.convertMultiMap(
+                    allDetails, MesWmOutsourceReceiptDetailDO::getLineId);
+            // 检查每行的明细数量
+            for (MesWmOutsourceReceiptLineDO line : lines) {
+                List<MesWmOutsourceReceiptDetailDO> details = detailMap.getOrDefault(line.getId(), List.of());
+                BigDecimal totalDetailQuantity = CollectionUtils.getSumValue(details,
+                        MesWmOutsourceReceiptDetailDO::getQuantity, BigDecimal::add, BigDecimal.ZERO);
+                // 对比行数量与明细总数量，不满足直接抛出
+                if (line.getQuantity().compareTo(totalDetailQuantity) > 0) {
+                    MesMdItemDO item = itemService.validateItemExists(line.getItemId());
+                    throw exception(WM_OUTSOURCE_RECEIPT_DETAIL_QUANTITY_MISMATCH,
+                            item.getCode() + " " + item.getName() + " 未完成上架");
+                }
+            }
+        }
 
-        // 审批（审批中 → 已审批）
+        // 2. 入库上架（待上架 → 已审批）
         outsourceReceiptMapper.updateById(new MesWmOutsourceReceiptDO()
                 .setId(id).setStatus(MesWmOutsourceReceiptStatusEnum.APPROVED.getStatus()));
     }
@@ -157,13 +180,6 @@ public class MesWmOutsourceReceiptServiceImpl implements MesWmOutsourceReceiptSe
         // DONE @AI：芋艿【暂时不处理】；后续在观察；（AI 未修复原因：标注为后续处理，需人工介入）
         List<MesWmOutsourceReceiptDetailDO> details = outsourceReceiptDetailMapper.selectListByReceiptId(id);
         for (MesWmOutsourceReceiptDetailDO detail : details) {
-            // DONE @AI：warehouseAreaService 有个公用的校验；
-            // 校验物料存在
-            itemService.validateItemExists(detail.getItemId());
-            // 校验仓库、库区、库位的父子关系
-            warehouseAreaService.validateWarehouseAreaExists(detail.getWarehouseId(),
-                    detail.getLocationId(), detail.getAreaId());
-
             materialStockService.increaseStock(
                     detail.getItemId(), detail.getWarehouseId(), detail.getLocationId(), detail.getAreaId(),
                     detail.getBatchId(), detail.getQuantity(), receipt.getVendorId(), null, null);
