@@ -7,6 +7,7 @@ import lombok.Data;
 
 import java.time.LocalDateTime;
 
+// TODO @AI：删除掉，融合到 MesWmOutsourceIssueRespVO 中，保持一个 VO 就好
 @Schema(description = "管理后台 - MES 外协发料单 Excel VO")
 @Data
 @ExcelIgnoreUnannotated
@@ -28,10 +29,10 @@ public class MesWmOutsourceIssueExcelVO {
     private String vendorName;
 
     @ExcelProperty("生产工单编码")
-    private String workorderCode;
+    private String workOrderCode;
 
     @ExcelProperty("生产工单名称")
-    private String workorderName;
+    private String workOrderName;
 
     @ExcelProperty("发料日期")
     private LocalDateTime issueDate;

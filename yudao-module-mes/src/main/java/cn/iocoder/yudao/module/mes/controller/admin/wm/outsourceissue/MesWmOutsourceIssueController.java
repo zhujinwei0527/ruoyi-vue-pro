@@ -109,12 +109,30 @@ public class MesWmOutsourceIssueController {
                 BeanUtils.toBean(pageResult.getList(), MesWmOutsourceIssueExcelVO.class));
     }
 
+    @PutMapping("/submit")
+    @Operation(summary = "提交到待拣货")
+    @Parameter(name = "id", description = "编号", required = true)
+    @PreAuthorize("@ss.hasPermission('mes:wm-outsource-issue:update')")
+    public CommonResult<Boolean> submitOutsourceIssue(@RequestParam("id") Long id) {
+        outsourceIssueService.submitOutsourceIssue(id);
+        return success(true);
+    }
+
+    @PutMapping("/stock")
+    @Operation(summary = "执行拣货")
+    @Parameter(name = "id", description = "编号", required = true)
+    @PreAuthorize("@ss.hasPermission('mes:wm-outsource-issue:update')")
+    public CommonResult<Boolean> stockOutsourceIssue(@RequestParam("id") Long id) {
+        outsourceIssueService.stockOutsourceIssue(id);
+        return success(true);
+    }
+
     @PutMapping("/finish")
     @Operation(summary = "完成外协发料出库")
     @Parameter(name = "id", description = "编号", required = true)
     @PreAuthorize("@ss.hasPermission('mes:wm-outsource-issue:finish')")
     public CommonResult<Boolean> finishOutsourceIssue(@RequestParam("id") Long id) {
-        outsourceIssueService.executeOutsourceIssue(id);
+        outsourceIssueService.finishOutsourceIssue(id);
         return success(true);
     }
 

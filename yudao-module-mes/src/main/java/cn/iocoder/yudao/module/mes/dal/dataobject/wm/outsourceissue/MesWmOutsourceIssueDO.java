@@ -2,6 +2,7 @@ package cn.iocoder.yudao.module.mes.dal.dataobject.wm.outsourceissue;
 
 import cn.iocoder.yudao.framework.mybatis.core.dataobject.BaseDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.md.vendor.MesMdVendorDO;
+import cn.iocoder.yudao.module.mes.dal.dataobject.pro.workorder.MesProWorkOrderDO;
 import cn.iocoder.yudao.module.mes.enums.wm.MesWmOutsourceIssueStatusEnum;
 import com.baomidou.mybatisplus.annotation.KeySequence;
 import com.baomidou.mybatisplus.annotation.TableId;
@@ -44,29 +45,12 @@ public class MesWmOutsourceIssueDO extends BaseDO {
      * 关联 {@link MesMdVendorDO#getId()}
      */
     private Long vendorId;
-    // TODO @AI：去掉冗余的 vendorCode、vendorName 字段
-    /**
-     * 供应商编码
-     */
-    private String vendorCode;
-    /**
-     * 供应商名称
-     */
-    private String vendorName;
-    // TODO @AI：去掉冗余的 workorderCode、workorderName 字段
-    // TODO @AI：拼写不对；应该是 workOrderId；
     /**
      * 生产工单ID
+     *
+     * 关联 {@link MesProWorkOrderDO#getId()}
      */
-    private Long workorderId;
-    /**
-     * 生产工单编码
-     */
-    private String workorderCode;
-    /**
-     * 生产工单名称
-     */
-    private String workorderName;
+    private Long workOrderId;
     /**
      * 发料日期
      */

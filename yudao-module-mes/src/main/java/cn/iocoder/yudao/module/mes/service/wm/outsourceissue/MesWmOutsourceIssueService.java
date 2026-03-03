@@ -52,10 +52,24 @@ public interface MesWmOutsourceIssueService {
     PageResult<MesWmOutsourceIssueDO> getOutsourceIssuePage(MesWmOutsourceIssuePageReqVO pageReqVO);
 
     /**
-     * 执行外协发料出库（草稿 → 已完成，扣减库存）
+     * 提交到待拣货（草稿 → 待拣货）
      *
      * @param id 编号
      */
-    void executeOutsourceIssue(Long id);
+    void submitOutsourceIssue(Long id);
+
+    /**
+     * 执行拣货（待拣货 → 待执行出库）
+     *
+     * @param id 编号
+     */
+    void stockOutsourceIssue(Long id);
+
+    /**
+     * 完成外协发料出库（待执行出库 → 已完成，扣减库存）
+     *
+     * @param id 编号
+     */
+    void finishOutsourceIssue(Long id);
 
 }

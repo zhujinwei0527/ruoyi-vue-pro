@@ -97,29 +97,56 @@ public class MesWmOutsourceIssueServiceImpl implements MesWmOutsourceIssueServic
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public void executeOutsourceIssue(Long id) {
-        // 1. 校验存在 + 草稿状态
-        MesWmOutsourceIssueDO issue = validateOutsourceIssueExistsAndDraft(id);
-
-        // 2. 检查是否有发料行
+    public void submitOutsourceIssue(Long id) {
+        // 1.1 校验存在 + 草稿状态
+        validateOutsourceIssueExistsAndDraft(id);
+        // 1.2 检查是否有发料行
         List<MesWmOutsourceIssueLineDO> lines = outsourceIssueLineService.getOutsourceIssueLineListByIssueId(id);
         if (CollUtil.isEmpty(lines)) {
             throw exception(WM_OUTSOURCE_ISSUE_NO_LINE);
         }
 
-        // 3. 校验数量一致性（行数量 = 明细数量之和）
+        // 2. 更新单据状态为待拣货
+        outsourceIssueMapper.updateById(new MesWmOutsourceIssueDO()
+                .setId(id).setStatus(MesWmOutsourceIssueStatusEnum.APPROVING.getStatus()));
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void stockOutsourceIssue(Long id) {
+        // 1.1 校验存在 + 待拣货状态
+        MesWmOutsourceIssueDO issue = validateOutsourceIssueExists(id);
+        if (ObjUtil.notEqual(MesWmOutsourceIssueStatusEnum.APPROVING.getStatus(), issue.getStatus())) {
+            throw exception(WM_OUTSOURCE_ISSUE_STATUS_NOT_APPROVING);
+        }
+        // 1.2 校验数量一致性（行数量 = 明细数量之和）
+        List<MesWmOutsourceIssueLineDO> lines = outsourceIssueLineService.getOutsourceIssueLineListByIssueId(id);
         validateQuantityMatch(id, lines);
 
-        // 4. 扣减库存（遍历明细表，逐条扣减）
+        // 2. 更新单据状态为待执行出库
+        outsourceIssueMapper.updateById(new MesWmOutsourceIssueDO()
+                .setId(id).setStatus(MesWmOutsourceIssueStatusEnum.APPROVED.getStatus()));
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void finishOutsourceIssue(Long id) {
+        // 1. 校验存在 + 待执行出库状态
+        MesWmOutsourceIssueDO issue = validateOutsourceIssueExists(id);
+        if (ObjUtil.notEqual(MesWmOutsourceIssueStatusEnum.APPROVED.getStatus(), issue.getStatus())) {
+            throw exception(WM_OUTSOURCE_ISSUE_STATUS_NOT_APPROVED);
+        }
+
+        // 2. 扣减库存（遍历明细表，逐条扣减）
         List<MesWmOutsourceIssueDetailDO> details = outsourceIssueDetailService.getOutsourceIssueDetailListByIssueId(id);
         for (MesWmOutsourceIssueDetailDO detail : details) {
             // TODO: 调用库存服务扣减库存
             // materialStockService.decreaseStock(detail.getMaterialStockId(), detail.getQuantity());
-            log.info("[executeOutsourceIssue][发料单({}) 扣减库存 - 库存ID: {}, 数量: {}]",
+            log.info("[finishOutsourceIssue][发料单({}) 扣减库存 - 库存ID: {}, 数量: {}]",
                     id, detail.getMaterialStockId(), detail.getQuantity());
         }
 
-        // 5. 更新单据状态为已完成
+        // 3. 更新单据状态为已完成
         outsourceIssueMapper.updateById(new MesWmOutsourceIssueDO()
                 .setId(id).setStatus(MesWmOutsourceIssueStatusEnum.FINISHED.getStatus()));
     }
@@ -162,6 +189,7 @@ public class MesWmOutsourceIssueServiceImpl implements MesWmOutsourceIssueServic
     /**
      * 校验数量一致性（行数量 = 明细数量之和）
      */
+    // TODO @AI：参考别的模块，不要抽成小方法；
     private void validateQuantityMatch(Long issueId, List<MesWmOutsourceIssueLineDO> lines) {
         // 获取所有明细
         List<MesWmOutsourceIssueDetailDO> details = outsourceIssueDetailService.getOutsourceIssueDetailListByIssueId(issueId);

@@ -22,27 +22,14 @@ public class MesWmOutsourceIssueSaveReqVO {
     @NotEmpty(message = "发料单名称不能为空")
     private String name;
 
-    @Schema(description = "供应商ID", requiredMode = Schema.RequiredMode.REQUIRED, example = "1")
-    @NotNull(message = "供应商ID不能为空")
+    @Schema(description = "供应商ID", example = "1")
     private Long vendorId;
 
-    @Schema(description = "供应商编码", example = "V001")
-    private String vendorCode;
+    @Schema(description = "生产工单ID", requiredMode = Schema.RequiredMode.REQUIRED, example = "1")
+    @NotNull(message = "生产工单ID不能为空")
+    private Long workOrderId;
 
-    @Schema(description = "供应商名称", example = "供应商A")
-    private String vendorName;
-
-    @Schema(description = "生产工单ID", example = "1")
-    private Long workorderId;
-
-    @Schema(description = "生产工单编码", example = "WO202603020001")
-    private String workorderCode;
-
-    @Schema(description = "生产工单名称", example = "生产工单001")
-    private String workorderName;
-
-    @Schema(description = "发料日期", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotNull(message = "发料日期不能为空")
+    @Schema(description = "发料日期")
     private LocalDateTime issueDate;
 
     @Schema(description = "备注", example = "备注")

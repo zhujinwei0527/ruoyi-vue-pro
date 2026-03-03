@@ -36,15 +36,15 @@ public class MesWmOutsourceIssueRespVO {
     private String vendorName;
 
     @Schema(description = "生产工单ID", example = "1")
-    private Long workorderId;
+    private Long workOrderId;
 
     @Schema(description = "生产工单编码", example = "WO202603020001")
     @ExcelProperty("生产工单编码")
-    private String workorderCode;
+    private String workOrderCode;
 
     @Schema(description = "生产工单名称", example = "生产工单001")
     @ExcelProperty("生产工单名称")
-    private String workorderName;
+    private String workOrderName;
 
     @Schema(description = "发料日期", requiredMode = Schema.RequiredMode.REQUIRED)
     @ExcelProperty("发料日期")
