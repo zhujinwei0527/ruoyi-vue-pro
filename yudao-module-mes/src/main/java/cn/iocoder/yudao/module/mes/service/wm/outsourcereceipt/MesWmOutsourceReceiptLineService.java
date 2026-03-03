@@ -1,5 +1,8 @@
 package cn.iocoder.yudao.module.mes.service.wm.outsourcereceipt;
 
+import cn.iocoder.yudao.framework.common.pojo.PageResult;
+import cn.iocoder.yudao.module.mes.controller.admin.wm.outsourcereceipt.vo.line.MesWmOutsourceReceiptLinePageReqVO;
+import cn.iocoder.yudao.module.mes.controller.admin.wm.outsourcereceipt.vo.line.MesWmOutsourceReceiptLineSaveReqVO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.wm.outsourcereceipt.MesWmOutsourceReceiptLineDO;
 
 import java.util.List;
@@ -10,12 +13,42 @@ import java.util.List;
 public interface MesWmOutsourceReceiptLineService {
 
     /**
-     * 获得委外收货单行列表
+     * 创建外协入库单行
      *
-     * @param receiptId 收货单编号
-     * @return 委外收货单行列表
+     * @param createReqVO 创建信息
+     * @return 编号
      */
-    List<MesWmOutsourceReceiptLineDO> getOutsourceReceiptLineListByReceiptId(Long receiptId);
+    Long createOutsourceReceiptLine(MesWmOutsourceReceiptLineSaveReqVO createReqVO);
+
+    /**
+     * 更新外协入库单行
+     *
+     * @param updateReqVO 更新信息
+     */
+    void updateOutsourceReceiptLine(MesWmOutsourceReceiptLineSaveReqVO updateReqVO);
+
+    /**
+     * 删除外协入库单行
+     *
+     * @param id 编号
+     */
+    void deleteOutsourceReceiptLine(Long id);
+
+    /**
+     * 获得外协入库单行
+     *
+     * @param id 编号
+     * @return 外协入库单行
+     */
+    MesWmOutsourceReceiptLineDO getOutsourceReceiptLine(Long id);
+
+    /**
+     * 获得外协入库单行分页
+     *
+     * @param pageReqVO 分页查询
+     * @return 外协入库单行分页
+     */
+    PageResult<MesWmOutsourceReceiptLineDO> getOutsourceReceiptLinePage(MesWmOutsourceReceiptLinePageReqVO pageReqVO);
 
     /**
      * 删除委外收货单行（根据收货单编号）

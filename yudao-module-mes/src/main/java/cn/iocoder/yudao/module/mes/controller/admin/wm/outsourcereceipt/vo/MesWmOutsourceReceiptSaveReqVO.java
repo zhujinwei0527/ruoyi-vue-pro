@@ -22,8 +22,9 @@ public class MesWmOutsourceReceiptSaveReqVO {
     @NotEmpty(message = "入库单名称不能为空")
     private String name;
 
-    @Schema(description = "外协工单编号", example = "1")
-    private Long workorderId;
+    @Schema(description = "外协工单编号", requiredMode = Schema.RequiredMode.REQUIRED, example = "1")
+    @NotNull(message = "外协工单不能为空")
+    private Long workOrderId;
 
     @Schema(description = "供应商编号", requiredMode = Schema.RequiredMode.REQUIRED, example = "1")
     @NotNull(message = "供应商不能为空")

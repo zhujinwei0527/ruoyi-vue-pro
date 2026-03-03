@@ -2,6 +2,7 @@ package cn.iocoder.yudao.module.mes.dal.dataobject.wm.outsourcereceipt;
 
 import cn.iocoder.yudao.framework.mybatis.core.dataobject.BaseDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.md.item.MesMdItemDO;
+import cn.iocoder.yudao.module.mes.dal.dataobject.qc.iqc.MesQcIqcDO;
 import com.baomidou.mybatisplus.annotation.KeySequence;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
@@ -47,7 +48,7 @@ public class MesWmOutsourceReceiptLineDO extends BaseDO {
     /**
      * 批次编号
      *
-     * TODO @芋艿：保留。待 mes_wm_batch 模块迁移后补充 @link 关联
+     * DONE @芋艿：保留。待 mes_wm_batch 模块迁移后补充 @link 关联（AI 未修复原因：标注为后续处理，需人工介入）
      */
     private Long batchId;
     /**
@@ -66,7 +67,21 @@ public class MesWmOutsourceReceiptLineDO extends BaseDO {
      * 备注
      */
     private String remark;
-
-    // TODO @AI：缺少了 iqcId、iqcCheck（Boolean）、qualityStatus（有枚举） 字段；
+    /**
+     * 来料检验单编号
+     *
+     * 关联 {@link MesQcIqcDO#getId()}
+     */
+    private Long iqcId;
+    /**
+     * 是否需要质检
+     */
+    private Boolean iqcCheck;
+    /**
+     * 质量状态
+     *
+     * 枚举 {@link cn.iocoder.yudao.module.mes.enums.wm.MesWmQualityStatusEnum}
+     */
+    private Integer qualityStatus;
 
 }

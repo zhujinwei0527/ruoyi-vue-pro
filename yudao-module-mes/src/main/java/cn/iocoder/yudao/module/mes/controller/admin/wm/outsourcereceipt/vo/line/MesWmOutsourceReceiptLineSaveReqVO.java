@@ -24,7 +24,7 @@ public class MesWmOutsourceReceiptLineSaveReqVO {
 
     @Schema(description = "入库数量", requiredMode = Schema.RequiredMode.REQUIRED, example = "500.00")
     @NotNull(message = "入库数量不能为空")
-    private BigDecimal receivedQuantity;
+    private BigDecimal quantity;
 
     @Schema(description = "批次编号", example = "1")
     private Long batchId;

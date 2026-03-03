@@ -32,7 +32,7 @@ public class MesWmOutsourceReceiptLineRespVO {
     private String unitMeasureName;
 
     @Schema(description = "入库数量", example = "500.00")
-    private BigDecimal receivedQuantity;
+    private BigDecimal quantity;
 
     @Schema(description = "批次编号", example = "1")
     private Long batchId;

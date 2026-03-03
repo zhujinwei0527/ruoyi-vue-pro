@@ -39,10 +39,9 @@ public class MesWmOutsourceReceiptDO extends BaseDO {
     /**
      * 外协工单编号
      *
-     * TODO @芋艿：待外协工单模块迁移后补充 @link 关联
+     * 关联 {@link cn.iocoder.yudao.module.mes.dal.dataobject.pro.workorder.MesProWorkOrderDO#getId()}
      */
-    // TODO @AI：已经有 workOrder 表；关联下；然后拼写是 workOrderId；
-    private Long workorderId;
+    private Long workOrderId;
     /**
      * 供应商编号
      *
