@@ -18,6 +18,10 @@ public class MesWmOutsourceReceiptDetailServiceImpl implements MesWmOutsourceRec
     @Resource
     private MesWmOutsourceReceiptDetailMapper detailMapper;
 
+    // TODO @AI：新增、修改缺少；
+
+    // TODO @AI：校验 库区 areaService 有方法；并且字段都必须填写（通过 vo validator）处理；
+
     @Override
     public List<MesWmOutsourceReceiptDetailDO> getOutsourceReceiptDetailListByReceiptId(Long receiptId) {
         return detailMapper.selectListByReceiptId(receiptId);

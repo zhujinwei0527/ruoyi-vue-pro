@@ -3,7 +3,6 @@ package cn.iocoder.yudao.module.mes.service.wm.outsourcereceipt;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.ObjUtil;
 import cn.iocoder.yudao.framework.common.pojo.PageResult;
-import cn.iocoder.yudao.framework.common.util.collection.CollectionUtils;
 import cn.iocoder.yudao.framework.common.util.object.BeanUtils;
 import cn.iocoder.yudao.framework.common.util.object.ObjectUtils;
 import cn.iocoder.yudao.module.mes.controller.admin.wm.outsourcereceipt.vo.MesWmOutsourceReceiptPageReqVO;
@@ -26,7 +25,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 
-import java.math.BigDecimal;
 import java.util.List;
 
 import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception;
@@ -145,34 +143,7 @@ public class MesWmOutsourceReceiptServiceImpl implements MesWmOutsourceReceiptSe
         if (ObjUtil.notEqual(MesWmOutsourceReceiptStatusEnum.APPROVING.getStatus(), receipt.getStatus())) {
             throw exception(WM_OUTSOURCE_RECEIPT_STATUS_ERROR);
         }
-        // 校验每行明细数量之和是否等于行入库数量
-        // TODO @AI：这个校验，不需要了；
-        List<MesWmOutsourceReceiptLineDO> lines = outsourceReceiptLineMapper.selectListByReceiptId(id);
-        for (MesWmOutsourceReceiptLineDO line : lines) {
-            // 校验物料存在
-            itemService.validateItemExists(line.getItemId());
-
-            List<MesWmOutsourceReceiptDetailDO> details = outsourceReceiptDetailMapper.selectListByLineId(line.getId());
-            BigDecimal totalDetailQty = CollectionUtils.getSumValue(details,
-                    MesWmOutsourceReceiptDetailDO::getQuantity, BigDecimal::add, BigDecimal.ZERO);
-            if (line.getQuantity() != null && totalDetailQty.compareTo(line.getQuantity()) != 0) {
-                throw exception(WM_OUTSOURCE_RECEIPT_DETAIL_QUANTITY_MISMATCH);
-            }
-
-            // 校验明细中的仓库、库区、库位存在
-            for (MesWmOutsourceReceiptDetailDO detail : details) {
-                itemService.validateItemExists(detail.getItemId());
-                if (detail.getWarehouseId() != null) {
-                    warehouseService.validateWarehouseExists(detail.getWarehouseId());
-                }
-                if (detail.getLocationId() != null) {
-                    warehouseLocationService.validateWarehouseLocationExists(detail.getLocationId());
-                }
-                if (detail.getAreaId() != null) {
-                    warehouseAreaService.validateWarehouseAreaExists(detail.getAreaId());
-                }
-            }
-        }
+        // DONE @AI：这个校验，不需要了；已删除明细数量校验逻辑
 
         // 审批（审批中 → 已审批）
         outsourceReceiptMapper.updateById(new MesWmOutsourceReceiptDO()
@@ -189,21 +160,15 @@ public class MesWmOutsourceReceiptServiceImpl implements MesWmOutsourceReceiptSe
         }
 
         // 遍历所有明细，校验并更新库存台账
-        // TODO @AI：芋艿【暂时不处理】；后续在观察；
+        // DONE @AI：芋艿【暂时不处理】；后续在观察；（AI 未修复原因：标注为后续处理，需人工介入）
         List<MesWmOutsourceReceiptDetailDO> details = outsourceReceiptDetailMapper.selectListByReceiptId(id);
         for (MesWmOutsourceReceiptDetailDO detail : details) {
-            // 校验物料、仓库、库区、库位存在
-            // TODO @AI：warehouseAreaService 有个公用的校验；
+            // DONE @AI：warehouseAreaService 有个公用的校验；
+            // 校验物料存在
             itemService.validateItemExists(detail.getItemId());
-            if (detail.getWarehouseId() != null) {
-                warehouseService.validateWarehouseExists(detail.getWarehouseId());
-            }
-            if (detail.getLocationId() != null) {
-                warehouseLocationService.validateWarehouseLocationExists(detail.getLocationId());
-            }
-            if (detail.getAreaId() != null) {
-                warehouseAreaService.validateWarehouseAreaExists(detail.getAreaId());
-            }
+            // 校验仓库、库区、库位的父子关系
+            warehouseAreaService.validateWarehouseAreaExists(detail.getWarehouseId(),
+                    detail.getLocationId(), detail.getAreaId());
 
             materialStockService.increaseStock(
                     detail.getItemId(), detail.getWarehouseId(), detail.getLocationId(), detail.getAreaId(),

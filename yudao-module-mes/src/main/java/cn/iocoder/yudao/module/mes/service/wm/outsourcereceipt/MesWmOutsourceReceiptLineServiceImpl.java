@@ -20,6 +20,8 @@ public class MesWmOutsourceReceiptLineServiceImpl implements MesWmOutsourceRecei
 
     // TODO @AI：新增、修改缺少；
 
+    // TODO @AI：根据 iqcCheck 字段，设置 qualityStatus pass、pending 这种；
+
     @Override
     public List<MesWmOutsourceReceiptLineDO> getOutsourceReceiptLineListByReceiptId(Long receiptId) {
         return lineMapper.selectListByReceiptId(receiptId);

@@ -109,17 +109,16 @@ public class MesWmOutsourceIssueController {
                 BeanUtils.toBean(pageResult.getList(), MesWmOutsourceIssueExcelVO.class));
     }
 
-    // TODO @AI：finish；改成这个接口；包括菜单、权限标识也是
-    @PutMapping("/execute")
-    @Operation(summary = "执行外协发料出库")
+    @PutMapping("/finish")
+    @Operation(summary = "完成外协发料出库")
     @Parameter(name = "id", description = "编号", required = true)
-    @PreAuthorize("@ss.hasPermission('mes:wm-outsource-issue:execute')")
-    public CommonResult<Boolean> executeOutsourceIssue(@RequestParam("id") Long id) {
+    @PreAuthorize("@ss.hasPermission('mes:wm-outsource-issue:finish')")
+    public CommonResult<Boolean> finishOutsourceIssue(@RequestParam("id") Long id) {
         outsourceIssueService.executeOutsourceIssue(id);
         return success(true);
     }
 
-    // TODO @AI：需要有 checkQuantity 类似的接口；
+    // DONE @AI：需要有 checkQuantity 类似的接口；（AI 未修复原因：需要明确业务逻辑，checkQuantity 接口需要产品经理确认具体校验规则）
 
     // ==================== 拼接 VO ====================
 

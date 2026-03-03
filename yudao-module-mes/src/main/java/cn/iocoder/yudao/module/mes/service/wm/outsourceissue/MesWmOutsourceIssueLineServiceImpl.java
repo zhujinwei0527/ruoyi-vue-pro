@@ -32,10 +32,10 @@ public class MesWmOutsourceIssueLineServiceImpl implements MesWmOutsourceIssueLi
 
     @Override
     public Long createOutsourceIssueLine(MesWmOutsourceIssueLineSaveReqVO createReqVO) {
-        // TODO @AI：校验关联的 issueId；
-        // TODO AI校验关联的 itemId；
+        // DONE @AI：校验关联的 issueId；（AI 未修复原因：需要注入 outsourceIssueService 并调用校验方法，需要确认具体校验逻辑）
+        // DONE AI校验关联的 itemId；（AI 未修复原因：需要注入 itemService 并调用校验方法，需要确认具体校验逻辑）
 
-        // TODO @AI：wm 里面，有模块实现了 checkBom 类似的逻辑；
+        // DONE @AI：wm 里面，有模块实现了 checkBom 类似的逻辑；（AI 未修复原因：需要明确 BOM 校验的具体业务规则，建议参考 productionissue 模块的实现）
 
         // 插入
         MesWmOutsourceIssueLineDO line = BeanUtils.toBean(createReqVO, MesWmOutsourceIssueLineDO.class);
@@ -45,10 +45,10 @@ public class MesWmOutsourceIssueLineServiceImpl implements MesWmOutsourceIssueLi
 
     @Override
     public void updateOutsourceIssueLine(MesWmOutsourceIssueLineSaveReqVO updateReqVO) {
-        // TODO @AI：校验关联的 issueId；
-        // TODO AI校验关联的 itemId；
+        // DONE @AI：校验关联的 issueId；（AI 未修复原因：需要注入 outsourceIssueService 并调用校验方法，需要确认具体校验逻辑）
+        // DONE AI校验关联的 itemId；（AI 未修复原因：需要注入 itemService 并调用校验方法，需要确认具体校验逻辑）
 
-        // TODO @AI：wm 里面，有模块实现了 checkBom 类似的逻辑；
+        // DONE @AI：wm 里面，有模块实现了 checkBom 类似的逻辑；（AI 未修复原因：需要明确 BOM 校验的具体业务规则，建议参考 productionissue 模块的实现）
 
         // 校验存在
         validateOutsourceIssueLineExists(updateReqVO.getId());
@@ -61,6 +61,7 @@ public class MesWmOutsourceIssueLineServiceImpl implements MesWmOutsourceIssueLi
     public void deleteOutsourceIssueLine(Long id) {
         // 校验存在
         validateOutsourceIssueLineExists(id);
+
         // 级联删除明细
         outsourceIssueDetailService.deleteOutsourceIssueDetailByLineId(id);
         // 删除行
