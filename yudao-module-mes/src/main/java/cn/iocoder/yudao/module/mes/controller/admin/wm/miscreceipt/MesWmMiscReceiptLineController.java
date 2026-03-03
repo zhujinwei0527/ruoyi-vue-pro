@@ -1,7 +1,9 @@
 package cn.iocoder.yudao.module.mes.controller.admin.wm.miscreceipt;
 
 import cn.iocoder.yudao.framework.common.pojo.CommonResult;
+import cn.iocoder.yudao.framework.common.pojo.PageResult;
 import cn.iocoder.yudao.framework.common.util.object.BeanUtils;
+import cn.iocoder.yudao.module.mes.controller.admin.wm.miscreceipt.vo.line.MesWmMiscReceiptLinePageReqVO;
 import cn.iocoder.yudao.module.mes.controller.admin.wm.miscreceipt.vo.line.MesWmMiscReceiptLineRespVO;
 import cn.iocoder.yudao.module.mes.controller.admin.wm.miscreceipt.vo.line.MesWmMiscReceiptLineSaveReqVO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.wm.miscreceipt.MesWmMiscReceiptLineDO;
@@ -71,6 +73,14 @@ public class MesWmMiscReceiptLineController {
     public CommonResult<List<MesWmMiscReceiptLineRespVO>> getMiscReceiptLineListByReceiptId(@RequestParam("receiptId") Long receiptId) {
         List<MesWmMiscReceiptLineDO> list = miscReceiptLineService.getMiscReceiptLineListByReceiptId(receiptId);
         return success(BeanUtils.toBean(list, MesWmMiscReceiptLineRespVO.class));
+    }
+
+    @GetMapping("/page")
+    @Operation(summary = "获得杂项入库单行分页")
+    @PreAuthorize("@ss.hasPermission('mes:wm:misc-receipt:query')")
+    public CommonResult<PageResult<MesWmMiscReceiptLineRespVO>> getMiscReceiptLinePage(@Valid MesWmMiscReceiptLinePageReqVO pageReqVO) {
+        PageResult<MesWmMiscReceiptLineDO> pageResult = miscReceiptLineService.getMiscReceiptLinePage(pageReqVO);
+        return success(BeanUtils.toBean(pageResult, MesWmMiscReceiptLineRespVO.class));
     }
 
 }

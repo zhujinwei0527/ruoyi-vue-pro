@@ -1,11 +1,17 @@
 package cn.iocoder.yudao.module.mes.service.wm.miscreceipt;
 
+import cn.iocoder.yudao.framework.common.pojo.PageResult;
 import cn.iocoder.yudao.framework.common.util.object.BeanUtils;
+import cn.iocoder.yudao.module.mes.controller.admin.wm.miscreceipt.vo.line.MesWmMiscReceiptLinePageReqVO;
 import cn.iocoder.yudao.module.mes.controller.admin.wm.miscreceipt.vo.line.MesWmMiscReceiptLineSaveReqVO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.wm.miscreceipt.MesWmMiscReceiptLineDO;
 import cn.iocoder.yudao.module.mes.dal.mysql.wm.miscreceipt.MesWmMiscReceiptLineMapper;
+import cn.iocoder.yudao.module.mes.service.md.item.MesMdItemService;
+import cn.iocoder.yudao.module.mes.service.wm.warehouse.MesWmWarehouseAreaService;
 import jakarta.annotation.Resource;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 
 import java.util.List;
@@ -23,36 +29,69 @@ public class MesWmMiscReceiptLineServiceImpl implements MesWmMiscReceiptLineServ
     @Resource
     private MesWmMiscReceiptLineMapper miscReceiptLineMapper;
 
-    @Override
-    public Long createMiscReceiptLine(MesWmMiscReceiptLineSaveReqVO createReqVO) {
-        // TODO @AI：物料存在；lineId 可编辑；
+    @Resource
+    @Lazy
+    private MesWmMiscReceiptService miscReceiptService;
+    @Resource
+    @Lazy
+    private MesWmMiscReceiptDetailService miscReceiptDetailService;
+    @Resource
+    private MesMdItemService itemService;
+    @Resource
+    private MesWmWarehouseAreaService warehouseAreaService;
 
-        // 插入
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public Long createMiscReceiptLine(MesWmMiscReceiptLineSaveReqVO createReqVO) {
+        // 1.1 校验父单据存在且为可编辑状态
+        miscReceiptService.validateMiscReceiptEditable(createReqVO.getReceiptId());
+        // 1.2 校验物料存在
+        itemService.validateItemExists(createReqVO.getItemId());
+        // 1.3 校验仓库、库区、库位的父子关系
+        warehouseAreaService.validateWarehouseAreaExists(createReqVO.getWarehouseId(),
+                createReqVO.getLocationId(), createReqVO.getAreaId());
+
+        // 2. 新增行
         MesWmMiscReceiptLineDO line = BeanUtils.toBean(createReqVO, MesWmMiscReceiptLineDO.class);
         miscReceiptLineMapper.insert(line);
-        // TODO @AI：还是需要新增一个 detail 表；类似别的 line + detail 的设计；1）create 时，新增；2）update 时，更新；3）delete 时，删除；
+
+        // 3. 自动创建明细
+        createReqVO.setId(line.getId());
+        miscReceiptDetailService.createMiscReceiptDetail(createReqVO);
         return line.getId();
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public void updateMiscReceiptLine(MesWmMiscReceiptLineSaveReqVO updateReqVO) {
-        // 校验存在
-        validateMiscReceiptLineExists(updateReqVO.getId());
-        // TODO @AI：物料存在；lineId 可编辑；
+        // 1.1 校验存在
+        MesWmMiscReceiptLineDO line = validateMiscReceiptLineExists(updateReqVO.getId());
+        // 1.2 校验父单据存在且为可编辑状态
+        miscReceiptService.validateMiscReceiptEditable(line.getReceiptId());
+        // 1.3 校验物料存在
+        itemService.validateItemExists(updateReqVO.getItemId());
+        // 1.4 校验仓库、库区、库位的父子关系
+        warehouseAreaService.validateWarehouseAreaExists(updateReqVO.getWarehouseId(),
+                updateReqVO.getLocationId(), updateReqVO.getAreaId());
 
-        // 更新
+        // 2. 更新行
         MesWmMiscReceiptLineDO updateObj = BeanUtils.toBean(updateReqVO, MesWmMiscReceiptLineDO.class);
         miscReceiptLineMapper.updateById(updateObj);
+
+        // 3. 更新明细（基于行信息）
+        miscReceiptDetailService.updateMiscReceiptDetail(updateReqVO);
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public void deleteMiscReceiptLine(Long id) {
-        // TODO @AI：lineId 存在 + 可编辑；
         // 校验存在
         validateMiscReceiptLineExists(id);
 
-        // 删除
+        // 删除行
         miscReceiptLineMapper.deleteById(id);
+        // 删除明细
+        miscReceiptDetailService.deleteMiscReceiptDetailByLineId(id);
     }
 
     @Override
@@ -63,6 +102,11 @@ public class MesWmMiscReceiptLineServiceImpl implements MesWmMiscReceiptLineServ
     @Override
     public List<MesWmMiscReceiptLineDO> getMiscReceiptLineListByReceiptId(Long receiptId) {
         return miscReceiptLineMapper.selectListByReceiptId(receiptId);
+    }
+
+    @Override
+    public PageResult<MesWmMiscReceiptLineDO> getMiscReceiptLinePage(MesWmMiscReceiptLinePageReqVO pageReqVO) {
+        return miscReceiptLineMapper.selectPage(pageReqVO);
     }
 
     @Override

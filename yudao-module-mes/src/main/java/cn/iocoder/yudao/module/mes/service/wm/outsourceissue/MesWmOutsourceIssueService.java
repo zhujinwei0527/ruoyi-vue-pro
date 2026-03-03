@@ -1,0 +1,61 @@
+package cn.iocoder.yudao.module.mes.service.wm.outsourceissue;
+
+import cn.iocoder.yudao.framework.common.pojo.PageResult;
+import cn.iocoder.yudao.module.mes.controller.admin.wm.outsourceissue.vo.MesWmOutsourceIssuePageReqVO;
+import cn.iocoder.yudao.module.mes.controller.admin.wm.outsourceissue.vo.MesWmOutsourceIssueSaveReqVO;
+import cn.iocoder.yudao.module.mes.dal.dataobject.wm.outsourceissue.MesWmOutsourceIssueDO;
+import jakarta.validation.Valid;
+
+/**
+ * MES 外协发料单 Service 接口
+ *
+ * @author 芋道源码
+ */
+public interface MesWmOutsourceIssueService {
+
+    /**
+     * 创建外协发料单
+     *
+     * @param createReqVO 创建信息
+     * @return 编号
+     */
+    Long createOutsourceIssue(@Valid MesWmOutsourceIssueSaveReqVO createReqVO);
+
+    /**
+     * 修改外协发料单
+     *
+     * @param updateReqVO 修改信息
+     */
+    void updateOutsourceIssue(@Valid MesWmOutsourceIssueSaveReqVO updateReqVO);
+
+    /**
+     * 删除外协发料单（级联删除行和明细）
+     *
+     * @param id 编号
+     */
+    void deleteOutsourceIssue(Long id);
+
+    /**
+     * 获得外协发料单
+     *
+     * @param id 编号
+     * @return 外协发料单
+     */
+    MesWmOutsourceIssueDO getOutsourceIssue(Long id);
+
+    /**
+     * 获得外协发料单分页
+     *
+     * @param pageReqVO 分页参数
+     * @return 外协发料单分页
+     */
+    PageResult<MesWmOutsourceIssueDO> getOutsourceIssuePage(MesWmOutsourceIssuePageReqVO pageReqVO);
+
+    /**
+     * 执行外协发料出库（草稿 → 已完成，扣减库存）
+     *
+     * @param id 编号
+     */
+    void executeOutsourceIssue(Long id);
+
+}

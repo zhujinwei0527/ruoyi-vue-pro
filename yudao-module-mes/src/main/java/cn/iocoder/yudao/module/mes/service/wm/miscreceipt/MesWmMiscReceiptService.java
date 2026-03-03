@@ -80,4 +80,11 @@ public interface MesWmMiscReceiptService {
      */
     MesWmMiscReceiptDO validateMiscReceiptExists(Long id);
 
+    /**
+     * 校验杂项入库单是否可编辑（存在且为草稿状态）
+     *
+     * @param id 编号
+     */
+    void validateMiscReceiptEditable(Long id);
+
 }

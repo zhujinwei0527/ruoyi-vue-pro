@@ -38,6 +38,9 @@ public class MesWmMiscReceiptServiceImpl implements MesWmMiscReceiptService {
     private MesWmMiscReceiptLineMapper miscReceiptLineMapper;
 
     @Resource
+    private MesWmMiscReceiptDetailService miscReceiptDetailService;
+
+    @Resource
     private MesWmMaterialStockService materialStockService;
 
     @Override
@@ -70,6 +73,8 @@ public class MesWmMiscReceiptServiceImpl implements MesWmMiscReceiptService {
         // 校验存在 + 草稿状态
         validateMiscReceiptExistsAndPrepare(id);
 
+        // 级联删除明细
+        miscReceiptDetailService.deleteMiscReceiptDetailByReceiptId(id);
         // 级联删除行
         miscReceiptLineMapper.deleteByReceiptId(id);
         // 删除主表
@@ -158,8 +163,6 @@ public class MesWmMiscReceiptServiceImpl implements MesWmMiscReceiptService {
         return receipt;
     }
 
-    // ==================== 私有方法 ====================
-
     private void validateCodeUnique(Long id, String code) {
         MesWmMiscReceiptDO receipt = miscReceiptMapper.selectByCode(code);
         if (receipt == null) {
@@ -176,6 +179,15 @@ public class MesWmMiscReceiptServiceImpl implements MesWmMiscReceiptService {
             throw exception(WM_MISC_RECEIPT_STATUS_NOT_PREPARE);
         }
         return receipt;
+    }
+
+    /**
+     * 校验入库单是否可编辑（存在且为草稿状态）
+     *
+     * @param id 入库单ID
+     */
+    public void validateMiscReceiptEditable(Long id) {
+        validateMiscReceiptExistsAndPrepare(id);
     }
 
 }

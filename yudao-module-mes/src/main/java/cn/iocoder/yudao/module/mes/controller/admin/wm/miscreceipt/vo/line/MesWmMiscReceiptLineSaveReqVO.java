@@ -1,6 +1,7 @@
 package cn.iocoder.yudao.module.mes.controller.admin.wm.miscreceipt.vo.line;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
@@ -24,7 +25,7 @@ public class MesWmMiscReceiptLineSaveReqVO {
 
     @Schema(description = "入库数量", requiredMode = Schema.RequiredMode.REQUIRED, example = "100.00")
     @NotNull(message = "入库数量不能为空")
-    // TODO @AI：最小是 0.01
+    @DecimalMin(value = "0.01", message = "入库数量不能小于 0.01")
     private BigDecimal quantity;
 
     @Schema(description = "批次号", example = "BATCH20260301")
