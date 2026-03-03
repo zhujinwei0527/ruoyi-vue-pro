@@ -8,31 +8,26 @@ import java.util.Arrays;
 
 /**
  * MES 杂项入库类型枚举
- *
- * @author 芋道源码
  */
 @Getter
 @AllArgsConstructor
-public enum MesWmMiscReceiptTypeEnum implements ArrayValuable<String> {
+public enum MesWmMiscReceiptTypeEnum implements ArrayValuable<Integer> {
 
-    RETURN("RETURN", "退料入库"),
-    ADJUST("ADJUST", "调整入库"),
-    TRANSFER("TRANSFER", "调拨入库"),
-    OTHER("OTHER", "其他入库");
+    ADJUST(1, "库存调整");
 
-    public static final String[] ARRAYS = Arrays.stream(values()).map(MesWmMiscReceiptTypeEnum::getType).toArray(String[]::new);
+    public static final Integer[] ARRAYS = Arrays.stream(values()).map(MesWmMiscReceiptTypeEnum::getType).toArray(Integer[]::new);
 
     /**
      * 类型值
      */
-    private final String type;
+    private final Integer type;
     /**
      * 类型名
      */
     private final String name;
 
     @Override
-    public String[] array() {
+    public Integer[] array() {
         return ARRAYS;
     }
 

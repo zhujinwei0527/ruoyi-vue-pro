@@ -25,9 +25,12 @@ public class MesWmMiscReceiptLineServiceImpl implements MesWmMiscReceiptLineServ
 
     @Override
     public Long createMiscReceiptLine(MesWmMiscReceiptLineSaveReqVO createReqVO) {
+        // TODO @AI：物料存在；lineId 可编辑；
+
         // 插入
         MesWmMiscReceiptLineDO line = BeanUtils.toBean(createReqVO, MesWmMiscReceiptLineDO.class);
         miscReceiptLineMapper.insert(line);
+        // TODO @AI：还是需要新增一个 detail 表；类似别的 line + detail 的设计；1）create 时，新增；2）update 时，更新；3）delete 时，删除；
         return line.getId();
     }
 
@@ -35,6 +38,7 @@ public class MesWmMiscReceiptLineServiceImpl implements MesWmMiscReceiptLineServ
     public void updateMiscReceiptLine(MesWmMiscReceiptLineSaveReqVO updateReqVO) {
         // 校验存在
         validateMiscReceiptLineExists(updateReqVO.getId());
+        // TODO @AI：物料存在；lineId 可编辑；
 
         // 更新
         MesWmMiscReceiptLineDO updateObj = BeanUtils.toBean(updateReqVO, MesWmMiscReceiptLineDO.class);
@@ -43,6 +47,7 @@ public class MesWmMiscReceiptLineServiceImpl implements MesWmMiscReceiptLineServ
 
     @Override
     public void deleteMiscReceiptLine(Long id) {
+        // TODO @AI：lineId 存在 + 可编辑；
         // 校验存在
         validateMiscReceiptLineExists(id);
 

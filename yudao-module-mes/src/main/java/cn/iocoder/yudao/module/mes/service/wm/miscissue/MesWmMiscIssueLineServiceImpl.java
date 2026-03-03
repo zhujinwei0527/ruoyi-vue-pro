@@ -17,7 +17,7 @@ import org.springframework.validation.annotation.Validated;
 import java.util.List;
 
 import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception;
-import static cn.iocoder.yudao.module.mes.enums.ErrorCodeConstants.*;
+import static cn.iocoder.yudao.module.mes.enums.ErrorCodeConstants.WM_MISC_ISSUE_LINE_NOT_EXISTS;
 
 /**
  * MES 杂项出库单行 Service 实现类
@@ -34,52 +34,67 @@ public class MesWmMiscIssueLineServiceImpl implements MesWmMiscIssueLineService 
     private MesWmMiscIssueService miscIssueService;
 
     @Resource
+    @Lazy
+    private MesWmMiscIssueDetailService miscIssueDetailService;
+
+    @Resource
     private MesMdItemService itemService;
 
     @Resource
     private MesWmWarehouseAreaService warehouseAreaService;
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public Long createMiscIssueLine(MesWmMiscIssueLineSaveReqVO createReqVO) {
-        // 校验父单据存在且为可编辑状态
+        // 1.1 校验父单据存在且为可编辑状态
         miscIssueService.validateMiscIssueEditable(createReqVO.getIssueId());
-        // 校验物料存在
+        // 1.2 校验物料存在
         itemService.validateItemExists(createReqVO.getItemId());
-        // 校验仓库、库区、库位的父子关系
+        // 1.3 校验仓库、库区、库位的父子关系
         warehouseAreaService.validateWarehouseAreaExists(createReqVO.getWarehouseId(),
                 createReqVO.getLocationId(), createReqVO.getAreaId());
 
-        // 新增
+        // 2. 新增行
         MesWmMiscIssueLineDO line = BeanUtils.toBean(createReqVO, MesWmMiscIssueLineDO.class);
         miscIssueLineMapper.insert(line);
+
+        // 3.自动创建明细
+        createReqVO.setId(line.getId());
+        miscIssueDetailService.createMiscIssueDetail(createReqVO);
         return line.getId();
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public void updateMiscIssueLine(MesWmMiscIssueLineSaveReqVO updateReqVO) {
-        // 校验存在
-        MesWmMiscIssueLineDO line = validateMiscIssueLineExists(updateReqVO.getId());
-        // 校验父单据存在且为可编辑状态
+        // 1.1 校验存在
+        MesWmMiscIssueLineDO line = validateAndGetMiscIssueLine(updateReqVO.getId());
+        // 1.2 校验父单据存在且为可编辑状态
         miscIssueService.validateMiscIssueEditable(line.getIssueId());
-        // 校验物料存在
+        // 1.3 校验物料存在
         itemService.validateItemExists(updateReqVO.getItemId());
-        // 校验仓库、库区、库位的父子关系
+        // 1.4 校验仓库、库区、库位的父子关系
         warehouseAreaService.validateWarehouseAreaExists(updateReqVO.getWarehouseId(),
                 updateReqVO.getLocationId(), updateReqVO.getAreaId());
 
-        // 更新
+        // 2. 更新行
         MesWmMiscIssueLineDO updateObj = BeanUtils.toBean(updateReqVO, MesWmMiscIssueLineDO.class);
         miscIssueLineMapper.updateById(updateObj);
+
+        // 3. 更新明细（基于行信息）
+        miscIssueDetailService.updateMiscIssueDetail(updateReqVO);
     }
 
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void deleteMiscIssueLine(Long id) {
         // 校验存在
-        validateMiscIssueLineExists(id);
+        validateAndGetMiscIssueLine(id);
 
-        // 删除
+        // 删除行
         miscIssueLineMapper.deleteById(id);
+        // 删除明细
+        miscIssueDetailService.deleteMiscIssueDetailByLineId(id);
     }
 
     @Override
@@ -98,11 +113,22 @@ public class MesWmMiscIssueLineServiceImpl implements MesWmMiscIssueLineService 
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public void deleteMiscIssueLineByIssueId(Long issueId) {
+        // 删除明细
+        miscIssueDetailService.deleteMiscIssueDetailByIssueId(issueId);
+        // 删除行
         miscIssueLineMapper.deleteByIssueId(issueId);
     }
 
-    private MesWmMiscIssueLineDO validateMiscIssueLineExists(Long id) {
+    @Override
+    public void validateMiscIssueLineExists(Long id) {
+        if (miscIssueLineMapper.selectById(id) == null) {
+            throw exception(WM_MISC_ISSUE_LINE_NOT_EXISTS);
+        }
+    }
+
+    private MesWmMiscIssueLineDO validateAndGetMiscIssueLine(Long id) {
         MesWmMiscIssueLineDO line = miscIssueLineMapper.selectById(id);
         if (line == null) {
             throw exception(WM_MISC_ISSUE_LINE_NOT_EXISTS);

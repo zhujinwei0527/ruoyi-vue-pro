@@ -23,9 +23,9 @@ public class MesWmMiscReceiptSaveReqVO {
     @NotEmpty(message = "入库单名称不能为空")
     private String name;
 
-    @Schema(description = "杂项类型", requiredMode = Schema.RequiredMode.REQUIRED, example = "RETURN")
-    @NotEmpty(message = "杂项类型不能为空")
-    private String type;
+    @Schema(description = "杂项类型", requiredMode = Schema.RequiredMode.REQUIRED, example = "1")
+    @NotNull(message = "杂项类型不能为空")
+    private Integer type;
 
     @Schema(description = "来源单据 ID", example = "1")
     private Long sourceDocId;

@@ -39,9 +39,6 @@ public class MesWmMiscIssueServiceImpl implements MesWmMiscIssueService {
     @Resource
     private MesWmMiscIssueLineService miscIssueLineService;
 
-    @Resource
-    private MesWmMaterialStockService materialStockService;
-
     @Override
     public Long createMiscIssue(MesWmMiscIssueSaveReqVO createReqVO) {
         // 校验编码唯一

@@ -43,7 +43,7 @@ public class MesWmMiscReceiptDO extends BaseDO {
      *
      * 枚举 {@link MesWmMiscReceiptTypeEnum}
      */
-    private String type;
+    private Integer type;
     // TODO @芋艿：后续看看怎么跟进；
     /**
      * 来源单据 ID

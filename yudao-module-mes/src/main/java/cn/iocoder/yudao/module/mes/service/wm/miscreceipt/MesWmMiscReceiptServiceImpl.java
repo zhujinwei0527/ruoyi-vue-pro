@@ -18,7 +18,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 
-import java.math.BigDecimal;
 import java.util.List;
 
 import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception;
@@ -98,17 +97,6 @@ public class MesWmMiscReceiptServiceImpl implements MesWmMiscReceiptService {
             throw exception(WM_MISC_RECEIPT_NO_LINE);
         }
 
-        // 校验行数据完整性
-        // TODO @AI：不用做这块的校验；
-        for (MesWmMiscReceiptLineDO line : lines) {
-            if (line.getWarehouseId() == null) {
-                throw exception(WM_MISC_RECEIPT_WAREHOUSE_REQUIRED);
-            }
-            if (line.getQuantity() == null || line.getQuantity().compareTo(BigDecimal.ZERO) <= 0) {
-                throw exception(WM_MISC_RECEIPT_QUANTITY_INVALID);
-            }
-        }
-
         // 提交审批（草稿 → 已审批）
         miscReceiptMapper.updateById(new MesWmMiscReceiptDO()
                 .setId(id).setStatus(MesWmMiscReceiptStatusEnum.APPROVED.getStatus()));
@@ -124,8 +112,6 @@ public class MesWmMiscReceiptServiceImpl implements MesWmMiscReceiptService {
         }
 
         // 遍历所有行，更新库存台账
-        // TODO @芋艿：后续对齐下；
-        // TODO @AI：这里有编译报错；
         List<MesWmMiscReceiptLineDO> lines = miscReceiptLineMapper.selectListByReceiptId(id);
         for (MesWmMiscReceiptLineDO line : lines) {
             materialStockService.increaseStock(
@@ -133,9 +119,11 @@ public class MesWmMiscReceiptServiceImpl implements MesWmMiscReceiptService {
                     line.getWarehouseId(),
                     line.getLocationId(),
                     line.getAreaId(),
-                    line.getBatchCode(),
+                    null, // batchId 传 null（杂项入库使用 batchCode）
+                    line.getQuantity(),
                     null, // vendorId 传 null（杂项入库无供应商）
-                    line.getQuantity()
+                    line.getProductionDate(),
+                    line.getExpireDate()
             );
         }
 

@@ -66,4 +66,11 @@ public interface MesWmMiscIssueLineService {
      */
     void deleteMiscIssueLineByIssueId(Long issueId);
 
+    /**
+     * 校验杂项出库单行是否存在
+     *
+     * @param id 编号
+     */
+    void validateMiscIssueLineExists(Long id);
+
 }

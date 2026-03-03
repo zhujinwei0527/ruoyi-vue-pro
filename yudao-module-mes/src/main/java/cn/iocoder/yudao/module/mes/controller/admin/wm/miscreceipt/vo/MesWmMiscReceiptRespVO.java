@@ -18,8 +18,8 @@ public class MesWmMiscReceiptRespVO {
     @Schema(description = "入库单名称", example = "退料入库单")
     private String name;
 
-    @Schema(description = "杂项类型", example = "RETURN")
-    private String type;
+    @Schema(description = "杂项类型", example = "1")
+    private Integer type;
 
     @Schema(description = "来源单据 ID", example = "1")
     private Long sourceDocId;

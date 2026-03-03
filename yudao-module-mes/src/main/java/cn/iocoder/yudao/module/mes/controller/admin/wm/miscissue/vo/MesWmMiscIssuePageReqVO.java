@@ -21,8 +21,8 @@ public class MesWmMiscIssuePageReqVO extends PageParam {
     @Schema(description = "出库单名称", example = "库存调整出库")
     private String name;
 
-    @Schema(description = "杂项类型", example = "STOCK_ADJUSTMENT")
-    private String type;
+    @Schema(description = "杂项类型", example = "1")
+    private Integer type;
 
     @Schema(description = "状态", example = "0")
     private Integer status;

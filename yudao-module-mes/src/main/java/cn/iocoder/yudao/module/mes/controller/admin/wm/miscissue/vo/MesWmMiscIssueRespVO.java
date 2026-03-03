@@ -18,8 +18,8 @@ public class MesWmMiscIssueRespVO {
     @Schema(description = "出库单名称", requiredMode = Schema.RequiredMode.REQUIRED, example = "库存调整出库")
     private String name;
 
-    @Schema(description = "杂项类型", requiredMode = Schema.RequiredMode.REQUIRED, example = "STOCK_ADJUSTMENT")
-    private String type;
+    @Schema(description = "杂项类型", requiredMode = Schema.RequiredMode.REQUIRED, example = "1")
+    private Integer type;
 
     @Schema(description = "来源单据ID", example = "1")
     private Long sourceDocId;

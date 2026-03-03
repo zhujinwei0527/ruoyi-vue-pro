@@ -38,9 +38,9 @@ public class MesWmMiscIssueDO extends BaseDO {
     /**
      * 杂项类型
      *
-     * 枚举 {@link cn.iocoder.yudao.module.mes.enums.DictTypeConstants#MES_WM_MISC_ISSUE_TYPE}
+     * 枚举 {@link cn.iocoder.yudao.module.mes.enums.wm.MesWmMiscIssueTypeEnum}
      */
-    private String type;
+    private Integer type;
     // TODO @芋艿：这里还没定，关联哪些；
     /**
      * 来源单据ID
