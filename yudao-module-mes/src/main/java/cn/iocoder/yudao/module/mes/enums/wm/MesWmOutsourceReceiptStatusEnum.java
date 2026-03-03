@@ -1,14 +1,18 @@
 package cn.iocoder.yudao.module.mes.enums.wm;
 
 import cn.iocoder.yudao.framework.common.core.ArrayValuable;
+import cn.iocoder.yudao.module.mes.controller.admin.wm.outsourcereceipt.vo.MesWmOutsourceReceiptSaveReqVO;
 import cn.iocoder.yudao.module.mes.enums.MesOrderStatusConstants;
+import cn.iocoder.yudao.module.mes.service.wm.outsourcereceipt.MesWmOutsourceReceiptService;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 import java.util.Arrays;
 
 /**
- * MES 委外收货单状态枚举
+ * MES 外协入库单状态枚举
+ *
+ * 对应字典 mes_wm_outsource_receipt_status
  *
  * @author 芋道源码
  */
@@ -16,25 +20,40 @@ import java.util.Arrays;
 @AllArgsConstructor
 public enum MesWmOutsourceReceiptStatusEnum implements ArrayValuable<Integer> {
 
-    // TODO @AI：需要 @对应的状态；参考 /Users/yunai/Java/yudao-all-in-one/ruoyi-vue-pro/yudao-module-mes/src/main/java/cn/iocoder/yudao/module/mes/enums/wm/MesWmMiscIssueStatusEnum.java 里的逻辑；
     /**
-     * 准备中
+     * 草稿
+     *
+     * 对应方法：{@link MesWmOutsourceReceiptService#createOutsourceReceipt(MesWmOutsourceReceiptSaveReqVO)}
      */
-    PREPARE(MesOrderStatusConstants.PREPARE, "准备中"),
+    PREPARE(MesOrderStatusConstants.PREPARE, "草稿"),
     /**
-     * 审批中
+     * 待检验（已确认，等待质检）
+     *
+     * 对应方法：{@link MesWmOutsourceReceiptService#submitOutsourceReceipt(Long)}
      */
-    APPROVING(MesOrderStatusConstants.APPROVING, "审批中"),
+    CONFIRMED(MesOrderStatusConstants.CONFIRMED, "待检验"),
     /**
-     * 已审批
+     * 待上架（检验完成，等待仓库上架）
+     *
+     * 对应方法：{@link MesWmOutsourceReceiptService#submitOutsourceReceipt(Long)}
      */
-    APPROVED(MesOrderStatusConstants.APPROVED, "已审批"),
+    APPROVING(MesOrderStatusConstants.APPROVING, "待上架"),
     /**
-     * 已完成
+     * 待执行入库（上架完成，等待执行入库操作）
+     *
+     * 对应方法：{@link MesWmOutsourceReceiptService#stockOutsourceReceipt(Long)}
+     */
+    APPROVED(MesOrderStatusConstants.APPROVED, "待执行入库"),
+    /**
+     * 已完成（入库执行完成，库存已更新）
+     *
+     * 对应方法：{@link MesWmOutsourceReceiptService#finishOutsourceReceipt(Long)}
      */
     FINISHED(MesOrderStatusConstants.FINISHED, "已完成"),
     /**
      * 已取消
+     *
+     * 对应方法：{@link MesWmOutsourceReceiptService#cancelOutsourceReceipt(Long)}
      */
     CANCELED(MesOrderStatusConstants.CANCELLED, "已取消");
 

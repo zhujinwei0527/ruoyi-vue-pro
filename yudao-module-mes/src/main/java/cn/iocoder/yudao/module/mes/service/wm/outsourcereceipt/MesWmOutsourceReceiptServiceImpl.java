@@ -14,12 +14,11 @@ import cn.iocoder.yudao.module.mes.dal.mysql.wm.outsourcereceipt.MesWmOutsourceR
 import cn.iocoder.yudao.module.mes.dal.mysql.wm.outsourcereceipt.MesWmOutsourceReceiptLineMapper;
 import cn.iocoder.yudao.module.mes.dal.mysql.wm.outsourcereceipt.MesWmOutsourceReceiptMapper;
 import cn.iocoder.yudao.module.mes.enums.wm.MesWmOutsourceReceiptStatusEnum;
+import cn.iocoder.yudao.module.mes.enums.wm.MesWmQualityStatusEnum;
 import cn.iocoder.yudao.module.mes.service.md.item.MesMdItemService;
 import cn.iocoder.yudao.module.mes.service.md.vendor.MesMdVendorService;
 import cn.iocoder.yudao.module.mes.service.wm.materialstock.MesWmMaterialStockService;
 import cn.iocoder.yudao.module.mes.service.wm.warehouse.MesWmWarehouseAreaService;
-import cn.iocoder.yudao.module.mes.service.wm.warehouse.MesWmWarehouseLocationService;
-import cn.iocoder.yudao.module.mes.service.wm.warehouse.MesWmWarehouseService;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -54,12 +53,6 @@ public class MesWmOutsourceReceiptServiceImpl implements MesWmOutsourceReceiptSe
 
     @Resource
     private MesMdItemService itemService;
-
-    @Resource
-    private MesWmWarehouseService warehouseService;
-
-    @Resource
-    private MesWmWarehouseLocationService warehouseLocationService;
 
     @Resource
     private MesWmWarehouseAreaService warehouseAreaService;
@@ -125,14 +118,15 @@ public class MesWmOutsourceReceiptServiceImpl implements MesWmOutsourceReceiptSe
         if (CollUtil.isEmpty(lines)) {
             throw exception(WM_OUTSOURCE_RECEIPT_NO_LINE);
         }
-        // 校验物料存在
-        for (MesWmOutsourceReceiptLineDO line : lines) {
-            itemService.validateItemExists(line.getItemId());
-        }
 
-        // 提交（草稿 → 审批中）
+        // 检查是否有待检验的行
+        boolean hasPendingQc = CollUtil.contains(lines,
+                line -> MesWmQualityStatusEnum.PENDING.getStatus().equals(line.getQualityStatus()));
+        // 根据质检状态，路由到待检验或待上架
+        Integer targetStatus = hasPendingQc ? MesWmOutsourceReceiptStatusEnum.CONFIRMED.getStatus()
+                : MesWmOutsourceReceiptStatusEnum.APPROVING.getStatus();
         outsourceReceiptMapper.updateById(new MesWmOutsourceReceiptDO()
-                .setId(id).setStatus(MesWmOutsourceReceiptStatusEnum.APPROVING.getStatus()));
+                .setId(id).setStatus(targetStatus));
     }
 
     @Override
