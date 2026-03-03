@@ -1,0 +1,140 @@
+package cn.iocoder.yudao.module.mes.controller.admin.wm.outsourceissue;
+
+import cn.hutool.core.collection.CollUtil;
+import cn.iocoder.yudao.framework.apilog.core.annotation.ApiAccessLog;
+import cn.iocoder.yudao.framework.common.pojo.CommonResult;
+import cn.iocoder.yudao.framework.common.pojo.PageParam;
+import cn.iocoder.yudao.framework.common.pojo.PageResult;
+import cn.iocoder.yudao.framework.common.util.collection.MapUtils;
+import cn.iocoder.yudao.framework.common.util.object.BeanUtils;
+import cn.iocoder.yudao.framework.excel.core.util.ExcelUtils;
+import cn.iocoder.yudao.module.mes.controller.admin.wm.outsourceissue.vo.MesWmOutsourceIssueExcelVO;
+import cn.iocoder.yudao.module.mes.controller.admin.wm.outsourceissue.vo.MesWmOutsourceIssuePageReqVO;
+import cn.iocoder.yudao.module.mes.controller.admin.wm.outsourceissue.vo.MesWmOutsourceIssueRespVO;
+import cn.iocoder.yudao.module.mes.controller.admin.wm.outsourceissue.vo.MesWmOutsourceIssueSaveReqVO;
+import cn.iocoder.yudao.module.mes.dal.dataobject.md.vendor.MesMdVendorDO;
+import cn.iocoder.yudao.module.mes.dal.dataobject.wm.outsourceissue.MesWmOutsourceIssueDO;
+import cn.iocoder.yudao.module.mes.service.md.vendor.MesMdVendorService;
+import cn.iocoder.yudao.module.mes.service.wm.outsourceissue.MesWmOutsourceIssueService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.annotation.Resource;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Valid;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.*;
+
+import java.io.IOException;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+
+import static cn.iocoder.yudao.framework.apilog.core.enums.OperateTypeEnum.EXPORT;
+import static cn.iocoder.yudao.framework.common.pojo.CommonResult.success;
+import static cn.iocoder.yudao.framework.common.util.collection.CollectionUtils.convertSet;
+
+/**
+ * MES 外协发料单 Controller
+ *
+ * @author 芋道源码
+ */
+@Tag(name = "管理后台 - MES 外协发料单")
+@RestController
+@RequestMapping("/mes/wm/outsource-issue")
+@Validated
+public class MesWmOutsourceIssueController {
+
+    @Resource
+    private MesWmOutsourceIssueService outsourceIssueService;
+
+    @Resource
+    private MesMdVendorService vendorService;
+
+    @PostMapping("/create")
+    @Operation(summary = "创建外协发料单")
+    @PreAuthorize("@ss.hasPermission('mes:wm-outsource-issue:create')")
+    public CommonResult<Long> createOutsourceIssue(@Valid @RequestBody MesWmOutsourceIssueSaveReqVO createReqVO) {
+        return success(outsourceIssueService.createOutsourceIssue(createReqVO));
+    }
+
+    @PutMapping("/update")
+    @Operation(summary = "修改外协发料单")
+    @PreAuthorize("@ss.hasPermission('mes:wm-outsource-issue:update')")
+    public CommonResult<Boolean> updateOutsourceIssue(@Valid @RequestBody MesWmOutsourceIssueSaveReqVO updateReqVO) {
+        outsourceIssueService.updateOutsourceIssue(updateReqVO);
+        return success(true);
+    }
+
+    @DeleteMapping("/delete")
+    @Operation(summary = "删除外协发料单")
+    @Parameter(name = "id", description = "编号", required = true)
+    @PreAuthorize("@ss.hasPermission('mes:wm-outsource-issue:delete')")
+    public CommonResult<Boolean> deleteOutsourceIssue(@RequestParam("id") Long id) {
+        outsourceIssueService.deleteOutsourceIssue(id);
+        return success(true);
+    }
+
+    @GetMapping("/get")
+    @Operation(summary = "获得外协发料单")
+    @Parameter(name = "id", description = "编号", required = true, example = "1024")
+    @PreAuthorize("@ss.hasPermission('mes:wm-outsource-issue:query')")
+    public CommonResult<MesWmOutsourceIssueRespVO> getOutsourceIssue(@RequestParam("id") Long id) {
+        MesWmOutsourceIssueDO issue = outsourceIssueService.getOutsourceIssue(id);
+        if (issue == null) {
+            return success(null);
+        }
+        return success(buildRespVOList(Collections.singletonList(issue)).get(0));
+    }
+
+    @GetMapping("/page")
+    @Operation(summary = "获得外协发料单分页")
+    @PreAuthorize("@ss.hasPermission('mes:wm-outsource-issue:query')")
+    public CommonResult<PageResult<MesWmOutsourceIssueRespVO>> getOutsourceIssuePage(
+            @Valid MesWmOutsourceIssuePageReqVO pageReqVO) {
+        PageResult<MesWmOutsourceIssueDO> pageResult = outsourceIssueService.getOutsourceIssuePage(pageReqVO);
+        return success(new PageResult<>(buildRespVOList(pageResult.getList()), pageResult.getTotal()));
+    }
+
+    @GetMapping("/export-excel")
+    @Operation(summary = "导出外协发料单 Excel")
+    @PreAuthorize("@ss.hasPermission('mes:wm-outsource-issue:export')")
+    @ApiAccessLog(operateType = EXPORT)
+    public void exportOutsourceIssueExcel(@Valid MesWmOutsourceIssuePageReqVO pageReqVO,
+                                          HttpServletResponse response) throws IOException {
+        pageReqVO.setPageSize(PageParam.PAGE_SIZE_NONE);
+        PageResult<MesWmOutsourceIssueDO> pageResult = outsourceIssueService.getOutsourceIssuePage(pageReqVO);
+        ExcelUtils.write(response, "外协发料单.xls", "数据", MesWmOutsourceIssueExcelVO.class,
+                BeanUtils.toBean(pageResult.getList(), MesWmOutsourceIssueExcelVO.class));
+    }
+
+    // TODO @AI：finish；改成这个接口；包括菜单、权限标识也是
+    @PutMapping("/execute")
+    @Operation(summary = "执行外协发料出库")
+    @Parameter(name = "id", description = "编号", required = true)
+    @PreAuthorize("@ss.hasPermission('mes:wm-outsource-issue:execute')")
+    public CommonResult<Boolean> executeOutsourceIssue(@RequestParam("id") Long id) {
+        outsourceIssueService.executeOutsourceIssue(id);
+        return success(true);
+    }
+
+    // TODO @AI：需要有 checkQuantity 类似的接口；
+
+    // ==================== 拼接 VO ====================
+
+    private List<MesWmOutsourceIssueRespVO> buildRespVOList(List<MesWmOutsourceIssueDO> list) {
+        if (CollUtil.isEmpty(list)) {
+            return Collections.emptyList();
+        }
+        // 1. 获得关联数据
+        Map<Long, MesMdVendorDO> vendorMap = vendorService.getVendorMap(
+                convertSet(list, MesWmOutsourceIssueDO::getVendorId));
+        // 2. 构建结果
+        return BeanUtils.toBean(list, MesWmOutsourceIssueRespVO.class, vo -> {
+            MapUtils.findAndThen(vendorMap, vo.getVendorId(), vendor ->
+                    vo.setVendorCode(vendor.getCode()).setVendorName(vendor.getName()));
+        });
+    }
+
+}

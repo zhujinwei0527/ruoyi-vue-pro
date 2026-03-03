@@ -35,6 +35,8 @@ public class MesWmOutsourceIssueLineServiceImpl implements MesWmOutsourceIssueLi
         // TODO @AI：校验关联的 issueId；
         // TODO AI校验关联的 itemId；
 
+        // TODO @AI：wm 里面，有模块实现了 checkBom 类似的逻辑；
+
         // 插入
         MesWmOutsourceIssueLineDO line = BeanUtils.toBean(createReqVO, MesWmOutsourceIssueLineDO.class);
         outsourceIssueLineMapper.insert(line);
@@ -45,6 +47,8 @@ public class MesWmOutsourceIssueLineServiceImpl implements MesWmOutsourceIssueLi
     public void updateOutsourceIssueLine(MesWmOutsourceIssueLineSaveReqVO updateReqVO) {
         // TODO @AI：校验关联的 issueId；
         // TODO AI校验关联的 itemId；
+
+        // TODO @AI：wm 里面，有模块实现了 checkBom 类似的逻辑；
 
         // 校验存在
         validateOutsourceIssueLineExists(updateReqVO.getId());
