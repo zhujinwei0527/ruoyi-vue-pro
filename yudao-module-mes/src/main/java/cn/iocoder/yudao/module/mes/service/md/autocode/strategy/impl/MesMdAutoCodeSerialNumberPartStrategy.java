@@ -37,17 +37,17 @@ public class MesMdAutoCodeSerialNumberPartStrategy implements MesMdAutoCodePartS
         // 1.2 获取过期时间
         Duration duration = Boolean.TRUE.equals(part.getCycleFlag()) ? getExpireDuration(part.getCycleMethod()) : null;
 
-        // 2.1 获取流水号
+        // 2. 获取流水号
         Integer step = part.getSerialStep() != null ? part.getSerialStep() : 1;
-        Long serialNo = redisDAO.increment(keySuffix, duration, step);
-        // 2.2 保存流水号到上下文
-        context.setSerialNo(serialNo.intValue());
+        Integer startNo = part.getSerialStartNo() != null ? part.getSerialStartNo() : 1;
+        Long serialNo = redisDAO.increment(keySuffix, duration, startNo, step);
 
         // 3. 格式化输出（补零）
         String serialStr = String.valueOf(serialNo);
         if (serialStr.length() < part.getLength()) {
             serialStr = StrUtil.padPre(serialStr, part.getLength(), '0');
         }
+        context.setSerialNo(serialNo);
         return serialStr;
     }
 
@@ -104,7 +104,8 @@ public class MesMdAutoCodeSerialNumberPartStrategy implements MesMdAutoCodePartS
         } else if (cycleMethod.equals(MesMdAutoCodeCycleMethodEnum.MINUTE.getMethod())) {
             return Duration.ofMinutes(2);
         } else if (cycleMethod.equals(MesMdAutoCodeCycleMethodEnum.INPUT_CHAR.getMethod())) {
-            return Duration.ofDays(30);
+            // 永不过期
+            return null;
         } else {
             throw new IllegalArgumentException("未知的循环方式：" + cycleMethod);
         }

@@ -81,7 +81,7 @@ public class MesMdAutoCodeRecordServiceImplTest {
         when(fixedCharStrategy.generate(eq(part1), any(MesMdAutoCodeContext.class))).thenReturn("ITEM_");
         when(serialNumberStrategy.generate(eq(part2), any(MesMdAutoCodeContext.class))).thenAnswer(invocation -> {
             MesMdAutoCodeContext context = invocation.getArgument(1);
-            context.setSerialNo(1);
+            context.setSerialNo(1L);
             return "0001";
         });
         when(recordMapper.selectByResult("ITEM_0001")).thenReturn(null);
