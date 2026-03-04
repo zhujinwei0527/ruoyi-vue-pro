@@ -15,18 +15,18 @@ import static cn.iocoder.yudao.framework.common.pojo.CommonResult.success;
 
 @Tag(name = "管理后台 - MES 编码生成记录")
 @RestController
-@RequestMapping("/mes/auto-code-record")
+@RequestMapping("/mes/md/auto-code-record")
 @Validated
 public class MesMdAutoCodeRecordController {
 
     @Resource
-    private MesMdAutoCodeRecordService recordService;
+    private MesMdAutoCodeRecordService autoCodeRecordService;
 
     @PostMapping("/generate")
     @Operation(summary = "生成编码")
     @PreAuthorize("@ss.hasPermission('mes:auto-code-rule:query')")
     public CommonResult<String> generateAutoCode(@Valid @RequestBody MesMdAutoCodeGenerateReqVO generateReqVO) {
-        String code = recordService.generateAutoCode(generateReqVO.getRuleCode(), generateReqVO.getInputChar());
+        String code = autoCodeRecordService.generateAutoCode(generateReqVO.getRuleCode(), generateReqVO.getInputChar());
         return success(code);
     }
 

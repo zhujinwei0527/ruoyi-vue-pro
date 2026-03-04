@@ -21,7 +21,7 @@ import static cn.iocoder.yudao.framework.common.pojo.CommonResult.success;
 
 @Tag(name = "管理后台 - MES 编码规则组成")
 @RestController
-@RequestMapping("/mes/auto-code-part")
+@RequestMapping("/mes/md/auto-code-part")
 @Validated
 public class MesMdAutoCodePartController {
 

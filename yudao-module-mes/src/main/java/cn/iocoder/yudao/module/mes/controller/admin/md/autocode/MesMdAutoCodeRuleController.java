@@ -31,7 +31,7 @@ import static cn.iocoder.yudao.framework.common.util.collection.CollectionUtils.
 
 @Tag(name = "管理后台 - MES 编码规则")
 @RestController
-@RequestMapping("/mes/auto-code-rule")
+@RequestMapping("/mes/md/auto-code-rule")
 @Validated
 public class MesMdAutoCodeRuleController {
 
