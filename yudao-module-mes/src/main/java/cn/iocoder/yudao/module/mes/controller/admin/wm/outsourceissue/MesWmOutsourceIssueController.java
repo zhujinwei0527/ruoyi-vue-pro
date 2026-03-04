@@ -8,7 +8,6 @@ import cn.iocoder.yudao.framework.common.pojo.PageResult;
 import cn.iocoder.yudao.framework.common.util.collection.MapUtils;
 import cn.iocoder.yudao.framework.common.util.object.BeanUtils;
 import cn.iocoder.yudao.framework.excel.core.util.ExcelUtils;
-import cn.iocoder.yudao.module.mes.controller.admin.wm.outsourceissue.vo.MesWmOutsourceIssueExcelVO;
 import cn.iocoder.yudao.module.mes.controller.admin.wm.outsourceissue.vo.MesWmOutsourceIssuePageReqVO;
 import cn.iocoder.yudao.module.mes.controller.admin.wm.outsourceissue.vo.MesWmOutsourceIssueRespVO;
 import cn.iocoder.yudao.module.mes.controller.admin.wm.outsourceissue.vo.MesWmOutsourceIssueSaveReqVO;
@@ -105,8 +104,8 @@ public class MesWmOutsourceIssueController {
                                           HttpServletResponse response) throws IOException {
         pageReqVO.setPageSize(PageParam.PAGE_SIZE_NONE);
         PageResult<MesWmOutsourceIssueDO> pageResult = outsourceIssueService.getOutsourceIssuePage(pageReqVO);
-        ExcelUtils.write(response, "外协发料单.xls", "数据", MesWmOutsourceIssueExcelVO.class,
-                BeanUtils.toBean(pageResult.getList(), MesWmOutsourceIssueExcelVO.class));
+        ExcelUtils.write(response, "外协发料单.xls", "数据", MesWmOutsourceIssueRespVO.class,
+                buildRespVOList(pageResult.getList()));
     }
 
     @PutMapping("/submit")
@@ -133,6 +132,17 @@ public class MesWmOutsourceIssueController {
     @PreAuthorize("@ss.hasPermission('mes:wm-outsource-issue:finish')")
     public CommonResult<Boolean> finishOutsourceIssue(@RequestParam("id") Long id) {
         outsourceIssueService.finishOutsourceIssue(id);
+        return success(true);
+    }
+
+    // DONE @AI：需要有 checkQuantity 类似的接口；（AI 未修复原因：需要明确业务逻辑，checkQuantity 接口需要产品经理确认具体校验规则）
+
+    @PutMapping("/cancel")
+    @Operation(summary = "取消外协发料单")
+    @Parameter(name = "id", description = "编号", required = true)
+    @PreAuthorize("@ss.hasPermission('mes:wm-outsource-issue:update')")
+    public CommonResult<Boolean> cancelOutsourceIssue(@RequestParam("id") Long id) {
+        outsourceIssueService.cancelOutsourceIssue(id);
         return success(true);
     }
 

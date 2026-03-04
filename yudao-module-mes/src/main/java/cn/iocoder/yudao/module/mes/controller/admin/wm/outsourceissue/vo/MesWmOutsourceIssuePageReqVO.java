@@ -29,16 +29,8 @@ public class MesWmOutsourceIssuePageReqVO extends PageParam {
     @Schema(description = "生产工单ID", example = "1")
     private Long workOrderId;
 
-    // TODO @AI：这个字段，去掉筛选
-    @Schema(description = "生产工单编码", example = "WO202603020001")
-    private String workOrderCode;
-
     @Schema(description = "发料日期")
     @DateTimeFormat(pattern = FORMAT_YEAR_MONTH_DAY_HOUR_MINUTE_SECOND)
     private LocalDateTime[] issueDate;
-
-    // TODO @AI：这个字段，去掉筛选
-    @Schema(description = "单据状态", example = "0")
-    private Integer status;
 
 }

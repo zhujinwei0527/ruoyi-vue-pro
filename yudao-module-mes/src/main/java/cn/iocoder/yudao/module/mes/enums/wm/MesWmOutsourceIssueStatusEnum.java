@@ -29,25 +29,25 @@ public enum MesWmOutsourceIssueStatusEnum implements ArrayValuable<Integer> {
     /**
      * 待拣货
      *
-     * 对应方法：TODO 待实现
+     * 对应方法：{@link MesWmOutsourceIssueService#submitOutsourceIssue(Long)}
      */
     APPROVING(MesOrderStatusConstants.APPROVING, "待拣货"),
     /**
      * 待执行出库
      *
-     * 对应方法：TODO 待实现
+     * 对应方法：{@link MesWmOutsourceIssueService#stockOutsourceIssue(Long)}
      */
     APPROVED(MesOrderStatusConstants.APPROVED, "待执行出库"),
     /**
      * 已完成
      *
-     * 对应方法：{@link MesWmOutsourceIssueService#executeOutsourceIssue(Long)}
+     * 对应方法：{@link MesWmOutsourceIssueService#finishOutsourceIssue(Long)}
      */
     FINISHED(MesOrderStatusConstants.FINISHED, "已完成"),
     /**
      * 已取消
      *
-     * 对应方法：TODO 待实现
+     * 对应方法：{@link MesWmOutsourceIssueService#cancelOutsourceIssue(Long)}
      */
     CANCELLED(MesOrderStatusConstants.CANCELLED, "已取消");
 

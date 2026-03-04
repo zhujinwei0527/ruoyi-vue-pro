@@ -72,4 +72,11 @@ public interface MesWmOutsourceIssueService {
      */
     void finishOutsourceIssue(Long id);
 
+    /**
+     * 取消外协发料单
+     *
+     * @param id 编号
+     */
+    void cancelOutsourceIssue(Long id);
+
 }
