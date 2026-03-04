@@ -72,13 +72,17 @@ public class MesMdAutoCodeSerialNumberPartStrategyTest extends BaseRedisUnitTest
         // 准备参数
         MesMdAutoCodePartDO part = new MesMdAutoCodePartDO().setLength(4).setSerialStartNo(1).setSerialStep(5).setCycleFlag(false);
         MesMdAutoCodeRuleDO rule = new MesMdAutoCodeRuleDO().setId(4L);
-        MesMdAutoCodeContext context = new MesMdAutoCodeContext().setRule(rule);
+        MesMdAutoCodeContext context1 = new MesMdAutoCodeContext().setRule(rule);
+        MesMdAutoCodeContext context2 = new MesMdAutoCodeContext().setRule(rule);
 
         // 调用
-        String result = strategy.generate(part, context);
+        String result1 = strategy.generate(part, context1);
+        String result2 = strategy.generate(part, context2);
         // 断言
-        assertEquals("0005", result);
-        assertEquals(5, context.getSerialNo());
+        assertEquals("0001", result1);
+        assertEquals(1, context1.getSerialNo());
+        assertEquals("0006", result2);
+        assertEquals(6, context2.getSerialNo());
     }
 
     @Test
