@@ -184,6 +184,29 @@ public class MesWmOutsourceIssueServiceImpl implements MesWmOutsourceIssueServic
                 .setId(id).setStatus(MesWmOutsourceIssueStatusEnum.CANCELLED.getStatus()));
     }
 
+    @Override
+    public Boolean checkOutsourceIssueQuantity(Long id) {
+        List<MesWmOutsourceIssueLineDO> lines = outsourceIssueLineService.getOutsourceIssueLineListByIssueId(id);
+        if (CollUtil.isEmpty(lines)) {
+            return true;
+        }
+        // 批量查询所有明细
+        List<MesWmOutsourceIssueDetailDO> allDetails = outsourceIssueDetailService.getOutsourceIssueDetailListByIssueId(id);
+        Map<Long, List<MesWmOutsourceIssueDetailDO>> detailMap = CollectionUtils.convertMultiMap(
+                allDetails, MesWmOutsourceIssueDetailDO::getLineId);
+        // 检查每行的明细数量
+        for (MesWmOutsourceIssueLineDO line : lines) {
+            List<MesWmOutsourceIssueDetailDO> details = detailMap.getOrDefault(line.getId(), List.of());
+            BigDecimal totalDetailQuantity = CollectionUtils.getSumValue(details,
+                    MesWmOutsourceIssueDetailDO::getQuantity, BigDecimal::add, BigDecimal.ZERO);
+            // 对比行数量与明细总数量
+            if (line.getQuantity().compareTo(totalDetailQuantity) != 0) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     /**
      * 校验外协发料单存在
      */

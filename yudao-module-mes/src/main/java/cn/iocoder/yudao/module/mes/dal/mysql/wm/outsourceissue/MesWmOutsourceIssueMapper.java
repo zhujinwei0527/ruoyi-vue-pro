@@ -20,10 +20,8 @@ public interface MesWmOutsourceIssueMapper extends BaseMapperX<MesWmOutsourceIss
                 .likeIfPresent(MesWmOutsourceIssueDO::getCode, reqVO.getCode())
                 .likeIfPresent(MesWmOutsourceIssueDO::getName, reqVO.getName())
                 .eqIfPresent(MesWmOutsourceIssueDO::getVendorId, reqVO.getVendorId())
-                .eqIfPresent(MesWmOutsourceIssueDO::getWorkorderId, reqVO.getWorkorderId())
-                .likeIfPresent(MesWmOutsourceIssueDO::getWorkorderCode, reqVO.getWorkorderCode())
+                .eqIfPresent(MesWmOutsourceIssueDO::getWorkOrderId, reqVO.getWorkOrderId())
                 .betweenIfPresent(MesWmOutsourceIssueDO::getIssueDate, reqVO.getIssueDate())
-                .eqIfPresent(MesWmOutsourceIssueDO::getStatus, reqVO.getStatus())
                 .orderByDesc(MesWmOutsourceIssueDO::getId));
     }
 

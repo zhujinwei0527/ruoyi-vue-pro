@@ -146,7 +146,13 @@ public class MesWmOutsourceIssueController {
         return success(true);
     }
 
-    // DONE @AI：需要有 checkQuantity 类似的接口；（AI 未修复原因：需要明确业务逻辑，checkQuantity 接口需要产品经理确认具体校验规则）
+    @GetMapping("/check-quantity")
+    @Operation(summary = "校验外协发料单数量", description = "校验每行明细数量之和是否等于行发料数量")
+    @Parameter(name = "id", description = "编号", required = true)
+    @PreAuthorize("@ss.hasPermission('mes:wm-outsource-issue:query')")
+    public CommonResult<Boolean> checkOutsourceIssueQuantity(@RequestParam("id") Long id) {
+        return success(outsourceIssueService.checkOutsourceIssueQuantity(id));
+    }
 
     // ==================== 拼接 VO ====================
 

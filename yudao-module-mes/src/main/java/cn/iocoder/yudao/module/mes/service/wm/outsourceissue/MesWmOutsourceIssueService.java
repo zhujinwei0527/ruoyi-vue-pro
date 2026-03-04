@@ -79,4 +79,12 @@ public interface MesWmOutsourceIssueService {
      */
     void cancelOutsourceIssue(Long id);
 
+    /**
+     * 校验外协发料单数量（行数量 = 明细数量之和）
+     *
+     * @param id 编号
+     * @return true 表示数量匹配，false 表示不匹配
+     */
+    Boolean checkOutsourceIssueQuantity(Long id);
+
 }

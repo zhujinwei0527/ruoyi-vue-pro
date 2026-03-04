@@ -31,15 +31,10 @@ public class MesWmOutsourceIssueDetailSaveReqVO {
     @DecimalMin(value = "0.01", message = "数量必须大于 0")
     private BigDecimal quantity;
 
-    @Schema(description = "库存ID", requiredMode = Schema.RequiredMode.REQUIRED, example = "1")
-    @NotNull(message = "库存ID不能为空")
-    private Long materialStockId;
-
     @Schema(description = "批次ID", example = "1")
     private Long batchId;
 
-    @Schema(description = "仓库ID", requiredMode = Schema.RequiredMode.REQUIRED, example = "1")
-    @NotNull(message = "仓库ID不能为空")
+    @Schema(description = "仓库ID", example = "1")
     private Long warehouseId;
 
     @Schema(description = "库区ID", example = "1")
