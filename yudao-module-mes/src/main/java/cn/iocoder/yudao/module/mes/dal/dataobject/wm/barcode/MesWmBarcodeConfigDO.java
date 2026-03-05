@@ -8,6 +8,8 @@ import lombok.*;
 
 /**
  * MES 条码配置 DO
+ *
+ * @author 芋道源码
  */
 @TableName("mes_wm_barcode_config")
 @KeySequence("mes_wm_barcode_config_seq")
@@ -20,21 +22,31 @@ import lombok.*;
 public class MesWmBarcodeConfigDO extends BaseDO {
 
     /**
+     * 内容格式模板占位符
+     */
+    public static final String PLACEHOLDER_BUSINESS_CODE = "{BUSINESSCODE}";
+
+    /**
      * 编号
      */
     @TableId
     private Long id;
     /**
      * 条码格式
+     *
+     * 枚举 {@link cn.iocoder.yudao.module.mes.enums.wm.BarcodeFormatEnum}
      */
-    private String format;
-    // TODO DONE @AI：需要有个枚举类；这样后续方便使用；=> 条码业务类型为字符串字典值，具体枚举值由业务字典管理，暂无需 Java 枚举类
+    private Integer format;
     /**
-     * 条码业务类型
+     * 业务类型
+     *
+     * 枚举 {@link cn.iocoder.yudao.module.mes.enums.wm.BarcodeBizTypeEnum}
      */
-    private String type;
+    private Integer bizType;
     /**
-     * 内容格式
+     * 内容格式模板（支持 {BUSINESSCODE} 占位符）
+     *
+     * @see #PLACEHOLDER_BUSINESS_CODE
      */
     private String contentFormat;
     /**
@@ -45,7 +57,6 @@ public class MesWmBarcodeConfigDO extends BaseDO {
      * 是否自动生成
      */
     private Boolean autoGenerateFlag;
-    // todo DONE @AI：printTemplate 改成这个字段；=> 已改名为 defaultTemplate
     /**
      * 默认打印模板
      */

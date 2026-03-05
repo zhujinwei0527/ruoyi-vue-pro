@@ -8,6 +8,8 @@ import lombok.*;
 
 /**
  * MES 条码清单 DO
+ *
+ * @author 芋道源码
  */
 @TableName("mes_wm_barcode")
 @KeySequence("mes_wm_barcode_seq")
@@ -32,34 +34,32 @@ public class MesWmBarcodeDO extends BaseDO {
     private Long configId;
     /**
      * 条码格式
+     *
+     * 枚举 {@link cn.iocoder.yudao.module.mes.enums.wm.BarcodeFormatEnum}
      */
-    private String format;
-    // TODO DONE @AI：需要有个枚举类；这样后续方便使用；=> 条码业务类型为字符串字典值，具体枚举值由业务字典管理，暂无需 Java 枚举类
+    private Integer format;
     /**
-     * 条码业务类型
+     * 业务类型
+     *
+     * 枚举 {@link cn.iocoder.yudao.module.mes.enums.wm.BarcodeBizTypeEnum}
      */
-    private String type;
+    private Integer bizType;
     /**
-     * 条码内容
+     * 条码内容（核心字段，前端根据此内容生成条码图片）
      */
     private String content;
     /**
      * 业务编号
      */
-    private Long businessId;
+    private Long bizId;
     /**
      * 业务编码
      */
-    private String businessCode;
+    private String bizCode;
     /**
      * 业务名称
      */
-    private String businessName;
-    // TODO DONE @AI：条码必须后端生成么？可以前端生成么？=> 条码建议后端生成，保证全局唯一性、可追溯，且避免前端伪造
-    /**
-     * 条码地址
-     */
-    private String imageUrl;
+    private String bizName;
     /**
      * 状态
      *

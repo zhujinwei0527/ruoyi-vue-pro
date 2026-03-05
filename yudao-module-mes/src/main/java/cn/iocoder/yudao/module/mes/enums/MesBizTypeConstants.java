@@ -23,6 +23,11 @@ public final class MesBizTypeConstants {
 
     public static final int WM_ARRIVAL_NOTICE = 100; // 到货通知单：MesWmArrivalNoticeDO
     // public static final int WM_OUTSOURCE_RECPT = 101; // TODO 外协入库单：未实现，占位
+    public static final int WM_WAREHOUSE = 102; // 仓库：MesWmWarehouseDO
+    public static final int WM_AREA = 103; // 库位：MesWmStorageAreaDO
+    public static final int WM_PACKAGE = 104; // 装箱单：MesWmPackageDO
+    public static final int WM_STOCK = 105; // 库存：MesWmMaterialStockDO
+    public static final int WM_BATCH = 106; // 批次：MesWmBatchDO
 
     // ========== CAL 排班模块 [200, 300) ==========
 
@@ -31,10 +36,24 @@ public final class MesBizTypeConstants {
 
     // ========== PRO 生产模块 [300, 400) ==========
 
+    public static final int PRO_CARD = 300; // 流转卡：MesProCardDO
+    public static final int PRO_WORKORDER = 301; // 工单：MesProWorkOrderDO
+    public static final int PRO_TRANS_ORDER = 302; // 流转单：MesProTransOrderDO
+
     // ========== DV 设备模块 [400, 500) ==========
+
+    public static final int DV_MACHINERY = 400; // 设备：MesDvMachineryDO
 
     // ========== TM 工装夹具模块 [500, 600) ==========
 
+    public static final int TM_TOOL = 500; // 工装：MesToolDO
+
     // ========== MD 主数据模块 [600, 700) ==========
+
+    public static final int MD_ITEM = 600; // 物料：MesMdItemDO
+    public static final int MD_VENDOR = 601; // 供应商：MesMdVendorDO
+    public static final int MD_WORKSTATION = 602; // 工作站：MesMdWorkstationDO
+    public static final int MD_WORKSHOP = 603; // 车间：MesMdWorkshopDO
+    public static final int MD_USER = 604; // 人员：系统用户
 
 }
