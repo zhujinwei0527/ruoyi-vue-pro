@@ -8,6 +8,16 @@ package cn.iocoder.yudao.module.mes.service.md.autocode;
 public interface MesMdAutoCodeRecordService {
 
     /**
+     * 生成编码（无输入字符）
+     *
+     * @param ruleCode 规则编码
+     * @return 生成的编码
+     */
+    default String generateAutoCode(String ruleCode) {
+        return generateAutoCode(ruleCode, null);
+    }
+
+    /**
      * 生成编码
      *
      * @param ruleCode 规则编码
