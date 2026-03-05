@@ -11,8 +11,6 @@ import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 
-import java.util.List;
-
 import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception;
 import static cn.iocoder.yudao.module.mes.enums.ErrorCodeConstants.*;
 
@@ -99,12 +97,6 @@ public class MesWmBarcodeConfigServiceImpl implements MesWmBarcodeConfigService 
             throw exception(WM_BARCODE_CONFIG_NOT_EXISTS);
         }
         return config;
-    }
-
-    // TODO @AI：getBarcodeConfigListByAutoGenerateFlag，获取自动生成条码的配置列表（Boolean ）
-    @Override
-    public List<MesWmBarcodeConfigDO> getAutoGenerateBarcodeConfigList() {
-        return barcodeConfigMapper.selectListByAutoGenerateFlag(true);
     }
 
 }

@@ -6,8 +6,6 @@ import cn.iocoder.yudao.module.mes.controller.admin.wm.barcode.vo.config.MesWmBa
 import cn.iocoder.yudao.module.mes.dal.dataobject.wm.barcode.MesWmBarcodeConfigDO;
 import jakarta.validation.Valid;
 
-import java.util.List;
-
 /**
  * MES 条码配置 Service 接口
  *
@@ -68,13 +66,5 @@ public interface MesWmBarcodeConfigService {
      * @return 条码配置
      */
     MesWmBarcodeConfigDO validateBarcodeConfigByBizType(Integer bizType);
-
-    // TODO @AI：是不是删除掉？貌似没用哈。
-    /**
-     * 获取自动生成的条码配置列表
-     *
-     * @return 条码配置列表
-     */
-    List<MesWmBarcodeConfigDO> getAutoGenerateBarcodeConfigList();
 
 }

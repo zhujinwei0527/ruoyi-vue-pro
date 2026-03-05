@@ -7,8 +7,6 @@ import cn.iocoder.yudao.module.mes.controller.admin.wm.barcode.vo.config.MesWmBa
 import cn.iocoder.yudao.module.mes.dal.dataobject.wm.barcode.MesWmBarcodeConfigDO;
 import org.apache.ibatis.annotations.Mapper;
 
-import java.util.List;
-
 /**
  * MES 条码配置 Mapper
  *
@@ -29,10 +27,6 @@ public interface MesWmBarcodeConfigMapper extends BaseMapperX<MesWmBarcodeConfig
 
     default MesWmBarcodeConfigDO selectByBizType(Integer bizType) {
         return selectOne(MesWmBarcodeConfigDO::getBizType, bizType);
-    }
-
-    default List<MesWmBarcodeConfigDO> selectListByAutoGenerateFlag(Boolean autoGenerateFlag) {
-        return selectList(MesWmBarcodeConfigDO::getAutoGenerateFlag, autoGenerateFlag);
     }
 
 }

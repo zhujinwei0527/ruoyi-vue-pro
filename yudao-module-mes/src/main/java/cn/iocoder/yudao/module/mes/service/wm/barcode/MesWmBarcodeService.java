@@ -60,4 +60,14 @@ public interface MesWmBarcodeService {
      */
     MesWmBarcodeDO getBarcodeByBizTypeAndBizId(Integer bizType, Long bizId);
 
+    /**
+     * 自动生成条码
+     *
+     * @param bizType 业务类型
+     * @param bizId 业务编号
+     * @param bizCode 业务编码
+     * @param bizName 业务名称
+     */
+    void autoGenerateBarcode(Integer bizType, Long bizId, String bizCode, String bizName);
+
 }

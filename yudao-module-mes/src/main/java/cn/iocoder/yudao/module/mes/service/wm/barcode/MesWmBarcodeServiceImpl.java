@@ -1,6 +1,7 @@
 package cn.iocoder.yudao.module.mes.service.wm.barcode;
 
 import cn.hutool.core.util.StrUtil;
+import cn.iocoder.yudao.framework.common.enums.CommonStatusEnum;
 import cn.iocoder.yudao.framework.common.pojo.PageResult;
 import cn.iocoder.yudao.framework.common.util.object.BeanUtils;
 import cn.iocoder.yudao.module.mes.controller.admin.wm.barcode.vo.MesWmBarcodePageReqVO;
@@ -95,6 +96,27 @@ public class MesWmBarcodeServiceImpl implements MesWmBarcodeService {
     @Override
     public MesWmBarcodeDO getBarcodeByBizTypeAndBizId(Integer bizType, Long bizId) {
         return barcodeMapper.selectByBizTypeAndBizId(bizType, bizId);
+    }
+
+    @Override
+    public void autoGenerateBarcode(Integer bizType, Long bizId, String bizCode, String bizName) {
+        // 1.1 检查是否配置自动生成
+        MesWmBarcodeConfigDO config = barcodeConfigService.getBarcodeConfigByBizType(bizType);
+        if (config == null || Boolean.FALSE.equals(config.getAutoGenerateFlag())
+                || CommonStatusEnum.isDisable(config.getStatus())) {
+            return;
+        }
+        // 1.2 检查是否已存在条码
+        MesWmBarcodeDO existBarcode = barcodeMapper.selectByBizTypeAndBizId(bizType, bizId);
+        if (existBarcode != null) {
+            return;
+        }
+
+        // 2. 创建条码记录
+        MesWmBarcodeSaveReqVO createReqVO = new MesWmBarcodeSaveReqVO()
+                .setFormat(config.getFormat()).setStatus(CommonStatusEnum.ENABLE.getStatus())
+                .setBizType(bizType).setBizId(bizId).setBizCode(bizCode).setBizName(bizName);
+        createBarcode(createReqVO);
     }
 
     /**
