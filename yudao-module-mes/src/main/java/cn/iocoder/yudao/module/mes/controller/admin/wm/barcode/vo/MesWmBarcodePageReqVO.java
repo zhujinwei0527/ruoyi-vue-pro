@@ -35,6 +35,9 @@ public class MesWmBarcodePageReqVO extends PageParam {
     @Schema(description = "业务编码", example = "WH001")
     private String bizCode;
 
+    @Schema(description = "业务名称", example = "原料仓")
+    private String bizName;
+
     @Schema(description = "状态", example = "0")
     private Integer status;
 

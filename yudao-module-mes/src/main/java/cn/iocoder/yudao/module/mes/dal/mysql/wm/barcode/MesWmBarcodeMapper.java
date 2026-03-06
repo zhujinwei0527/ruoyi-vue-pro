@@ -23,6 +23,7 @@ public interface MesWmBarcodeMapper extends BaseMapperX<MesWmBarcodeDO> {
                 .likeIfPresent(MesWmBarcodeDO::getContent, reqVO.getContent())
                 .eqIfPresent(MesWmBarcodeDO::getBizId, reqVO.getBizId())
                 .likeIfPresent(MesWmBarcodeDO::getBizCode, reqVO.getBizCode())
+                .likeIfPresent(MesWmBarcodeDO::getBizName, reqVO.getBizName())
                 .eqIfPresent(MesWmBarcodeDO::getStatus, reqVO.getStatus())
                 .betweenIfPresent(MesWmBarcodeDO::getCreateTime, reqVO.getCreateTime())
                 .orderByDesc(MesWmBarcodeDO::getId));
