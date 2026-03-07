@@ -1,5 +1,6 @@
 package cn.iocoder.yudao.module.mes.service.wm.barcode;
 
+import cn.hutool.core.util.ObjUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.iocoder.yudao.framework.common.enums.CommonStatusEnum;
 import cn.iocoder.yudao.framework.common.pojo.PageResult;
@@ -42,9 +43,11 @@ public class MesWmBarcodeServiceImpl implements MesWmBarcodeService {
             throw exception(WM_BARCODE_ALREADY_EXISTS);
         }
 
-        // 2.1 生成条码内容（根据配置模板）
-        // TODO @AI：MesWmBarcodeSaveReqVO 增加一个 content 字段；如果为空，才进行生成；
-        String content = generateBarcodeContent(config.getContentFormat(), createReqVO.getBizCode());
+        // 2.1 生成条码内容（如果前端未传递，则自动生成）
+        String content = createReqVO.getContent();
+        if (StrUtil.isBlank(content)) {
+            content = generateBarcodeContent(config.getContentFormat(), createReqVO.getBizCode());
+        }
         // 2.2 校验条码内容唯一性
         MesWmBarcodeDO contentBarcode = barcodeMapper.selectByContent(content);
         if (contentBarcode != null) {
@@ -58,7 +61,21 @@ public class MesWmBarcodeServiceImpl implements MesWmBarcodeService {
         return barcode.getId();
     }
 
-    // TODO @AI：后端提供一个接口，用于 generateBarcodeContent 的生成；前端需要调用这个接口；
+    @Override
+    public String generateBarcodeContent(Integer bizType, String bizCode) {
+        // 1.1 校验参数
+        if (bizType == null) {
+            throw exception(BARCODE_BIZ_TYPE_NOT_EXISTS);
+        }
+        if (StrUtil.isBlank(bizCode)) {
+            throw exception(BARCODE_BIZ_CODE_NOT_EXISTS);
+        }
+        // 1.2 查询条码配置
+        MesWmBarcodeConfigDO config = barcodeConfigService.validateBarcodeConfigByBizType(bizType);
+
+        // 2. 生成条码内容
+        return generateBarcodeContent(config.getContentFormat(), bizCode);
+    }
 
     /**
      * 生成条码内容
@@ -76,13 +93,28 @@ public class MesWmBarcodeServiceImpl implements MesWmBarcodeService {
 
     @Override
     public void updateBarcode(MesWmBarcodeSaveReqVO updateReqVO) {
-        // 校验存在
+        // 1. 校验存在
         validateBarcodeExists(updateReqVO.getId());
 
-        // TODO @AI：content 可以更新；更新需要校验唯一；
+        // 2.1 生成条码内容（如果前端未传递，则自动生成）
+        String content = updateReqVO.getContent();
+        if (StrUtil.isBlank(content)) {
+            MesWmBarcodeConfigDO config = barcodeConfigService.validateBarcodeConfigByBizType(updateReqVO.getBizType());
+            content = generateBarcodeContent(config.getContentFormat(), updateReqVO.getBizCode());
+        }
+        // 2.2 校验条码内容唯一性（排除自己）
+        if (StrUtil.isNotBlank(content)) {
+            MesWmBarcodeDO contentBarcode = barcodeMapper.selectByContent(content);
+            if (contentBarcode != null && ObjUtil.notEqual(contentBarcode.getId(), updateReqVO.getId())) {
+                throw exception(WM_BARCODE_CONTENT_DUPLICATE);
+            }
+        }
 
-        // 更新
+        // 3. 更新
         MesWmBarcodeDO updateObj = BeanUtils.toBean(updateReqVO, MesWmBarcodeDO.class);
+        if (StrUtil.isNotBlank(content)) {
+            updateObj.setContent(content);
+        }
         barcodeMapper.updateById(updateObj);
     }
 

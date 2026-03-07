@@ -505,5 +505,8 @@ public interface ErrorCodeConstants {
     ErrorCode WM_BARCODE_NOT_EXISTS = new ErrorCode(1_040_731_000, "条码不存在");
     ErrorCode WM_BARCODE_ALREADY_EXISTS = new ErrorCode(1_040_731_001, "该业务对象的条码已存在");
     ErrorCode WM_BARCODE_CONTENT_DUPLICATE = new ErrorCode(1_040_731_002, "条码内容已存在");
+    ErrorCode BARCODE_BIZ_TYPE_NOT_EXISTS = new ErrorCode(1_040_731_003, "业务类型不能为空");
+    ErrorCode BARCODE_BIZ_CODE_NOT_EXISTS = new ErrorCode(1_040_731_004, "业务编码不能为空");
+    ErrorCode BARCODE_CONFIG_NOT_EXISTS = new ErrorCode(1_040_731_005, "条码配置不存在");
 
 }

@@ -17,6 +17,8 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -86,6 +88,17 @@ public class MesWmBarcodeController {
             @RequestParam("bizId") Long bizId) {
         MesWmBarcodeDO barcode = barcodeService.getBarcodeByBizTypeAndBizId(bizType, bizId);
         return success(BeanUtils.toBean(barcode, MesWmBarcodeRespVO.class));
+    }
+
+    @GetMapping("/generate-content")
+    @Operation(summary = "生成条码内容")
+    @Parameter(name = "bizType", description = "业务类型", required = true, example = "1")
+    @Parameter(name = "bizCode", description = "业务编码", required = true, example = "WO202403070001")
+    @PreAuthorize("@ss.hasPermission('mes:wm-barcode:query')")
+    public CommonResult<String> generateBarcodeContent(@RequestParam("bizType") @NotNull(message = "业务类型不能为空") Integer bizType,
+                                                        @RequestParam("bizCode") @NotBlank(message = "业务编码不能为空") String bizCode) {
+        String content = barcodeService.generateBarcodeContent(bizType, bizCode);
+        return success(content);
     }
 
     @GetMapping("/export-excel")

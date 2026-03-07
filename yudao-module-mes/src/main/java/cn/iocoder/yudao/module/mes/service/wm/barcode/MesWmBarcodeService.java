@@ -70,4 +70,13 @@ public interface MesWmBarcodeService {
      */
     void autoGenerateBarcode(Integer bizType, Long bizId, String bizCode, String bizName);
 
+    /**
+     * 生成条码内容（供前端预览使用）
+     *
+     * @param bizType 业务类型
+     * @param bizCode 业务编码
+     * @return 生成的条码内容
+     */
+    String generateBarcodeContent(Integer bizType, String bizCode);
+
 }
