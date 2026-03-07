@@ -83,6 +83,7 @@ public class MesWmBarcodeController {
     @Operation(summary = "根据业务对象获取条码信息", description = "前端用于生成条码图片")
     @Parameter(name = "bizType", description = "业务类型", required = true, example = "102")
     @Parameter(name = "bizId", description = "业务编号", required = true, example = "1024")
+    @PreAuthorize("@ss.hasPermission('mes:wm-barcode:query')")
     public CommonResult<MesWmBarcodeRespVO> getBarcodeByBusiness(
             @RequestParam("bizType") Integer bizType,
             @RequestParam("bizId") Long bizId) {

@@ -15,10 +15,6 @@ public class MesWmBarcodeSaveReqVO {
     @Schema(description = "条码配置编号", example = "1")
     private Long configId;
 
-    @Schema(description = "条码格式", requiredMode = Schema.RequiredMode.REQUIRED, example = "1")
-    @NotNull(message = "条码格式不能为空")
-    private Integer format;
-
     @Schema(description = "业务类型", requiredMode = Schema.RequiredMode.REQUIRED, example = "102")
     @NotNull(message = "业务类型不能为空")
     private Integer bizType;

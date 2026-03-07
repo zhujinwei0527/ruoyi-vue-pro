@@ -55,8 +55,8 @@ public class MesWmBarcodeServiceImpl implements MesWmBarcodeService {
         }
 
         // 3. 保存条码记录
-        MesWmBarcodeDO barcode = BeanUtils.toBean(createReqVO, MesWmBarcodeDO.class)
-                .setConfigId(config.getId()).setContent(content).setFormat(config.getFormat());
+        MesWmBarcodeDO barcode = BeanUtils.toBean(createReqVO, MesWmBarcodeDO.class).setContent(content)
+                .setConfigId(config.getId()).setFormat(config.getFormat());
         barcodeMapper.insert(barcode);
         return barcode.getId();
     }
@@ -165,8 +165,8 @@ public class MesWmBarcodeServiceImpl implements MesWmBarcodeService {
 
         // 2. 创建条码记录
         MesWmBarcodeSaveReqVO createReqVO = new MesWmBarcodeSaveReqVO()
-                .setFormat(config.getFormat()).setStatus(CommonStatusEnum.ENABLE.getStatus())
-                .setBizType(bizType).setBizId(bizId).setBizCode(bizCode).setBizName(bizName);
+                .setBizType(bizType).setBizId(bizId).setBizCode(bizCode).setBizName(bizName)
+                .setStatus(CommonStatusEnum.ENABLE.getStatus());
         createBarcode(createReqVO);
     }
 
