@@ -1,8 +1,11 @@
 package cn.iocoder.yudao.module.mes.controller.admin.wm.barcode;
 
+import cn.iocoder.yudao.framework.apilog.core.annotation.ApiAccessLog;
 import cn.iocoder.yudao.framework.common.pojo.CommonResult;
+import cn.iocoder.yudao.framework.common.pojo.PageParam;
 import cn.iocoder.yudao.framework.common.pojo.PageResult;
 import cn.iocoder.yudao.framework.common.util.object.BeanUtils;
+import cn.iocoder.yudao.framework.excel.core.util.ExcelUtils;
 import cn.iocoder.yudao.module.mes.controller.admin.wm.barcode.vo.MesWmBarcodePageReqVO;
 import cn.iocoder.yudao.module.mes.controller.admin.wm.barcode.vo.MesWmBarcodeRespVO;
 import cn.iocoder.yudao.module.mes.controller.admin.wm.barcode.vo.MesWmBarcodeSaveReqVO;
@@ -12,11 +15,16 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
+import java.util.List;
+
+import static cn.iocoder.yudao.framework.apilog.core.enums.OperateTypeEnum.EXPORT;
 import static cn.iocoder.yudao.framework.common.pojo.CommonResult.success;
 
 @Tag(name = "管理后台 - MES 条码清单")
@@ -78,6 +86,18 @@ public class MesWmBarcodeController {
             @RequestParam("bizId") Long bizId) {
         MesWmBarcodeDO barcode = barcodeService.getBarcodeByBizTypeAndBizId(bizType, bizId);
         return success(BeanUtils.toBean(barcode, MesWmBarcodeRespVO.class));
+    }
+
+    @GetMapping("/export-excel")
+    @Operation(summary = "导出条码清单 Excel")
+    @PreAuthorize("@ss.hasPermission('mes:wm-barcode:export')")
+    @ApiAccessLog(operateType = EXPORT)
+    public void exportBarcodeExcel(@Valid MesWmBarcodePageReqVO pageReqVO,
+                                   HttpServletResponse response) throws IOException {
+        pageReqVO.setPageSize(PageParam.PAGE_SIZE_NONE);
+        List<MesWmBarcodeDO> list = barcodeService.getBarcodePage(pageReqVO).getList();
+        List<MesWmBarcodeRespVO> voList = BeanUtils.toBean(list, MesWmBarcodeRespVO.class);
+        ExcelUtils.write(response, "条码清单.xls", "数据", MesWmBarcodeRespVO.class, voList);
     }
 
 }
