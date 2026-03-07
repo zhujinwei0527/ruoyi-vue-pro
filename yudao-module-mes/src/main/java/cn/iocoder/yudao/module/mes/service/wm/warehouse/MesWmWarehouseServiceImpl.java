@@ -8,7 +8,9 @@ import cn.iocoder.yudao.module.mes.controller.admin.wm.warehouse.vo.MesWmWarehou
 import cn.iocoder.yudao.module.mes.controller.admin.wm.warehouse.vo.MesWmWarehouseSaveReqVO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.wm.warehouse.MesWmWarehouseDO;
 import cn.iocoder.yudao.module.mes.dal.mysql.wm.warehouse.MesWmWarehouseMapper;
+import cn.iocoder.yudao.module.mes.enums.wm.BarcodeBizTypeEnum;
 import cn.iocoder.yudao.module.mes.service.md.workstation.MesMdWorkstationService;
+import cn.iocoder.yudao.module.mes.service.wm.barcode.MesWmBarcodeService;
 import cn.iocoder.yudao.module.mes.service.wm.materialstock.MesWmMaterialStockService;
 import jakarta.annotation.Resource;
 import org.springframework.context.annotation.Lazy;
@@ -39,6 +41,8 @@ public class MesWmWarehouseServiceImpl implements MesWmWarehouseService {
     private MesMdWorkstationService workstationService;
     @Resource
     private MesWmMaterialStockService materialStockService;
+    @Resource
+    private MesWmBarcodeService barcodeService;
 
     @Override
     public Long createWarehouse(MesWmWarehouseSaveReqVO createReqVO) {
@@ -50,6 +54,10 @@ public class MesWmWarehouseServiceImpl implements MesWmWarehouseService {
         // 插入
         MesWmWarehouseDO warehouse = BeanUtils.toBean(createReqVO, MesWmWarehouseDO.class);
         warehouseMapper.insert(warehouse);
+
+        // 自动生成条码
+        barcodeService.autoGenerateBarcode(BarcodeBizTypeEnum.WAREHOUSE.getValue(),
+                warehouse.getId(), warehouse.getCode(), warehouse.getName());
         return warehouse.getId();
     }
 

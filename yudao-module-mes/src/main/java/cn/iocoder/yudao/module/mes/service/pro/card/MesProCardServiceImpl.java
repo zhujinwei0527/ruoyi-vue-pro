@@ -8,7 +8,9 @@ import cn.iocoder.yudao.module.mes.controller.admin.pro.card.vo.MesProCardSaveRe
 import cn.iocoder.yudao.module.mes.dal.dataobject.pro.card.MesProCardDO;
 import cn.iocoder.yudao.module.mes.dal.mysql.pro.card.MesProCardMapper;
 import cn.iocoder.yudao.module.mes.dal.mysql.pro.card.MesProCardProcessMapper;
+import cn.iocoder.yudao.module.mes.enums.wm.BarcodeBizTypeEnum;
 import cn.iocoder.yudao.module.mes.service.pro.workorder.MesProWorkOrderService;
+import cn.iocoder.yudao.module.mes.service.wm.barcode.MesWmBarcodeService;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -35,6 +37,9 @@ public class MesProCardServiceImpl implements MesProCardService {
     @Resource
     private MesProWorkOrderService workOrderService;
 
+    @Resource
+    private MesWmBarcodeService barcodeService;
+
     @Override
     public Long createCard(MesProCardSaveReqVO createReqVO) {
         // 1.1 校验编码唯一
@@ -45,7 +50,10 @@ public class MesProCardServiceImpl implements MesProCardService {
         // 2. 插入
         MesProCardDO card = BeanUtils.toBean(createReqVO, MesProCardDO.class);
         cardMapper.insert(card);
-        // TODO @芋艿：条码生成（barcode_url），需等条码模块（wm_barcode）迁移后再对接
+
+        // 3. 自动生成条码
+        barcodeService.autoGenerateBarcode(BarcodeBizTypeEnum.PROCARD.getValue(),
+                card.getId(), card.getCode(), card.getCode());
         return card.getId();
     }
 

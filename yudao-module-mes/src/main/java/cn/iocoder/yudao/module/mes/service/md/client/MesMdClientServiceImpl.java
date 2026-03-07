@@ -12,6 +12,8 @@ import cn.iocoder.yudao.module.mes.controller.admin.md.client.vo.MesMdClientPage
 import cn.iocoder.yudao.module.mes.controller.admin.md.client.vo.MesMdClientSaveReqVO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.md.client.MesMdClientDO;
 import cn.iocoder.yudao.module.mes.dal.mysql.md.client.MesMdClientMapper;
+import cn.iocoder.yudao.module.mes.enums.wm.BarcodeBizTypeEnum;
+import cn.iocoder.yudao.module.mes.service.wm.barcode.MesWmBarcodeService;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -39,6 +41,9 @@ public class MesMdClientServiceImpl implements MesMdClientService {
     @Resource
     private MesMdClientMapper clientMapper;
 
+    @Resource
+    private MesWmBarcodeService barcodeService;
+
     @Override
     public Long createClient(MesMdClientSaveReqVO createReqVO) {
         // 校验编码唯一
@@ -51,7 +56,10 @@ public class MesMdClientServiceImpl implements MesMdClientService {
         // 插入
         MesMdClientDO client = BeanUtils.toBean(createReqVO, MesMdClientDO.class);
         clientMapper.insert(client);
-        // TODO @芋艿：客户创建后自动生成条码，依赖 WM 条码模块
+
+        // 自动生成条码
+        barcodeService.autoGenerateBarcode(BarcodeBizTypeEnum.CLIENT.getValue(),
+                client.getId(), client.getCode(), client.getName());
         return client.getId();
     }
 
@@ -185,6 +193,9 @@ public class MesMdClientServiceImpl implements MesMdClientService {
                 }
                 MesMdClientDO client = BeanUtils.toBean(importClient, MesMdClientDO.class);
                 clientMapper.insert(client);
+                // 自动生成条码
+                barcodeService.autoGenerateBarcode(BarcodeBizTypeEnum.CLIENT.getValue(),
+                        client.getId(), client.getCode(), client.getName());
                 respVO.getCreateCodes().add(importClient.getCode());
             } else if (updateSupport) {
                 // 2.2.2 更新

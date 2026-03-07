@@ -10,6 +10,8 @@ import cn.iocoder.yudao.module.mes.dal.dataobject.md.workstation.MesMdWorkshopDO
 import cn.iocoder.yudao.module.mes.dal.dataobject.md.workstation.MesMdWorkstationDO;
 import cn.iocoder.yudao.module.mes.dal.mysql.md.workstation.MesMdWorkshopMapper;
 import cn.iocoder.yudao.module.mes.dal.mysql.md.workstation.MesMdWorkstationMapper;
+import cn.iocoder.yudao.module.mes.enums.wm.BarcodeBizTypeEnum;
+import cn.iocoder.yudao.module.mes.service.wm.barcode.MesWmBarcodeService;
 import jakarta.annotation.Resource;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
@@ -38,6 +40,9 @@ public class MesMdWorkshopServiceImpl implements MesMdWorkshopService {
     @Lazy
     private MesMdWorkstationMapper workstationMapper;
 
+    @Resource
+    private MesWmBarcodeService barcodeService;
+
     @Override
     public Long createWorkshop(MesMdWorkshopSaveReqVO createReqVO) {
         // 校验编码唯一
@@ -48,6 +53,10 @@ public class MesMdWorkshopServiceImpl implements MesMdWorkshopService {
         // 插入
         MesMdWorkshopDO workshop = BeanUtils.toBean(createReqVO, MesMdWorkshopDO.class);
         workshopMapper.insert(workshop);
+
+        // 自动生成条码
+        barcodeService.autoGenerateBarcode(BarcodeBizTypeEnum.WORKSHOP.getValue(),
+                workshop.getId(), workshop.getCode(), workshop.getName());
         return workshop.getId();
     }
 

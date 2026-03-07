@@ -9,7 +9,9 @@ import cn.iocoder.yudao.module.mes.controller.admin.wm.warehouse.vo.area.MesWmWa
 import cn.iocoder.yudao.module.mes.dal.dataobject.wm.warehouse.MesWmWarehouseAreaDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.wm.warehouse.MesWmWarehouseLocationDO;
 import cn.iocoder.yudao.module.mes.dal.mysql.wm.warehouse.MesWmWarehouseAreaMapper;
+import cn.iocoder.yudao.module.mes.enums.wm.BarcodeBizTypeEnum;
 import cn.iocoder.yudao.module.mes.service.md.workstation.MesMdWorkstationService;
+import cn.iocoder.yudao.module.mes.service.wm.barcode.MesWmBarcodeService;
 import cn.iocoder.yudao.module.mes.service.wm.materialstock.MesWmMaterialStockService;
 import jakarta.annotation.Resource;
 import org.springframework.context.annotation.Lazy;
@@ -41,6 +43,8 @@ public class MesWmWarehouseAreaServiceImpl implements MesWmWarehouseAreaService 
     @Resource
     @Lazy
     private MesWmWarehouseLocationService locationService;
+    @Resource
+    private MesWmBarcodeService barcodeService;
 
     @Override
     public Long createWarehouseArea(MesWmWarehouseAreaSaveReqVO createReqVO) {
@@ -51,8 +55,13 @@ public class MesWmWarehouseAreaServiceImpl implements MesWmWarehouseAreaService 
         // 校验名称唯一
         validateWarehouseAreaNameUnique(null, createReqVO.getLocationId(), createReqVO.getName());
 
+        // 插入
         MesWmWarehouseAreaDO area = BeanUtils.toBean(createReqVO, MesWmWarehouseAreaDO.class);
         areaMapper.insert(area);
+
+        // 自动生成条码
+        barcodeService.autoGenerateBarcode(BarcodeBizTypeEnum.AREA.getValue(),
+                area.getId(), area.getCode(), area.getName());
         return area.getId();
     }
 
@@ -67,6 +76,7 @@ public class MesWmWarehouseAreaServiceImpl implements MesWmWarehouseAreaService 
         // 校验名称唯一
         validateWarehouseAreaNameUnique(updateReqVO.getId(), updateReqVO.getLocationId(), updateReqVO.getName());
 
+        // 更新
         MesWmWarehouseAreaDO updateObj = BeanUtils.toBean(updateReqVO, MesWmWarehouseAreaDO.class);
         areaMapper.updateById(updateObj);
     }
@@ -84,6 +94,7 @@ public class MesWmWarehouseAreaServiceImpl implements MesWmWarehouseAreaService 
             throw exception(WM_WAREHOUSE_AREA_HAS_MATERIAL_STOCK);
         }
 
+        // 删除
         areaMapper.deleteById(id);
     }
 

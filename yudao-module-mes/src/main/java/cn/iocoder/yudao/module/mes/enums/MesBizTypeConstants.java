@@ -56,5 +56,6 @@ public final class MesBizTypeConstants {
     public static final int MD_WORKSTATION = 602; // 工作站：MesMdWorkstationDO
     public static final int MD_WORKSHOP = 603; // 车间：MesMdWorkshopDO
     public static final int MD_USER = 604; // 人员：系统用户
+    public static final int MD_CLIENT = 605; // 客户：MesMdClientDO
 
 }

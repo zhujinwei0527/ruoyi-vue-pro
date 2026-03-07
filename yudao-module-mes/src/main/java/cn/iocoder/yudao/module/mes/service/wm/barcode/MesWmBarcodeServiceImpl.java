@@ -43,6 +43,7 @@ public class MesWmBarcodeServiceImpl implements MesWmBarcodeService {
         }
 
         // 2.1 生成条码内容（根据配置模板）
+        // TODO @AI：MesWmBarcodeSaveReqVO 增加一个 content 字段；如果为空，才进行生成；
         String content = generateBarcodeContent(config.getContentFormat(), createReqVO.getBizCode());
         // 2.2 校验条码内容唯一性
         MesWmBarcodeDO contentBarcode = barcodeMapper.selectByContent(content);
@@ -57,10 +58,28 @@ public class MesWmBarcodeServiceImpl implements MesWmBarcodeService {
         return barcode.getId();
     }
 
+    // TODO @AI：后端提供一个接口，用于 generateBarcodeContent 的生成；前端需要调用这个接口；
+
+    /**
+     * 生成条码内容
+     *
+     * @param contentFormat 内容格式模板
+     * @param bizCode 业务编码
+     * @return 条码内容
+     */
+    private String generateBarcodeContent(String contentFormat, String bizCode) {
+        if (StrUtil.isBlank(contentFormat)) {
+            return bizCode;
+        }
+        return contentFormat.replace(MesWmBarcodeConfigDO.PLACEHOLDER_BUSINESS_CODE, bizCode);
+    }
+
     @Override
     public void updateBarcode(MesWmBarcodeSaveReqVO updateReqVO) {
         // 校验存在
         validateBarcodeExists(updateReqVO.getId());
+
+        // TODO @AI：content 可以更新；更新需要校验唯一；
 
         // 更新
         MesWmBarcodeDO updateObj = BeanUtils.toBean(updateReqVO, MesWmBarcodeDO.class);
@@ -117,20 +136,6 @@ public class MesWmBarcodeServiceImpl implements MesWmBarcodeService {
                 .setFormat(config.getFormat()).setStatus(CommonStatusEnum.ENABLE.getStatus())
                 .setBizType(bizType).setBizId(bizId).setBizCode(bizCode).setBizName(bizName);
         createBarcode(createReqVO);
-    }
-
-    /**
-     * 生成条码内容
-     *
-     * @param contentFormat 内容格式模板
-     * @param bizCode 业务编码
-     * @return 条码内容
-     */
-    private String generateBarcodeContent(String contentFormat, String bizCode) {
-        if (StrUtil.isBlank(contentFormat)) {
-            return bizCode;
-        }
-        return contentFormat.replace(MesWmBarcodeConfigDO.PLACEHOLDER_BUSINESS_CODE, bizCode);
     }
 
 }

@@ -15,7 +15,9 @@ import cn.iocoder.yudao.module.mes.dal.dataobject.md.item.MesMdItemDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.md.item.MesMdItemTypeDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.md.unitmeasure.MesMdUnitMeasureDO;
 import cn.iocoder.yudao.module.mes.dal.mysql.md.item.MesMdItemMapper;
+import cn.iocoder.yudao.module.mes.enums.wm.BarcodeBizTypeEnum;
 import cn.iocoder.yudao.module.mes.service.md.unitmeasure.MesMdUnitMeasureService;
+import cn.iocoder.yudao.module.mes.service.wm.barcode.MesWmBarcodeService;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -53,6 +55,8 @@ public class MesMdItemServiceImpl implements MesMdItemService {
     private MesMdProductSopService productSopService;
     @Resource
     private MesMdProductSipService productSipService;
+    @Resource
+    private MesWmBarcodeService barcodeService;
 
     @Override
     public Long createItem(MesMdItemSaveReqVO createReqVO) {
@@ -69,6 +73,10 @@ public class MesMdItemServiceImpl implements MesMdItemService {
         MesMdItemDO item = BeanUtils.toBean(createReqVO, MesMdItemDO.class);
         clearStockIfNotSafe(item); // 如果未启用安全库存，清零库存上下限
         itemMapper.insert(item);
+
+        // 自动生成条码
+        barcodeService.autoGenerateBarcode(BarcodeBizTypeEnum.ITEM.getValue(),
+                item.getId(), item.getCode(), item.getName());
         return item.getId();
     }
 
@@ -300,6 +308,9 @@ public class MesMdItemServiceImpl implements MesMdItemService {
                 item.setUnitMeasureId(unitMeasure.getId());
                 clearStockIfNotSafe(item);
                 itemMapper.insert(item);
+                // 自动生成条码
+                barcodeService.autoGenerateBarcode(BarcodeBizTypeEnum.ITEM.getValue(),
+                        item.getId(), item.getCode(), item.getName());
                 respVO.getCreateCodes().add(importItem.getCode());
             } else if (updateSupport) {
                 // 2.3.2 更新

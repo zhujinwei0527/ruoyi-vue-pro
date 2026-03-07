@@ -14,9 +14,11 @@ import cn.iocoder.yudao.module.mes.dal.dataobject.pro.workorder.MesProWorkOrderD
 import cn.iocoder.yudao.module.mes.dal.mysql.pro.workorder.MesProWorkOrderBomMapper;
 import cn.iocoder.yudao.module.mes.dal.mysql.pro.workorder.MesProWorkOrderMapper;
 import cn.iocoder.yudao.module.mes.enums.pro.MesProWorkOrderStatusEnum;
+import cn.iocoder.yudao.module.mes.enums.wm.BarcodeBizTypeEnum;
 import cn.iocoder.yudao.module.mes.service.md.item.MesMdItemBatchConfigService;
 import cn.iocoder.yudao.module.mes.service.md.item.MesMdItemService;
 import cn.iocoder.yudao.module.mes.service.md.item.MesMdProductBomService;
+import cn.iocoder.yudao.module.mes.service.wm.barcode.MesWmBarcodeService;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -43,6 +45,7 @@ public class MesProWorkOrderServiceImpl implements MesProWorkOrderService {
     @Resource
     private MesProWorkOrderMapper workOrderMapper;
 
+    // TODO @AI：不应该直接这么调用，调用对应的 service
     @Resource
     private MesProWorkOrderBomMapper workOrderBomMapper;
 
@@ -54,6 +57,9 @@ public class MesProWorkOrderServiceImpl implements MesProWorkOrderService {
 
     @Resource
     private MesMdItemBatchConfigService itemBatchConfigService;
+
+    @Resource
+    private MesWmBarcodeService barcodeService;
 
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -78,6 +84,10 @@ public class MesProWorkOrderServiceImpl implements MesProWorkOrderService {
 
         // 3. 自动生成 BOM：根据产品 BOM 生成工单 BOM
         generateWorkOrderBom(workOrder.getId(), createReqVO.getProductId(), createReqVO.getQuantity());
+
+        // 4. 自动生成条码
+        barcodeService.autoGenerateBarcode(BarcodeBizTypeEnum.WORKORDER.getValue(),
+                workOrder.getId(), workOrder.getCode(), workOrder.getName());
         return workOrder.getId();
     }
 

@@ -8,7 +8,9 @@ import cn.iocoder.yudao.module.mes.controller.admin.wm.warehouse.vo.location.Mes
 import cn.iocoder.yudao.module.mes.controller.admin.wm.warehouse.vo.location.MesWmWarehouseLocationSaveReqVO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.wm.warehouse.MesWmWarehouseLocationDO;
 import cn.iocoder.yudao.module.mes.dal.mysql.wm.warehouse.MesWmWarehouseLocationMapper;
+import cn.iocoder.yudao.module.mes.enums.wm.BarcodeBizTypeEnum;
 import cn.iocoder.yudao.module.mes.service.md.workstation.MesMdWorkstationService;
+import cn.iocoder.yudao.module.mes.service.wm.barcode.MesWmBarcodeService;
 import cn.iocoder.yudao.module.mes.service.wm.materialstock.MesWmMaterialStockService;
 import jakarta.annotation.Resource;
 import org.springframework.context.annotation.Lazy;
@@ -42,6 +44,8 @@ public class MesWmWarehouseLocationServiceImpl implements MesWmWarehouseLocation
     @Resource
     @Lazy
     private MesWmWarehouseService warehouseService;
+    @Resource
+    private MesWmBarcodeService barcodeService;
 
     @Override
     public Long createWarehouseLocation(MesWmWarehouseLocationSaveReqVO createReqVO) {
@@ -52,8 +56,13 @@ public class MesWmWarehouseLocationServiceImpl implements MesWmWarehouseLocation
         // 校验名称唯一
         validateWarehouseLocationNameUnique(null, createReqVO.getWarehouseId(), createReqVO.getName());
 
+        // 插入
         MesWmWarehouseLocationDO location = BeanUtils.toBean(createReqVO, MesWmWarehouseLocationDO.class);
         locationMapper.insert(location);
+
+        // 自动生成条码
+        barcodeService.autoGenerateBarcode(BarcodeBizTypeEnum.LOCATION.getValue(),
+                location.getId(), location.getCode(), location.getName());
         return location.getId();
     }
 
@@ -68,6 +77,7 @@ public class MesWmWarehouseLocationServiceImpl implements MesWmWarehouseLocation
         // 校验名称唯一
         validateWarehouseLocationNameUnique(updateReqVO.getId(), updateReqVO.getWarehouseId(), updateReqVO.getName());
 
+        // 更新
         MesWmWarehouseLocationDO updateObj = BeanUtils.toBean(updateReqVO, MesWmWarehouseLocationDO.class);
         locationMapper.updateById(updateObj);
     }
@@ -89,6 +99,7 @@ public class MesWmWarehouseLocationServiceImpl implements MesWmWarehouseLocation
             throw exception(WM_WAREHOUSE_LOCATION_HAS_MATERIAL_STOCK);
         }
 
+        // 删除
         locationMapper.deleteById(id);
     }
 

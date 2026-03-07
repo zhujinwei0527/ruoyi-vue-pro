@@ -6,6 +6,8 @@ import cn.iocoder.yudao.module.mes.controller.admin.tm.tool.vo.MesTmToolSaveReqV
 import cn.iocoder.yudao.module.mes.dal.dataobject.tm.tool.MesTmToolDO;
 import jakarta.validation.Valid;
 
+import java.util.List;
+
 /**
  * MES 工具台账 Service 接口
  *
@@ -50,5 +52,12 @@ public interface MesTmToolService {
      * @return 工具分页
      */
     PageResult<MesTmToolDO> getToolPage(MesTmToolPageReqVO pageReqVO);
+
+    /**
+     * 获得工具精简列表
+     *
+     * @return 工具列表
+     */
+    List<MesTmToolDO> getToolSimpleList();
 
 }

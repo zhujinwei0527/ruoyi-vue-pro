@@ -8,7 +8,9 @@ import cn.iocoder.yudao.module.mes.controller.admin.dv.machinery.vo.MesDvMachine
 import cn.iocoder.yudao.module.mes.controller.admin.dv.machinery.vo.MesDvMachinerySaveReqVO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.dv.machinery.MesDvMachineryDO;
 import cn.iocoder.yudao.module.mes.dal.mysql.dv.machinery.MesDvMachineryMapper;
+import cn.iocoder.yudao.module.mes.enums.wm.BarcodeBizTypeEnum;
 import cn.iocoder.yudao.module.mes.service.md.workstation.MesMdWorkshopService;
+import cn.iocoder.yudao.module.mes.service.wm.barcode.MesWmBarcodeService;
 import jakarta.annotation.Resource;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
@@ -41,6 +43,9 @@ public class MesDvMachineryServiceImpl implements MesDvMachineryService {
     @Lazy
     private MesMdWorkshopService workshopService;
 
+    @Resource
+    private MesWmBarcodeService barcodeService;
+
     @Override
     public Long createMachinery(MesDvMachinerySaveReqVO createReqVO) {
         // 校验设备类型存在
@@ -53,6 +58,10 @@ public class MesDvMachineryServiceImpl implements MesDvMachineryService {
         // 插入
         MesDvMachineryDO machinery = BeanUtils.toBean(createReqVO, MesDvMachineryDO.class);
         machineryMapper.insert(machinery);
+
+        // 自动生成条码
+        barcodeService.autoGenerateBarcode(BarcodeBizTypeEnum.MACHINERY.getValue(),
+                machinery.getId(), machinery.getCode(), machinery.getName());
         return machinery.getId();
     }
 

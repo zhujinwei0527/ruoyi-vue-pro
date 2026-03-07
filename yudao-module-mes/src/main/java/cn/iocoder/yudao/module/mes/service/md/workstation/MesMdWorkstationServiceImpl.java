@@ -14,6 +14,8 @@ import cn.iocoder.yudao.module.mes.dal.mysql.md.workstation.MesMdWorkstationMach
 import cn.iocoder.yudao.module.mes.dal.mysql.md.workstation.MesMdWorkstationMapper;
 import cn.iocoder.yudao.module.mes.dal.mysql.md.workstation.MesMdWorkstationToolMapper;
 import cn.iocoder.yudao.module.mes.dal.mysql.md.workstation.MesMdWorkstationWorkerMapper;
+import cn.iocoder.yudao.module.mes.enums.wm.BarcodeBizTypeEnum;
+import cn.iocoder.yudao.module.mes.service.wm.barcode.MesWmBarcodeService;
 import cn.iocoder.yudao.module.mes.service.wm.warehouse.MesWmWarehouseAreaService;
 import cn.iocoder.yudao.module.mes.service.wm.warehouse.MesWmWarehouseLocationService;
 import cn.iocoder.yudao.module.mes.service.wm.warehouse.MesWmWarehouseService;
@@ -62,6 +64,9 @@ public class MesMdWorkstationServiceImpl implements MesMdWorkstationService {
     @Resource
     private MesWmWarehouseAreaService areaService;
 
+    @Resource
+    private MesWmBarcodeService barcodeService;
+
     @Override
     public Long createWorkstation(MesMdWorkstationSaveReqVO createReqVO) {
         // 校验编码唯一
@@ -76,6 +81,10 @@ public class MesMdWorkstationServiceImpl implements MesMdWorkstationService {
         // 插入
         MesMdWorkstationDO workstation = BeanUtils.toBean(createReqVO, MesMdWorkstationDO.class);
         workstationMapper.insert(workstation);
+
+        // 自动生成条码
+        barcodeService.autoGenerateBarcode(BarcodeBizTypeEnum.WORKSTATION.getValue(),
+                workstation.getId(), workstation.getCode(), workstation.getName());
         return workstation.getId();
     }
 

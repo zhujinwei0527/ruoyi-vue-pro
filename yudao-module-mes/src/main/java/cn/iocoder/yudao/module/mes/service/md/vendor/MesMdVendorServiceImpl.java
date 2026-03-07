@@ -12,6 +12,8 @@ import cn.iocoder.yudao.module.mes.controller.admin.md.vendor.vo.MesMdVendorPage
 import cn.iocoder.yudao.module.mes.controller.admin.md.vendor.vo.MesMdVendorSaveReqVO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.md.vendor.MesMdVendorDO;
 import cn.iocoder.yudao.module.mes.dal.mysql.md.vendor.MesMdVendorMapper;
+import cn.iocoder.yudao.module.mes.enums.wm.BarcodeBizTypeEnum;
+import cn.iocoder.yudao.module.mes.service.wm.barcode.MesWmBarcodeService;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -39,6 +41,9 @@ public class MesMdVendorServiceImpl implements MesMdVendorService {
     @Resource
     private MesMdVendorMapper vendorMapper;
 
+    @Resource
+    private MesWmBarcodeService barcodeService;
+
     @Override
     public Long createVendor(MesMdVendorSaveReqVO createReqVO) {
         // 校验编码唯一
@@ -51,6 +56,10 @@ public class MesMdVendorServiceImpl implements MesMdVendorService {
         // 插入
         MesMdVendorDO vendor = BeanUtils.toBean(createReqVO, MesMdVendorDO.class);
         vendorMapper.insert(vendor);
+
+        // 自动生成条码
+        barcodeService.autoGenerateBarcode(BarcodeBizTypeEnum.VENDOR.getValue(),
+                vendor.getId(), vendor.getCode(), vendor.getName());
         return vendor.getId();
     }
 
@@ -182,6 +191,9 @@ public class MesMdVendorServiceImpl implements MesMdVendorService {
                 }
                 MesMdVendorDO vendor = BeanUtils.toBean(importVendor, MesMdVendorDO.class);
                 vendorMapper.insert(vendor);
+                // 自动生成条码
+                barcodeService.autoGenerateBarcode(BarcodeBizTypeEnum.VENDOR.getValue(),
+                        vendor.getId(), vendor.getCode(), vendor.getName());
                 respVO.getCreateCodes().add(importVendor.getCode());
             } else if (updateSupport) {
                 // 2.2.2 更新

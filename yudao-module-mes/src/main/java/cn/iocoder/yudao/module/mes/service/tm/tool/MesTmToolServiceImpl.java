@@ -1,5 +1,6 @@
 package cn.iocoder.yudao.module.mes.service.tm.tool;
 
+import cn.hutool.core.util.ObjUtil;
 import cn.iocoder.yudao.framework.common.pojo.PageResult;
 import cn.iocoder.yudao.framework.common.util.object.BeanUtils;
 import cn.iocoder.yudao.module.mes.controller.admin.tm.tool.vo.MesTmToolPageReqVO;
@@ -7,17 +8,19 @@ import cn.iocoder.yudao.module.mes.controller.admin.tm.tool.vo.MesTmToolSaveReqV
 import cn.iocoder.yudao.module.mes.dal.dataobject.tm.tool.MesTmToolDO;
 import cn.iocoder.yudao.module.mes.dal.mysql.tm.tool.MesTmToolMapper;
 import cn.iocoder.yudao.module.mes.enums.tm.MesTmMaintenTypeEnum;
+import cn.iocoder.yudao.module.mes.enums.wm.BarcodeBizTypeEnum;
+import cn.iocoder.yudao.module.mes.service.wm.barcode.MesWmBarcodeService;
 import jakarta.annotation.Resource;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 
-import cn.hutool.core.util.ObjUtil;
-
+import java.util.List;
 import java.util.Objects;
 
 import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception;
-import static cn.iocoder.yudao.module.mes.enums.ErrorCodeConstants.*;
+import static cn.iocoder.yudao.module.mes.enums.ErrorCodeConstants.TM_TOOL_CODE_DUPLICATE;
+import static cn.iocoder.yudao.module.mes.enums.ErrorCodeConstants.TM_TOOL_NOT_EXISTS;
 
 /**
  * MES 工具台账 Service 实现类
@@ -35,6 +38,9 @@ public class MesTmToolServiceImpl implements MesTmToolService {
     @Lazy // 延迟加载，避免循环依赖
     private MesTmToolTypeService toolTypeService;
 
+    @Resource
+    private MesWmBarcodeService barcodeService;
+
     @Override
     public Long createTool(MesTmToolSaveReqVO createReqVO) {
         // 校验工具类型存在
@@ -45,6 +51,10 @@ public class MesTmToolServiceImpl implements MesTmToolService {
         // 插入
         MesTmToolDO tool = BeanUtils.toBean(createReqVO, MesTmToolDO.class);
         toolMapper.insert(tool);
+
+        // 自动生成条码
+        barcodeService.autoGenerateBarcode(BarcodeBizTypeEnum.TOOL.getValue(),
+                tool.getId(), tool.getCode(), tool.getName());
         return tool.getId();
     }
 
@@ -102,6 +112,11 @@ public class MesTmToolServiceImpl implements MesTmToolService {
     @Override
     public PageResult<MesTmToolDO> getToolPage(MesTmToolPageReqVO pageReqVO) {
         return toolMapper.selectPage(pageReqVO);
+    }
+
+    @Override
+    public List<MesTmToolDO> getToolSimpleList() {
+        return toolMapper.selectList();
     }
 
 }

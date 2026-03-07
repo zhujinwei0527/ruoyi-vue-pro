@@ -109,6 +109,14 @@ public class MesTmToolController {
         ExcelUtils.write(response, "工具台账.xls", "数据", MesTmToolRespVO.class, voList);
     }
 
+    @GetMapping("/simple-list")
+    @Operation(summary = "获得工具精简列表")
+    @PreAuthorize("@ss.hasPermission('mes:tm-tool:query')")
+    public CommonResult<List<MesTmToolRespVO>> getToolSimpleList() {
+        List<MesTmToolDO> list = toolService.getToolSimpleList();
+        return success(BeanUtils.toBean(list, MesTmToolRespVO.class));
+    }
+
     // ==================== 拼接 VO ====================
 
     @SuppressWarnings("CodeBlock2Expr")
