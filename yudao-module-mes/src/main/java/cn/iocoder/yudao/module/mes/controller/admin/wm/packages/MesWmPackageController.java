@@ -32,6 +32,10 @@ import static cn.iocoder.yudao.framework.common.pojo.CommonResult.success;
 import static cn.iocoder.yudao.framework.common.util.collection.CollectionUtils.convertSet;
 import static cn.iocoder.yudao.framework.common.util.collection.CollectionUtils.convertSetByFlatMap;
 
+// TODO @AI：检查下 java 类，是不是 author 没加。
+/**
+ * MES 装箱单 Controller
+ */
 @Tag(name = "管理后台 - MES 装箱单")
 @RestController
 @RequestMapping("/mes/wm/package")

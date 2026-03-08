@@ -20,7 +20,11 @@ import java.util.Objects;
 import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception;
 import static cn.iocoder.yudao.module.mes.enums.ErrorCodeConstants.*;
 
-// TODO @AI：检查下，是不是相关的类，类注释都没加；
+/**
+ * MES 装箱单 Service 实现类
+ *
+ * @author 芋道源码
+ */
 @Service
 @Validated
 public class MesWmPackageServiceImpl implements MesWmPackageService {
@@ -67,6 +71,7 @@ public class MesWmPackageServiceImpl implements MesWmPackageService {
         packageMapper.deleteById(id);
 
         // 级联删除子箱
+        // TODO @AI：不能级联删除子箱；是删除的时候，如果有子箱子，不允许删除；
         List<MesWmPackageDO> children = packageMapper.selectListByParentId(id);
         if (CollUtil.isNotEmpty(children)) {
             for (MesWmPackageDO child : children) {
@@ -106,19 +111,8 @@ public class MesWmPackageServiceImpl implements MesWmPackageService {
         validatePackageExistsAndDraft(parentId);
         // 校验子箱存在
         MesWmPackageDO child = validatePackageExists(childId);
-        // 校验子箱没有父箱（parentId 为 0）
-        // TODO @AI：是不是可以类似 dept validateParentDept ；一样，写成一个统一的方法；
-        // DONE @AI：参考 validateParentDept 的实现；
-        if (ObjUtil.notEqual(child.getParentId(), MesWmPackageDO.PARENT_ID_ROOT)) {
-            throw exception(WM_PACKAGE_CHILD_HAS_PARENT);
-        }
-        // 不能将自己作为子箱
-        if (ObjUtil.equal(parentId, childId)) {
-            throw exception(WM_PACKAGE_PARENT_SELF);
-        }
-        // 递归校验：确保 parentId 不是 childId 的后代（避免形成环路）
-        validateNotChildOf(parentId, childId);
-        // TODO @AI：添加时，需要 child 是完成的；
+        // 校验添加子箱的合法性
+        validateAddChildPackage(parentId, child);
 
         // 设置子箱的 parentId
         packageMapper.updateById(new MesWmPackageDO().setId(childId).setParentId(parentId));
@@ -172,10 +166,31 @@ public class MesWmPackageServiceImpl implements MesWmPackageService {
     }
 
     /**
-     * 递归校验父箱不是子箱的后代，避免形成环路
+     * 校验添加子箱的合法性
      *
-     * 参考
-     * {@link cn.iocoder.yudao.module.system.service.dept.DeptServiceImpl#validateParentDept}
+     * @param parentId 父箱 ID
+     * @param child    子箱 DO
+     */
+    private void validateAddChildPackage(Long parentId, MesWmPackageDO child) {
+        // 1. 不能将自己作为子箱
+        if (ObjUtil.equal(parentId, child.getId())) {
+            throw exception(WM_PACKAGE_PARENT_SELF);
+        }
+        // 2. 子箱没有父箱（parentId 为 0）
+        if (ObjUtil.notEqual(child.getParentId(), MesWmPackageDO.PARENT_ID_ROOT)) {
+            throw exception(WM_PACKAGE_CHILD_HAS_PARENT);
+        }
+        // 3. 子箱必须是已完成状态
+        if (ObjUtil.notEqual(MesWmPackageStatusEnum.FINISHED.getStatus(), child.getStatus())) {
+            throw exception(WM_PACKAGE_CHILD_NOT_FINISHED);
+        }
+        // 4. 递归校验：确保 parentId 不是 childId 的后代（避免形成环路）
+        // TODO @AI：不搞独立方法，代码风格参考 validateParentDept
+        validateNotChildOf(parentId, child.getId());
+    }
+
+    /**
+     * 递归校验父箱不是子箱的后代，避免形成环路
      *
      * @param parentId 父箱 ID
      * @param childId  子箱 ID（不能是 parentId 的祖先）

@@ -9,6 +9,9 @@ import lombok.experimental.Accessors;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
+/**
+ * MES 装箱单 Response VO
+ */
 @Schema(description = "管理后台 - MES 装箱单 Response VO")
 @Data
 @Accessors(chain = true)

@@ -8,6 +8,9 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
+/**
+ * MES 装箱明细 Response VO
+ */
 @Schema(description = "管理后台 - MES 装箱明细 Response VO")
 @Data
 @Accessors(chain = true)

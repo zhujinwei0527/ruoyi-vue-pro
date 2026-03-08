@@ -32,89 +32,97 @@ import java.util.Map;
 import static cn.iocoder.yudao.framework.common.pojo.CommonResult.success;
 import static cn.iocoder.yudao.framework.common.util.collection.CollectionUtils.convertSet;
 
+// TODO @AI：检查下，是不是代码缩进有问题
+/**
+ * MES 装箱明细 Controller
+ */
 @Tag(name = "管理后台 - MES 装箱明细")
 @RestController
 @RequestMapping("/mes/wm/package-line")
 @Validated
 public class MesWmPackageLineController {
 
-    @Resource
-    private MesWmPackageLineService packageLineService;
-    @Resource
-    private MesMdItemService itemService;
-    @Resource
-    private MesMdUnitMeasureService unitMeasureService;
-    @Resource
-    private MesProWorkOrderService workOrderService;
+        @Resource
+        private MesWmPackageLineService packageLineService;
+        @Resource
+        private MesMdItemService itemService;
+        @Resource
+        private MesMdUnitMeasureService unitMeasureService;
+        @Resource
+        private MesProWorkOrderService workOrderService;
 
-    @PostMapping("/create")
-    @Operation(summary = "创建装箱明细")
-    @PreAuthorize("@ss.hasPermission('mes:wm-package:create')")
-    public CommonResult<Long> createPackageLine(@Valid @RequestBody MesWmPackageLineSaveReqVO createReqVO) {
-        return success(packageLineService.createPackageLine(createReqVO));
-    }
-
-    @PutMapping("/update")
-    @Operation(summary = "修改装箱明细")
-    @PreAuthorize("@ss.hasPermission('mes:wm-package:update')")
-    public CommonResult<Boolean> updatePackageLine(@Valid @RequestBody MesWmPackageLineSaveReqVO updateReqVO) {
-        packageLineService.updatePackageLine(updateReqVO);
-        return success(true);
-    }
-
-    @DeleteMapping("/delete")
-    @Operation(summary = "删除装箱明细")
-    @Parameter(name = "id", description = "编号", required = true)
-    @PreAuthorize("@ss.hasPermission('mes:wm-package:delete')")
-    public CommonResult<Boolean> deletePackageLine(@RequestParam("id") Long id) {
-        packageLineService.deletePackageLine(id);
-        return success(true);
-    }
-
-    @GetMapping("/get")
-    @Operation(summary = "获得装箱明细")
-    @Parameter(name = "id", description = "编号", required = true, example = "1024")
-    @PreAuthorize("@ss.hasPermission('mes:wm-package:query')")
-    public CommonResult<MesWmPackageLineRespVO> getPackageLine(@RequestParam("id") Long id) {
-        MesWmPackageLineDO line = packageLineService.getPackageLine(id);
-        if (line == null) {
-            return success(null);
+        @PostMapping("/create")
+        @Operation(summary = "创建装箱明细")
+        @PreAuthorize("@ss.hasPermission('mes:wm-package:create')")
+        public CommonResult<Long> createPackageLine(@Valid @RequestBody MesWmPackageLineSaveReqVO createReqVO) {
+                return success(packageLineService.createPackageLine(createReqVO));
         }
-        return success(buildRespVOList(Collections.singletonList(line)).get(0));
-    }
 
-    @GetMapping("/page")
-    @Operation(summary = "获得装箱明细分页")
-    @PreAuthorize("@ss.hasPermission('mes:wm-package:query')")
-    public CommonResult<PageResult<MesWmPackageLineRespVO>> getPackageLinePage(
-            @Valid MesWmPackageLinePageReqVO pageReqVO) {
-        PageResult<MesWmPackageLineDO> pageResult = packageLineService.getPackageLinePage(pageReqVO);
-        return success(new PageResult<>(buildRespVOList(pageResult.getList()), pageResult.getTotal()));
-    }
-
-    // ========== 私有方法 ==========
-
-    private List<MesWmPackageLineRespVO> buildRespVOList(List<MesWmPackageLineDO> list) {
-        if (CollUtil.isEmpty(list)) {
-            return Collections.emptyList();
+        @PutMapping("/update")
+        @Operation(summary = "修改装箱明细")
+        @PreAuthorize("@ss.hasPermission('mes:wm-package:update')")
+        public CommonResult<Boolean> updatePackageLine(@Valid @RequestBody MesWmPackageLineSaveReqVO updateReqVO) {
+                packageLineService.updatePackageLine(updateReqVO);
+                return success(true);
         }
-        // 批量查询物料
-        Map<Long, MesMdItemDO> itemMap = itemService.getItemMap(convertSet(list, MesWmPackageLineDO::getItemId));
-        // 批量查询计量单位
-        Map<Long, MesMdUnitMeasureDO> unitMeasureMap = unitMeasureService.getUnitMeasureMap(
-                convertSet(itemMap.values(), MesMdItemDO::getUnitMeasureId));
-        // 批量查询工单
-        Map<Long, MesProWorkOrderDO> workOrderMap = workOrderService.getWorkOrderMap(
-                convertSet(list, MesWmPackageLineDO::getWorkOrderId));
-        // 拼接数据
-        return BeanUtils.toBean(list, MesWmPackageLineRespVO.class, vo -> {
-            MapUtils.findAndThen(itemMap, vo.getItemId(), item -> {
-                vo.setItemCode(item.getCode()).setItemName(item.getName()).setSpecification(item.getSpecification());
-                MapUtils.findAndThen(unitMeasureMap, item.getUnitMeasureId(),
-                        unit -> vo.setUnitMeasureName(unit.getName()));});
-                MapUtils.findAndThen(workOrderMap, vo.getWorkOrderId(),
-                        workOrder -> vo.setWorkOrderCode(workOrder.getCode()).setBatchCode(workOrder.getBatchCode()));
-        });
-    }
+
+        @DeleteMapping("/delete")
+        @Operation(summary = "删除装箱明细")
+        @Parameter(name = "id", description = "编号", required = true)
+        @PreAuthorize("@ss.hasPermission('mes:wm-package:delete')")
+        public CommonResult<Boolean> deletePackageLine(@RequestParam("id") Long id) {
+                packageLineService.deletePackageLine(id);
+                return success(true);
+        }
+
+        @GetMapping("/get")
+        @Operation(summary = "获得装箱明细")
+        @Parameter(name = "id", description = "编号", required = true, example = "1024")
+        @PreAuthorize("@ss.hasPermission('mes:wm-package:query')")
+        public CommonResult<MesWmPackageLineRespVO> getPackageLine(@RequestParam("id") Long id) {
+                MesWmPackageLineDO line = packageLineService.getPackageLine(id);
+                if (line == null) {
+                        return success(null);
+                }
+                return success(buildRespVOList(Collections.singletonList(line)).get(0));
+        }
+
+        @GetMapping("/page")
+        @Operation(summary = "获得装箱明细分页")
+        @PreAuthorize("@ss.hasPermission('mes:wm-package:query')")
+        public CommonResult<PageResult<MesWmPackageLineRespVO>> getPackageLinePage(
+                        @Valid MesWmPackageLinePageReqVO pageReqVO) {
+                PageResult<MesWmPackageLineDO> pageResult = packageLineService.getPackageLinePage(pageReqVO);
+                return success(new PageResult<>(buildRespVOList(pageResult.getList()), pageResult.getTotal()));
+        }
+
+        // ========== 私有方法 ==========
+
+        private List<MesWmPackageLineRespVO> buildRespVOList(List<MesWmPackageLineDO> list) {
+                if (CollUtil.isEmpty(list)) {
+                        return Collections.emptyList();
+                }
+                // 批量查询物料
+                Map<Long, MesMdItemDO> itemMap = itemService
+                                .getItemMap(convertSet(list, MesWmPackageLineDO::getItemId));
+                // 批量查询计量单位
+                Map<Long, MesMdUnitMeasureDO> unitMeasureMap = unitMeasureService.getUnitMeasureMap(
+                                convertSet(itemMap.values(), MesMdItemDO::getUnitMeasureId));
+                // 批量查询工单
+                Map<Long, MesProWorkOrderDO> workOrderMap = workOrderService.getWorkOrderMap(
+                                convertSet(list, MesWmPackageLineDO::getWorkOrderId));
+                // 拼接数据
+                return BeanUtils.toBean(list, MesWmPackageLineRespVO.class, vo -> {
+                        MapUtils.findAndThen(itemMap, vo.getItemId(), item -> {
+                                vo.setItemCode(item.getCode()).setItemName(item.getName())
+                                                .setSpecification(item.getSpecification());
+                                MapUtils.findAndThen(unitMeasureMap, item.getUnitMeasureId(),
+                                                unit -> vo.setUnitMeasureName(unit.getName()));
+                        });
+                        MapUtils.findAndThen(workOrderMap, vo.getWorkOrderId(),
+                                        workOrder -> vo.setWorkOrderCode(workOrder.getCode())
+                                                        .setBatchCode(workOrder.getBatchCode()));
+                });
+        }
 
 }

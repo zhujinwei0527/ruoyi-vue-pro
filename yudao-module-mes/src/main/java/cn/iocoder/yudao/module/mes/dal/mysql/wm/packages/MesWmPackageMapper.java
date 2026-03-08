@@ -10,6 +10,9 @@ import org.apache.ibatis.annotations.Mapper;
 
 import java.util.List;
 
+/**
+ * MES 装箱单 Mapper
+ */
 @Mapper
 public interface MesWmPackageMapper extends BaseMapperX<MesWmPackageDO> {
 

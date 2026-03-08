@@ -7,8 +7,9 @@ import cn.iocoder.yudao.module.mes.controller.admin.wm.packages.vo.line.MesWmPac
 import cn.iocoder.yudao.module.mes.dal.dataobject.wm.packages.MesWmPackageLineDO;
 import org.apache.ibatis.annotations.Mapper;
 
-import java.util.List;
-
+/**
+ * MES 装箱明细 Mapper
+ */
 @Mapper
 public interface MesWmPackageLineMapper extends BaseMapperX<MesWmPackageLineDO> {
 
@@ -16,10 +17,6 @@ public interface MesWmPackageLineMapper extends BaseMapperX<MesWmPackageLineDO> 
         return selectPage(reqVO, new LambdaQueryWrapperX<MesWmPackageLineDO>()
                 .eqIfPresent(MesWmPackageLineDO::getPackageId, reqVO.getPackageId())
                 .orderByDesc(MesWmPackageLineDO::getId));
-    }
-
-    default List<MesWmPackageLineDO> selectListByPackageId(Long packageId) {
-        return selectList(MesWmPackageLineDO::getPackageId, packageId);
     }
 
     default void deleteByPackageId(Long packageId) {

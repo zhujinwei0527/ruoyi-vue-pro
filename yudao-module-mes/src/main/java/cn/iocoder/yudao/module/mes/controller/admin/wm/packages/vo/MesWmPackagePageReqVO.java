@@ -6,6 +6,9 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
+/**
+ * MES 装箱单分页 Request VO
+ */
 @Schema(description = "管理后台 - MES 装箱单分页 Request VO")
 @Data
 @EqualsAndHashCode(callSuper = true)

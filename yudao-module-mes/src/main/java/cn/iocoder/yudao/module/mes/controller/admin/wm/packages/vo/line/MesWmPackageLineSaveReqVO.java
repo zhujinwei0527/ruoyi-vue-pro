@@ -6,8 +6,11 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
+/**
+ * MES 装箱明细新增/修改 Request VO
+ */
 @Schema(description = "管理后台 - MES 装箱明细新增/修改 Request VO")
 @Data
 public class MesWmPackageLineSaveReqVO {
@@ -34,8 +37,9 @@ public class MesWmPackageLineSaveReqVO {
     @Schema(description = "生产工单 ID", example = "1")
     private Long workOrderId;
 
+    // TODO @AI：时间都是 LocalDateTIme；
     @Schema(description = "有效期")
-    private LocalDate expireDate;
+    private LocalDateTime expireDate;
 
     @Schema(description = "备注", example = "备注")
     private String remark;

@@ -8,6 +8,9 @@ import lombok.Data;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
+/**
+ * MES 装箱单新增/修改 Request VO
+ */
 @Schema(description = "管理后台 - MES 装箱单新增/修改 Request VO")
 @Data
 public class MesWmPackageSaveReqVO {
