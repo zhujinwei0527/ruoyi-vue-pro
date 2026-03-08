@@ -5,6 +5,7 @@ import cn.iocoder.yudao.module.mes.controller.admin.wm.transfer.vo.line.MesWmTra
 import cn.iocoder.yudao.module.mes.dal.dataobject.wm.transfer.MesWmTransferLineDO;
 import cn.iocoder.yudao.module.mes.dal.mysql.wm.transfer.MesWmTransferLineMapper;
 import cn.iocoder.yudao.module.mes.service.md.item.MesMdItemService;
+import cn.iocoder.yudao.module.mes.service.wm.warehouse.MesWmWarehouseAreaService;
 import jakarta.annotation.Resource;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
@@ -30,14 +31,20 @@ public class MesWmTransferLineServiceImpl implements MesWmTransferLineService {
     private MesWmTransferService transferService;
     @Resource
     private MesMdItemService itemService;
+    @Resource
+    private MesWmWarehouseAreaService warehouseAreaService;
 
     @Override
     public Long createTransferLine(MesWmTransferLineSaveReqVO createReqVO) {
+        // 校验父数据可编辑
         transferService.validateTransferEditable(createReqVO.getTransferId());
+        // 校验产品存在
         itemService.validateItemExists(createReqVO.getItemId());
-        // DONE @AI：当前先保留主单可编辑与物料存在校验，其他关联校验需结合库存与批次规则统一设计，暂不在本轮 TODO 修复中扩展
-        // TODO @AI：位置相关的几个校验；
+        // 校验来源仓库、库区、库位的关联关系
+        warehouseAreaService.validateWarehouseAreaExists(createReqVO.getFromWarehouseId(),
+                createReqVO.getFromLocationId(), createReqVO.getFromAreaId());
 
+        // 插入
         MesWmTransferLineDO line = BeanUtils.toBean(createReqVO, MesWmTransferLineDO.class);
         transferLineMapper.insert(line);
         return line.getId();
@@ -45,19 +52,26 @@ public class MesWmTransferLineServiceImpl implements MesWmTransferLineService {
 
     @Override
     public void updateTransferLine(MesWmTransferLineSaveReqVO updateReqVO) {
+        // 校验存在
         validateTransferLineExists(updateReqVO.getId());
+        // 校验父数据可编辑
         transferService.validateTransferEditable(updateReqVO.getTransferId());
+        // 校验产品存在
         itemService.validateItemExists(updateReqVO.getItemId());
-        // DONE @AI：当前先保留主单可编辑与物料存在校验，其他关联校验需结合库存与批次规则统一设计，暂不在本轮 TODO 修复中扩展
-        // TODO @AI：位置相关的几个校验；
+        // 校验来源仓库、库区、库位的关联关系
+        warehouseAreaService.validateWarehouseAreaExists(updateReqVO.getFromWarehouseId(),
+                updateReqVO.getFromLocationId(), updateReqVO.getFromAreaId());
 
+        // 更新
         MesWmTransferLineDO updateObj = BeanUtils.toBean(updateReqVO, MesWmTransferLineDO.class);
         transferLineMapper.updateById(updateObj);
     }
 
     @Override
     public void deleteTransferLine(Long id) {
+        // 校验存在
         validateTransferLineExists(id);
+        // 删除
         transferLineMapper.deleteById(id);
     }
 
