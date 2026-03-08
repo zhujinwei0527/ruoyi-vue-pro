@@ -14,13 +14,16 @@ import java.util.Arrays;
 @AllArgsConstructor
 public enum MesWmPackageStatusEnum implements ArrayValuable<Integer> {
 
-    // TODO @AI：需要增加下：     * 对应方法：{@link MesWmOutsourceIssueService#createOutsourceIssue(MesWmOutsourceIssueSaveReqVO)}
     /**
      * 草稿
+     *
+     * 对应方法：{@link cn.iocoder.yudao.module.mes.service.wm.packages.MesWmPackageService#createPackage}
      */
     PREPARE(MesOrderStatusConstants.PREPARE, "草稿"),
     /**
      * 已完成
+     *
+     * 对应方法：{@link cn.iocoder.yudao.module.mes.service.wm.packages.MesWmPackageService#finishPackage}
      */
     FINISHED(MesOrderStatusConstants.FINISHED, "已完成");
 

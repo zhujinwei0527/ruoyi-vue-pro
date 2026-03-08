@@ -11,16 +11,10 @@ import cn.iocoder.yudao.module.mes.controller.admin.wm.packages.vo.line.MesWmPac
 import cn.iocoder.yudao.module.mes.dal.dataobject.md.item.MesMdItemDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.md.unitmeasure.MesMdUnitMeasureDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.pro.workorder.MesProWorkOrderDO;
-import cn.iocoder.yudao.module.mes.dal.dataobject.wm.warehouse.MesWmWarehouseAreaDO;
-import cn.iocoder.yudao.module.mes.dal.dataobject.wm.warehouse.MesWmWarehouseDO;
-import cn.iocoder.yudao.module.mes.dal.dataobject.wm.warehouse.MesWmWarehouseLocationDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.wm.packages.MesWmPackageLineDO;
 import cn.iocoder.yudao.module.mes.service.md.item.MesMdItemService;
 import cn.iocoder.yudao.module.mes.service.md.unitmeasure.MesMdUnitMeasureService;
 import cn.iocoder.yudao.module.mes.service.pro.workorder.MesProWorkOrderService;
-import cn.iocoder.yudao.module.mes.service.wm.warehouse.MesWmWarehouseAreaService;
-import cn.iocoder.yudao.module.mes.service.wm.warehouse.MesWmWarehouseLocationService;
-import cn.iocoder.yudao.module.mes.service.wm.warehouse.MesWmWarehouseService;
 import cn.iocoder.yudao.module.mes.service.wm.packages.MesWmPackageLineService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -52,12 +46,6 @@ public class MesWmPackageLineController {
     private MesMdUnitMeasureService unitMeasureService;
     @Resource
     private MesProWorkOrderService workOrderService;
-    @Resource
-    private MesWmWarehouseService warehouseService;
-    @Resource
-    private MesWmWarehouseLocationService locationService;
-    @Resource
-    private MesWmWarehouseAreaService areaService;
 
     @PostMapping("/create")
     @Operation(summary = "创建装箱明细")
@@ -104,16 +92,6 @@ public class MesWmPackageLineController {
         return success(new PageResult<>(buildRespVOList(pageResult.getList()), pageResult.getTotal()));
     }
 
-    @GetMapping("/list-by-package-id")
-    @Operation(summary = "根据装箱单 ID 获得明细列表")
-    @Parameter(name = "packageId", description = "装箱单 ID", required = true, example = "1024")
-    @PreAuthorize("@ss.hasPermission('mes:wm-package:query')")
-    public CommonResult<List<MesWmPackageLineRespVO>> getPackageLineListByPackageId(
-            @RequestParam("packageId") Long packageId) {
-        List<MesWmPackageLineDO> list = packageLineService.getPackageLineListByPackageId(packageId);
-        return success(buildRespVOList(list));
-    }
-
     // ========== 私有方法 ==========
 
     private List<MesWmPackageLineRespVO> buildRespVOList(List<MesWmPackageLineDO> list) {
@@ -121,39 +99,21 @@ public class MesWmPackageLineController {
             return Collections.emptyList();
         }
         // 批量查询物料
-        Map<Long, MesMdItemDO> itemMap = itemService.getItemMap(
-                convertSet(list, MesWmPackageLineDO::getItemId));
+        Map<Long, MesMdItemDO> itemMap = itemService.getItemMap(convertSet(list, MesWmPackageLineDO::getItemId));
         // 批量查询计量单位
         Map<Long, MesMdUnitMeasureDO> unitMeasureMap = unitMeasureService.getUnitMeasureMap(
                 convertSet(itemMap.values(), MesMdItemDO::getUnitMeasureId));
         // 批量查询工单
         Map<Long, MesProWorkOrderDO> workOrderMap = workOrderService.getWorkOrderMap(
                 convertSet(list, MesWmPackageLineDO::getWorkOrderId));
-        // 批量查询仓库
-        Map<Long, MesWmWarehouseDO> warehouseMap = warehouseService.getWarehouseMap(
-                convertSet(list, MesWmPackageLineDO::getWarehouseId));
-        // 批量查询库区
-        Map<Long, MesWmWarehouseLocationDO> locationMap = locationService.getWarehouseLocationMap(
-                convertSet(list, MesWmPackageLineDO::getLocationId));
-        // 批量查询库位
-        Map<Long, MesWmWarehouseAreaDO> areaMap = areaService.getWarehouseAreaMap(
-                convertSet(list, MesWmPackageLineDO::getAreaId));
         // 拼接数据
         return BeanUtils.toBean(list, MesWmPackageLineRespVO.class, vo -> {
             MapUtils.findAndThen(itemMap, vo.getItemId(), item -> {
-                vo.setItemCode(item.getCode()).setItemName(item.getName())
-                        .setSpecification(item.getSpecification());
+                vo.setItemCode(item.getCode()).setItemName(item.getName()).setSpecification(item.getSpecification());
                 MapUtils.findAndThen(unitMeasureMap, item.getUnitMeasureId(),
-                        unit -> vo.setUnitMeasureName(unit.getName()));
-            });
-            MapUtils.findAndThen(workOrderMap, vo.getWorkOrderId(),
-                    workOrder -> vo.setWorkOrderCode(workOrder.getCode()).setBatchCode(workOrder.getBatchCode()));
-            MapUtils.findAndThen(warehouseMap, vo.getWarehouseId(),
-                    warehouse -> vo.setWarehouseName(warehouse.getName()));
-            MapUtils.findAndThen(locationMap, vo.getLocationId(),
-                    location -> vo.setLocationName(location.getName()));
-            MapUtils.findAndThen(areaMap, vo.getAreaId(),
-                    area -> vo.setAreaName(area.getName()));
+                        unit -> vo.setUnitMeasureName(unit.getName()));});
+                MapUtils.findAndThen(workOrderMap, vo.getWorkOrderId(),
+                        workOrder -> vo.setWorkOrderCode(workOrder.getCode()).setBatchCode(workOrder.getBatchCode()));
         });
     }
 

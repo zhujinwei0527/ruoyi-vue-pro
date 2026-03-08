@@ -71,20 +71,20 @@ public interface MesWmPackageService {
      * @param parentId 父箱 ID
      * @param childId  子箱 ID
      */
-    void addSubPackage(Long parentId, Long childId);
+    void addChildPackage(Long parentId, Long childId);
 
     /**
      * 移除子箱
      *
      * @param childId 子箱 ID
      */
-    void removeSubPackage(Long childId);
+    void removeChildPackage(Long childId);
 
     /**
-     * 获取装箱单精简列表（无父箱 + 已完成状态）
+     * 可添加为子箱的装箱单精简列表（无父箱 + 已完成状态）
      *
      * @return 装箱单列表
      */
-    List<MesWmPackageDO> getPackageSimpleList();
+    List<MesWmPackageDO> getChildablePackageSimpleList();
 
 }

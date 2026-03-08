@@ -34,15 +34,6 @@ public class MesWmPackageLineSaveReqVO {
     @Schema(description = "生产工单 ID", example = "1")
     private Long workOrderId;
 
-    @Schema(description = "仓库 ID", example = "1")
-    private Long warehouseId;
-
-    @Schema(description = "库区 ID", example = "1")
-    private Long locationId;
-
-    @Schema(description = "库位 ID", example = "1")
-    private Long areaId;
-
     @Schema(description = "有效期")
     private LocalDate expireDate;
 

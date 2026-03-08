@@ -4,7 +4,6 @@ import cn.iocoder.yudao.framework.mybatis.core.dataobject.BaseDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.md.client.MesMdClientDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.md.unitmeasure.MesMdUnitMeasureDO;
 import com.baomidou.mybatisplus.annotation.KeySequence;
-import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.*;
@@ -41,12 +40,9 @@ public class MesWmPackageDO extends BaseDO {
      * 装箱日期
      */
     private LocalDate packageDate;
-    // DONE @AI：改成 salesOrderCode
-    // TODO @AI：数据库也改；另外前端也检查下；
     /**
      * 销售订单编号
      */
-    @TableField("so_code")
     private String salesOrderCode;
     /**
      * 发票编号

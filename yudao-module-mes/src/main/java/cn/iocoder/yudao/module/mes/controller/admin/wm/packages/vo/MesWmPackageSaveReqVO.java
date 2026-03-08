@@ -19,10 +19,6 @@ public class MesWmPackageSaveReqVO {
     @NotEmpty(message = "装箱单编号不能为空")
     private String code;
 
-    // TODO @AI：不传递 parentId；默认都是 = 0；
-    @Schema(description = "父箱 ID", example = "0")
-    private Long parentId;
-
     @Schema(description = "装箱日期", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotNull(message = "装箱日期不能为空")
     private LocalDateTime packageDate;

@@ -78,11 +78,6 @@ public class MesWmPackageLineServiceImpl implements MesWmPackageLineService {
     }
 
     @Override
-    public List<MesWmPackageLineDO> getPackageLineListByPackageId(Long packageId) {
-        return packageLineMapper.selectListByPackageId(packageId);
-    }
-
-    @Override
     public void deletePackageLineByPackageId(Long packageId) {
         packageLineMapper.deleteByPackageId(packageId);
     }

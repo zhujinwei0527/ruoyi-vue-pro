@@ -3,16 +3,13 @@ package cn.iocoder.yudao.module.mes.dal.dataobject.wm.packages;
 import cn.iocoder.yudao.framework.mybatis.core.dataobject.BaseDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.md.item.MesMdItemDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.pro.workorder.MesProWorkOrderDO;
-import cn.iocoder.yudao.module.mes.dal.dataobject.wm.warehouse.MesWmWarehouseDO;
-import cn.iocoder.yudao.module.mes.dal.dataobject.wm.warehouse.MesWmWarehouseLocationDO;
-import cn.iocoder.yudao.module.mes.dal.dataobject.wm.warehouse.MesWmWarehouseAreaDO;
 import com.baomidou.mybatisplus.annotation.KeySequence;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.*;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 /**
  * MES 装箱明细 DO
@@ -57,27 +54,9 @@ public class MesWmPackageLineDO extends BaseDO {
      */
     private Long workOrderId;
     /**
-     * 仓库 ID
-     *
-     * 关联 {@link MesWmWarehouseDO#getId()}
-     */
-    private Long warehouseId;
-    /**
-     * 库区 ID
-     *
-     * 关联 {@link MesWmWarehouseLocationDO#getId()}
-     */
-    private Long locationId;
-    /**
-     * 库位 ID
-     *
-     * 关联 {@link MesWmWarehouseAreaDO#getId()}
-     */
-    private Long areaId;
-    /**
      * 有效期
      */
-    private LocalDate expireDate;
+    private LocalDateTime expireDate;
     /**
      * 备注
      */

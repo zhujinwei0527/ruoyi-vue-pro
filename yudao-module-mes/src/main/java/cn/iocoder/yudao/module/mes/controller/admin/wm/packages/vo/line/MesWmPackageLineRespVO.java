@@ -49,24 +49,6 @@ public class MesWmPackageLineRespVO {
     @Schema(description = "批次号", example = "BATCH001")
     private String batchCode;
 
-    @Schema(description = "仓库 ID", example = "1")
-    private Long warehouseId;
-
-    @Schema(description = "仓库名称", example = "成品仓")
-    private String warehouseName;
-
-    @Schema(description = "库区 ID", example = "1")
-    private Long locationId;
-
-    @Schema(description = "库区名称", example = "A区")
-    private String locationName;
-
-    @Schema(description = "库位 ID", example = "1")
-    private Long areaId;
-
-    @Schema(description = "库位名称", example = "A-01-01")
-    private String areaName;
-
     @Schema(description = "有效期")
     private LocalDate expireDate;
 

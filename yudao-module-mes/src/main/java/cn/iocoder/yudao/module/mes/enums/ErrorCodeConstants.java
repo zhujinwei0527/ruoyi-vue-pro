@@ -518,6 +518,7 @@ public interface ErrorCodeConstants {
     ErrorCode WM_PACKAGE_PARENT_NOT_EXISTS = new ErrorCode(1_040_740_003, "父箱不存在");
     ErrorCode WM_PACKAGE_PARENT_SELF = new ErrorCode(1_040_740_004, "不能选择自己作为父箱");
     ErrorCode WM_PACKAGE_CHILD_HAS_PARENT = new ErrorCode(1_040_740_005, "该装箱单已有父箱，不能重复添加");
+    ErrorCode WM_PACKAGE_PARENT_IS_CHILD = new ErrorCode(1_040_740_006, "不能选择子箱的后代作为父箱，会形成环路");
     ErrorCode WM_PACKAGE_LINE_NOT_EXISTS = new ErrorCode(1_040_740_100, "装箱明细不存在");
 
 }

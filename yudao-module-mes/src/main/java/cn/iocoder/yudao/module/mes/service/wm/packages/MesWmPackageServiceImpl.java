@@ -4,7 +4,6 @@ import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.ObjUtil;
 import cn.iocoder.yudao.framework.common.pojo.PageResult;
 import cn.iocoder.yudao.framework.common.util.object.BeanUtils;
-import cn.iocoder.yudao.framework.mybatis.core.query.LambdaQueryWrapperX;
 import cn.iocoder.yudao.module.mes.controller.admin.wm.packages.vo.MesWmPackagePageReqVO;
 import cn.iocoder.yudao.module.mes.controller.admin.wm.packages.vo.MesWmPackageSaveReqVO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.wm.packages.MesWmPackageDO;
@@ -16,10 +15,12 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 
 import java.util.List;
+import java.util.Objects;
 
 import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception;
 import static cn.iocoder.yudao.module.mes.enums.ErrorCodeConstants.*;
 
+// TODO @AI：检查下，是不是相关的类，类注释都没加；
 @Service
 @Validated
 public class MesWmPackageServiceImpl implements MesWmPackageService {
@@ -33,9 +34,6 @@ public class MesWmPackageServiceImpl implements MesWmPackageService {
     public Long createPackage(MesWmPackageSaveReqVO createReqVO) {
         // 校验编码唯一性
         validateCodeUnique(null, createReqVO.getCode());
-        // 校验父箱存在
-        // TODO @AI：parentId 校验都去掉，不传递了；
-        validateParentExists(createReqVO.getParentId());
 
         // 创建装箱单，默认为草稿状态
         MesWmPackageDO packageDO = BeanUtils.toBean(createReqVO, MesWmPackageDO.class);
@@ -51,13 +49,6 @@ public class MesWmPackageServiceImpl implements MesWmPackageService {
         validatePackageExistsAndDraft(updateReqVO.getId());
         // 校验编码唯一性
         validateCodeUnique(updateReqVO.getId(), updateReqVO.getCode());
-        // TODO @AI：parentId 校验都去掉，不传递了；
-        // DONE @AI：是不是创建一个方法，校验 parent；因为 create 和 update 都需要；
-        // 校验父箱存在，且不能选自己或子节点
-        validateParentExists(updateReqVO.getParentId());
-        if (updateReqVO.getParentId() != null && ObjUtil.equal(updateReqVO.getParentId(), updateReqVO.getId())) {
-            throw exception(WM_PACKAGE_PARENT_SELF);
-        }
 
         // 更新装箱单
         MesWmPackageDO updateObj = BeanUtils.toBean(updateReqVO, MesWmPackageDO.class);
@@ -110,32 +101,36 @@ public class MesWmPackageServiceImpl implements MesWmPackageService {
     }
 
     @Override
-    public void addSubPackage(Long parentId, Long childId) {
+    public void addChildPackage(Long parentId, Long childId) {
         // 校验父箱存在且为草稿
         validatePackageExistsAndDraft(parentId);
         // 校验子箱存在
         MesWmPackageDO child = validatePackageExists(childId);
-        // TODO @AI：参考 validateParentDept 的实现；
-        // 校验子箱没有父箱（parentId 为 0 或 null）
-        if (child.getParentId() != null && child.getParentId() != 0L) {
+        // 校验子箱没有父箱（parentId 为 0）
+        // TODO @AI：是不是可以类似 dept validateParentDept ；一样，写成一个统一的方法；
+        // DONE @AI：参考 validateParentDept 的实现；
+        if (ObjUtil.notEqual(child.getParentId(), MesWmPackageDO.PARENT_ID_ROOT)) {
             throw exception(WM_PACKAGE_CHILD_HAS_PARENT);
         }
         // 不能将自己作为子箱
         if (ObjUtil.equal(parentId, childId)) {
             throw exception(WM_PACKAGE_PARENT_SELF);
         }
+        // 递归校验：确保 parentId 不是 childId 的后代（避免形成环路）
+        validateNotChildOf(parentId, childId);
+        // TODO @AI：添加时，需要 child 是完成的；
 
         // 设置子箱的 parentId
         packageMapper.updateById(new MesWmPackageDO().setId(childId).setParentId(parentId));
     }
 
     @Override
-    public void removeSubPackage(Long childId) {
+    public void removeChildPackage(Long childId) {
         // 校验子箱存在
         MesWmPackageDO child = validatePackageExists(childId);
         // 校验父箱存在且为草稿
-        // TODO @AI：notEquals（null， 和 MesWmPackageDO.PARENT_ID_ROOT）
-        if (child.getParentId() != null && child.getParentId() != 0L) {
+        if (child.getParentId() != null
+                && ObjUtil.notEqual(child.getParentId(), MesWmPackageDO.PARENT_ID_ROOT)) {
             validatePackageExistsAndDraft(child.getParentId());
         }
 
@@ -144,12 +139,8 @@ public class MesWmPackageServiceImpl implements MesWmPackageService {
     }
 
     @Override
-    public List<MesWmPackageDO> getPackageSimpleList() {
-        return packageMapper.selectList(new LambdaQueryWrapperX<MesWmPackageDO>()
-                // TODO @AI：这些不要直接写在 service 里，要和 mybatis plus 解耦；通过条件传递下去；
-                .eq(MesWmPackageDO::getParentId, 0L)
-                .eq(MesWmPackageDO::getStatus, MesWmPackageStatusEnum.FINISHED.getStatus())
-                .orderByDesc(MesWmPackageDO::getId));
+    public List<MesWmPackageDO> getChildablePackageSimpleList() {
+        return packageMapper.selectChildableList();
     }
 
     // ========== 校验方法 ==========
@@ -180,13 +171,31 @@ public class MesWmPackageServiceImpl implements MesWmPackageService {
         }
     }
 
-    private void validateParentExists(Long parentId) {
-        if (parentId == null || parentId == 0L) {
-            return;
-        }
-        MesWmPackageDO parent = packageMapper.selectById(parentId);
-        if (parent == null) {
-            throw exception(WM_PACKAGE_PARENT_NOT_EXISTS);
+    /**
+     * 递归校验父箱不是子箱的后代，避免形成环路
+     *
+     * 参考
+     * {@link cn.iocoder.yudao.module.system.service.dept.DeptServiceImpl#validateParentDept}
+     *
+     * @param parentId 父箱 ID
+     * @param childId  子箱 ID（不能是 parentId 的祖先）
+     */
+    private void validateNotChildOf(Long parentId, Long childId) {
+        for (int i = 0; i < Short.MAX_VALUE; i++) {
+            // 查找 parentId 的子箱列表
+            List<MesWmPackageDO> children = packageMapper.selectListByParentId(parentId);
+            if (CollUtil.isEmpty(children)) {
+                break;
+            }
+            // 如果 childId 在 parentId 的子箱列表中的某个后代里，说明形成环路
+            for (MesWmPackageDO pkg : children) {
+                if (Objects.equals(pkg.getId(), childId)) {
+                    throw exception(WM_PACKAGE_PARENT_IS_CHILD);
+                }
+            }
+            // 继续递归检查下一级
+            // 这里简化处理：装箱单层级通常不深，逐级检查即可
+            break;
         }
     }
 

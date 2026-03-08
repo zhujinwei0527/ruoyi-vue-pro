@@ -26,9 +26,11 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
+import java.util.stream.Stream;
 
 import static cn.iocoder.yudao.framework.common.pojo.CommonResult.success;
 import static cn.iocoder.yudao.framework.common.util.collection.CollectionUtils.convertSet;
+import static cn.iocoder.yudao.framework.common.util.collection.CollectionUtils.convertSetByFlatMap;
 
 @Tag(name = "管理后台 - MES 装箱单")
 @RestController
@@ -99,29 +101,29 @@ public class MesWmPackageController {
         return success(true);
     }
 
-    @PutMapping("/add-sub-package")
+    @PutMapping("/add-child-package")
     @Operation(summary = "添加子箱")
     @PreAuthorize("@ss.hasPermission('mes:wm-package:update')")
-    public CommonResult<Boolean> addSubPackage(@RequestParam("parentId") Long parentId,
+    public CommonResult<Boolean> addChildPackage(@RequestParam("parentId") Long parentId,
             @RequestParam("childId") Long childId) {
-        packageService.addSubPackage(parentId, childId);
+        packageService.addChildPackage(parentId, childId);
         return success(true);
     }
 
-    @PutMapping("/remove-sub-package")
+    @PutMapping("/remove-child-package")
     @Operation(summary = "移除子箱")
     @Parameter(name = "childId", description = "子箱编号", required = true)
     @PreAuthorize("@ss.hasPermission('mes:wm-package:update')")
-    public CommonResult<Boolean> removeSubPackage(@RequestParam("childId") Long childId) {
-        packageService.removeSubPackage(childId);
+    public CommonResult<Boolean> removeChildPackage(@RequestParam("childId") Long childId) {
+        packageService.removeChildPackage(childId);
         return success(true);
     }
 
-    @GetMapping("/simple-list")
-    @Operation(summary = "获取装箱单精简列表")
+    @GetMapping("/childable-simple-list")
+    @Operation(summary = "可添加为子箱的装箱单精简列表")
     @PreAuthorize("@ss.hasPermission('mes:wm-package:query')")
-    public CommonResult<List<MesWmPackageRespVO>> getPackageSimpleList() {
-        List<MesWmPackageDO> list = packageService.getPackageSimpleList();
+    public CommonResult<List<MesWmPackageRespVO>> getChildablePackageSimpleList() {
+        List<MesWmPackageDO> list = packageService.getChildablePackageSimpleList();
         return success(buildRespVOList(list));
     }
 
@@ -135,17 +137,8 @@ public class MesWmPackageController {
         Map<Long, MesMdClientDO> clientMap = clientService.getClientMap(
                 convertSet(list, MesWmPackageDO::getClientId));
         // 批量查询计量单位（尺寸 + 重量）
-        // TODO @AI：可以通过 CollecionUtils 里，通过 flat 操作；
-        Set<Long> unitIds = new HashSet<>();
-        list.forEach(p -> {
-            if (p.getSizeUnitId() != null) {
-                unitIds.add(p.getSizeUnitId());
-            }
-            if (p.getWeightUnitId() != null) {
-                unitIds.add(p.getWeightUnitId());
-            }
-        });
-        Map<Long, MesMdUnitMeasureDO> unitMeasureMap = unitMeasureService.getUnitMeasureMap(unitIds);
+        Map<Long, MesMdUnitMeasureDO> unitMeasureMap = unitMeasureService.getUnitMeasureMap(
+                convertSetByFlatMap(list, p -> Stream.of(p.getSizeUnitId(), p.getWeightUnitId())));
         // 批量查询检查员
         Map<Long, AdminUserRespDTO> userMap = adminUserApi.getUserMap(
                 convertSet(list, MesWmPackageDO::getInspectorUserId));
