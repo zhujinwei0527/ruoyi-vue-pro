@@ -1,7 +1,9 @@
 package cn.iocoder.yudao.module.mes.enums.wm;
 
 import cn.iocoder.yudao.framework.common.core.ArrayValuable;
+import cn.iocoder.yudao.module.mes.controller.admin.wm.transfer.vo.MesWmTransferSaveReqVO;
 import cn.iocoder.yudao.module.mes.enums.MesOrderStatusConstants;
+import cn.iocoder.yudao.module.mes.service.wm.transfer.MesWmTransferService;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -16,29 +18,40 @@ import java.util.Arrays;
 @AllArgsConstructor
 public enum MesWmTransferStatusEnum implements ArrayValuable<Integer> {
 
-    // TODO @AI：/Users/yunai/Java/yudao-all-in-one/ruoyi-vue-pro/yudao-module-mes/src/main/java/cn/iocoder/yudao/module/mes/enums/wm/MesWmOutsourceReceiptStatusEnum.java，增加 “对应方法”
     /**
      * 草稿
+     *
+     * 对应方法：{@link MesWmTransferService#createTransfer(MesWmTransferSaveReqVO)}
      */
     PREPARE(MesOrderStatusConstants.PREPARE, "草稿"),
     /**
      * 待确认（仅配送模式）
+     *
+     * 对应方法：{@link MesWmTransferService#submitTransfer(Long)}
      */
     UNCONFIRMED(MesOrderStatusConstants.CONFIRMED, "待确认"),
     /**
      * 待上架
+     *
+     * 对应方法：{@link MesWmTransferService#submitTransfer(Long)}、{@link MesWmTransferService#confirmTransfer(Long)}
      */
     UNSTOCK(MesOrderStatusConstants.APPROVING, "待上架"),
     /**
      * 待执行
+     *
+     * 对应方法：调拨明细维护完成后进入待执行状态
      */
     UNEXECUTE(MesOrderStatusConstants.APPROVED, "待执行"),
     /**
      * 已完成
+     *
+     * 对应方法：{@link MesWmTransferService#finishTransfer(Long)}
      */
     FINISHED(MesOrderStatusConstants.FINISHED, "已完成"),
     /**
      * 已取消
+     *
+     * 对应方法：{@link MesWmTransferService#cancelTransfer(Long)}
      */
     CANCELED(MesOrderStatusConstants.CANCELLED, "已取消");
 

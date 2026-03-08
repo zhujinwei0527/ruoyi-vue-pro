@@ -2,6 +2,9 @@ package cn.iocoder.yudao.module.mes.dal.dataobject.wm.transfer;
 
 import cn.iocoder.yudao.framework.mybatis.core.dataobject.BaseDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.md.item.MesMdItemDO;
+import cn.iocoder.yudao.module.mes.dal.dataobject.wm.warehouse.MesWmWarehouseAreaDO;
+import cn.iocoder.yudao.module.mes.dal.dataobject.wm.warehouse.MesWmWarehouseDO;
+import cn.iocoder.yudao.module.mes.dal.dataobject.wm.warehouse.MesWmWarehouseLocationDO;
 import com.baomidou.mybatisplus.annotation.KeySequence;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
@@ -57,17 +60,22 @@ public class MesWmTransferDetailDO extends BaseDO {
      */
     private Long batchId;
 
-    // TODO @AI：需要 @
     /**
      * 移入仓库编号
+     *
+     * 关联 {@link MesWmWarehouseDO#getId()}
      */
     private Long toWarehouseId;
     /**
      * 移入库区编号
+     *
+     * 关联 {@link MesWmWarehouseLocationDO#getId()}
      */
     private Long toLocationId;
     /**
      * 移入库位编号
+     *
+     * 关联 {@link MesWmWarehouseAreaDO#getId()}
      */
     private Long toAreaId;
 

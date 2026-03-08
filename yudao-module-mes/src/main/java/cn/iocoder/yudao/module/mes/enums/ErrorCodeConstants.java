@@ -403,6 +403,8 @@ public interface ErrorCodeConstants {
     ErrorCode WM_TRANSFER_NOT_CONFIRMED = new ErrorCode(1_040_710_004, "只有待确认状态的转移单才可执行确认");
     ErrorCode WM_TRANSFER_NOT_UNEXECUTE = new ErrorCode(1_040_710_005, "只有待执行状态的转移单才可完成");
     ErrorCode WM_TRANSFER_ALREADY_FINISHED = new ErrorCode(1_040_710_006, "转移单已完成或已取消，无法继续操作");
+    ErrorCode WM_TRANSFER_NO_LINE = new ErrorCode(1_040_710_007, "转移单至少需要一条行数据");
+    ErrorCode WM_TRANSFER_DETAIL_QUANTITY_MISMATCH = new ErrorCode(1_040_710_008, "转移单行数量与明细数量不一致");
     ErrorCode WM_TRANSFER_LINE_NOT_EXISTS = new ErrorCode(1_040_710_100, "转移单行不存在");
     ErrorCode WM_TRANSFER_DETAIL_NOT_EXISTS = new ErrorCode(1_040_710_200, "调拨明细不存在");
 
