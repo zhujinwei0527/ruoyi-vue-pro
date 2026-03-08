@@ -401,13 +401,14 @@ public interface ErrorCodeConstants {
     ErrorCode WM_TRANSFER_CODE_DUPLICATE = new ErrorCode(1_040_710_002, "转移单编号已存在");
     ErrorCode WM_TRANSFER_NOT_DRAFT = new ErrorCode(1_040_710_003, "只有草稿状态的转移单才可操作");
     ErrorCode WM_TRANSFER_NOT_CONFIRMED = new ErrorCode(1_040_710_004, "只有待确认状态的转移单才可执行确认");
-    ErrorCode WM_TRANSFER_NOT_UNSTOCK = new ErrorCode(1_040_710_005, "只有待上架状态的转移单才可执行上架");
-    ErrorCode WM_TRANSFER_NOT_UNEXECUTE = new ErrorCode(1_040_710_006, "只有待执行状态的转移单才可完成");
+    ErrorCode WM_TRANSFER_NOT_APPROVING = new ErrorCode(1_040_710_005, "只有待上架状态的转移单才可执行上架");
+    ErrorCode WM_TRANSFER_NOT_APPROVED = new ErrorCode(1_040_710_006, "只有待执行状态的转移单才可完成");
     ErrorCode WM_TRANSFER_ALREADY_FINISHED = new ErrorCode(1_040_710_007, "转移单已完成或已取消，无法继续操作");
     ErrorCode WM_TRANSFER_NO_LINE = new ErrorCode(1_040_710_008, "转移单至少需要一条行数据");
     ErrorCode WM_TRANSFER_DETAIL_QUANTITY_MISMATCH = new ErrorCode(1_040_710_009, "转移单行数量与明细数量不一致");
     ErrorCode WM_TRANSFER_LINE_NOT_EXISTS = new ErrorCode(1_040_710_100, "转移单行不存在");
     ErrorCode WM_TRANSFER_DETAIL_NOT_EXISTS = new ErrorCode(1_040_710_200, "调拨明细不存在");
+    ErrorCode WM_TRANSFER_DETAIL_QUANTITY_EXCEED = new ErrorCode(1_040_710_201, "调拨明细总数量不能超过调拨单行数量");
 
     // ========== MES 仓库管理-生产退料单（1-040-711-000） ==========
     ErrorCode WM_RETURN_ISSUE_NOT_EXISTS = new ErrorCode(1_040_710_000, "生产退料单不存在");
