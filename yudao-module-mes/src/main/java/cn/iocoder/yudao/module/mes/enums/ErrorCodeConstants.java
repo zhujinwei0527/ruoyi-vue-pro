@@ -395,7 +395,18 @@ public interface ErrorCodeConstants {
     ErrorCode WM_PRODUCT_PRODUCE_LINE_NOT_EXISTS = new ErrorCode(1_040_709_100, "生产入库单行不存在");
     ErrorCode WM_PRODUCT_PRODUCE_DETAIL_NOT_EXISTS = new ErrorCode(1_040_709_200, "生产入库单明细不存在");
 
-    // ========== MES 仓库管理-生产退料单（1-040-710-000） ==========
+    // ========== MES 仓库管理-转移调拨（1-040-710-000） ==========
+    ErrorCode WM_TRANSFER_NOT_EXISTS = new ErrorCode(1_040_710_000, "转移单不存在");
+    ErrorCode WM_TRANSFER_NOT_EDITABLE = new ErrorCode(1_040_710_001, "当前转移单状态不允许编辑");
+    ErrorCode WM_TRANSFER_CODE_DUPLICATE = new ErrorCode(1_040_710_002, "转移单编号已存在");
+    ErrorCode WM_TRANSFER_NOT_DRAFT = new ErrorCode(1_040_710_003, "只有草稿状态的转移单才可操作");
+    ErrorCode WM_TRANSFER_NOT_CONFIRMED = new ErrorCode(1_040_710_004, "只有待确认状态的转移单才可执行确认");
+    ErrorCode WM_TRANSFER_NOT_UNEXECUTE = new ErrorCode(1_040_710_005, "只有待执行状态的转移单才可完成");
+    ErrorCode WM_TRANSFER_ALREADY_FINISHED = new ErrorCode(1_040_710_006, "转移单已完成或已取消，无法继续操作");
+    ErrorCode WM_TRANSFER_LINE_NOT_EXISTS = new ErrorCode(1_040_710_100, "转移单行不存在");
+    ErrorCode WM_TRANSFER_DETAIL_NOT_EXISTS = new ErrorCode(1_040_710_200, "调拨明细不存在");
+
+    // ========== MES 仓库管理-生产退料单（1-040-711-000） ==========
     ErrorCode WM_RETURN_ISSUE_NOT_EXISTS = new ErrorCode(1_040_710_000, "生产退料单不存在");
     ErrorCode WM_RETURN_ISSUE_STATUS_INVALID = new ErrorCode(1_040_710_001, "生产退料单状态不正确，无法执行该操作");
     ErrorCode WM_RETURN_ISSUE_NOT_PREPARE = new ErrorCode(1_040_710_002, "只有草稿状态的退料单才可操作");

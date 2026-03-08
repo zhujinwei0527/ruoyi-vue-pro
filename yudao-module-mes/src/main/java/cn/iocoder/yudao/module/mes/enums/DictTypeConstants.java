@@ -52,5 +52,7 @@ public interface DictTypeConstants {
     String MES_WM_RETURN_ISSUE_TYPE = "mes_return_issue_type"; // MES 生产退料类型
     String MES_WM_MISC_ISSUE_TYPE = "mes_wm_misc_issue_type"; // MES 杂项出库类型
     String MES_WM_MISC_ISSUE_STATUS = "mes_wm_misc_issue_status"; // MES 杂项出库单状态
+    String MES_WM_TRANSFER_STATUS = "mes_wm_transfer_status"; // MES 转移单状态
+    String MES_WM_TRANSFER_TYPE = "mes_wm_transfer_type"; // MES 转移单类型
 
 }
