@@ -1,0 +1,69 @@
+package cn.iocoder.yudao.module.mes.service.wm.wmpackage;
+
+import cn.iocoder.yudao.framework.common.pojo.PageResult;
+import cn.iocoder.yudao.module.mes.controller.admin.wm.wmpackage.vo.line.MesWmPackageLinePageReqVO;
+import cn.iocoder.yudao.module.mes.controller.admin.wm.wmpackage.vo.line.MesWmPackageLineSaveReqVO;
+import cn.iocoder.yudao.module.mes.dal.dataobject.wm.wmpackage.MesWmPackageLineDO;
+import jakarta.validation.Valid;
+
+import java.util.List;
+
+/**
+ * MES 装箱明细 Service 接口
+ */
+public interface MesWmPackageLineService {
+
+    /**
+     * 创建装箱明细
+     *
+     * @param createReqVO 创建信息
+     * @return 编号
+     */
+    Long createPackageLine(@Valid MesWmPackageLineSaveReqVO createReqVO);
+
+    /**
+     * 修改装箱明细
+     *
+     * @param updateReqVO 修改信息
+     */
+    void updatePackageLine(@Valid MesWmPackageLineSaveReqVO updateReqVO);
+
+    /**
+     * 删除装箱明细
+     *
+     * @param id 编号
+     */
+    void deletePackageLine(Long id);
+
+    /**
+     * 获得装箱明细
+     *
+     * @param id 编号
+     * @return 装箱明细
+     */
+    MesWmPackageLineDO getPackageLine(Long id);
+
+    /**
+     * 获得装箱明细分页
+     *
+     * @param pageReqVO 分页查询
+     * @return 分页结果
+     */
+    PageResult<MesWmPackageLineDO> getPackageLinePage(MesWmPackageLinePageReqVO pageReqVO);
+
+    /**
+     * 根据装箱单 ID 获得明细列表
+     *
+     * @param packageId 装箱单 ID
+     * @return 明细列表
+     */
+    List<MesWmPackageLineDO> getPackageLineListByPackageId(Long packageId);
+
+    /**
+     * 根据装箱单 ID 删除所有明细
+     *
+     * @param packageId 装箱单 ID
+     */
+    void deletePackageLineByPackageId(Long packageId);
+
+}

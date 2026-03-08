@@ -351,8 +351,10 @@ public interface ErrorCodeConstants {
     ErrorCode WM_ITEM_RECEIPT_STATUS_ERROR = new ErrorCode(1_040_705_005, "入库单状态不正确");
     ErrorCode WM_ITEM_RECEIPT_CANCEL_NOT_ALLOWED = new ErrorCode(1_040_705_006, "已完成或已取消的入库单不允许取消");
     ErrorCode WM_ITEM_RECEIPT_LINE_NOT_EXISTS = new ErrorCode(1_040_705_100, "采购入库单行不存在");
-    ErrorCode WM_ITEM_RECEIPT_LINE_ARRIVAL_NOTICE_LINE_REQUIRED = new ErrorCode(1_040_705_101, "入库单关联了到货通知单，必须选择到货通知单行");
-    ErrorCode WM_ITEM_RECEIPT_LINE_ARRIVAL_NOTICE_LINE_NOT_ALLOWED = new ErrorCode(1_040_705_102, "入库单未关联到货通知单，不能选择到货通知单行");
+    ErrorCode WM_ITEM_RECEIPT_LINE_ARRIVAL_NOTICE_LINE_REQUIRED = new ErrorCode(1_040_705_101,
+            "入库单关联了到货通知单，必须选择到货通知单行");
+    ErrorCode WM_ITEM_RECEIPT_LINE_ARRIVAL_NOTICE_LINE_NOT_ALLOWED = new ErrorCode(1_040_705_102,
+            "入库单未关联到货通知单，不能选择到货通知单行");
     ErrorCode WM_ITEM_RECEIPT_DETAIL_NOT_EXISTS = new ErrorCode(1_040_705_200, "采购入库明细不存在");
 
     // ========== MES 仓库管理-领料申请单（1-040-706-000） ==========
@@ -508,5 +510,13 @@ public interface ErrorCodeConstants {
     ErrorCode BARCODE_BIZ_TYPE_NOT_EXISTS = new ErrorCode(1_040_731_003, "业务类型不能为空");
     ErrorCode BARCODE_BIZ_CODE_NOT_EXISTS = new ErrorCode(1_040_731_004, "业务编码不能为空");
     ErrorCode BARCODE_CONFIG_NOT_EXISTS = new ErrorCode(1_040_731_005, "条码配置不存在");
+
+    // ========== MES 仓库管理-装箱单（1-040-740-000） ==========
+    ErrorCode WM_PACKAGE_NOT_EXISTS = new ErrorCode(1_040_740_000, "装箱单不存在");
+    ErrorCode WM_PACKAGE_CODE_DUPLICATE = new ErrorCode(1_040_740_001, "装箱单编码已存在");
+    ErrorCode WM_PACKAGE_STATUS_NOT_PREPARE = new ErrorCode(1_040_740_002, "只有草稿状态才允许此操作");
+    ErrorCode WM_PACKAGE_PARENT_NOT_EXISTS = new ErrorCode(1_040_740_003, "父箱不存在");
+    ErrorCode WM_PACKAGE_PARENT_SELF = new ErrorCode(1_040_740_004, "不能选择自己作为父箱");
+    ErrorCode WM_PACKAGE_LINE_NOT_EXISTS = new ErrorCode(1_040_740_100, "装箱明细不存在");
 
 }

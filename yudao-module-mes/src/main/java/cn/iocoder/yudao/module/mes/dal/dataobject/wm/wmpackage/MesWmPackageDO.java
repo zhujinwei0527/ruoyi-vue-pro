@@ -1,0 +1,110 @@
+// TODO @AI：报名改成 packages 避免 Java 关键字冲突；
+package cn.iocoder.yudao.module.mes.dal.dataobject.wm.wmpackage;
+
+import cn.iocoder.yudao.framework.mybatis.core.dataobject.BaseDO;
+import cn.iocoder.yudao.module.mes.dal.dataobject.md.client.MesMdClientDO;
+import cn.iocoder.yudao.module.mes.dal.dataobject.md.unitmeasure.MesMdUnitMeasureDO;
+import cn.iocoder.yudao.module.mes.enums.MesOrderStatusConstants;
+import com.baomidou.mybatisplus.annotation.KeySequence;
+import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.TableName;
+import lombok.*;
+
+import java.math.BigDecimal;
+import java.time.LocalDate;
+
+/**
+ * MES 装箱单 DO
+ */
+@TableName("mes_wm_package")
+@KeySequence("mes_wm_package_seq")
+@Data
+@EqualsAndHashCode(callSuper = true)
+@ToString(callSuper = true)
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+public class MesWmPackageDO extends BaseDO {
+
+    private static final Integer PARENT_ID_ROOT = 0;
+
+    @TableId
+    private Long id;
+    /**
+     * 装箱单编号
+     */
+    private String code;
+    /**
+     * 父箱 ID
+     */
+    private Long parentId;
+    /**
+     * 装箱日期
+     */
+    private LocalDate packageDate;
+    // TODO @AI：改成 salesOrderCode
+    /**
+     * 销售订单编号
+     */
+    private String soCode;
+    /**
+     * 发票编号
+     */
+    private String invoiceCode;
+    /**
+     * 客户 ID
+     *
+     * 关联 {@link MesMdClientDO#getId()}
+     */
+    private Long clientId;
+    /**
+     * 箱长度
+     */
+    private BigDecimal length;
+    /**
+     * 箱宽度
+     */
+    private BigDecimal width;
+    /**
+     * 箱高度
+     */
+    private BigDecimal height;
+    /**
+     * 尺寸单位 ID
+     *
+     * 关联 {@link MesMdUnitMeasureDO#getId()}
+     */
+    private Long sizeUnitId;
+    /**
+     * 净重
+     */
+    private BigDecimal netWeight;
+    /**
+     * 毛重
+     */
+    private BigDecimal grossWeight;
+    /**
+     * 重量单位 ID
+     *
+     * 关联 {@link MesMdUnitMeasureDO#getId()}
+     */
+    private Long weightUnitId;
+    /**
+     * 检查员用户 ID
+     *
+     * 关联 AdminUserDO 的 id
+     */
+    private Long inspectorUserId;
+    // TODO @AI：自定义一个属于自己的枚举类；类似：MesWmSalesNoticeStatusEnum
+    /**
+     * 状态
+     *
+     * 枚举 {@link MesOrderStatusConstants#PREPARE}、{@link MesOrderStatusConstants#FINISHED}
+     */
+    private Integer status;
+    /**
+     * 备注
+     */
+    private String remark;
+
+}
