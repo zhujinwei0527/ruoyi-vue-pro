@@ -1,4 +1,4 @@
-package cn.iocoder.yudao.module.mes.dal.dataobject.wm.wmpackage;
+package cn.iocoder.yudao.module.mes.dal.dataobject.wm.packages;
 
 import cn.iocoder.yudao.framework.mybatis.core.dataobject.BaseDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.md.item.MesMdItemDO;
@@ -49,7 +49,7 @@ public class MesWmPackageLineDO extends BaseDO {
      * 装箱数量
      */
     private BigDecimal quantity;
-    // TODO @AI：需要在确认下；
+    // DONE @芋艿：需要在确认下；
     /**
      * 生产工单 ID
      *

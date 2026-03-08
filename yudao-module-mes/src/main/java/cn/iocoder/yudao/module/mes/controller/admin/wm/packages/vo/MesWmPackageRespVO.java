@@ -1,4 +1,4 @@
-package cn.iocoder.yudao.module.mes.controller.admin.wm.wmpackage.vo;
+package cn.iocoder.yudao.module.mes.controller.admin.wm.packages.vo;
 
 import cn.idev.excel.annotation.ExcelIgnoreUnannotated;
 import cn.idev.excel.annotation.ExcelProperty;
@@ -7,9 +7,7 @@ import lombok.Data;
 import lombok.experimental.Accessors;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Schema(description = "管理后台 - MES 装箱单 Response VO")
 @Data
@@ -30,11 +28,11 @@ public class MesWmPackageRespVO {
 
     @Schema(description = "装箱日期")
     @ExcelProperty("装箱日期")
-    private LocalDate packageDate;
+    private LocalDateTime packageDate;
 
     @Schema(description = "销售订单编号", example = "SO20260301")
     @ExcelProperty("销售订单编号")
-    private String soCode;
+    private String salesOrderCode;
 
     @Schema(description = "发票编号", example = "INV20260301")
     @ExcelProperty("发票编号")
@@ -106,8 +104,5 @@ public class MesWmPackageRespVO {
     @Schema(description = "创建时间", requiredMode = Schema.RequiredMode.REQUIRED)
     @ExcelProperty("创建时间")
     private LocalDateTime createTime;
-
-    @Schema(description = "子箱列表")
-    private List<MesWmPackageRespVO> children;
 
 }

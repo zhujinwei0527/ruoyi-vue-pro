@@ -1,4 +1,4 @@
-package cn.iocoder.yudao.module.mes.controller.admin.wm.wmpackage.vo;
+package cn.iocoder.yudao.module.mes.controller.admin.wm.packages.vo;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotEmpty;
@@ -6,7 +6,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Schema(description = "管理后台 - MES 装箱单新增/修改 Request VO")
 @Data
@@ -19,15 +19,16 @@ public class MesWmPackageSaveReqVO {
     @NotEmpty(message = "装箱单编号不能为空")
     private String code;
 
+    // TODO @AI：不传递 parentId；默认都是 = 0；
     @Schema(description = "父箱 ID", example = "0")
     private Long parentId;
 
     @Schema(description = "装箱日期", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotNull(message = "装箱日期不能为空")
-    private LocalDate packageDate;
+    private LocalDateTime packageDate;
 
     @Schema(description = "销售订单编号", example = "SO20260301")
-    private String soCode;
+    private String salesOrderCode;
 
     @Schema(description = "发票编号", example = "INV20260301")
     private String invoiceCode;

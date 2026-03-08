@@ -1,9 +1,9 @@
-package cn.iocoder.yudao.module.mes.service.wm.wmpackage;
+package cn.iocoder.yudao.module.mes.service.wm.packages;
 
 import cn.iocoder.yudao.framework.common.pojo.PageResult;
-import cn.iocoder.yudao.module.mes.controller.admin.wm.wmpackage.vo.MesWmPackagePageReqVO;
-import cn.iocoder.yudao.module.mes.controller.admin.wm.wmpackage.vo.MesWmPackageSaveReqVO;
-import cn.iocoder.yudao.module.mes.dal.dataobject.wm.wmpackage.MesWmPackageDO;
+import cn.iocoder.yudao.module.mes.controller.admin.wm.packages.vo.MesWmPackagePageReqVO;
+import cn.iocoder.yudao.module.mes.controller.admin.wm.packages.vo.MesWmPackageSaveReqVO;
+import cn.iocoder.yudao.module.mes.dal.dataobject.wm.packages.MesWmPackageDO;
 import jakarta.validation.Valid;
 
 import java.util.List;
@@ -59,10 +59,32 @@ public interface MesWmPackageService {
     void finishPackage(Long id);
 
     /**
-     * 获得装箱单树形结构
+     * 校验装箱单状态为草稿
      *
-     * @return 装箱单列表（树形）
+     * @param packageId 装箱单 ID
      */
-    List<MesWmPackageDO> getPackageTree();
+    void validatePackageStatusDraft(Long packageId);
+
+    /**
+     * 添加子箱
+     *
+     * @param parentId 父箱 ID
+     * @param childId  子箱 ID
+     */
+    void addSubPackage(Long parentId, Long childId);
+
+    /**
+     * 移除子箱
+     *
+     * @param childId 子箱 ID
+     */
+    void removeSubPackage(Long childId);
+
+    /**
+     * 获取装箱单精简列表（无父箱 + 已完成状态）
+     *
+     * @return 装箱单列表
+     */
+    List<MesWmPackageDO> getPackageSimpleList();
 
 }

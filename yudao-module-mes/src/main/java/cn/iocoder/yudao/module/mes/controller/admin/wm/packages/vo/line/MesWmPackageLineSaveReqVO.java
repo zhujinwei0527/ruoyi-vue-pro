@@ -1,4 +1,4 @@
-package cn.iocoder.yudao.module.mes.controller.admin.wm.wmpackage.vo.line;
+package cn.iocoder.yudao.module.mes.controller.admin.wm.packages.vo.line;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.DecimalMin;

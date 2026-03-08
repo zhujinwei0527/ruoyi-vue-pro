@@ -1,39 +1,32 @@
-package cn.iocoder.yudao.module.mes.controller.admin.wm.wmpackage;
+package cn.iocoder.yudao.module.mes.controller.admin.wm.packages;
 
 import cn.hutool.core.collection.CollUtil;
-import cn.iocoder.yudao.framework.apilog.core.annotation.ApiAccessLog;
 import cn.iocoder.yudao.framework.common.pojo.CommonResult;
-import cn.iocoder.yudao.framework.common.pojo.PageParam;
 import cn.iocoder.yudao.framework.common.pojo.PageResult;
 import cn.iocoder.yudao.framework.common.util.collection.MapUtils;
 import cn.iocoder.yudao.framework.common.util.object.BeanUtils;
-import cn.iocoder.yudao.framework.excel.core.util.ExcelUtils;
-import cn.iocoder.yudao.module.mes.controller.admin.wm.wmpackage.vo.MesWmPackagePageReqVO;
-import cn.iocoder.yudao.module.mes.controller.admin.wm.wmpackage.vo.MesWmPackageRespVO;
-import cn.iocoder.yudao.module.mes.controller.admin.wm.wmpackage.vo.MesWmPackageSaveReqVO;
+import cn.iocoder.yudao.module.mes.controller.admin.wm.packages.vo.MesWmPackagePageReqVO;
+import cn.iocoder.yudao.module.mes.controller.admin.wm.packages.vo.MesWmPackageRespVO;
+import cn.iocoder.yudao.module.mes.controller.admin.wm.packages.vo.MesWmPackageSaveReqVO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.md.client.MesMdClientDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.md.unitmeasure.MesMdUnitMeasureDO;
-import cn.iocoder.yudao.module.mes.dal.dataobject.wm.wmpackage.MesWmPackageDO;
+import cn.iocoder.yudao.module.mes.dal.dataobject.wm.packages.MesWmPackageDO;
 import cn.iocoder.yudao.module.mes.service.md.client.MesMdClientService;
 import cn.iocoder.yudao.module.mes.service.md.unitmeasure.MesMdUnitMeasureService;
-import cn.iocoder.yudao.module.mes.service.wm.wmpackage.MesWmPackageService;
+import cn.iocoder.yudao.module.mes.service.wm.packages.MesWmPackageService;
 import cn.iocoder.yudao.module.system.api.user.AdminUserApi;
 import cn.iocoder.yudao.module.system.api.user.dto.AdminUserRespDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
-import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import java.io.IOException;
 import java.util.*;
-import java.util.stream.Collectors;
 
-import static cn.iocoder.yudao.framework.apilog.core.enums.OperateTypeEnum.EXPORT;
 import static cn.iocoder.yudao.framework.common.pojo.CommonResult.success;
 import static cn.iocoder.yudao.framework.common.util.collection.CollectionUtils.convertSet;
 
@@ -97,18 +90,6 @@ public class MesWmPackageController {
         return success(new PageResult<>(buildRespVOList(pageResult.getList()), pageResult.getTotal()));
     }
 
-    @GetMapping("/export-excel")
-    @Operation(summary = "导出装箱单 Excel")
-    @PreAuthorize("@ss.hasPermission('mes:wm-package:export')")
-    @ApiAccessLog(operateType = EXPORT)
-    public void exportPackageExcel(@Valid MesWmPackagePageReqVO pageReqVO,
-            HttpServletResponse response) throws IOException {
-        pageReqVO.setPageSize(PageParam.PAGE_SIZE_NONE);
-        PageResult<MesWmPackageDO> pageResult = packageService.getPackagePage(pageReqVO);
-        ExcelUtils.write(response, "装箱单.xls", "数据", MesWmPackageRespVO.class,
-                buildRespVOList(pageResult.getList()));
-    }
-
     @PutMapping("/finish")
     @Operation(summary = "完成装箱单")
     @Parameter(name = "id", description = "编号", required = true)
@@ -118,14 +99,30 @@ public class MesWmPackageController {
         return success(true);
     }
 
-    @GetMapping("/tree")
-    @Operation(summary = "获得装箱单树形结构")
+    @PutMapping("/add-sub-package")
+    @Operation(summary = "添加子箱")
+    @PreAuthorize("@ss.hasPermission('mes:wm-package:update')")
+    public CommonResult<Boolean> addSubPackage(@RequestParam("parentId") Long parentId,
+            @RequestParam("childId") Long childId) {
+        packageService.addSubPackage(parentId, childId);
+        return success(true);
+    }
+
+    @PutMapping("/remove-sub-package")
+    @Operation(summary = "移除子箱")
+    @Parameter(name = "childId", description = "子箱编号", required = true)
+    @PreAuthorize("@ss.hasPermission('mes:wm-package:update')")
+    public CommonResult<Boolean> removeSubPackage(@RequestParam("childId") Long childId) {
+        packageService.removeSubPackage(childId);
+        return success(true);
+    }
+
+    @GetMapping("/simple-list")
+    @Operation(summary = "获取装箱单精简列表")
     @PreAuthorize("@ss.hasPermission('mes:wm-package:query')")
-    public CommonResult<List<MesWmPackageRespVO>> getPackageTree() {
-        List<MesWmPackageDO> list = packageService.getPackageTree();
-        List<MesWmPackageRespVO> voList = buildRespVOList(list);
-        // 构建树形结构
-        return success(buildTree(voList));
+    public CommonResult<List<MesWmPackageRespVO>> getPackageSimpleList() {
+        List<MesWmPackageDO> list = packageService.getPackageSimpleList();
+        return success(buildRespVOList(list));
     }
 
     // ========== 私有方法 ==========
@@ -138,6 +135,7 @@ public class MesWmPackageController {
         Map<Long, MesMdClientDO> clientMap = clientService.getClientMap(
                 convertSet(list, MesWmPackageDO::getClientId));
         // 批量查询计量单位（尺寸 + 重量）
+        // TODO @AI：可以通过 CollecionUtils 里，通过 flat 操作；
         Set<Long> unitIds = new HashSet<>();
         list.forEach(p -> {
             if (p.getSizeUnitId() != null) {
@@ -151,7 +149,7 @@ public class MesWmPackageController {
         // 批量查询检查员
         Map<Long, AdminUserRespDTO> userMap = adminUserApi.getUserMap(
                 convertSet(list, MesWmPackageDO::getInspectorUserId));
-
+        // 构建返回结果
         return BeanUtils.toBean(list, MesWmPackageRespVO.class, vo -> {
             MapUtils.findAndThen(clientMap, vo.getClientId(),
                     client -> vo.setClientCode(client.getCode()).setClientName(client.getName())
@@ -163,18 +161,6 @@ public class MesWmPackageController {
             MapUtils.findAndThen(userMap, vo.getInspectorUserId(),
                     user -> vo.setInspectorName(user.getNickname()));
         });
-    }
-
-    private List<MesWmPackageRespVO> buildTree(List<MesWmPackageRespVO> list) {
-        // 按 parentId 分组
-        Map<Long, List<MesWmPackageRespVO>> parentMap = list.stream()
-                .collect(Collectors.groupingBy(vo -> vo.getParentId() != null ? vo.getParentId() : 0L));
-        // 设置 children
-        list.forEach(vo -> vo.setChildren(parentMap.get(vo.getId())));
-        // 返回顶级节点（parentId == 0 或 parentId == null）
-        return list.stream()
-                .filter(vo -> vo.getParentId() == null || vo.getParentId() == 0L)
-                .collect(Collectors.toList());
     }
 
 }

@@ -1,11 +1,10 @@
-// TODO @AI：报名改成 packages 避免 Java 关键字冲突；
-package cn.iocoder.yudao.module.mes.dal.dataobject.wm.wmpackage;
+package cn.iocoder.yudao.module.mes.dal.dataobject.wm.packages;
 
 import cn.iocoder.yudao.framework.mybatis.core.dataobject.BaseDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.md.client.MesMdClientDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.md.unitmeasure.MesMdUnitMeasureDO;
-import cn.iocoder.yudao.module.mes.enums.MesOrderStatusConstants;
 import com.baomidou.mybatisplus.annotation.KeySequence;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.*;
@@ -26,7 +25,7 @@ import java.time.LocalDate;
 @AllArgsConstructor
 public class MesWmPackageDO extends BaseDO {
 
-    private static final Integer PARENT_ID_ROOT = 0;
+    public static final Long PARENT_ID_ROOT = 0L;
 
     @TableId
     private Long id;
@@ -42,11 +41,13 @@ public class MesWmPackageDO extends BaseDO {
      * 装箱日期
      */
     private LocalDate packageDate;
-    // TODO @AI：改成 salesOrderCode
+    // DONE @AI：改成 salesOrderCode
+    // TODO @AI：数据库也改；另外前端也检查下；
     /**
      * 销售订单编号
      */
-    private String soCode;
+    @TableField("so_code")
+    private String salesOrderCode;
     /**
      * 发票编号
      */
@@ -95,11 +96,10 @@ public class MesWmPackageDO extends BaseDO {
      * 关联 AdminUserDO 的 id
      */
     private Long inspectorUserId;
-    // TODO @AI：自定义一个属于自己的枚举类；类似：MesWmSalesNoticeStatusEnum
     /**
      * 状态
      *
-     * 枚举 {@link MesOrderStatusConstants#PREPARE}、{@link MesOrderStatusConstants#FINISHED}
+     * 枚举 {@link cn.iocoder.yudao.module.mes.enums.wm.MesWmPackageStatusEnum}
      */
     private Integer status;
     /**

@@ -1,14 +1,12 @@
-package cn.iocoder.yudao.module.mes.service.wm.wmpackage;
+package cn.iocoder.yudao.module.mes.service.wm.packages;
 
-import cn.hutool.core.util.ObjUtil;
 import cn.iocoder.yudao.framework.common.pojo.PageResult;
 import cn.iocoder.yudao.framework.common.util.object.BeanUtils;
-import cn.iocoder.yudao.module.mes.controller.admin.wm.wmpackage.vo.line.MesWmPackageLinePageReqVO;
-import cn.iocoder.yudao.module.mes.controller.admin.wm.wmpackage.vo.line.MesWmPackageLineSaveReqVO;
-import cn.iocoder.yudao.module.mes.dal.dataobject.wm.wmpackage.MesWmPackageDO;
-import cn.iocoder.yudao.module.mes.dal.dataobject.wm.wmpackage.MesWmPackageLineDO;
-import cn.iocoder.yudao.module.mes.dal.mysql.wm.wmpackage.MesWmPackageLineMapper;
-import cn.iocoder.yudao.module.mes.enums.MesOrderStatusConstants;
+import cn.iocoder.yudao.module.mes.controller.admin.wm.packages.vo.line.MesWmPackageLinePageReqVO;
+import cn.iocoder.yudao.module.mes.controller.admin.wm.packages.vo.line.MesWmPackageLineSaveReqVO;
+import cn.iocoder.yudao.module.mes.dal.dataobject.wm.packages.MesWmPackageLineDO;
+import cn.iocoder.yudao.module.mes.dal.mysql.wm.packages.MesWmPackageLineMapper;
+import cn.iocoder.yudao.module.mes.service.md.item.MesMdItemService;
 import jakarta.annotation.Resource;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
@@ -28,13 +26,17 @@ public class MesWmPackageLineServiceImpl implements MesWmPackageLineService {
     @Resource
     @Lazy
     private MesWmPackageService packageService;
+    @Resource
+    private MesMdItemService itemService;
 
     @Override
     public Long createPackageLine(MesWmPackageLineSaveReqVO createReqVO) {
-        // TODO @AI：检查关联的 packageId（草稿）、itemId
-
         // 校验装箱单状态为草稿
-        validatePackageStatusDraft(createReqVO.getPackageId());
+        packageService.validatePackageStatusDraft(createReqVO.getPackageId());
+        // 校验产品物料存在
+        itemService.validateItemExists(createReqVO.getItemId());
+
+        // 插入
         MesWmPackageLineDO line = BeanUtils.toBean(createReqVO, MesWmPackageLineDO.class);
         packageLineMapper.insert(line);
         return line.getId();
@@ -44,10 +46,12 @@ public class MesWmPackageLineServiceImpl implements MesWmPackageLineService {
     public void updatePackageLine(MesWmPackageLineSaveReqVO updateReqVO) {
         // 校验存在
         MesWmPackageLineDO line = validatePackageLineExists(updateReqVO.getId());
-        // TODO @AI：检查关联的 packageId（草稿）、itemId
-
         // 校验装箱单状态为草稿
-        validatePackageStatusDraft(line.getPackageId());
+        packageService.validatePackageStatusDraft(line.getPackageId());
+        // 校验产品物料存在
+        itemService.validateItemExists(updateReqVO.getItemId());
+
+        // 更新
         MesWmPackageLineDO updateObj = BeanUtils.toBean(updateReqVO, MesWmPackageLineDO.class);
         packageLineMapper.updateById(updateObj);
     }
@@ -57,7 +61,7 @@ public class MesWmPackageLineServiceImpl implements MesWmPackageLineService {
         // 校验存在
         MesWmPackageLineDO line = validatePackageLineExists(id);
         // 校验装箱单状态为草稿
-        validatePackageStatusDraft(line.getPackageId());
+        packageService.validatePackageStatusDraft(line.getPackageId());
 
         // 删除
         packageLineMapper.deleteById(id);
@@ -91,17 +95,6 @@ public class MesWmPackageLineServiceImpl implements MesWmPackageLineService {
             throw exception(WM_PACKAGE_LINE_NOT_EXISTS);
         }
         return line;
-    }
-
-    // TODO @AI：这个方法，应该 packageService 实现；
-    private void validatePackageStatusDraft(Long packageId) {
-        MesWmPackageDO packageDO = packageService.getPackage(packageId);
-        if (packageDO == null) {
-            throw exception(WM_PACKAGE_NOT_EXISTS);
-        }
-        if (ObjUtil.notEqual(MesOrderStatusConstants.PREPARE, packageDO.getStatus())) {
-            throw exception(WM_PACKAGE_STATUS_NOT_PREPARE);
-        }
     }
 
 }
