@@ -13,27 +13,33 @@ public class MesWmTransferLineSaveReqVO {
     private Long id;
 
     @Schema(description = "转移单编号", example = "1")
+    // TODO @AI：不能为空
     private Long transferId;
 
     @Schema(description = "库存记录编号", example = "1")
     private Long materialStockId;
 
     @Schema(description = "物料编号", example = "1")
+    // TODO @AI：不能为空
     private Long itemId;
 
     @Schema(description = "转移数量", example = "100")
+    // TODO @AI：数量不能为空，且要大于 0
     private BigDecimal quantity;
 
     @Schema(description = "批次编号", example = "1")
     private Long batchId;
 
     @Schema(description = "移出仓库编号", example = "1")
+    // TODO @AI：不能为空
     private Long fromWarehouseId;
 
     @Schema(description = "移出库区编号", example = "1")
+    // TODO @AI：不能为空
     private Long fromLocationId;
 
     @Schema(description = "移出库位编号", example = "1")
+    // TODO @AI：不能为空
     private Long fromAreaId;
 
     @Schema(description = "备注", example = "备注信息")

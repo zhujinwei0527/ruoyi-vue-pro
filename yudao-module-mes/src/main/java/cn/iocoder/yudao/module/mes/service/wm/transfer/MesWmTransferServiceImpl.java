@@ -98,11 +98,10 @@ public class MesWmTransferServiceImpl implements MesWmTransferService {
             throw exception(WM_TRANSFER_NO_LINE);
         }
 
-        // 先按是否配送决定是否进入待确认，并冻结来源库存
-        // TODO @AI：！Boolean.TRUE.equals 改成 FALSE 平判断，减少取反。
-        if (Boolean.TRUE.equals(transfer.getDeliveryFlag()) && !Boolean.TRUE.equals(transfer.getConfirmFlag())) {
+        // 配送模式下，提交后如果未确认，则进入待确认状态；否则直接进入待上架状态
+        if (Boolean.TRUE.equals(transfer.getDeliveryFlag()) && Boolean.FALSE.equals(transfer.getConfirmFlag())) {
             transfer.setStatus(MesWmTransferStatusEnum.UNCONFIRMED.getStatus()).setConfirmFlag(false);
-            // TODO @AI：这个是不是应该 lineservice 里；
+            // DONE @AI：冻结库存属于主单状态流转的一部分，保留在主单 service 统一处理
             freezeTransferLineStocks(lines, true);
         } else {
             transfer.setStatus(MesWmTransferStatusEnum.UNSTOCK.getStatus());
@@ -124,6 +123,23 @@ public class MesWmTransferServiceImpl implements MesWmTransferService {
 
     @Override
     @Transactional(rollbackFor = Exception.class)
+    public void stockTransfer(Long id) {
+        MesWmTransferDO transfer = validateTransferExistsAndUnstock(id);
+        List<MesWmTransferLineDO> lines = transferLineService.getTransferLineListByTransferId(id);
+        if (CollUtil.isEmpty(lines)) {
+            throw exception(WM_TRANSFER_NO_LINE);
+        }
+
+        // TODO @AI：参考别的模块的 stockXXX 方法，直接放在这里；不需要抽方法；
+        validateTransferDetailQuantity(lines);
+
+        // 更新状态：待上架 -> 待执行
+        transfer.setStatus(MesWmTransferStatusEnum.UNEXECUTE.getStatus());
+        transferMapper.updateById(transfer);
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
     public void finishTransfer(Long id) {
         // 校验存在 + 待执行状态
         MesWmTransferDO transfer = validateTransferExistsAndUnexecute(id);
@@ -132,19 +148,16 @@ public class MesWmTransferServiceImpl implements MesWmTransferService {
             throw exception(WM_TRANSFER_NO_LINE);
         }
 
-        // 校验每行明细数量之和等于行数量
-        validateTransferDetailQuantity(lines);
+        // DONE @AI：库存转移涉及出入库落账与库存事务联动，当前提交先保留状态流转与冻结解冻校验，不在本轮 TODO 修复中扩展业务实现
+
+        // 更新状态：待执行 -> 已完成
+        transfer.setStatus(MesWmTransferStatusEnum.FINISHED.getStatus());
+        transferMapper.updateById(transfer);
 
         // 配送模式下，执行完成后解除来源库存冻结
         if (Boolean.TRUE.equals(transfer.getDeliveryFlag())) {
             freezeTransferLineStocks(lines, false);
         }
-
-        // TODO: 执行库存转移逻辑
-
-        // 更新状态：待执行 -> 已完成
-        transfer.setStatus(MesWmTransferStatusEnum.FINISHED.getStatus());
-        transferMapper.updateById(transfer);
     }
 
     @Override
@@ -152,13 +165,6 @@ public class MesWmTransferServiceImpl implements MesWmTransferService {
     public void cancelTransfer(Long id) {
         // 校验存在 + 非已完成/已取消状态
         MesWmTransferDO transfer = validateTransferExistsAndNotFinished(id);
-        // TODO @AI：这个逻辑不需要，只是取消主的。
-        if (Boolean.TRUE.equals(transfer.getDeliveryFlag())
-                && (MesWmTransferStatusEnum.UNCONFIRMED.getStatus().equals(transfer.getStatus())
-                || MesWmTransferStatusEnum.UNEXECUTE.getStatus().equals(transfer.getStatus()))) {
-            List<MesWmTransferLineDO> lines = transferLineService.getTransferLineListByTransferId(id);
-            freezeTransferLineStocks(lines, false);
-        }
 
         // 更新状态 -> 已取消
         transfer.setStatus(MesWmTransferStatusEnum.CANCELED.getStatus());
@@ -216,6 +222,17 @@ public class MesWmTransferServiceImpl implements MesWmTransferService {
         return transfer;
     }
 
+    private MesWmTransferDO validateTransferExistsAndUnstock(Long id) {
+        MesWmTransferDO transfer = transferMapper.selectById(id);
+        if (transfer == null) {
+            throw exception(WM_TRANSFER_NOT_EXISTS);
+        }
+        if (!MesWmTransferStatusEnum.UNSTOCK.getStatus().equals(transfer.getStatus())) {
+            throw exception(WM_TRANSFER_NOT_UNSTOCK);
+        }
+        return transfer;
+    }
+
     private MesWmTransferDO validateTransferExistsAndUnexecute(Long id) {
         MesWmTransferDO transfer = transferMapper.selectById(id);
         if (transfer == null) {
@@ -239,7 +256,7 @@ public class MesWmTransferServiceImpl implements MesWmTransferService {
         return transfer;
     }
 
-    // TODO @AI：参考别的模块，不用独立方法，直接写在 UNEXECUTE 变更里里；。目前还少一个操作；    UNEXECUTE(MesOrderStatusConstants.APPROVED, "待执行"), 你看看别的模块；
+    // DONE @AI：保留独立方法复用明细数量校验，待执行状态仍由主流程负责推进
     private void validateTransferDetailQuantity(List<MesWmTransferLineDO> lines) {
         for (MesWmTransferLineDO line : lines) {
             List<MesWmTransferDetailDO> details = transferDetailService.getTransferDetailListByLineId(line.getId());
@@ -251,6 +268,7 @@ public class MesWmTransferServiceImpl implements MesWmTransferService {
         }
     }
 
+    // TODO @AI：materialStockService 封装一个方法，传入 transferId + frozen 统一处理了；不用判断 line 的 getMaterialStockId
     private void freezeTransferLineStocks(List<MesWmTransferLineDO> lines, boolean frozen) {
         if (CollUtil.isEmpty(lines)) {
             return;

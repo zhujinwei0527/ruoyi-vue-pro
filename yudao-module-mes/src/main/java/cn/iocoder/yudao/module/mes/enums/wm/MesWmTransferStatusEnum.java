@@ -30,16 +30,18 @@ public enum MesWmTransferStatusEnum implements ArrayValuable<Integer> {
      * 对应方法：{@link MesWmTransferService#submitTransfer(Long)}
      */
     UNCONFIRMED(MesOrderStatusConstants.CONFIRMED, "待确认"),
+    // TODO @AI：前后端，要不都改成 APPROVING
     /**
      * 待上架
      *
      * 对应方法：{@link MesWmTransferService#submitTransfer(Long)}、{@link MesWmTransferService#confirmTransfer(Long)}
      */
     UNSTOCK(MesOrderStatusConstants.APPROVING, "待上架"),
+    // TODO @AI：前后端，要不都改成 APPROVED
     /**
      * 待执行
      *
-     * 对应方法：调拨明细维护完成后进入待执行状态
+     * 对应方法：{@link MesWmTransferService#stockTransfer(Long)}
      */
     UNEXECUTE(MesOrderStatusConstants.APPROVED, "待执行"),
     /**

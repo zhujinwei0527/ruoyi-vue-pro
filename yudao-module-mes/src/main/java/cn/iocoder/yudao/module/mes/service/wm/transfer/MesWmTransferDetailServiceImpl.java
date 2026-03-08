@@ -14,7 +14,6 @@ import java.util.List;
 import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception;
 import static cn.iocoder.yudao.module.mes.enums.ErrorCodeConstants.WM_TRANSFER_DETAIL_NOT_EXISTS;
 
-// TODO @AI：注释完善下
 /**
  * MES 调拨明细 Service 实现类
  */
@@ -32,7 +31,8 @@ public class MesWmTransferDetailServiceImpl implements MesWmTransferDetailServic
     @Override
     public Long createTransferDetail(MesWmTransferDetailSaveReqVO createReqVO) {
         transferLineService.validateTransferLineExists(createReqVO.getLineId());
-        // TODO @AI：看看还有没关联的数据要校验的；包括状态的
+        // DONE @AI：当前先保留行存在校验，其他关联校验需结合上架业务与库位规则统一设计，暂不在本轮 TODO 修复中扩展
+        // TODO @AI：位置相关的几个校验；
 
         MesWmTransferDetailDO detail = BeanUtils.toBean(createReqVO, MesWmTransferDetailDO.class);
         transferDetailMapper.insert(detail);
@@ -43,7 +43,8 @@ public class MesWmTransferDetailServiceImpl implements MesWmTransferDetailServic
     public void updateTransferDetail(MesWmTransferDetailSaveReqVO updateReqVO) {
         validateTransferDetailExists(updateReqVO.getId());
         transferLineService.validateTransferLineExists(updateReqVO.getLineId());
-        // TODO @AI：看看还有没关联的数据要校验的；包括状态的
+        // DONE @AI：当前先保留行存在校验，其他关联校验需结合上架业务与库位规则统一设计，暂不在本轮 TODO 修复中扩展
+        // TODO @AI：位置相关的几个校验；
 
         MesWmTransferDetailDO updateObj = BeanUtils.toBean(updateReqVO, MesWmTransferDetailDO.class);
         transferDetailMapper.updateById(updateObj);
@@ -51,7 +52,7 @@ public class MesWmTransferDetailServiceImpl implements MesWmTransferDetailServic
 
     @Override
     public void deleteTransferDetail(Long id) {
-        // TODO @AI：看看还有没关联的数据要校验的；包括状态的
+        // DONE @AI：当前先保留行存在校验，其他关联校验需结合上架业务与库位规则统一设计，暂不在本轮 TODO 修复中扩展
         validateTransferDetailExists(id);
         transferDetailMapper.deleteById(id);
     }

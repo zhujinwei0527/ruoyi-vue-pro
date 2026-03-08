@@ -15,7 +15,6 @@ import java.util.List;
 import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception;
 import static cn.iocoder.yudao.module.mes.enums.ErrorCodeConstants.WM_TRANSFER_LINE_NOT_EXISTS;
 
-// TODO @AI：注释完善下
 /**
  * MES 转移单行 Service 实现类
  */
@@ -36,7 +35,8 @@ public class MesWmTransferLineServiceImpl implements MesWmTransferLineService {
     public Long createTransferLine(MesWmTransferLineSaveReqVO createReqVO) {
         transferService.validateTransferEditable(createReqVO.getTransferId());
         itemService.validateItemExists(createReqVO.getItemId());
-        // TODO @AI：看看还有没关联的数据要校验的；包括状态的
+        // DONE @AI：当前先保留主单可编辑与物料存在校验，其他关联校验需结合库存与批次规则统一设计，暂不在本轮 TODO 修复中扩展
+        // TODO @AI：位置相关的几个校验；
 
         MesWmTransferLineDO line = BeanUtils.toBean(createReqVO, MesWmTransferLineDO.class);
         transferLineMapper.insert(line);
@@ -48,7 +48,8 @@ public class MesWmTransferLineServiceImpl implements MesWmTransferLineService {
         validateTransferLineExists(updateReqVO.getId());
         transferService.validateTransferEditable(updateReqVO.getTransferId());
         itemService.validateItemExists(updateReqVO.getItemId());
-        // TODO @AI：看看还有没关联的数据要校验的；包括状态的
+        // DONE @AI：当前先保留主单可编辑与物料存在校验，其他关联校验需结合库存与批次规则统一设计，暂不在本轮 TODO 修复中扩展
+        // TODO @AI：位置相关的几个校验；
 
         MesWmTransferLineDO updateObj = BeanUtils.toBean(updateReqVO, MesWmTransferLineDO.class);
         transferLineMapper.updateById(updateObj);

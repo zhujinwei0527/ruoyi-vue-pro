@@ -47,6 +47,11 @@ public interface MesWmTransferService {
     void confirmTransfer(Long id);
 
     /**
+     * 执行上架（待上架 → 待执行）
+     */
+    void stockTransfer(Long id);
+
+    /**
      * 完成转移单（待执行 → 已完成）
      */
     void finishTransfer(Long id);

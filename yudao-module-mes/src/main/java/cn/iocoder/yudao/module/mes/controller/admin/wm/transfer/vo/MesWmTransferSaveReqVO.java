@@ -1,6 +1,8 @@
 package cn.iocoder.yudao.module.mes.controller.admin.wm.transfer.vo;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
 import java.time.LocalDateTime;
@@ -14,17 +16,20 @@ public class MesWmTransferSaveReqVO {
     @Schema(description = "编号", example = "1")
     private Long id;
 
-    // TODO @AI：validator 参数校验需要添加
     @Schema(description = "转移单编号", requiredMode = REQUIRED, example = "TR2026020001")
+    @NotBlank(message = "转移单编号不能为空")
     private String code;
 
     @Schema(description = "转移单名称", requiredMode = REQUIRED, example = "钢板转移单")
+    @NotBlank(message = "转移单名称不能为空")
     private String name;
 
     @Schema(description = "转移单类型", requiredMode = REQUIRED, example = "1")
+    @NotNull(message = "转移单类型不能为空")
     private Integer type;
 
     @Schema(description = "是否配送", requiredMode = REQUIRED, example = "true")
+    @NotNull(message = "是否配送不能为空")
     private Boolean deliveryFlag;
 
     @Schema(description = "收货人", example = "张三")
@@ -43,6 +48,7 @@ public class MesWmTransferSaveReqVO {
     private String shippingNumber;
 
     @Schema(description = "转移日期", requiredMode = REQUIRED)
+    @NotNull(message = "转移日期不能为空")
     private LocalDateTime transferDate;
 
     @Schema(description = "备注", example = "备注信息")

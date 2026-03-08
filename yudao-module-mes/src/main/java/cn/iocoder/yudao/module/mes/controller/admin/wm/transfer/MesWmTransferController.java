@@ -107,6 +107,15 @@ public class MesWmTransferController {
         return success(true);
     }
 
+    @PutMapping("/stock")
+    @Operation(summary = "执行上架")
+    @Parameter(name = "id", description = "编号", required = true)
+    @PreAuthorize("@ss.hasPermission('mes:wm-transfer:update')")
+    public CommonResult<Boolean> stockTransfer(@RequestParam("id") Long id) {
+        transferService.stockTransfer(id);
+        return success(true);
+    }
+
     @PutMapping("/finish")
     @Operation(summary = "完成转移单")
     @Parameter(name = "id", description = "编号", required = true)
