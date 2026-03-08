@@ -9,6 +9,8 @@ import java.util.Arrays;
 
 /**
  * MES 装箱单状态枚举
+ *
+ * @author 芋道源码
  */
 @Getter
 @AllArgsConstructor

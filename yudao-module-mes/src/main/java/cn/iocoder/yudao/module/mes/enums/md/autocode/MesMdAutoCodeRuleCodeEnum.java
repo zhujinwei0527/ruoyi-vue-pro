@@ -12,7 +12,8 @@ import lombok.Getter;
 @AllArgsConstructor
 public enum MesMdAutoCodeRuleCodeEnum {
 
-    SN_CODE("SN_CODE", "SN 码");
+    SN_CODE("SN_CODE", "SN 码"),
+    PACKAGE_CODE("PACKAGE_CODE", "装箱单编码");
 
     /**
      * 规则代码

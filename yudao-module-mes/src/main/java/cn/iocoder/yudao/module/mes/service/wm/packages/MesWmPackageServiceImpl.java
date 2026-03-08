@@ -8,7 +8,9 @@ import cn.iocoder.yudao.module.mes.controller.admin.wm.packages.vo.MesWmPackageP
 import cn.iocoder.yudao.module.mes.controller.admin.wm.packages.vo.MesWmPackageSaveReqVO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.wm.packages.MesWmPackageDO;
 import cn.iocoder.yudao.module.mes.dal.mysql.wm.packages.MesWmPackageMapper;
+import cn.iocoder.yudao.module.mes.enums.wm.BarcodeBizTypeEnum;
 import cn.iocoder.yudao.module.mes.enums.wm.MesWmPackageStatusEnum;
+import cn.iocoder.yudao.module.mes.service.wm.barcode.MesWmBarcodeService;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -33,6 +35,8 @@ public class MesWmPackageServiceImpl implements MesWmPackageService {
     private MesWmPackageMapper packageMapper;
     @Resource
     private MesWmPackageLineService packageLineService;
+    @Resource
+    private MesWmBarcodeService barcodeService;
 
     @Override
     public Long createPackage(MesWmPackageSaveReqVO createReqVO) {
@@ -44,6 +48,10 @@ public class MesWmPackageServiceImpl implements MesWmPackageService {
         packageDO.setStatus(MesWmPackageStatusEnum.PREPARE.getStatus())
                 .setParentId(MesWmPackageDO.PARENT_ID_ROOT);
         packageMapper.insert(packageDO);
+
+        // 自动生成条码
+        barcodeService.autoGenerateBarcode(BarcodeBizTypeEnum.PACKAGE.getValue(),
+                packageDO.getId(), packageDO.getCode(), null);
         return packageDO.getId();
     }
 
@@ -64,20 +72,16 @@ public class MesWmPackageServiceImpl implements MesWmPackageService {
     public void deletePackage(Long id) {
         // 校验存在且为草稿
         validatePackageExistsAndDraft(id);
-
-        // 删除装箱明细
-        packageLineService.deletePackageLineByPackageId(id);
-        // 删除装箱单
-        packageMapper.deleteById(id);
-
-        // 级联删除子箱
-        // TODO @AI：不能级联删除子箱；是删除的时候，如果有子箱子，不允许删除；
+        // 如果有子箱子，不允许删除
         List<MesWmPackageDO> children = packageMapper.selectListByParentId(id);
         if (CollUtil.isNotEmpty(children)) {
-            for (MesWmPackageDO child : children) {
-                deletePackage(child.getId());
-            }
+            throw exception(WM_PACKAGE_HAS_CHILDREN);
         }
+
+        // 删除装箱单
+        packageMapper.deleteById(id);
+        // 删除装箱明细
+        packageLineService.deletePackageLineByPackageId(id);
     }
 
     @Override
@@ -184,33 +188,22 @@ public class MesWmPackageServiceImpl implements MesWmPackageService {
         if (ObjUtil.notEqual(MesWmPackageStatusEnum.FINISHED.getStatus(), child.getStatus())) {
             throw exception(WM_PACKAGE_CHILD_NOT_FINISHED);
         }
-        // 4. 递归校验：确保 parentId 不是 childId 的后代（避免形成环路）
-        // TODO @AI：不搞独立方法，代码风格参考 validateParentDept
-        validateNotChildOf(parentId, child.getId());
-    }
-
-    /**
-     * 递归校验父箱不是子箱的后代，避免形成环路
-     *
-     * @param parentId 父箱 ID
-     * @param childId  子箱 ID（不能是 parentId 的祖先）
-     */
-    private void validateNotChildOf(Long parentId, Long childId) {
+        // 4. 递归校验：确保 childId 不是 parentId 的祖先（避免形成环路）
+        MesWmPackageDO parentPackage = packageMapper.selectById(parentId);
         for (int i = 0; i < Short.MAX_VALUE; i++) {
-            // 查找 parentId 的子箱列表
-            List<MesWmPackageDO> children = packageMapper.selectListByParentId(parentId);
-            if (CollUtil.isEmpty(children)) {
+            if (parentPackage == null) {
                 break;
             }
-            // 如果 childId 在 parentId 的子箱列表中的某个后代里，说明形成环路
-            for (MesWmPackageDO pkg : children) {
-                if (Objects.equals(pkg.getId(), childId)) {
-                    throw exception(WM_PACKAGE_PARENT_IS_CHILD);
-                }
+            // 4.1 校验环路
+            parentId = parentPackage.getParentId();
+            if (Objects.equals(child.getId(), parentId)) {
+                throw exception(WM_PACKAGE_PARENT_IS_CHILD);
             }
-            // 继续递归检查下一级
-            // 这里简化处理：装箱单层级通常不深，逐级检查即可
-            break;
+            // 4.2 继续递归下一级父箱
+            if (parentId == null || MesWmPackageDO.PARENT_ID_ROOT.equals(parentId)) {
+                break;
+            }
+            parentPackage = packageMapper.selectById(parentId);
         }
     }
 

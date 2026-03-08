@@ -10,6 +10,8 @@ import java.time.LocalDateTime;
 
 /**
  * MES 装箱明细新增/修改 Request VO
+ *
+ * @author 芋道源码
  */
 @Schema(description = "管理后台 - MES 装箱明细新增/修改 Request VO")
 @Data
@@ -37,7 +39,7 @@ public class MesWmPackageLineSaveReqVO {
     @Schema(description = "生产工单 ID", example = "1")
     private Long workOrderId;
 
-    // TODO @AI：时间都是 LocalDateTIme；
+    // DONE @AI：时间都是 LocalDateTIme；
     @Schema(description = "有效期")
     private LocalDateTime expireDate;
 

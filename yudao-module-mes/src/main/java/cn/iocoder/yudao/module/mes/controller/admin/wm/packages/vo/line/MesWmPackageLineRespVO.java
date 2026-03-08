@@ -5,11 +5,12 @@ import lombok.Data;
 import lombok.experimental.Accessors;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 /**
  * MES 装箱明细 Response VO
+ *
+ * @author 芋道源码
  */
 @Schema(description = "管理后台 - MES 装箱明细 Response VO")
 @Data
@@ -53,7 +54,7 @@ public class MesWmPackageLineRespVO {
     private String batchCode;
 
     @Schema(description = "有效期")
-    private LocalDate expireDate;
+    private LocalDateTime expireDate;
 
     @Schema(description = "备注", example = "备注")
     private String remark;

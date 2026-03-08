@@ -9,10 +9,12 @@ import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.*;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 /**
  * MES 装箱单 DO
+ *
+ * @author 芋道源码
  */
 @TableName("mes_wm_package")
 @KeySequence("mes_wm_package_seq")
@@ -39,7 +41,7 @@ public class MesWmPackageDO extends BaseDO {
     /**
      * 装箱日期
      */
-    private LocalDate packageDate;
+    private LocalDateTime packageDate;
     /**
      * 销售订单编号
      */
