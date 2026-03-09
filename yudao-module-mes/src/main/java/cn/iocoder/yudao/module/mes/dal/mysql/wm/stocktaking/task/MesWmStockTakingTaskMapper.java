@@ -3,12 +3,14 @@ package cn.iocoder.yudao.module.mes.dal.mysql.wm.stocktaking.task;
 import cn.iocoder.yudao.framework.common.pojo.PageResult;
 import cn.iocoder.yudao.framework.mybatis.core.mapper.BaseMapperX;
 import cn.iocoder.yudao.framework.mybatis.core.query.LambdaQueryWrapperX;
-import cn.iocoder.yudao.module.mes.controller.admin.wm.stocktaking.vo.task.MesWmStockTakingTaskPageReqVO;
-import cn.iocoder.yudao.module.mes.dal.dataobject.wm.stocktaking.MesWmStockTakingTaskDO;
+import cn.iocoder.yudao.module.mes.controller.admin.wm.stocktaking.task.vo.MesWmStockTakingTaskPageReqVO;
+import cn.iocoder.yudao.module.mes.dal.dataobject.wm.stocktaking.task.MesWmStockTakingTaskDO;
 import org.apache.ibatis.annotations.Mapper;
 
 /**
  * MES 盘点任务 Mapper
+ *
+ * @author 芋道源码
  */
 @Mapper
 public interface MesWmStockTakingTaskMapper extends BaseMapperX<MesWmStockTakingTaskDO> {
