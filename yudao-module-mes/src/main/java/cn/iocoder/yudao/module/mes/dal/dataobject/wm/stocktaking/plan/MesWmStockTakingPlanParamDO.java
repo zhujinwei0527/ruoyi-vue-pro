@@ -9,6 +9,8 @@ import lombok.*;
 
 /**
  * MES 盘点方案参数 DO
+ *
+ * @author 芋道源码
  */
 @TableName("mes_wm_stock_taking_plan_param")
 @KeySequence("mes_wm_stock_taking_plan_param_seq")

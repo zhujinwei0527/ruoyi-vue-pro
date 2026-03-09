@@ -12,6 +12,8 @@ import java.time.LocalDateTime;
 
 /**
  * MES 盘点方案 DO
+ *
+ * @author 芋道源码
  */
 @TableName("mes_wm_stock_taking_plan")
 @KeySequence("mes_wm_stock_taking_plan_seq")

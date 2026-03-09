@@ -11,6 +11,8 @@ import java.util.List;
 
 /**
  * MES 盘点方案 Mapper
+ *
+ * @author 芋道源码
  */
 @Mapper
 public interface MesWmStockTakingPlanMapper extends BaseMapperX<MesWmStockTakingPlanDO> {
