@@ -20,9 +20,11 @@ import lombok.*;
 @AllArgsConstructor
 public class MesWmStockTakingPlanParamDO extends BaseDO {
 
+    /**
+     * 编号
+     */
     @TableId
     private Long id;
-
     /**
      * 盘点方案编号
      *
@@ -31,6 +33,8 @@ public class MesWmStockTakingPlanParamDO extends BaseDO {
     private Long planId;
 
     /**
+     * 参数值类型
+     *
      * 枚举 {@link MesWmStockTakingPlanParamTypeEnum}
      */
     private Integer type;
@@ -39,19 +43,18 @@ public class MesWmStockTakingPlanParamDO extends BaseDO {
      * 参数值编号，例如仓库、库区、库位、物料、批次的主键 ID
      */
     private Long valueId;
-
     /**
      * 参数值编码，例如仓库编码、库区编码、库位编码、物料编码、批次编码
      */
     private String valueCode;
-
     /**
      * 参数值名称，例如仓库名称、库区名称、库位名称、物料名称、批次名称
      */
     private String valueName;
 
+    /**
+     * 备注
+     */
     private String remark;
-
-    private Long tenantId;
 
 }

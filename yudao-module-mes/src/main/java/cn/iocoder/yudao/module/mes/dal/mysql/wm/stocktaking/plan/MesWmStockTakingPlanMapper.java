@@ -24,16 +24,12 @@ public interface MesWmStockTakingPlanMapper extends BaseMapperX<MesWmStockTaking
                 .likeIfPresent(MesWmStockTakingPlanDO::getCode, reqVO.getCode())
                 .likeIfPresent(MesWmStockTakingPlanDO::getName, reqVO.getName())
                 .eqIfPresent(MesWmStockTakingPlanDO::getType, reqVO.getType())
-                .eqIfPresent(MesWmStockTakingPlanDO::getStatus, reqVO.getStatus())
-                .eqIfPresent(MesWmStockTakingPlanDO::getEnableFlag, reqVO.getEnableFlag())
-                .betweenIfPresent(MesWmStockTakingPlanDO::getStartTime, reqVO.getStartTime())
                 .orderByDesc(MesWmStockTakingPlanDO::getId));
     }
 
     default List<MesWmStockTakingPlanDO> selectListByStatus(Integer status) {
         return selectList(new LambdaQueryWrapperX<MesWmStockTakingPlanDO>()
                 .eqIfPresent(MesWmStockTakingPlanDO::getStatus, status)
-                .eq(MesWmStockTakingPlanDO::getEnableFlag, true)
                 .orderByDesc(MesWmStockTakingPlanDO::getId));
     }
 

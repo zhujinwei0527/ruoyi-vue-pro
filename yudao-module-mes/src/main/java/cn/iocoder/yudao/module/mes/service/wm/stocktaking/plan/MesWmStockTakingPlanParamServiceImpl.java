@@ -1,9 +1,9 @@
 package cn.iocoder.yudao.module.mes.service.wm.stocktaking.plan;
 
-import cn.hutool.core.collection.CollUtil;
+import cn.iocoder.yudao.framework.common.pojo.PageResult;
 import cn.iocoder.yudao.framework.common.util.object.BeanUtils;
+import cn.iocoder.yudao.module.mes.controller.admin.wm.stocktaking.plan.vo.param.MesWmStockTakingPlanParamPageReqVO;
 import cn.iocoder.yudao.module.mes.controller.admin.wm.stocktaking.plan.vo.param.MesWmStockTakingPlanParamSaveReqVO;
-import cn.iocoder.yudao.module.mes.dal.dataobject.wm.stocktaking.plan.MesWmStockTakingPlanDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.wm.stocktaking.plan.MesWmStockTakingPlanParamDO;
 import cn.iocoder.yudao.module.mes.dal.mysql.wm.stocktaking.plan.MesWmStockTakingPlanParamMapper;
 import jakarta.annotation.Resource;
@@ -11,14 +11,9 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-
 import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception;
 import static cn.iocoder.yudao.module.mes.enums.ErrorCodeConstants.WM_STOCK_TAKING_PLAN_PARAM_NOT_EXISTS;
 
-// TODO @AI：必要的注释
 /**
  * MES 盘点方案参数 Service 实现类
  */
@@ -34,19 +29,23 @@ public class MesWmStockTakingPlanParamServiceImpl implements MesWmStockTakingPla
 
     @Override
     public Long createStockTakingPlanParam(MesWmStockTakingPlanParamSaveReqVO createReqVO) {
-        MesWmStockTakingPlanDO plan = stockTakingPlanService.validateStockTakingPlanEditable(createReqVO.getPlanId());
+        // 校验盘点方案是否可编辑
+        stockTakingPlanService.validateStockTakingPlanEditable(createReqVO.getPlanId());
 
+        // 创建盘点方案参数
         MesWmStockTakingPlanParamDO param = BeanUtils.toBean(createReqVO, MesWmStockTakingPlanParamDO.class);
-        param.setPlanId(plan.getId());
         stockTakingPlanParamMapper.insert(param);
         return param.getId();
     }
 
     @Override
     public void updateStockTakingPlanParam(MesWmStockTakingPlanParamSaveReqVO updateReqVO) {
+        // 校验盘点方案参数存在
         MesWmStockTakingPlanParamDO param = validateStockTakingPlanParamExists(updateReqVO.getId());
+        // 校验盘点方案是否可编辑
         stockTakingPlanService.validateStockTakingPlanEditable(param.getPlanId());
 
+        // 更新盘点方案参数
         MesWmStockTakingPlanParamDO updateObj = BeanUtils.toBean(updateReqVO, MesWmStockTakingPlanParamDO.class);
         updateObj.setPlanId(param.getPlanId());
         stockTakingPlanParamMapper.updateById(updateObj);
@@ -54,8 +53,12 @@ public class MesWmStockTakingPlanParamServiceImpl implements MesWmStockTakingPla
 
     @Override
     public void deleteStockTakingPlanParam(Long id) {
+        // 校验盘点方案参数存在
         MesWmStockTakingPlanParamDO param = validateStockTakingPlanParamExists(id);
+        // 校验盘点方案是否可编辑
         stockTakingPlanService.validateStockTakingPlanEditable(param.getPlanId());
+
+        // 删除盘点方案参数
         stockTakingPlanParamMapper.deleteById(id);
     }
 
@@ -65,16 +68,8 @@ public class MesWmStockTakingPlanParamServiceImpl implements MesWmStockTakingPla
     }
 
     @Override
-    public List<MesWmStockTakingPlanParamDO> getStockTakingPlanParamList(Long planId) {
-        return stockTakingPlanParamMapper.selectListByPlanId(planId);
-    }
-
-    @Override
-    public List<MesWmStockTakingPlanParamDO> getStockTakingPlanParamList(Collection<Long> planIds) {
-        if (CollUtil.isEmpty(planIds)) {
-            return Collections.emptyList();
-        }
-        return stockTakingPlanParamMapper.selectListByPlanIds(planIds);
+    public PageResult<MesWmStockTakingPlanParamDO> getStockTakingPlanParamPage(MesWmStockTakingPlanParamPageReqVO pageReqVO) {
+        return stockTakingPlanParamMapper.selectPage(pageReqVO);
     }
 
     @Override

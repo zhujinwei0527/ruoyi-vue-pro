@@ -2,12 +2,10 @@ package cn.iocoder.yudao.module.mes.controller.admin.wm.stocktaking.plan.vo;
 
 import cn.idev.excel.annotation.ExcelIgnoreUnannotated;
 import cn.idev.excel.annotation.ExcelProperty;
-import cn.iocoder.yudao.module.mes.controller.admin.wm.stocktaking.plan.vo.param.MesWmStockTakingPlanParamRespVO;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Schema(description = "管理后台 - MES 盘点方案 Response VO")
 @Data
@@ -46,10 +44,6 @@ public class MesWmStockTakingPlanRespVO {
     @ExcelProperty("是否冻结库存")
     private Boolean frozenFlag;
 
-    @Schema(description = "是否启用", requiredMode = Schema.RequiredMode.REQUIRED, example = "true")
-    @ExcelProperty("是否启用")
-    private Boolean enableFlag;
-
     @Schema(description = "状态", requiredMode = Schema.RequiredMode.REQUIRED, example = "0")
     @ExcelProperty("状态")
     private Integer status;
@@ -57,9 +51,6 @@ public class MesWmStockTakingPlanRespVO {
     @Schema(description = "备注", example = "备注")
     @ExcelProperty("备注")
     private String remark;
-
-    @Schema(description = "方案参数列表")
-    private List<MesWmStockTakingPlanParamRespVO> params;
 
     @Schema(description = "创建时间", requiredMode = Schema.RequiredMode.REQUIRED)
     @ExcelProperty("创建时间")

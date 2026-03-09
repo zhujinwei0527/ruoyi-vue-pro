@@ -7,7 +7,6 @@ import lombok.Getter;
 
 import java.util.Arrays;
 
-// TODO @AI：缺少注释；type + name 这种；
 /**
  * MES 盘点方案参数类型枚举
  */
@@ -24,7 +23,13 @@ public enum MesWmStockTakingPlanParamTypeEnum implements ArrayValuable<Integer> 
     public static final Integer[] ARRAYS = Arrays.stream(values())
             .map(MesWmStockTakingPlanParamTypeEnum::getType).toArray(Integer[]::new);
 
+    /**
+     * 参数类型
+     */
     private final Integer type;
+    /**
+     * 类型名称
+     */
     private final String name;
 
     @Override

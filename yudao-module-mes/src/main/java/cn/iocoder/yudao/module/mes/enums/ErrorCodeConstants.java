@@ -472,8 +472,8 @@ public interface ErrorCodeConstants {
     // ========== MES 仓库管理-盘点方案/任务/结果（1-040-714-100） ==========
     ErrorCode WM_STOCK_TAKING_PLAN_NOT_EXISTS = new ErrorCode(1_040_714_100, "盘点方案不存在");
     ErrorCode WM_STOCK_TAKING_PLAN_CODE_DUPLICATE = new ErrorCode(1_040_714_101, "盘点方案编码已存在");
-    ErrorCode WM_STOCK_TAKING_PLAN_NOT_PREPARE = new ErrorCode(1_040_714_102, "只有草稿状态的盘点方案才允许此操作");
-    ErrorCode WM_STOCK_TAKING_PLAN_NOT_CONFIRMED = new ErrorCode(1_040_714_103, "只有已确认状态的盘点方案才允许生成任务");
+    ErrorCode WM_STOCK_TAKING_PLAN_NOT_DISABLED = new ErrorCode(1_040_714_102, "只有禁用状态的盘点方案才允许修改、删除或维护参数");
+    ErrorCode WM_STOCK_TAKING_PLAN_NOT_ENABLED = new ErrorCode(1_040_714_103, "只有启用状态的盘点方案才允许生成任务");
     ErrorCode WM_STOCK_TAKING_PLAN_PARAM_NOT_EXISTS = new ErrorCode(1_040_714_104, "盘点方案参数不存在");
     ErrorCode WM_STOCK_TAKING_TASK_NOT_EXISTS = new ErrorCode(1_040_714_110, "盘点任务不存在");
     ErrorCode WM_STOCK_TAKING_TASK_CODE_DUPLICATE = new ErrorCode(1_040_714_111, "盘点任务编码已存在");
