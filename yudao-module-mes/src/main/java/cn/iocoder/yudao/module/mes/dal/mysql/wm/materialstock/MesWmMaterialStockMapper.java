@@ -11,6 +11,7 @@ import org.apache.ibatis.annotations.Mapper;
 import java.math.BigDecimal;
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 
 /**
  * MES 库存台账 Mapper
@@ -62,6 +63,19 @@ public interface MesWmMaterialStockMapper extends BaseMapperX<MesWmMaterialStock
                 .eqIfPresent(MesWmMaterialStockDO::getLocationId, locationId)
                 .eqIfPresent(MesWmMaterialStockDO::getAreaId, areaId)
                 .eqIfPresent(MesWmMaterialStockDO::getBatchId, batchId));
+    }
+
+    default List<MesWmMaterialStockDO> selectListForStockTaking(Set<Long> warehouseIds, Set<Long> locationIds,
+                                                                 Set<Long> areaIds, Set<Long> itemIds,
+                                                                 Set<Long> batchIds) {
+        return selectList(new LambdaQueryWrapperX<MesWmMaterialStockDO>()
+                .inIfPresent(MesWmMaterialStockDO::getWarehouseId, warehouseIds)
+                .inIfPresent(MesWmMaterialStockDO::getLocationId, locationIds)
+                .inIfPresent(MesWmMaterialStockDO::getAreaId, areaIds)
+                .inIfPresent(MesWmMaterialStockDO::getItemId, itemIds)
+                .inIfPresent(MesWmMaterialStockDO::getBatchId, batchIds)
+                .ne(MesWmMaterialStockDO::getQuantityOnhand, BigDecimal.ZERO)
+                .orderByAsc(MesWmMaterialStockDO::getId));
     }
 
 }

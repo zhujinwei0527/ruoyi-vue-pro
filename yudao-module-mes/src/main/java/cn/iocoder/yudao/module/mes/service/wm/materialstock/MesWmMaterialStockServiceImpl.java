@@ -107,6 +107,13 @@ public class MesWmMaterialStockServiceImpl implements MesWmMaterialStockService 
         return materialStockMapper.selectListByIds(ids);
     }
 
+    @Override
+    public List<MesWmMaterialStockDO> getMaterialStockListForStockTaking(Set<Long> warehouseIds, Set<Long> locationIds,
+                                                                         Set<Long> areaIds, Set<Long> itemIds,
+                                                                         Set<Long> batchIds) {
+        return materialStockMapper.selectListForStockTaking(warehouseIds, locationIds, areaIds, itemIds, batchIds);
+    }
+
     // TODO DONE @AI：increaseStock 方法命名合理，语义清晰
     @Override
     public void increaseStock(Long itemId, Long warehouseId, Long locationId, Long areaId,
