@@ -8,6 +8,7 @@ import cn.iocoder.yudao.framework.common.util.object.BeanUtils;
 import cn.iocoder.yudao.module.mes.controller.admin.wm.stocktaking.plan.vo.MesWmStockTakingPlanPageReqVO;
 import cn.iocoder.yudao.module.mes.controller.admin.wm.stocktaking.plan.vo.MesWmStockTakingPlanSaveReqVO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.wm.stocktaking.plan.MesWmStockTakingPlanDO;
+import cn.iocoder.yudao.module.mes.dal.dataobject.wm.stocktaking.plan.MesWmStockTakingPlanParamDO;
 import cn.iocoder.yudao.module.mes.dal.mysql.wm.stocktaking.plan.MesWmStockTakingPlanMapper;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
@@ -73,6 +74,13 @@ public class MesWmStockTakingPlanServiceImpl implements MesWmStockTakingPlanServ
     public void updateStockTakingPlanStatus(Long id, Integer status) {
         // 校验盘点方案存在
         validateStockTakingPlanExists(id);
+        // 开启时，需要校验 params 非空
+        if (CommonStatusEnum.isEnable(status)) {
+            List<MesWmStockTakingPlanParamDO> params = stockTakingPlanParamService.getStockTakingPlanParamListByPlanId(id);
+            if (CollUtil.isEmpty(params)) {
+                throw exception(WM_STOCK_TAKING_PLAN_PARAM_EMPTY);
+            }
+        }
 
         // 更新状态
         stockTakingPlanMapper.updateById(new MesWmStockTakingPlanDO().setId(id).setStatus(status));

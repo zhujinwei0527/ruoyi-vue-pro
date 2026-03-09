@@ -58,4 +58,8 @@ public final class MesBizTypeConstants {
     public static final int MD_USER = 604; // 人员：系统用户
     public static final int MD_CLIENT = 605; // 客户：MesMdClientDO
 
+    // ========== 特殊类型（非业务实体） [900, 1000) ==========
+
+    public static final int QUALITY_STATUS = 900; // 质量状态：非实体，用于盘点等场景的状态筛选
+
 }

@@ -30,14 +30,14 @@ public class MesWmStockTakingPlanParamController {
 
     @PostMapping("/create")
     @Operation(summary = "创建盘点方案参数")
-    @PreAuthorize("@ss.hasPermission('mes:wm-stocktaking-plan:update')")
+    @PreAuthorize("@ss.hasPermission('mes:wm-stock-taking-plan:update')")
     public CommonResult<Long> createStockTakingPlanParam(@Valid @RequestBody MesWmStockTakingPlanParamSaveReqVO createReqVO) {
         return success(stockTakingPlanParamService.createStockTakingPlanParam(createReqVO));
     }
 
     @PutMapping("/update")
     @Operation(summary = "修改盘点方案参数")
-    @PreAuthorize("@ss.hasPermission('mes:wm-stocktaking-plan:update')")
+    @PreAuthorize("@ss.hasPermission('mes:wm-stock-taking-plan:update')")
     public CommonResult<Boolean> updateStockTakingPlanParam(@Valid @RequestBody MesWmStockTakingPlanParamSaveReqVO updateReqVO) {
         stockTakingPlanParamService.updateStockTakingPlanParam(updateReqVO);
         return success(true);
@@ -46,7 +46,7 @@ public class MesWmStockTakingPlanParamController {
     @DeleteMapping("/delete")
     @Operation(summary = "删除盘点方案参数")
     @Parameter(name = "id", description = "编号", required = true)
-    @PreAuthorize("@ss.hasPermission('mes:wm-stocktaking-plan:update')")
+    @PreAuthorize("@ss.hasPermission('mes:wm-stock-taking-plan:update')")
     public CommonResult<Boolean> deleteStockTakingPlanParam(@RequestParam("id") Long id) {
         stockTakingPlanParamService.deleteStockTakingPlanParam(id);
         return success(true);
@@ -55,7 +55,7 @@ public class MesWmStockTakingPlanParamController {
     @GetMapping("/get")
     @Operation(summary = "获得盘点方案参数")
     @Parameter(name = "id", description = "编号", required = true)
-    @PreAuthorize("@ss.hasPermission('mes:wm-stocktaking-plan:query')")
+    @PreAuthorize("@ss.hasPermission('mes:wm-stock-taking-plan:query')")
     public CommonResult<MesWmStockTakingPlanParamRespVO> getStockTakingPlanParam(@RequestParam("id") Long id) {
         MesWmStockTakingPlanParamDO param = stockTakingPlanParamService.getStockTakingPlanParam(id);
         return success(param == null ? null : BeanUtils.toBean(param, MesWmStockTakingPlanParamRespVO.class));

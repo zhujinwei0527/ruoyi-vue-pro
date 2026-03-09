@@ -18,7 +18,8 @@ public enum MesWmStockTakingPlanParamTypeEnum implements ArrayValuable<Integer> 
     LOCATION(MesBizTypeConstants.WM_LOCATION, "库区"),
     AREA(MesBizTypeConstants.WM_AREA, "库位"),
     ITEM(MesBizTypeConstants.MD_ITEM, "物料"),
-    BATCH(MesBizTypeConstants.WM_BATCH, "批次");
+    BATCH(MesBizTypeConstants.WM_BATCH, "批次"),
+    QUALITY_STATUS(MesBizTypeConstants.QUALITY_STATUS, "质量状态");
 
     public static final Integer[] ARRAYS = Arrays.stream(values())
             .map(MesWmStockTakingPlanParamTypeEnum::getType).toArray(Integer[]::new);

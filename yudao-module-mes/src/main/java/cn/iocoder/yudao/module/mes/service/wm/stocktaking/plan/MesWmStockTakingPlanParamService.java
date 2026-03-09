@@ -6,6 +6,8 @@ import cn.iocoder.yudao.module.mes.controller.admin.wm.stocktaking.plan.vo.param
 import cn.iocoder.yudao.module.mes.dal.dataobject.wm.stocktaking.plan.MesWmStockTakingPlanParamDO;
 import jakarta.validation.Valid;
 
+import java.util.List;
+
 /**
  * MES 盘点方案参数 Service 接口
  */
@@ -63,5 +65,13 @@ public interface MesWmStockTakingPlanParamService {
      * @return 盘点方案参数
      */
     MesWmStockTakingPlanParamDO validateStockTakingPlanParamExists(Long id);
+
+    /**
+     * 根据盘点方案编号获取参数列表
+     *
+     * @param planId 盘点方案编号
+     * @return 盘点方案参数列表
+     */
+    List<MesWmStockTakingPlanParamDO> getStockTakingPlanParamListByPlanId(Long planId);
 
 }

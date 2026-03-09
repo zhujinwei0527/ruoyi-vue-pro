@@ -11,6 +11,8 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 
+import java.util.List;
+
 import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception;
 import static cn.iocoder.yudao.module.mes.enums.ErrorCodeConstants.WM_STOCK_TAKING_PLAN_PARAM_NOT_EXISTS;
 
@@ -84,6 +86,11 @@ public class MesWmStockTakingPlanParamServiceImpl implements MesWmStockTakingPla
             throw exception(WM_STOCK_TAKING_PLAN_PARAM_NOT_EXISTS);
         }
         return param;
+    }
+
+    @Override
+    public List<MesWmStockTakingPlanParamDO> getStockTakingPlanParamListByPlanId(Long planId) {
+        return stockTakingPlanParamMapper.selectListByPlanId(planId);
     }
 
 }
