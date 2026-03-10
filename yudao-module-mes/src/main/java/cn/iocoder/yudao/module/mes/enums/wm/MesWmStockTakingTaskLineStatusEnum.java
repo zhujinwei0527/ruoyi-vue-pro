@@ -13,8 +13,6 @@ import java.util.Arrays;
 @AllArgsConstructor
 public enum MesWmStockTakingTaskLineStatusEnum implements ArrayValuable<Integer> {
 
-    // TODO @AI：UNCOUNTED 可以去掉！
-    UNCOUNTED(0, "未盘点"),
     NORMAL(1, "正常"),
     GAIN(2, "盘盈"),
     LOSS(3, "盘亏");

@@ -1,7 +1,9 @@
 package cn.iocoder.yudao.module.mes.dal.mysql.wm.stocktaking.task;
 
+import cn.iocoder.yudao.framework.common.pojo.PageResult;
 import cn.iocoder.yudao.framework.mybatis.core.mapper.BaseMapperX;
 import cn.iocoder.yudao.framework.mybatis.core.query.LambdaQueryWrapperX;
+import cn.iocoder.yudao.module.mes.controller.admin.wm.stocktaking.task.vo.line.MesWmStockTakingTaskLinePageReqVO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.wm.stocktaking.task.MesWmStockTakingTaskLineDO;
 import org.apache.ibatis.annotations.Mapper;
 
@@ -31,6 +33,12 @@ public interface MesWmStockTakingTaskLineMapper extends BaseMapperX<MesWmStockTa
 
     default void deleteByTaskId(Long taskId) {
         delete(MesWmStockTakingTaskLineDO::getTaskId, taskId);
+    }
+
+    default PageResult<MesWmStockTakingTaskLineDO> selectPage(MesWmStockTakingTaskLinePageReqVO reqVO) {
+        return selectPage(reqVO, new LambdaQueryWrapperX<MesWmStockTakingTaskLineDO>()
+                .eqIfPresent(MesWmStockTakingTaskLineDO::getTaskId, reqVO.getTaskId())
+                .orderByAsc(MesWmStockTakingTaskLineDO::getId));
     }
 
 }

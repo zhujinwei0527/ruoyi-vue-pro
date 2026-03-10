@@ -9,23 +9,10 @@ import cn.iocoder.yudao.framework.common.util.collection.MapUtils;
 import cn.iocoder.yudao.framework.common.util.object.BeanUtils;
 import cn.iocoder.yudao.framework.excel.core.util.ExcelUtils;
 import cn.iocoder.yudao.module.mes.controller.admin.wm.stocktaking.task.vo.*;
-import cn.iocoder.yudao.module.mes.controller.admin.wm.stocktaking.task.vo.line.MesWmStockTakingTaskLineBatchUpdateReqVO;
-import cn.iocoder.yudao.module.mes.controller.admin.wm.stocktaking.task.vo.line.MesWmStockTakingTaskLineRespVO;
-import cn.iocoder.yudao.module.mes.dal.dataobject.md.item.MesMdItemDO;
-import cn.iocoder.yudao.module.mes.dal.dataobject.md.unitmeasure.MesMdUnitMeasureDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.wm.stocktaking.plan.MesWmStockTakingPlanDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.wm.stocktaking.task.MesWmStockTakingTaskDO;
-import cn.iocoder.yudao.module.mes.dal.dataobject.wm.stocktaking.task.MesWmStockTakingTaskLineDO;
-import cn.iocoder.yudao.module.mes.dal.dataobject.wm.warehouse.MesWmWarehouseAreaDO;
-import cn.iocoder.yudao.module.mes.dal.dataobject.wm.warehouse.MesWmWarehouseDO;
-import cn.iocoder.yudao.module.mes.dal.dataobject.wm.warehouse.MesWmWarehouseLocationDO;
-import cn.iocoder.yudao.module.mes.service.md.item.MesMdItemService;
-import cn.iocoder.yudao.module.mes.service.md.unitmeasure.MesMdUnitMeasureService;
 import cn.iocoder.yudao.module.mes.service.wm.stocktaking.plan.MesWmStockTakingPlanService;
 import cn.iocoder.yudao.module.mes.service.wm.stocktaking.task.MesWmStockTakingTaskService;
-import cn.iocoder.yudao.module.mes.service.wm.warehouse.MesWmWarehouseAreaService;
-import cn.iocoder.yudao.module.mes.service.wm.warehouse.MesWmWarehouseLocationService;
-import cn.iocoder.yudao.module.mes.service.wm.warehouse.MesWmWarehouseService;
 import cn.iocoder.yudao.module.system.api.user.AdminUserApi;
 import cn.iocoder.yudao.module.system.api.user.dto.AdminUserRespDTO;
 import io.swagger.v3.oas.annotations.Operation;
@@ -39,7 +26,6 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
-import java.math.BigDecimal;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -58,17 +44,6 @@ public class MesWmStockTakingTaskController {
     private MesWmStockTakingTaskService stockTakingTaskService;
     @Resource
     private MesWmStockTakingPlanService stockTakingPlanService;
-    @Resource
-    private MesMdItemService itemService;
-    @Resource
-    private MesMdUnitMeasureService unitMeasureService;
-    @Resource
-    private MesWmWarehouseService warehouseService;
-    @Resource
-    private MesWmWarehouseLocationService locationService;
-    @Resource
-    private MesWmWarehouseAreaService areaService;
-
     @Resource
     private AdminUserApi adminUserApi;
 
@@ -153,63 +128,24 @@ public class MesWmStockTakingTaskController {
         return success(true);
     }
 
-    @PutMapping("/line-batch-update")
-    @Operation(summary = "批量更新盘点任务行")
-    @PreAuthorize("@ss.hasPermission('mes:wm-stock-taking-task:update')")
-    public CommonResult<Boolean> updateStockTakingTaskLines(@Valid @RequestBody MesWmStockTakingTaskLineBatchUpdateReqVO reqVO) {
-        stockTakingTaskService.updateStockTakingTaskLines(reqVO);
-        return success(true);
-    }
-
-    @GetMapping("/line-list")
-    @Operation(summary = "获得盘点任务行列表")
-    @Parameter(name = "taskId", description = "任务编号", required = true)
-    @PreAuthorize("@ss.hasPermission('mes:wm-stock-taking-task:query')")
-    public CommonResult<List<MesWmStockTakingTaskLineRespVO>> getStockTakingTaskLineList(@RequestParam("taskId") Long taskId) {
-        return success(buildTaskLineRespVOList(stockTakingTaskService.getStockTakingTaskLineList(taskId)));
-    }
+    // ==================== 拼接 VO ====================
 
     private List<MesWmStockTakingTaskRespVO> buildTaskRespVOList(List<MesWmStockTakingTaskDO> list) {
         if (CollUtil.isEmpty(list)) {
             return Collections.emptyList();
         }
-        Map<Long, AdminUserRespDTO> userMap = adminUserApi.getUserMap(convertSet(list, MesWmStockTakingTaskDO::getUserId));
-        Map<Long, MesWmStockTakingPlanDO> planMap = stockTakingPlanService.getStockTakingPlanMap(convertSet(list, MesWmStockTakingTaskDO::getPlanId));
+        // 查询关联数据
+        Map<Long, AdminUserRespDTO> userMap = adminUserApi.getUserMap(
+                convertSet(list, MesWmStockTakingTaskDO::getUserId));
+        Map<Long, MesWmStockTakingPlanDO> planMap = stockTakingPlanService.getStockTakingPlanMap(
+                convertSet(list, MesWmStockTakingTaskDO::getPlanId));
+        // 拼接数据
         return BeanUtils.toBean(list, MesWmStockTakingTaskRespVO.class, vo -> {
-            MapUtils.findAndThen(userMap, vo.getUserId(), user -> vo.setUserNickname(user.getNickname()));
-            MapUtils.findAndThen(planMap, vo.getPlanId(), plan -> {
-                vo.setPlanCode(plan.getCode());
-                vo.setPlanName(plan.getName());
-            });
+            MapUtils.findAndThen(userMap, vo.getUserId(),
+                    user -> vo.setUserNickname(user.getNickname()));
+            MapUtils.findAndThen(planMap, vo.getPlanId(),
+                    plan -> vo.setPlanCode(plan.getCode()).setPlanName(plan.getName()));
         });
-    }
-
-    private List<MesWmStockTakingTaskLineRespVO> buildTaskLineRespVOList(List<MesWmStockTakingTaskLineDO> list) {
-        if (CollUtil.isEmpty(list)) {
-            return Collections.emptyList();
-        }
-        Map<Long, MesMdItemDO> itemMap = itemService.getItemMap(convertSet(list, MesWmStockTakingTaskLineDO::getItemId));
-        Map<Long, MesMdUnitMeasureDO> unitMeasureMap = unitMeasureService.getUnitMeasureMap(
-                convertSet(itemMap.values(), MesMdItemDO::getUnitMeasureId));
-        Map<Long, MesWmWarehouseDO> warehouseMap = warehouseService.getWarehouseMap(convertSet(list, MesWmStockTakingTaskLineDO::getWarehouseId));
-        Map<Long, MesWmWarehouseLocationDO> locationMap = locationService.getWarehouseLocationMap(convertSet(list, MesWmStockTakingTaskLineDO::getLocationId));
-        Map<Long, MesWmWarehouseAreaDO> areaMap = areaService.getWarehouseAreaMap(convertSet(list, MesWmStockTakingTaskLineDO::getAreaId));
-        return BeanUtils.toBean(list, MesWmStockTakingTaskLineRespVO.class, vo -> {
-            MapUtils.findAndThen(itemMap, vo.getItemId(), item -> {
-                vo.setItemCode(item.getCode());
-                vo.setItemName(item.getName());
-                vo.setSpecification(item.getSpecification());
-                MapUtils.findAndThen(unitMeasureMap, item.getUnitMeasureId(), unit -> vo.setUnitMeasureName(unit.getName()));
-            });
-            MapUtils.findAndThen(warehouseMap, vo.getWarehouseId(), warehouse -> vo.setWarehouseName(warehouse.getName()));
-            MapUtils.findAndThen(locationMap, vo.getLocationId(), location -> vo.setLocationName(location.getName()));
-            MapUtils.findAndThen(areaMap, vo.getAreaId(), area -> vo.setAreaName(area.getName()));
-            vo.setDifferenceQuantity(defaultQuantity(vo.getTakingQuantity()).subtract(defaultQuantity(vo.getQuantity())));
-        });
-    }
-
-    private BigDecimal defaultQuantity(BigDecimal quantity) {
-        return quantity == null ? BigDecimal.ZERO : quantity;
     }
 
 }
