@@ -16,7 +16,7 @@ import java.util.Arrays;
 public enum MesWmStockTakingTaskStatusEnum implements ArrayValuable<Integer> {
 
     PREPARE(MesOrderStatusConstants.PREPARE, "草稿"),
-    IN_PROGRESS(MesOrderStatusConstants.CONFIRMED, "盘点中"),
+    APPROVING(MesOrderStatusConstants.APPROVING, "审批中"),
     FINISHED(MesOrderStatusConstants.FINISHED, "已完成"),
     CANCELED(MesOrderStatusConstants.CANCELLED, "已取消");
 

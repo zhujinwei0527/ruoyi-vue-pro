@@ -58,10 +58,6 @@ public class MesWmStockTakingTaskRespVO {
     @ExcelProperty("是否冻结库存")
     private Boolean frozenFlag;
 
-    @Schema(description = "快照时间")
-    @ExcelProperty("快照时间")
-    private LocalDateTime snapshotTime;
-
     @Schema(description = "开始时间")
     @ExcelProperty("开始时间")
     private LocalDateTime startTime;
@@ -73,10 +69,6 @@ public class MesWmStockTakingTaskRespVO {
     @Schema(description = "状态", requiredMode = Schema.RequiredMode.REQUIRED, example = "0")
     @ExcelProperty("状态")
     private Integer status;
-
-    @Schema(description = "是否已调账", requiredMode = Schema.RequiredMode.REQUIRED, example = "false")
-    @ExcelProperty("是否已调账")
-    private Boolean adjustedFlag;
 
     @Schema(description = "备注", example = "备注")
     @ExcelProperty("备注")

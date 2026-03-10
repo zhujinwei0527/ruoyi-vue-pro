@@ -479,7 +479,7 @@ public interface ErrorCodeConstants {
     ErrorCode WM_STOCK_TAKING_TASK_NOT_EXISTS = new ErrorCode(1_040_714_110, "盘点任务不存在");
     ErrorCode WM_STOCK_TAKING_TASK_CODE_DUPLICATE = new ErrorCode(1_040_714_111, "盘点任务编码已存在");
     ErrorCode WM_STOCK_TAKING_TASK_NOT_PREPARE = new ErrorCode(1_040_714_112, "只有草稿状态的盘点任务才允许此操作");
-    ErrorCode WM_STOCK_TAKING_TASK_NOT_IN_PROGRESS = new ErrorCode(1_040_714_113, "只有盘点中状态的任务才允许此操作");
+    ErrorCode WM_STOCK_TAKING_TASK_NOT_APPROVING = new ErrorCode(1_040_714_113, "只有盘点中状态的任务才允许此操作");
     ErrorCode WM_STOCK_TAKING_TASK_CANNOT_CANCEL = new ErrorCode(1_040_714_114, "已完成或已取消的盘点任务不允许取消");
     ErrorCode WM_STOCK_TAKING_TASK_NO_STOCK = new ErrorCode(1_040_714_115, "未找到符合条件的库存数据");
     ErrorCode WM_STOCK_TAKING_TASK_NO_LINE = new ErrorCode(1_040_714_116, "盘点任务至少需要一条任务行");

@@ -36,6 +36,12 @@ public class MesWmStockTakingTaskSaveReqVO {
     @Schema(description = "来源方案 ID", example = "1")
     private Long planId;
 
+    @Schema(description = "开始时间")
+    private LocalDateTime startTime;
+
+    @Schema(description = "结束时间")
+    private LocalDateTime endTime;
+
     @Schema(description = "是否盲盘", example = "false")
     @NotNull(message = "是否盲盘不能为空")
     private Boolean blindFlag;
