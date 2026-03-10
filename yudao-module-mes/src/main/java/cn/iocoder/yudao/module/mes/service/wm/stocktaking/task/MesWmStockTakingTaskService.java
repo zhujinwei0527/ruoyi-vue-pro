@@ -73,6 +73,14 @@ public interface MesWmStockTakingTaskService {
     MesWmStockTakingTaskDO validateStockTakingTaskExists(Long id);
 
     /**
+     * 校验盘点任务存在，并且处于【准备中】状态
+     *
+     * @param id 盘点任务编号
+     * @return 盘点任务
+     */
+    MesWmStockTakingTaskDO validateStockTakingTaskExistsAndPrepare(Long id);
+
+    /**
      * 分页查询盘点任务
      *
      * @param pageReqVO 分页查询条件

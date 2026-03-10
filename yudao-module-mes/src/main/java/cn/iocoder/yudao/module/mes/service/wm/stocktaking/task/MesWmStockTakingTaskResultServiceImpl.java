@@ -38,4 +38,14 @@ public class MesWmStockTakingTaskResultServiceImpl implements MesWmStockTakingTa
         return stockTakingTaskResultMapper.selectListByTaskId(taskId);
     }
 
+    @Override
+    public void createStockTakingTaskResult(MesWmStockTakingTaskResultDO result) {
+        stockTakingTaskResultMapper.insert(result);
+    }
+
+    @Override
+    public void deleteStockTakingTaskResultByTaskId(Long taskId) {
+        stockTakingTaskResultMapper.deleteByTaskId(taskId);
+    }
+
 }

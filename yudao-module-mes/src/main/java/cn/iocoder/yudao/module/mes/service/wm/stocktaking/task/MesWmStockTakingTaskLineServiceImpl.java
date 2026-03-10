@@ -2,7 +2,6 @@ package cn.iocoder.yudao.module.mes.service.wm.stocktaking.task;
 
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.lang.Assert;
-import cn.hutool.core.util.ObjUtil;
 import cn.iocoder.yudao.framework.common.pojo.PageResult;
 import cn.iocoder.yudao.framework.common.util.object.BeanUtils;
 import cn.iocoder.yudao.module.mes.controller.admin.wm.materialstock.vo.MesWmMaterialStockListReqVO;
@@ -14,10 +13,8 @@ import cn.iocoder.yudao.module.mes.dal.dataobject.wm.stocktaking.task.MesWmStock
 import cn.iocoder.yudao.module.mes.dal.dataobject.wm.stocktaking.task.MesWmStockTakingTaskLineDO;
 import cn.iocoder.yudao.module.mes.dal.mysql.wm.stocktaking.plan.MesWmStockTakingPlanParamMapper;
 import cn.iocoder.yudao.module.mes.dal.mysql.wm.stocktaking.task.MesWmStockTakingTaskLineMapper;
-import cn.iocoder.yudao.module.mes.dal.mysql.wm.stocktaking.task.MesWmStockTakingTaskMapper;
 import cn.iocoder.yudao.module.mes.enums.wm.MesWmStockTakingPlanParamTypeEnum;
 import cn.iocoder.yudao.module.mes.enums.wm.MesWmStockTakingTaskLineStatusEnum;
-import cn.iocoder.yudao.module.mes.enums.wm.MesWmStockTakingTaskStatusEnum;
 import cn.iocoder.yudao.module.mes.enums.wm.MesWmStockTakingTypeEnum;
 import cn.iocoder.yudao.module.mes.service.wm.materialstock.MesWmMaterialStockService;
 import jakarta.annotation.Resource;
@@ -31,7 +28,8 @@ import java.util.Objects;
 
 import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception;
 import static cn.iocoder.yudao.framework.common.util.collection.CollectionUtils.convertList;
-import static cn.iocoder.yudao.module.mes.enums.ErrorCodeConstants.*;
+import static cn.iocoder.yudao.module.mes.enums.ErrorCodeConstants.WM_STOCK_TAKING_TASK_LINE_NOT_EXISTS;
+import static cn.iocoder.yudao.module.mes.enums.ErrorCodeConstants.WM_STOCK_TAKING_TASK_NO_STOCK;
 
 /**
  * MES 盘点任务行 Service 实现类
@@ -48,29 +46,31 @@ public class MesWmStockTakingTaskLineServiceImpl implements MesWmStockTakingTask
     private MesWmStockTakingPlanParamMapper stockTakingPlanParamMapper;
     @Resource
     private MesWmMaterialStockService materialStockService;
-
     @Resource
-    private MesWmStockTakingTaskMapper stockTakingTaskMapper;
+    private MesWmStockTakingTaskService stockTakingTaskService;
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public void generateStockTakingLines(MesWmStockTakingTaskDO task) {
-        // 1.1 构建查询条件（包含动态盘点时间校验）
+    public void generateStockTakingLines(MesWmStockTakingTaskDO task, boolean isCreate) {
+        // 1. 如果非创建操作，先清理旧数据
+        if (!isCreate) {
+            stockTakingTaskLineMapper.deleteByTaskId(task.getId());
+        }
+
+        // 2.1 构建查询条件（包含动态盘点时间校验）
         MesWmMaterialStockListReqVO reqVO = buildStockQueryReqVO(task);
-        // 1.2 查询物料库存
+        // 2.2 查询物料库存
         List<MesWmMaterialStockDO> stocks = materialStockService.getMaterialStockList(reqVO);
         if (CollUtil.isEmpty(stocks)) {
             throw exception(WM_STOCK_TAKING_TASK_NO_STOCK);
         }
 
-        // 2. 批量生成明细行
-        // TODO DONE @AI：使用 CollectionUtils convertList 方法简化代码
-        List<MesWmStockTakingTaskLineDO> lines = convertList(stocks, stock ->
-                MesWmStockTakingTaskLineDO.builder()
-                        .taskId(task.getId()).materialStockId(stock.getId()).itemId(stock.getItemId())
-                        .batchId(stock.getBatchId()).quantity(defaultQuantity(stock.getQuantityOnhand()))
-                        .warehouseId(stock.getWarehouseId()).locationId(stock.getLocationId()).areaId(stock.getAreaId())
-                        .status(MesWmStockTakingTaskLineStatusEnum.LOSS.getStatus()).build());
+        // 3. 批量生成明细行
+        List<MesWmStockTakingTaskLineDO> lines = convertList(stocks, stock -> MesWmStockTakingTaskLineDO.builder()
+                .taskId(task.getId()).materialStockId(stock.getId()).itemId(stock.getItemId())
+                .batchId(stock.getBatchId()).quantity(stock.getQuantityOnhand()).takingQuantity(BigDecimal.ZERO)
+                .warehouseId(stock.getWarehouseId()).locationId(stock.getLocationId()).areaId(stock.getAreaId())
+                .status(MesWmStockTakingTaskLineStatusEnum.LOSS.getStatus()).build());
         stockTakingTaskLineMapper.insertBatch(lines);
     }
 
@@ -80,10 +80,15 @@ public class MesWmStockTakingTaskLineServiceImpl implements MesWmStockTakingTask
     }
 
     @Override
+    public MesWmStockTakingTaskLineDO getStockTakingTaskLine(Long id) {
+        return stockTakingTaskLineMapper.selectById(id);
+    }
+
+    @Override
     @Transactional(rollbackFor = Exception.class)
     public Long createStockTakingTaskLine(MesWmStockTakingTaskLineSaveReqVO createReqVO) {
         // 1. 校验盘点任务存在，并且处于【准备中】状态
-        validateTaskExistsAndPrepare(createReqVO.getTaskId());
+        stockTakingTaskService.validateStockTakingTaskExistsAndPrepare(createReqVO.getTaskId());
 
         // 2. 创建盘点任务行
         MesWmStockTakingTaskLineDO line = BeanUtils.toBean(createReqVO, MesWmStockTakingTaskLineDO.class);
@@ -94,15 +99,12 @@ public class MesWmStockTakingTaskLineServiceImpl implements MesWmStockTakingTask
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void updateStockTakingTaskLine(MesWmStockTakingTaskLineSaveReqVO updateReqVO) {
-        // TODO @AI：补全注释
-        // TODO @AI：搞个 validate exists 方法，这样 update 和 delete 可以服用；
-        MesWmStockTakingTaskLineDO line = stockTakingTaskLineMapper.selectById(updateReqVO.getId());
-        if (line == null) {
-            throw exception(WM_STOCK_TAKING_TASK_LINE_NOT_EXISTS);
-        }
-        validateTaskExistsAndPrepare(updateReqVO.getTaskId());
+        // 1.1 校验盘点任务行存在
+        MesWmStockTakingTaskLineDO line = validateStockTakingTaskLineExists(updateReqVO.getId());
+        // 1.2 校验盘点任务存在，并且处于【准备中】状态
+        stockTakingTaskService.validateStockTakingTaskExistsAndPrepare(updateReqVO.getTaskId());
 
-        // 更新
+        // 2. 更新盘点任务行
         MesWmStockTakingTaskLineDO updateObj = BeanUtils.toBean(updateReqVO, MesWmStockTakingTaskLineDO.class);
         stockTakingTaskLineMapper.updateById(updateObj);
     }
@@ -110,27 +112,27 @@ public class MesWmStockTakingTaskLineServiceImpl implements MesWmStockTakingTask
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void deleteStockTakingTaskLine(Long id) {
-        // TODO @AI：补全注释
+        // 1.1 校验盘点任务行存在
+        MesWmStockTakingTaskLineDO line = validateStockTakingTaskLineExists(id);
+        // 1.2 校验盘点任务存在，并且处于【准备中】状态
+        stockTakingTaskService.validateStockTakingTaskExistsAndPrepare(line.getTaskId());
+
+        // 2. 删除盘点任务行
+        stockTakingTaskLineMapper.deleteById(id);
+    }
+
+    /**
+     * 校验盘点任务行是否存在
+     *
+     * @param id 盘点任务行编号
+     * @return 盘点任务行
+     */
+    private MesWmStockTakingTaskLineDO validateStockTakingTaskLineExists(Long id) {
         MesWmStockTakingTaskLineDO line = stockTakingTaskLineMapper.selectById(id);
         if (line == null) {
             throw exception(WM_STOCK_TAKING_TASK_LINE_NOT_EXISTS);
         }
-        validateTaskExistsAndPrepare(line.getTaskId());
-
-        // 2. 删除
-        stockTakingTaskLineMapper.deleteById(id);
-    }
-
-    // TODO @AI：应该在对方的 service 里提供；
-    private MesWmStockTakingTaskDO validateTaskExistsAndPrepare(Long id) {
-        MesWmStockTakingTaskDO task = stockTakingTaskMapper.selectById(id);
-        if (task == null) {
-            throw exception(WM_STOCK_TAKING_TASK_NOT_EXISTS);
-        }
-        if (ObjUtil.notEqual(MesWmStockTakingTaskStatusEnum.PREPARE.getStatus(), task.getStatus())) {
-            throw exception(WM_STOCK_TAKING_TASK_NOT_PREPARE);
-        }
-        return task;
+        return line;
     }
 
     /**
@@ -160,6 +162,16 @@ public class MesWmStockTakingTaskLineServiceImpl implements MesWmStockTakingTask
         return reqVO;
     }
 
+    @Override
+    public List<MesWmStockTakingTaskLineDO> getStockTakingTaskLineListByTaskId(Long taskId) {
+        return stockTakingTaskLineMapper.selectListByTaskId(taskId);
+    }
+
+    @Override
+    public void deleteStockTakingTaskLineByTaskId(Long taskId) {
+        stockTakingTaskLineMapper.deleteByTaskId(taskId);
+    }
+
     /**
      * 从参数列表中提取第一个匹配类型的参数 ID
      *
@@ -171,11 +183,6 @@ public class MesWmStockTakingTaskLineServiceImpl implements MesWmStockTakingTask
         MesWmStockTakingPlanParamDO param = CollUtil.findOne(params,
                 item -> Objects.equals(item.getType(), type) && item.getValueId() != null);
         return param != null ? param.getValueId() : null;
-    }
-
-    // TODO @芋艿：在确认下这个逻辑；
-    private BigDecimal defaultQuantity(BigDecimal quantity) {
-        return quantity == null ? BigDecimal.ZERO : quantity;
     }
 
 }

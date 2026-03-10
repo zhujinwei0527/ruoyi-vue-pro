@@ -37,4 +37,18 @@ public interface MesWmStockTakingTaskResultService {
      */
     List<MesWmStockTakingTaskResultDO> getStockTakingTaskResultList(Long taskId);
 
+    /**
+     * 创建盘点结果
+     *
+     * @param result 盘点结果
+     */
+    void createStockTakingTaskResult(MesWmStockTakingTaskResultDO result);
+
+    /**
+     * 根据任务编号删除盘点结果
+     *
+     * @param taskId 任务编号
+     */
+    void deleteStockTakingTaskResultByTaskId(Long taskId);
+
 }

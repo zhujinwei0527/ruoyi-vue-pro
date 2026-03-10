@@ -72,7 +72,7 @@ public class MesWmStockTakingTaskResultController {
         if (result == null) {
             return success(null);
         }
-        return success(buildRespVOList(Collections.singletonList(result)).get(0));
+        return success(buildStockTakingTaskResultRespVOList(Collections.singletonList(result)).get(0));
     }
 
     @GetMapping("/page")
@@ -80,7 +80,7 @@ public class MesWmStockTakingTaskResultController {
     @PreAuthorize("@ss.hasPermission('mes:wm-stock-taking-task:query')")
     public CommonResult<PageResult<MesWmStockTakingTaskResultRespVO>> getStockTakingTaskResultPage(@Valid MesWmStockTakingTaskResultPageReqVO pageReqVO) {
         PageResult<MesWmStockTakingTaskResultDO> pageResult = stockTakingTaskResultService.getStockTakingTaskResultPage(pageReqVO);
-        return success(new PageResult<>(buildRespVOList(pageResult.getList()), pageResult.getTotal()));
+        return success(new PageResult<>(buildStockTakingTaskResultRespVOList(pageResult.getList()), pageResult.getTotal()));
     }
 
     @GetMapping("/list")
@@ -88,7 +88,7 @@ public class MesWmStockTakingTaskResultController {
     @Parameter(name = "taskId", description = "任务编号", required = true)
     @PreAuthorize("@ss.hasPermission('mes:wm-stock-taking-task:query')")
     public CommonResult<List<MesWmStockTakingTaskResultRespVO>> getStockTakingTaskResultList(@RequestParam("taskId") Long taskId) {
-        return success(buildRespVOList(stockTakingTaskResultService.getStockTakingTaskResultList(taskId)));
+        return success(buildStockTakingTaskResultRespVOList(stockTakingTaskResultService.getStockTakingTaskResultList(taskId)));
     }
 
     @GetMapping("/export-excel")
@@ -100,10 +100,10 @@ public class MesWmStockTakingTaskResultController {
         pageReqVO.setPageSize(PageParam.PAGE_SIZE_NONE);
         PageResult<MesWmStockTakingTaskResultDO> pageResult = stockTakingTaskResultService.getStockTakingTaskResultPage(pageReqVO);
         ExcelUtils.write(response, "盘点结果.xls", "数据", MesWmStockTakingTaskResultRespVO.class,
-                buildRespVOList(pageResult.getList()));
+                buildStockTakingTaskResultRespVOList(pageResult.getList()));
     }
 
-    private List<MesWmStockTakingTaskResultRespVO> buildRespVOList(List<MesWmStockTakingTaskResultDO> list) {
+    private List<MesWmStockTakingTaskResultRespVO> buildStockTakingTaskResultRespVOList(List<MesWmStockTakingTaskResultDO> list) {
         if (CollUtil.isEmpty(list)) {
             return Collections.emptyList();
         }

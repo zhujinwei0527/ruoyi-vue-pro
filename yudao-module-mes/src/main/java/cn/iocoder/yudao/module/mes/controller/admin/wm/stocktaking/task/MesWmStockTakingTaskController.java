@@ -122,9 +122,10 @@ public class MesWmStockTakingTaskController {
 
     @PutMapping("/cancel")
     @Operation(summary = "取消盘点任务")
+    @Parameter(name = "id", description = "编号", required = true)
     @PreAuthorize("@ss.hasPermission('mes:wm-stock-taking-task:update')")
-    public CommonResult<Boolean> cancelStockTakingTask(@Valid @RequestBody MesWmStockTakingTaskCancelReqVO reqVO) {
-        stockTakingTaskService.cancelStockTakingTask(reqVO.getId());
+    public CommonResult<Boolean> cancelStockTakingTask(@RequestParam("id") Long id) {
+        stockTakingTaskService.cancelStockTakingTask(id);
         return success(true);
     }
 

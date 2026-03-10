@@ -55,13 +55,25 @@ public class MesWmStockTakingTaskLineController {
     @Resource
     private MesWmWarehouseAreaService areaService;
 
+    @GetMapping("/get")
+    @Operation(summary = "获得盘点任务行")
+    @Parameter(name = "id", description = "编号", required = true)
+    @PreAuthorize("@ss.hasPermission('mes:wm-stock-taking-task:query')")
+    public CommonResult<MesWmStockTakingTaskLineRespVO> getStockTakingTaskLine(@RequestParam("id") Long id) {
+        MesWmStockTakingTaskLineDO line = stockTakingTaskLineService.getStockTakingTaskLine(id);
+        if (line == null) {
+            return success(null);
+        }
+        return success(buildStockTakingTaskLineRespVOList(Collections.singletonList(line)).get(0));
+    }
+
     @GetMapping("/page")
     @Operation(summary = "获得盘点任务行分页")
     @PreAuthorize("@ss.hasPermission('mes:wm-stock-taking-task:query')")
     public CommonResult<PageResult<MesWmStockTakingTaskLineRespVO>> getStockTakingTaskLinePage(
             @Valid MesWmStockTakingTaskLinePageReqVO pageReqVO) {
         PageResult<MesWmStockTakingTaskLineDO> pageResult = stockTakingTaskLineService.getStockTakingTaskLinePage(pageReqVO);
-        return success(new PageResult<>(buildTaskLineRespVOList(pageResult.getList()), pageResult.getTotal()));
+        return success(new PageResult<>(buildStockTakingTaskLineRespVOList(pageResult.getList()), pageResult.getTotal()));
     }
 
     @PostMapping("/create")
@@ -90,7 +102,7 @@ public class MesWmStockTakingTaskLineController {
 
     // ==================== 拼接 VO ====================
 
-    private List<MesWmStockTakingTaskLineRespVO> buildTaskLineRespVOList(List<MesWmStockTakingTaskLineDO> list) {
+    private List<MesWmStockTakingTaskLineRespVO> buildStockTakingTaskLineRespVOList(List<MesWmStockTakingTaskLineDO> list) {
         if (CollUtil.isEmpty(list)) {
             return Collections.emptyList();
         }
