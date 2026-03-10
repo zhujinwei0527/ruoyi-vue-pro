@@ -6,7 +6,6 @@ import lombok.Getter;
 
 import java.util.Arrays;
 
-// TODO @AI：缺少注释；status + name 这种；
 /**
  * MES 盘点任务行状态枚举
  */
@@ -14,6 +13,7 @@ import java.util.Arrays;
 @AllArgsConstructor
 public enum MesWmStockTakingTaskLineStatusEnum implements ArrayValuable<Integer> {
 
+    // TODO @AI：UNCOUNTED 可以去掉！
     UNCOUNTED(0, "未盘点"),
     NORMAL(1, "正常"),
     GAIN(2, "盘盈"),
@@ -22,7 +22,13 @@ public enum MesWmStockTakingTaskLineStatusEnum implements ArrayValuable<Integer>
     public static final Integer[] ARRAYS = Arrays.stream(values())
             .map(MesWmStockTakingTaskLineStatusEnum::getStatus).toArray(Integer[]::new);
 
+    /**
+     * 状态
+     */
     private final Integer status;
+    /**
+     * 状态名称
+     */
     private final String name;
 
     @Override

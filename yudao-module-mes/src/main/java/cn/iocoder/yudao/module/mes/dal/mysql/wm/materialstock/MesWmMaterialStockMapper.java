@@ -3,15 +3,15 @@ package cn.iocoder.yudao.module.mes.dal.mysql.wm.materialstock;
 import cn.iocoder.yudao.framework.common.pojo.PageResult;
 import cn.iocoder.yudao.framework.mybatis.core.mapper.BaseMapperX;
 import cn.iocoder.yudao.framework.mybatis.core.query.LambdaQueryWrapperX;
+import cn.iocoder.yudao.module.mes.controller.admin.wm.materialstock.vo.MesWmMaterialStockListReqVO;
 import cn.iocoder.yudao.module.mes.controller.admin.wm.materialstock.vo.MesWmMaterialStockPageReqVO;
-import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import cn.iocoder.yudao.module.mes.dal.dataobject.wm.materialstock.MesWmMaterialStockDO;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import org.apache.ibatis.annotations.Mapper;
 
 import java.math.BigDecimal;
 import java.util.Collection;
 import java.util.List;
-import java.util.Set;
 
 /**
  * MES 库存台账 Mapper
@@ -65,17 +65,17 @@ public interface MesWmMaterialStockMapper extends BaseMapperX<MesWmMaterialStock
                 .eqIfPresent(MesWmMaterialStockDO::getBatchId, batchId));
     }
 
-    default List<MesWmMaterialStockDO> selectListForStockTaking(Set<Long> warehouseIds, Set<Long> locationIds,
-                                                                 Set<Long> areaIds, Set<Long> itemIds,
-                                                                 Set<Long> batchIds) {
+    default List<MesWmMaterialStockDO> selectListForStockTaking(MesWmMaterialStockListReqVO reqVO) {
         return selectList(new LambdaQueryWrapperX<MesWmMaterialStockDO>()
-                .inIfPresent(MesWmMaterialStockDO::getWarehouseId, warehouseIds)
-                .inIfPresent(MesWmMaterialStockDO::getLocationId, locationIds)
-                .inIfPresent(MesWmMaterialStockDO::getAreaId, areaIds)
-                .inIfPresent(MesWmMaterialStockDO::getItemId, itemIds)
-                .inIfPresent(MesWmMaterialStockDO::getBatchId, batchIds)
-                .ne(MesWmMaterialStockDO::getQuantityOnhand, BigDecimal.ZERO)
-                .orderByAsc(MesWmMaterialStockDO::getId));
+                .eqIfPresent(MesWmMaterialStockDO::getWarehouseId, reqVO.getWarehouseId())
+                .eqIfPresent(MesWmMaterialStockDO::getLocationId, reqVO.getLocationId())
+                .eqIfPresent(MesWmMaterialStockDO::getAreaId, reqVO.getAreaId())
+                .eqIfPresent(MesWmMaterialStockDO::getItemId, reqVO.getItemId())
+                .eqIfPresent(MesWmMaterialStockDO::getBatchId, reqVO.getBatchId())
+                .geIfPresent(MesWmMaterialStockDO::getUpdateTime, reqVO.getStartTime())
+                .leIfPresent(MesWmMaterialStockDO::getUpdateTime, reqVO.getEndTime())
+                .ne(MesWmMaterialStockDO::getQuantityOnhand, BigDecimal.ZERO) // TODO @芋艿：需要在考虑下，要不要支持；
+                .orderByAsc(MesWmMaterialStockDO::getRecptDate));
     }
 
 }

@@ -74,6 +74,14 @@ public interface MesWmStockTakingPlanService {
     MesWmStockTakingPlanDO validateStockTakingPlanEditable(Long id);
 
     /**
+     * 校验盘点方案存在且已启用
+     *
+     * @param id 盘点方案编号
+     * @return 盘点方案
+     */
+    MesWmStockTakingPlanDO validateStockTakingPlanEnabled(Long id);
+
+    /**
      * 获得盘点方案列表。
      *
      * @param ids 盘点方案编号集合

@@ -135,6 +135,15 @@ public class MesWmStockTakingPlanServiceImpl implements MesWmStockTakingPlanServ
         }
     }
 
+    @Override
+    public MesWmStockTakingPlanDO validateStockTakingPlanEnabled(Long id) {
+        MesWmStockTakingPlanDO plan = validateStockTakingPlanExists(id);
+        if (!CommonStatusEnum.isEnable(plan.getStatus())) {
+            throw exception(WM_STOCK_TAKING_PLAN_NOT_ENABLED);
+        }
+        return plan;
+    }
+
     private MesWmStockTakingPlanDO validatePlanEditable(Long id) {
         MesWmStockTakingPlanDO plan = validateStockTakingPlanExists(id);
         if (!CommonStatusEnum.isDisable(plan.getStatus())) {

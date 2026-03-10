@@ -484,6 +484,7 @@ public interface ErrorCodeConstants {
     ErrorCode WM_STOCK_TAKING_TASK_NO_STOCK = new ErrorCode(1_040_714_115, "未找到符合条件的库存数据");
     ErrorCode WM_STOCK_TAKING_TASK_NO_LINE = new ErrorCode(1_040_714_116, "盘点任务至少需要一条任务行");
     ErrorCode WM_STOCK_TAKING_TASK_LINE_NOT_EXISTS = new ErrorCode(1_040_714_117, "盘点任务行不存在");
+    ErrorCode WM_STOCK_TAKING_TASK_DYNAMIC_TIME_REQUIRED = new ErrorCode(1_040_714_118, "动态盘点必须选择开始时间和结束时间");
 
     // ========== MES 仓库管理-销售出库单（1-040-714-000） ==========
     ErrorCode WM_PRODUCT_SALES_NOT_EXISTS = new ErrorCode(1_040_714_000, "销售出库单不存在");

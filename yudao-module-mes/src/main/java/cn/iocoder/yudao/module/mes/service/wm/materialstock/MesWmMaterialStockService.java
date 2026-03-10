@@ -1,8 +1,9 @@
 package cn.iocoder.yudao.module.mes.service.wm.materialstock;
 
 import cn.iocoder.yudao.framework.common.pojo.PageResult;
-import cn.iocoder.yudao.module.mes.controller.admin.wm.materialstock.vo.MesWmMaterialStockPageReqVO;
 import cn.iocoder.yudao.module.mes.controller.admin.wm.materialstock.vo.MesWmMaterialStockFreezeReqVO;
+import cn.iocoder.yudao.module.mes.controller.admin.wm.materialstock.vo.MesWmMaterialStockListReqVO;
+import cn.iocoder.yudao.module.mes.controller.admin.wm.materialstock.vo.MesWmMaterialStockPageReqVO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.wm.materialstock.MesWmMaterialStockDO;
 import jakarta.validation.Valid;
 
@@ -11,7 +12,6 @@ import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import static cn.iocoder.yudao.framework.common.util.collection.CollectionUtils.convertMap;
 
@@ -83,10 +83,13 @@ public interface MesWmMaterialStockService {
      */
     List<MesWmMaterialStockDO> getMaterialStockList(Collection<Long> ids);
 
-    // TODO @芋艿：不确定性；感觉就是一个查询接口，参数比较多；
-    List<MesWmMaterialStockDO> getMaterialStockListForStockTaking(Set<Long> warehouseIds, Set<Long> locationIds,
-                                                                  Set<Long> areaIds, Set<Long> itemIds,
-                                                                  Set<Long> batchIds);
+    /**
+     * 获得物料库存列表（用于盘点等场景）
+     *
+     * @param reqVO 查询条件
+     * @return 物料库存列表
+     */
+    List<MesWmMaterialStockDO> getMaterialStockList(MesWmMaterialStockListReqVO reqVO);
 
     default Map<Long, MesWmMaterialStockDO> getMaterialStockMap(Collection<Long> ids) {
         return convertMap(getMaterialStockList(ids), MesWmMaterialStockDO::getId);

@@ -98,9 +98,10 @@ public class MesWmStockTakingTaskController {
 
     @PutMapping("/submit")
     @Operation(summary = "提交盘点任务")
+    @Parameter(name = "id", description = "编号", required = true)
     @PreAuthorize("@ss.hasPermission('mes:wm-stock-taking-task:update')")
-    public CommonResult<Boolean> submitStockTakingTask(@Valid @RequestBody MesWmStockTakingTaskSubmitReqVO reqVO) {
-        stockTakingTaskService.submitStockTakingTask(reqVO.getId());
+    public CommonResult<Boolean> submitStockTakingTask(@RequestParam("id") Long id) {
+        stockTakingTaskService.submitStockTakingTask(id);
         return success(true);
     }
 
@@ -134,14 +135,6 @@ public class MesWmStockTakingTaskController {
         PageResult<MesWmStockTakingTaskDO> pageResult = stockTakingTaskService.getStockTakingTaskPage(pageReqVO);
         ExcelUtils.write(response, "盘点任务.xls", "数据", MesWmStockTakingTaskRespVO.class,
                 buildTaskRespVOList(pageResult.getList()));
-    }
-
-    @PutMapping("/start")
-    @Operation(summary = "开始盘点任务")
-    @PreAuthorize("@ss.hasPermission('mes:wm-stock-taking-task:update')")
-    public CommonResult<Boolean> startStockTakingTask(@Valid @RequestBody MesWmStockTakingTaskStartReqVO reqVO) {
-        stockTakingTaskService.startStockTakingTask(reqVO.getId());
-        return success(true);
     }
 
     @PutMapping("/finish")

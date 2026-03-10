@@ -33,7 +33,8 @@ public class MesWmStockTakingTaskSaveReqVO {
     @NotNull(message = "盘点人不能为空")
     private Long userId;
 
-    @Schema(description = "来源方案 ID", example = "1")
+    @Schema(description = "来源方案 ID", requiredMode = Schema.RequiredMode.REQUIRED, example = "1")
+    @NotNull(message = "来源方案不能为空")
     private Long planId;
 
     @Schema(description = "开始时间")

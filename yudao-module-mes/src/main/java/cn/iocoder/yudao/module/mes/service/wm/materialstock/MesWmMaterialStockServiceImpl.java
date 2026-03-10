@@ -3,8 +3,9 @@ package cn.iocoder.yudao.module.mes.service.wm.materialstock;
 import cn.hutool.core.collection.CollUtil;
 import cn.iocoder.yudao.framework.common.pojo.PageResult;
 import cn.iocoder.yudao.framework.common.util.collection.SetUtils;
-import cn.iocoder.yudao.module.mes.controller.admin.wm.materialstock.vo.MesWmMaterialStockPageReqVO;
 import cn.iocoder.yudao.module.mes.controller.admin.wm.materialstock.vo.MesWmMaterialStockFreezeReqVO;
+import cn.iocoder.yudao.module.mes.controller.admin.wm.materialstock.vo.MesWmMaterialStockListReqVO;
+import cn.iocoder.yudao.module.mes.controller.admin.wm.materialstock.vo.MesWmMaterialStockPageReqVO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.md.item.MesMdItemDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.md.item.MesMdItemTypeDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.wm.materialstock.MesWmMaterialStockDO;
@@ -108,10 +109,8 @@ public class MesWmMaterialStockServiceImpl implements MesWmMaterialStockService 
     }
 
     @Override
-    public List<MesWmMaterialStockDO> getMaterialStockListForStockTaking(Set<Long> warehouseIds, Set<Long> locationIds,
-                                                                         Set<Long> areaIds, Set<Long> itemIds,
-                                                                         Set<Long> batchIds) {
-        return materialStockMapper.selectListForStockTaking(warehouseIds, locationIds, areaIds, itemIds, batchIds);
+    public List<MesWmMaterialStockDO> getMaterialStockList(MesWmMaterialStockListReqVO reqVO) {
+        return materialStockMapper.selectListForStockTaking(reqVO);
     }
 
     // TODO DONE @AI：increaseStock 方法命名合理，语义清晰
