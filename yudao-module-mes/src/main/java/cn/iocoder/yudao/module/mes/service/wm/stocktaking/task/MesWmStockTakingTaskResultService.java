@@ -45,6 +45,20 @@ public interface MesWmStockTakingTaskResultService {
     void createStockTakingTaskResult(MesWmStockTakingTaskResultDO result);
 
     /**
+     * 更新盘点结果
+     *
+     * @param result 盘点结果
+     */
+    void updateStockTakingTaskResult(MesWmStockTakingTaskResultDO result);
+
+    /**
+     * 删除盘点结果
+     *
+     * @param id 盘点结果编号
+     */
+    void deleteStockTakingTaskResult(Long id);
+
+    /**
      * 根据任务编号删除盘点结果
      *
      * @param taskId 任务编号

@@ -100,6 +100,15 @@ public class MesWmStockTakingTaskLineController {
         return success(true);
     }
 
+    @GetMapping("/simple-list")
+    @Operation(summary = "获得盘点任务行精简列表", description = "根据任务编号查询，主要用于前端的下拉选项")
+    @PreAuthorize("@ss.hasPermission('mes:wm-stock-taking-task:query')")
+    public CommonResult<List<MesWmStockTakingTaskLineRespVO>> getStockTakingTaskLineSimpleList(
+            @RequestParam("taskId") Long taskId) {
+        List<MesWmStockTakingTaskLineDO> list = stockTakingTaskLineService.getStockTakingTaskLineListByTaskId(taskId);
+        return success(buildStockTakingTaskLineRespVOList(list));
+    }
+
     // ==================== 拼接 VO ====================
 
     private List<MesWmStockTakingTaskLineRespVO> buildStockTakingTaskLineRespVOList(List<MesWmStockTakingTaskLineDO> list) {
