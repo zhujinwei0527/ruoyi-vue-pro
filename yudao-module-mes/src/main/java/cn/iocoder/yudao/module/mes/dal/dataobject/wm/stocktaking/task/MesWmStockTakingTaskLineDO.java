@@ -61,7 +61,7 @@ public class MesWmStockTakingTaskLineDO extends BaseDO {
     private String batchCode;
 
     /**
-     * 账面数量
+     * 在库数量
      */
     private BigDecimal quantity;
     /**

@@ -85,9 +85,13 @@ public class MesWmStockTakingTaskResultDO extends BaseDO {
     private Long areaId;
 
     /**
-     * 差异数量
+     * 在库数量
      */
     private BigDecimal quantity;
+    /**
+     * 盘点数量
+     */
+    private BigDecimal takingQuantity;
 
     /**
      * 备注

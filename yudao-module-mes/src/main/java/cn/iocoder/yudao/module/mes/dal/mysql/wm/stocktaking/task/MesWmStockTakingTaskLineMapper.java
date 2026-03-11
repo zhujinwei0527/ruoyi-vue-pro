@@ -8,7 +8,6 @@ import cn.iocoder.yudao.module.mes.dal.dataobject.wm.stocktaking.task.MesWmStock
 import org.apache.ibatis.annotations.Mapper;
 
 import java.util.List;
-import java.util.Set;
 
 /**
  * MES 盘点任务行 Mapper
@@ -24,13 +23,6 @@ public interface MesWmStockTakingTaskLineMapper extends BaseMapperX<MesWmStockTa
                 .orderByAsc(MesWmStockTakingTaskLineDO::getId));
     }
 
-    default List<MesWmStockTakingTaskLineDO> selectListByTaskIdAndIds(Long taskId, Set<Long> ids) {
-        return selectList(new LambdaQueryWrapperX<MesWmStockTakingTaskLineDO>()
-                .eq(MesWmStockTakingTaskLineDO::getTaskId, taskId)
-                .inIfPresent(MesWmStockTakingTaskLineDO::getId, ids)
-                .orderByAsc(MesWmStockTakingTaskLineDO::getId));
-    }
-
     default void deleteByTaskId(Long taskId) {
         delete(MesWmStockTakingTaskLineDO::getTaskId, taskId);
     }
@@ -39,6 +31,13 @@ public interface MesWmStockTakingTaskLineMapper extends BaseMapperX<MesWmStockTa
         return selectPage(reqVO, new LambdaQueryWrapperX<MesWmStockTakingTaskLineDO>()
                 .eqIfPresent(MesWmStockTakingTaskLineDO::getTaskId, reqVO.getTaskId())
                 .orderByAsc(MesWmStockTakingTaskLineDO::getId));
+    }
+
+    default MesWmStockTakingTaskLineDO selectByTaskIdAndItemIdAndAreaId(Long taskId, Long itemId, Long areaId) {
+        return selectOne(new LambdaQueryWrapperX<MesWmStockTakingTaskLineDO>()
+                .eq(MesWmStockTakingTaskLineDO::getTaskId, taskId)
+                .eq(MesWmStockTakingTaskLineDO::getItemId, itemId)
+                .eqIfPresent(MesWmStockTakingTaskLineDO::getAreaId, areaId));
     }
 
 }

@@ -9,9 +9,7 @@ import cn.iocoder.yudao.module.mes.controller.admin.wm.stocktaking.task.vo.MesWm
 import cn.iocoder.yudao.module.mes.controller.admin.wm.stocktaking.task.vo.MesWmStockTakingTaskSaveReqVO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.wm.stocktaking.task.MesWmStockTakingTaskDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.wm.stocktaking.task.MesWmStockTakingTaskLineDO;
-import cn.iocoder.yudao.module.mes.dal.dataobject.wm.stocktaking.task.MesWmStockTakingTaskResultDO;
 import cn.iocoder.yudao.module.mes.dal.mysql.wm.stocktaking.task.MesWmStockTakingTaskMapper;
-import cn.iocoder.yudao.module.mes.enums.wm.MesWmStockTakingTaskLineStatusEnum;
 import cn.iocoder.yudao.module.mes.enums.wm.MesWmStockTakingTaskStatusEnum;
 import cn.iocoder.yudao.module.mes.service.wm.materialstock.MesWmMaterialStockService;
 import cn.iocoder.yudao.module.mes.service.wm.stocktaking.plan.MesWmStockTakingPlanService;
@@ -23,7 +21,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
 import java.util.List;
 
 import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception;
@@ -141,50 +138,20 @@ public class MesWmStockTakingTaskServiceImpl implements MesWmStockTakingTaskServ
         }
     }
 
-
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void finishStockTakingTask(Long id) {
-        // 1.1 校验任务存在且为审批中状态
-        MesWmStockTakingTaskDO task = validateStockTakingTaskExistsInternal(id);
-        // 1.2 校验任务状态
-        if (ObjUtil.notEqual(MesWmStockTakingTaskStatusEnum.APPROVING.getStatus(), task.getStatus())) {
-            throw exception(WM_STOCK_TAKING_TASK_NOT_APPROVING);
-        }
-        // 1.3 获取盘点任务行
-        List<MesWmStockTakingTaskLineDO> lines = stockTakingTaskLineService.getStockTakingTaskLineListByTaskId(id);
-        if (CollUtil.isEmpty(lines)) {
-            throw exception(WM_STOCK_TAKING_TASK_NO_LINE);
-        }
+        // 1. 校验任务存在且为审批中状态
+        MesWmStockTakingTaskDO task = validateStockTakingTaskExistsAndApproving(id);
 
-        // 2. 生成盘点结果（仅保存差异数据）
-        stockTakingTaskResultService.deleteStockTakingTaskResultByTaskId(id);
-        for (MesWmStockTakingTaskLineDO line : lines) {
-            if (MesWmStockTakingTaskLineStatusEnum.NORMAL.getStatus().equals(line.getStatus())) {
-                continue;
-            }
-            stockTakingTaskResultService.createStockTakingTaskResult(MesWmStockTakingTaskResultDO.builder()
-                    .taskId(id)
-                    .lineId(line.getId())
-                    .materialStockId(line.getMaterialStockId())
-                    .itemId(line.getItemId())
-                    .batchId(line.getBatchId())
-                    .batchCode(line.getBatchCode())
-                    .warehouseId(line.getWarehouseId())
-                    .locationId(line.getLocationId())
-                    .areaId(line.getAreaId())
-                    .quantity(calculateStockTakingDifferenceQuantity(line))
-                    .remark(line.getRemark())
-                    .build());
-        }
+        // 2. 更新任务状态为已完成
+        stockTakingTaskMapper.updateById(new MesWmStockTakingTaskDO().setId(id)
+                .setStatus(MesWmStockTakingTaskStatusEnum.FINISHED.getStatus()));
 
-        // 3. 更新任务状态为已完成
-        task.setEndTime(LocalDateTime.now());
-        task.setStatus(MesWmStockTakingTaskStatusEnum.FINISHED.getStatus());
-        stockTakingTaskMapper.updateById(task);
-
-        // 4. 解冻库存
+        // 3. 解冻库存
+        // TODO @芋艿：后续跟进下！
         if (Boolean.TRUE.equals(task.getFrozenFlag())) {
+            List<MesWmStockTakingTaskLineDO> lines = stockTakingTaskLineService.getStockTakingTaskLineListByTaskId(id);
             unfreezeStockTakingTaskStocks(lines);
         }
     }
@@ -192,7 +159,7 @@ public class MesWmStockTakingTaskServiceImpl implements MesWmStockTakingTaskServ
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void cancelStockTakingTask(Long id) {
-        MesWmStockTakingTaskDO task = validateStockTakingTaskExistsInternal(id);
+        MesWmStockTakingTaskDO task = validateStockTakingTaskExists(id);
         if (MesWmStockTakingTaskStatusEnum.FINISHED.getStatus().equals(task.getStatus())
                 || MesWmStockTakingTaskStatusEnum.CANCELED.getStatus().equals(task.getStatus())) {
             throw exception(WM_STOCK_TAKING_TASK_CANNOT_CANCEL);
@@ -211,17 +178,27 @@ public class MesWmStockTakingTaskServiceImpl implements MesWmStockTakingTaskServ
 
     @Override
     public MesWmStockTakingTaskDO validateStockTakingTaskExists(Long id) {
-        return validateStockTakingTaskExistsInternal(id);
-    }
-
-    @Override
-    public MesWmStockTakingTaskDO validateStockTakingTaskExistsAndPrepare(Long id) {
         MesWmStockTakingTaskDO task = stockTakingTaskMapper.selectById(id);
         if (task == null) {
             throw exception(WM_STOCK_TAKING_TASK_NOT_EXISTS);
         }
+        return task;
+    }
+
+    @Override
+    public MesWmStockTakingTaskDO validateStockTakingTaskExistsAndPrepare(Long id) {
+        MesWmStockTakingTaskDO task = validateStockTakingTaskExists(id);
         if (ObjUtil.notEqual(MesWmStockTakingTaskStatusEnum.PREPARE.getStatus(), task.getStatus())) {
             throw exception(WM_STOCK_TAKING_TASK_NOT_PREPARE);
+        }
+        return task;
+    }
+
+    @Override
+    public MesWmStockTakingTaskDO validateStockTakingTaskExistsAndApproving(Long id) {
+        MesWmStockTakingTaskDO task = validateStockTakingTaskExists(id);
+        if (ObjUtil.notEqual(MesWmStockTakingTaskStatusEnum.APPROVING.getStatus(), task.getStatus())) {
+            throw exception(WM_STOCK_TAKING_TASK_NOT_APPROVING);
         }
         return task;
     }
@@ -265,14 +242,6 @@ public class MesWmStockTakingTaskServiceImpl implements MesWmStockTakingTaskServ
         if (ObjUtil.notEqual(task.getId(), id)) {
             throw exception(WM_STOCK_TAKING_TASK_CODE_DUPLICATE);
         }
-    }
-
-    private MesWmStockTakingTaskDO validateStockTakingTaskExistsInternal(Long id) {
-        MesWmStockTakingTaskDO task = stockTakingTaskMapper.selectById(id);
-        if (task == null) {
-            throw exception(WM_STOCK_TAKING_TASK_NOT_EXISTS);
-        }
-        return task;
     }
 
 }

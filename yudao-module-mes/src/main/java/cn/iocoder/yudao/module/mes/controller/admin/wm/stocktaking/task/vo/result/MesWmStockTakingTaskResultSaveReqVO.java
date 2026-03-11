@@ -37,15 +37,17 @@ public class MesWmStockTakingTaskResultSaveReqVO {
     @NotNull(message = "仓库 ID 不能为空")
     private Long warehouseId;
 
-    @Schema(description = "库区 ID", example = "1")
+    @Schema(description = "库区 ID", requiredMode = Schema.RequiredMode.REQUIRED, example = "1")
+    @NotNull(message = "库区 ID 不能为空")
     private Long locationId;
 
-    @Schema(description = "库位 ID", example = "1")
+    @Schema(description = "库位 ID", requiredMode = Schema.RequiredMode.REQUIRED, example = "1")
+    @NotNull(message = "库位 ID 不能为空")
     private Long areaId;
 
-    @Schema(description = "差异数量", requiredMode = Schema.RequiredMode.REQUIRED, example = "100.000000")
-    @NotNull(message = "差异数量不能为空")
-    private BigDecimal quantity;
+    @Schema(description = "盘点数量", requiredMode = Schema.RequiredMode.REQUIRED, example = "100.000000")
+    @NotNull(message = "盘点数量不能为空")
+    private BigDecimal takingQuantity;
 
     @Schema(description = "备注", example = "备注")
     private String remark;

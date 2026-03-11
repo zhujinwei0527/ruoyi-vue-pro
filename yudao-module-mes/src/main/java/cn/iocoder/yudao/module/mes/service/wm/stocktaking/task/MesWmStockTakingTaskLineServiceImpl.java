@@ -7,6 +7,7 @@ import cn.iocoder.yudao.framework.common.util.object.BeanUtils;
 import cn.iocoder.yudao.module.mes.controller.admin.wm.materialstock.vo.MesWmMaterialStockListReqVO;
 import cn.iocoder.yudao.module.mes.controller.admin.wm.stocktaking.task.vo.line.MesWmStockTakingTaskLinePageReqVO;
 import cn.iocoder.yudao.module.mes.controller.admin.wm.stocktaking.task.vo.line.MesWmStockTakingTaskLineSaveReqVO;
+import cn.iocoder.yudao.module.mes.controller.admin.wm.stocktaking.task.vo.result.MesWmStockTakingTaskResultSaveReqVO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.wm.materialstock.MesWmMaterialStockDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.wm.stocktaking.plan.MesWmStockTakingPlanParamDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.wm.stocktaking.task.MesWmStockTakingTaskDO;
@@ -121,13 +122,8 @@ public class MesWmStockTakingTaskLineServiceImpl implements MesWmStockTakingTask
         stockTakingTaskLineMapper.deleteById(id);
     }
 
-    /**
-     * 校验盘点任务行是否存在
-     *
-     * @param id 盘点任务行编号
-     * @return 盘点任务行
-     */
-    private MesWmStockTakingTaskLineDO validateStockTakingTaskLineExists(Long id) {
+    @Override
+    public MesWmStockTakingTaskLineDO validateStockTakingTaskLineExists(Long id) {
         MesWmStockTakingTaskLineDO line = stockTakingTaskLineMapper.selectById(id);
         if (line == null) {
             throw exception(WM_STOCK_TAKING_TASK_LINE_NOT_EXISTS);
@@ -170,6 +166,53 @@ public class MesWmStockTakingTaskLineServiceImpl implements MesWmStockTakingTask
     @Override
     public void deleteStockTakingTaskLineByTaskId(Long taskId) {
         stockTakingTaskLineMapper.deleteByTaskId(taskId);
+    }
+
+    @Override
+    public MesWmStockTakingTaskLineDO getStockTakingTaskLine(Long taskId, Long itemId, Long areaId) {
+        return stockTakingTaskLineMapper.selectByTaskIdAndItemIdAndAreaId(taskId, itemId, areaId);
+    }
+
+    @Override
+    public void updateStockTakingTaskLineTakingQuantity(Long id, BigDecimal takingQuantity) {
+        // 1. 校验盘点任务行存在
+        MesWmStockTakingTaskLineDO line = validateStockTakingTaskLineExists(id);
+        // 2. 更新盘点数量和状态
+        line.setTakingQuantity(takingQuantity)
+                .setStatus(calculateLineStatus(line.getQuantity(), takingQuantity));
+        stockTakingTaskLineMapper.updateById(line);
+    }
+
+    @Override
+    public Long createStockTakingTaskLine(MesWmStockTakingTaskResultSaveReqVO createReqVO) {
+        MesWmStockTakingTaskLineDO line = new MesWmStockTakingTaskLineDO()
+                .setTaskId(createReqVO.getTaskId()).setItemId(createReqVO.getItemId()).setBatchId(createReqVO.getBatchId())
+                .setWarehouseId(createReqVO.getWarehouseId()).setLocationId(createReqVO.getLocationId()).setAreaId(createReqVO.getAreaId())
+                .setQuantity(BigDecimal.ZERO) // 账面数量默认为 0
+                .setTakingQuantity(createReqVO.getTakingQuantity()) // 盘点数量
+                .setStatus(calculateLineStatus(BigDecimal.ZERO, createReqVO.getTakingQuantity())); // 计算盈亏状态
+        stockTakingTaskLineMapper.insert(line);
+        return line.getId();
+    }
+
+    /**
+     * 计算盘点任务行状态
+     *
+     * @param quantity 账面数量
+     * @param takingQuantity 盘点数量
+     * @return 状态
+     */
+    private Integer calculateLineStatus(BigDecimal quantity, BigDecimal takingQuantity) {
+        Assert.notNull(takingQuantity, "盘点数量不能为空");
+        Assert.notNull(quantity, "账面数量不能为空");
+        int compareResult = takingQuantity.compareTo(quantity);
+        if (compareResult > 0) {
+            return MesWmStockTakingTaskLineStatusEnum.GAIN.getStatus(); // 盘盈
+        }
+        if (compareResult < 0) {
+            return MesWmStockTakingTaskLineStatusEnum.LOSS.getStatus(); // 盘亏
+        }
+        return MesWmStockTakingTaskLineStatusEnum.NORMAL.getStatus(); // 正常
     }
 
     /**

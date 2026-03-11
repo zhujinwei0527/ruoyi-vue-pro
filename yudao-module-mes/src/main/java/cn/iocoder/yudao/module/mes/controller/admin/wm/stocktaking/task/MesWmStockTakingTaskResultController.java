@@ -71,15 +71,8 @@ public class MesWmStockTakingTaskResultController {
     @GetMapping("/page")
     @Operation(summary = "获得盘点结果分页")
     @PreAuthorize("@ss.hasPermission('mes:wm-stock-taking-task:query')")
-    public CommonResult<PageResult<MesWmStockTakingTaskResultRespVO>> getStockTakingTaskResultPage(@Valid MesWmStockTakingTaskResultPageReqVO pageReqVO) {
-        PageResult<MesWmStockTakingTaskResultDO> pageResult = stockTakingTaskResultService.getStockTakingTaskResultPage(pageReqVO);
-        return success(new PageResult<>(buildStockTakingTaskResultRespVOList(pageResult.getList()), pageResult.getTotal()));
-    }
-
-    @GetMapping("/list")
-    @Operation(summary = "获得盘点结果分页列表")
-    @PreAuthorize("@ss.hasPermission('mes:wm-stock-taking-task:query')")
-    public CommonResult<PageResult<MesWmStockTakingTaskResultRespVO>> getStockTakingTaskResultList(@Valid MesWmStockTakingTaskResultPageReqVO pageReqVO) {
+    public CommonResult<PageResult<MesWmStockTakingTaskResultRespVO>> getStockTakingTaskResultPage(
+            @Valid MesWmStockTakingTaskResultPageReqVO pageReqVO) {
         PageResult<MesWmStockTakingTaskResultDO> pageResult = stockTakingTaskResultService.getStockTakingTaskResultPage(pageReqVO);
         return success(new PageResult<>(buildStockTakingTaskResultRespVOList(pageResult.getList()), pageResult.getTotal()));
     }
@@ -89,9 +82,7 @@ public class MesWmStockTakingTaskResultController {
     @PreAuthorize("@ss.hasPermission('mes:wm-stock-taking-task:update')")
     @Transactional(rollbackFor = Exception.class)
     public CommonResult<Long> createStockTakingTaskResult(@Valid @RequestBody MesWmStockTakingTaskResultSaveReqVO createReqVO) {
-        MesWmStockTakingTaskResultDO result = BeanUtils.toBean(createReqVO, MesWmStockTakingTaskResultDO.class);
-        stockTakingTaskResultService.createStockTakingTaskResult(result);
-        return success(result.getId());
+        return success(stockTakingTaskResultService.createStockTakingTaskResult(createReqVO));
     }
 
     @PutMapping("/update")
@@ -99,8 +90,7 @@ public class MesWmStockTakingTaskResultController {
     @PreAuthorize("@ss.hasPermission('mes:wm-stock-taking-task:update')")
     @Transactional(rollbackFor = Exception.class)
     public CommonResult<Boolean> updateStockTakingTaskResult(@Valid @RequestBody MesWmStockTakingTaskResultSaveReqVO updateReqVO) {
-        MesWmStockTakingTaskResultDO result = BeanUtils.toBean(updateReqVO, MesWmStockTakingTaskResultDO.class);
-        stockTakingTaskResultService.updateStockTakingTaskResult(result);
+        stockTakingTaskResultService.updateStockTakingTaskResult(updateReqVO);
         return success(true);
     }
 

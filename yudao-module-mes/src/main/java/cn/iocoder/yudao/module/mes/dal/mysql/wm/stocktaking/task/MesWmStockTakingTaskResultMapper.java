@@ -7,8 +7,6 @@ import cn.iocoder.yudao.module.mes.controller.admin.wm.stocktaking.task.vo.resul
 import cn.iocoder.yudao.module.mes.dal.dataobject.wm.stocktaking.task.MesWmStockTakingTaskResultDO;
 import org.apache.ibatis.annotations.Mapper;
 
-import java.util.List;
-
 /**
  * MES 盘点结果 Mapper
  *
@@ -25,12 +23,6 @@ public interface MesWmStockTakingTaskResultMapper extends BaseMapperX<MesWmStock
                 .eqIfPresent(MesWmStockTakingTaskResultDO::getLocationId, reqVO.getLocationId())
                 .eqIfPresent(MesWmStockTakingTaskResultDO::getAreaId, reqVO.getAreaId())
                 .orderByDesc(MesWmStockTakingTaskResultDO::getId));
-    }
-
-    default List<MesWmStockTakingTaskResultDO> selectListByTaskId(Long taskId) {
-        return selectList(new LambdaQueryWrapperX<MesWmStockTakingTaskResultDO>()
-                .eq(MesWmStockTakingTaskResultDO::getTaskId, taskId)
-                .orderByAsc(MesWmStockTakingTaskResultDO::getId));
     }
 
     default void deleteByTaskId(Long taskId) {
