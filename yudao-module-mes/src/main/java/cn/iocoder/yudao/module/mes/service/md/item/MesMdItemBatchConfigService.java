@@ -20,6 +20,14 @@ public interface MesMdItemBatchConfigService {
     MesMdItemBatchConfigDO getItemBatchConfigByItemId(Long itemId);
 
     /**
+     * 校验物料批次配置存在
+     *
+     * @param itemId 物料 ID
+     * @return 物料批次配置
+     */
+    MesMdItemBatchConfigDO validateItemBatchConfigExists(Long itemId);
+
+    /**
      * 保存批次属性配置（新增或更新）
      *
      * @param saveReqVO 保存信息

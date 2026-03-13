@@ -39,4 +39,4 @@ public class MesWmItemReceiptSaveReqVO {
     @Schema(description = "备注", example = "备注")
     private String remark;
 
-    }
+}

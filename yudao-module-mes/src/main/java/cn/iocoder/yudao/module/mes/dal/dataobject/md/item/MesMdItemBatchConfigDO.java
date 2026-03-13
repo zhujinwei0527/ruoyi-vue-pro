@@ -63,7 +63,7 @@ public class MesMdItemBatchConfigDO extends BaseDO {
     /**
      * 批次属性-生产工单
      */
-    private Boolean workorderFlag;
+    private Boolean workOrderFlag;
     /**
      * 批次属性-生产任务
      */

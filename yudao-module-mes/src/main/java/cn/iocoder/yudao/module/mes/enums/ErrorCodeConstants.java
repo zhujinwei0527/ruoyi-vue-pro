@@ -35,6 +35,22 @@ public interface ErrorCodeConstants {
     ErrorCode MD_ITEM_BATCH_CONFIG_NOT_EXISTS = new ErrorCode(1_040_102_100, "物料批次属性配置不存在");
     ErrorCode MD_ITEM_BATCH_CONFIG_AT_LEAST_ONE_FLAG = new ErrorCode(1_040_102_101, "批次管理已启用，至少需要配置一个批次属性");
 
+    // ========== MES 仓库管理-批次管理（1-040-717-000） ==========
+    ErrorCode WM_BATCH_PRODUCE_DATE_REQUIRED = new ErrorCode(1_040_717_000, "批次配置要求生产日期不能为空");
+    ErrorCode WM_BATCH_RECEIPT_DATE_REQUIRED = new ErrorCode(1_040_717_001, "批次配置要求入库日期不能为空");
+    ErrorCode WM_BATCH_EXPIRE_DATE_REQUIRED = new ErrorCode(1_040_717_002, "批次配置要求有效期不能为空");
+    ErrorCode WM_BATCH_VENDOR_REQUIRED = new ErrorCode(1_040_717_003, "批次配置要求供应商不能为空");
+    ErrorCode WM_BATCH_CLIENT_REQUIRED = new ErrorCode(1_040_717_004, "批次配置要求客户不能为空");
+    ErrorCode WM_BATCH_PURCHASE_ORDER_CODE_REQUIRED = new ErrorCode(1_040_717_005, "批次配置要求采购订单编号不能为空");
+    ErrorCode WM_BATCH_CUSTOMER_ORDER_CODE_REQUIRED = new ErrorCode(1_040_717_006, "批次配置要求销售订单编号不能为空");
+    ErrorCode WM_BATCH_WORK_ORDER_REQUIRED = new ErrorCode(1_040_717_007, "批次配置要求生产工单不能为空");
+    ErrorCode WM_BATCH_TASK_REQUIRED = new ErrorCode(1_040_717_008, "批次配置要求生产任务不能为空");
+    ErrorCode WM_BATCH_WORKSTATION_REQUIRED = new ErrorCode(1_040_717_009, "批次配置要求工作站不能为空");
+    ErrorCode WM_BATCH_TOOL_REQUIRED = new ErrorCode(1_040_717_010, "批次配置要求工具不能为空");
+    ErrorCode WM_BATCH_MOLD_REQUIRED = new ErrorCode(1_040_717_011, "批次配置要求模具不能为空");
+    ErrorCode WM_BATCH_LOT_NUMBER_REQUIRED = new ErrorCode(1_040_717_012, "批次配置要求生产批号不能为空");
+    ErrorCode WM_BATCH_QUALITY_STATUS_REQUIRED = new ErrorCode(1_040_717_013, "批次配置要求质量状态不能为空");
+
     // ========== MES 基础数据-客户（1-040-103-000） ==========
     ErrorCode MD_CLIENT_NOT_EXISTS = new ErrorCode(1_040_103_000, "客户不存在");
     ErrorCode MD_CLIENT_CODE_DUPLICATE = new ErrorCode(1_040_103_001, "客户编码已存在");

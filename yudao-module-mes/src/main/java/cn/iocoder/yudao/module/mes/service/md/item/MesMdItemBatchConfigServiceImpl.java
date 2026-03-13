@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 
 import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception;
+import static cn.iocoder.yudao.module.mes.enums.ErrorCodeConstants.MD_ITEM_BATCH_CONFIG_NOT_EXISTS;
 import static cn.iocoder.yudao.module.mes.enums.ErrorCodeConstants.MD_ITEM_NOT_EXISTS;
 
 /**
@@ -31,6 +32,15 @@ public class MesMdItemBatchConfigServiceImpl implements MesMdItemBatchConfigServ
     @Override
     public MesMdItemBatchConfigDO getItemBatchConfigByItemId(Long itemId) {
         return itemBatchConfigMapper.selectByItemId(itemId);
+    }
+
+    @Override
+    public MesMdItemBatchConfigDO validateItemBatchConfigExists(Long itemId) {
+        MesMdItemBatchConfigDO config = getItemBatchConfigByItemId(itemId);
+        if (config == null) {
+            throw exception(MD_ITEM_BATCH_CONFIG_NOT_EXISTS);
+        }
+        return config;
     }
 
     @Override

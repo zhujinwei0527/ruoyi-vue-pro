@@ -13,7 +13,8 @@ import lombok.Getter;
 public enum MesMdAutoCodeRuleCodeEnum {
 
     SN_CODE("SN_CODE", "SN 码"),
-    PACKAGE_CODE("PACKAGE_CODE", "装箱单编码");
+    PACKAGE_CODE("PACKAGE_CODE", "装箱单编码"),
+    BATCH_CODE("BATCH_CODE", "批次编码");
 
     /**
      * 规则代码

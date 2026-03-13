@@ -198,7 +198,7 @@ public class MesMdItemServiceImpl implements MesMdItemService {
                 || Boolean.TRUE.equals(config.getClientFlag())
                 || Boolean.TRUE.equals(config.getSalesOrderCodeFlag())
                 || Boolean.TRUE.equals(config.getPurchaseOrderCodeFlag())
-                || Boolean.TRUE.equals(config.getWorkorderFlag())
+                || Boolean.TRUE.equals(config.getWorkOrderFlag())
                 || Boolean.TRUE.equals(config.getTaskFlag())
                 || Boolean.TRUE.equals(config.getWorkstationFlag())
                 || Boolean.TRUE.equals(config.getToolFlag())

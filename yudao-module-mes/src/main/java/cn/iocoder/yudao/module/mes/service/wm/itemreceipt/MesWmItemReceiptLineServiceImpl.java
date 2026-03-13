@@ -2,12 +2,17 @@ package cn.iocoder.yudao.module.mes.service.wm.itemreceipt;
 
 import cn.iocoder.yudao.framework.common.pojo.PageResult;
 import cn.iocoder.yudao.framework.common.util.object.BeanUtils;
+import cn.iocoder.yudao.module.mes.controller.admin.wm.batch.vo.MesWmBatchGenerateReqVO;
 import cn.iocoder.yudao.module.mes.controller.admin.wm.itemreceipt.vo.line.MesWmItemReceiptLinePageReqVO;
 import cn.iocoder.yudao.module.mes.controller.admin.wm.itemreceipt.vo.line.MesWmItemReceiptLineSaveReqVO;
+import cn.iocoder.yudao.module.mes.dal.dataobject.wm.arrivalnotice.MesWmArrivalNoticeDO;
+import cn.iocoder.yudao.module.mes.dal.dataobject.wm.batch.MesWmBatchDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.wm.itemreceipt.MesWmItemReceiptDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.wm.itemreceipt.MesWmItemReceiptLineDO;
 import cn.iocoder.yudao.module.mes.dal.mysql.wm.itemreceipt.MesWmItemReceiptLineMapper;
 import cn.iocoder.yudao.module.mes.service.wm.arrivalnotice.MesWmArrivalNoticeLineService;
+import cn.iocoder.yudao.module.mes.service.wm.arrivalnotice.MesWmArrivalNoticeService;
+import cn.iocoder.yudao.module.mes.service.wm.batch.MesWmBatchService;
 import jakarta.annotation.Resource;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
@@ -32,43 +37,55 @@ public class MesWmItemReceiptLineServiceImpl implements MesWmItemReceiptLineServ
     @Resource
     @Lazy
     private MesWmItemReceiptService itemReceiptService;
-
     @Resource
     private MesWmItemReceiptDetailService itemReceiptDetailService;
-
     @Resource
     @Lazy
     private MesWmArrivalNoticeLineService arrivalNoticeLineService;
+    @Resource
+    @Lazy
+    private MesWmArrivalNoticeService arrivalNoticeService;
+    @Resource
+    private MesWmBatchService batchService;
 
     @Override
     public Long createItemReceiptLine(MesWmItemReceiptLineSaveReqVO createReqVO) {
-        // 校验父单据存在且为可编辑状态
+        // 1.1 校验父单据存在且为可编辑状态
         MesWmItemReceiptDO receipt = itemReceiptService.validateItemReceiptEditable(createReqVO.getReceiptId());
-        // 校验关联到货通知单行存在
+        // 1.2 校验关联到货通知单行存在
         validateArrivalNoticeLine(receipt, createReqVO.getArrivalNoticeLineId());
 
-        // 新增
+        // 2.1 创建入库单行
         MesWmItemReceiptLineDO line = BeanUtils.toBean(createReqVO, MesWmItemReceiptLineDO.class);
+        // 2.2 生成或获取批次
+        MesWmBatchDO batch = generateOrGetBatch(receipt, createReqVO);
+        if (batch != null) {
+            line.setBatchId(batch.getId());
+            line.setBatchCode(batch.getCode());
+        }
+        // 2.3 插入数据库
         itemReceiptLineMapper.insert(line);
-
-        // TODO @芋艿：【暂时不处理】wmBatchService 需要生成下；基于 batchCode
         return line.getId();
     }
 
     @Override
     public void updateItemReceiptLine(MesWmItemReceiptLineSaveReqVO updateReqVO) {
-        // 校验存在
+        // 1.1 校验存在
         MesWmItemReceiptLineDO line = validateItemReceiptLineExists(updateReqVO.getId());
-        // 校验父单据存在且为可编辑状态
+        // 1.2 校验父单据存在且为可编辑状态
         MesWmItemReceiptDO receipt = itemReceiptService.validateItemReceiptEditable(line.getReceiptId());
-        // 校验关联到货通知单行存在
+        // 1.3 校验关联到货通知单行存在
         validateArrivalNoticeLine(receipt, updateReqVO.getArrivalNoticeLineId());
 
-        // 更新
+        // 2.1 更新
         MesWmItemReceiptLineDO updateObj = BeanUtils.toBean(updateReqVO, MesWmItemReceiptLineDO.class);
+        // 2.2 生成或获取批次
+        MesWmBatchDO batch = generateOrGetBatch(receipt, updateReqVO);
+        if (batch != null) {
+            updateObj.setBatchId(batch.getId()).setBatchCode(batch.getCode());
+        }
+        // 2.3 更新数据库
         itemReceiptLineMapper.updateById(updateObj);
-
-        // TODO @芋艿：【暂时不处理】wmBatchService 需要生成下；基于 batchCode
     }
 
     @Override
@@ -132,6 +149,33 @@ public class MesWmItemReceiptLineServiceImpl implements MesWmItemReceiptLineServ
             throw exception(WM_ITEM_RECEIPT_LINE_NOT_EXISTS);
         }
         return line;
+    }
+
+    /**
+     * 生成或获取批次
+     *
+     * @param receipt 入库单
+     * @param reqVO 入库单行请求VO
+     * @return 批次记录（如果物料未启用批次管理则返回 null）
+     */
+    private MesWmBatchDO generateOrGetBatch(MesWmItemReceiptDO receipt, MesWmItemReceiptLineSaveReqVO reqVO) {
+        // 构建批次参数 VO
+        MesWmBatchGenerateReqVO batchReqVO = new MesWmBatchGenerateReqVO();
+        // 从入库单行获取
+        batchReqVO.setItemId(reqVO.getItemId()).setProduceDate(reqVO.getProductionDate())
+                .setExpireDate(reqVO.getExpireDate()).setLotNumber(reqVO.getProductionBatchNumber());
+        // 从父单据获取
+        batchReqVO.setVendorId(receipt.getVendorId()).setReceiptDate(receipt.getReceiptDate());
+        // 从到货通知单获取采购订单号（如果关联了到货通知单）
+        if (receipt.getNoticeId() != null) {
+            MesWmArrivalNoticeDO notice = arrivalNoticeService.getArrivalNotice(receipt.getNoticeId());
+            if (notice != null) {
+                batchReqVO.setPurchaseOrderCode(notice.getPurchaseOrderCode());
+            }
+        }
+
+        // 生成或获取批次
+        return batchService.getOrGenerateBatchCode(batchReqVO);
     }
 
 }
