@@ -50,7 +50,7 @@ public class MesWmItemReceiptLineRespVO {
     private LocalDateTime expireDate;
 
     @Schema(description = "生产批号", example = "PB20260110")
-    private String productionBatchNumber;
+    private String lotNumber;
 
     @Schema(description = "备注", example = "备注")
     private String remark;

@@ -39,7 +39,7 @@ public class MesWmOutsourceReceiptLineSaveReqVO {
     private LocalDateTime expireDate;
 
     @Schema(description = "生产批号", example = "PB20260301")
-    private String productionBatchNumber;
+    private String lotNumber;
 
     @Schema(description = "备注", example = "备注")
     private String remark;

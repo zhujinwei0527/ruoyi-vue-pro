@@ -82,7 +82,7 @@ public class MesWmMiscReceiptLineDO extends BaseDO {
     /**
      * 生产批号（暂不使用）
      */
-    private String productionBatchNumber;
+    private String lotNumber;
     /**
      * 备注
      */
