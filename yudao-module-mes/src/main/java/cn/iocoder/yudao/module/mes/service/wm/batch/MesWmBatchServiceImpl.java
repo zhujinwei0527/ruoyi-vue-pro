@@ -2,7 +2,9 @@ package cn.iocoder.yudao.module.mes.service.wm.batch;
 
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.ObjUtil;
+import cn.iocoder.yudao.framework.common.pojo.PageResult;
 import cn.iocoder.yudao.module.mes.controller.admin.wm.batch.vo.MesWmBatchGenerateReqVO;
+import cn.iocoder.yudao.module.mes.controller.admin.wm.batch.vo.MesWmBatchPageReqVO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.md.item.MesMdItemBatchConfigDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.md.item.MesMdItemDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.wm.batch.MesWmBatchDO;
@@ -45,6 +47,11 @@ public class MesWmBatchServiceImpl implements MesWmBatchService {
     private MesMdAutoCodeRecordService autoCodeRecordService;
     @Resource
     private MesWmBarcodeService barcodeService;
+
+    @Override
+    public PageResult<MesWmBatchDO> getBatchPage(MesWmBatchPageReqVO pageReqVO) {
+        return batchMapper.selectPage(pageReqVO);
+    }
 
     @Override
     @Transactional(rollbackFor = Exception.class)

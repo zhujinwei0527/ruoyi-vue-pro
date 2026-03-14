@@ -2,7 +2,10 @@ package cn.iocoder.yudao.module.mes.dal.mysql.wm.batch;
 
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.ObjUtil;
+import cn.iocoder.yudao.framework.common.pojo.PageResult;
 import cn.iocoder.yudao.framework.mybatis.core.mapper.BaseMapperX;
+import cn.iocoder.yudao.framework.mybatis.core.query.LambdaQueryWrapperX;
+import cn.iocoder.yudao.module.mes.controller.admin.wm.batch.vo.MesWmBatchPageReqVO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.wm.batch.MesWmBatchDO;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import org.apache.ibatis.annotations.Mapper;
@@ -16,6 +19,17 @@ import java.util.List;
  */
 @Mapper
 public interface MesWmBatchMapper extends BaseMapperX<MesWmBatchDO> {
+
+    default PageResult<MesWmBatchDO> selectPage(MesWmBatchPageReqVO reqVO) {
+        return selectPage(reqVO, new LambdaQueryWrapperX<MesWmBatchDO>()
+                .likeIfPresent(MesWmBatchDO::getCode, reqVO.getCode())
+                .eqIfPresent(MesWmBatchDO::getItemId, reqVO.getItemId())
+                .eqIfPresent(MesWmBatchDO::getVendorId, reqVO.getVendorId())
+                .eqIfPresent(MesWmBatchDO::getClientId, reqVO.getClientId())
+                .likeIfPresent(MesWmBatchDO::getSalesOrderCode, reqVO.getSalesOrderCode())
+                .likeIfPresent(MesWmBatchDO::getPurchaseOrderCode, reqVO.getPurchaseOrderCode())
+                .orderByDesc(MesWmBatchDO::getId));
+    }
 
     /**
      * 根据参数查询匹配的第一条批次记录
