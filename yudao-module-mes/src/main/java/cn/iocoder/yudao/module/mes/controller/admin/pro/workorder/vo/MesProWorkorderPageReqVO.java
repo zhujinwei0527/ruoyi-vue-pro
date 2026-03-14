@@ -26,20 +26,11 @@ public class MesProWorkOrderPageReqVO extends PageParam {
     @Schema(description = "工单类型", example = "1")
     private Integer type;
 
-    @Schema(description = "来源类型", example = "1")
-    private Integer orderSourceType;
-
     @Schema(description = "产品编号", example = "100")
     private Long productId;
 
     @Schema(description = "客户编号", example = "300")
     private Long clientId;
-
-    @Schema(description = "批次号", example = "BATCH-001")
-    private String batchCode;
-
-    @Schema(description = "工单状态", example = "0")
-    private Integer status;
 
     @Schema(description = "需求日期")
     @DateTimeFormat(pattern = FORMAT_YEAR_MONTH_DAY_HOUR_MINUTE_SECOND)

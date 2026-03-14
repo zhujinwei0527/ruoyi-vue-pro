@@ -20,11 +20,8 @@ public interface MesProWorkOrderMapper extends BaseMapperX<MesProWorkOrderDO> {
                 .likeIfPresent(MesProWorkOrderDO::getCode, reqVO.getCode())
                 .likeIfPresent(MesProWorkOrderDO::getName, reqVO.getName())
                 .eqIfPresent(MesProWorkOrderDO::getType, reqVO.getType())
-                .eqIfPresent(MesProWorkOrderDO::getOrderSourceType, reqVO.getOrderSourceType())
                 .eqIfPresent(MesProWorkOrderDO::getProductId, reqVO.getProductId())
                 .eqIfPresent(MesProWorkOrderDO::getClientId, reqVO.getClientId())
-                .likeIfPresent(MesProWorkOrderDO::getBatchCode, reqVO.getBatchCode())
-                .eqIfPresent(MesProWorkOrderDO::getStatus, reqVO.getStatus())
                 .betweenIfPresent(MesProWorkOrderDO::getRequestDate, reqVO.getRequestDate())
                 .orderByDesc(MesProWorkOrderDO::getId));
     }
