@@ -1,5 +1,6 @@
 package cn.iocoder.yudao.module.mes.service.wm.batch;
 
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.ObjUtil;
 import cn.iocoder.yudao.module.mes.controller.admin.wm.batch.vo.MesWmBatchGenerateReqVO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.md.item.MesMdItemBatchConfigDO;
@@ -17,6 +18,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception;
 import static cn.iocoder.yudao.module.mes.enums.ErrorCodeConstants.*;
@@ -169,6 +173,34 @@ public class MesWmBatchServiceImpl implements MesWmBatchService {
         // 4. 生成条码
         barcodeService.autoGenerateBarcode(MesBizTypeConstants.WM_BATCH, batch.getId(), batch.getCode(), item.getName());
         return batch;
+    }
+
+    @Override
+    public List<MesWmBatchDO> getForwardBatchList(String code) {
+        List<MesWmBatchDO> list = batchMapper.selectListByForward(code);
+        if (CollUtil.isEmpty(list)) {
+            return list;
+        }
+        // 继续递归查询下游批次
+        List<MesWmBatchDO> results = new ArrayList<>(list);
+        for (MesWmBatchDO batch : list) {
+            results.addAll(getForwardBatchList(batch.getCode()));
+        }
+        return results;
+    }
+
+    @Override
+    public List<MesWmBatchDO> getBackwardBatchList(String code) {
+        List<MesWmBatchDO> list = batchMapper.selectListByBackward(code);
+        if (CollUtil.isEmpty(list)) {
+            return list;
+        }
+        // 继续递归查询上游批次
+        List<MesWmBatchDO> results = new ArrayList<>(list);
+        for (MesWmBatchDO batch : list) {
+            results.addAll(getBackwardBatchList(batch.getCode()));
+        }
+        return results;
     }
 
 }

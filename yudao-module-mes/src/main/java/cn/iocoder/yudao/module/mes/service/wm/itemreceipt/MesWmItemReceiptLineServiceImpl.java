@@ -163,7 +163,7 @@ public class MesWmItemReceiptLineServiceImpl implements MesWmItemReceiptLineServ
         MesWmBatchGenerateReqVO batchReqVO = new MesWmBatchGenerateReqVO();
         // 从入库单行获取
         batchReqVO.setItemId(reqVO.getItemId()).setProduceDate(reqVO.getProductionDate())
-                .setExpireDate(reqVO.getExpireDate()).setLotNumber(reqVO.getProductionBatchNumber());
+                .setExpireDate(reqVO.getExpireDate()).setLotNumber(reqVO.getLotNumber());
         // 从父单据获取
         batchReqVO.setVendorId(receipt.getVendorId()).setReceiptDate(receipt.getReceiptDate());
         // 从到货通知单获取采购订单号（如果关联了到货通知单）

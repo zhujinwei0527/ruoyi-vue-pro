@@ -1,9 +1,9 @@
 package cn.iocoder.yudao.module.mes.dal.mysql.wm.batch;
 
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.util.ObjUtil;
 import cn.iocoder.yudao.framework.mybatis.core.mapper.BaseMapperX;
 import cn.iocoder.yudao.module.mes.dal.dataobject.wm.batch.MesWmBatchDO;
-import cn.hutool.core.util.ObjUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import org.apache.ibatis.annotations.Mapper;
 
@@ -104,5 +104,21 @@ public interface MesWmBatchMapper extends BaseMapperX<MesWmBatchDO> {
         List<MesWmBatchDO> list = selectList(query);
         return CollUtil.getFirst(list);
     }
+
+    /**
+     * 查询向前追溯批次列表
+     * <p>
+     * 查询当前批次被哪些工单的哪些批次产品消耗
+     * SQL 逻辑：从领料明细 -> 领料单 -> 报工记录 -> 生产入库单 -> 生产入库行
+     */
+    List<MesWmBatchDO> selectListByForward(String batchCode);
+
+    /**
+     * 查询向后追溯批次列表
+     * <p>
+     * 查询当前批次的产品使用了哪些批次的物资
+     * SQL 逻辑：从生产入库明细 -> 生产入库单 -> 领料单 -> 领料明细
+     */
+    List<MesWmBatchDO> selectListByBackward(String batchCode);
 
 }
