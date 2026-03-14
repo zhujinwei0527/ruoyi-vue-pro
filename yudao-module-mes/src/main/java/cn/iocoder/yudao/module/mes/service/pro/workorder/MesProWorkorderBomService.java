@@ -1,6 +1,7 @@
 package cn.iocoder.yudao.module.mes.service.pro.workorder;
 
 import cn.iocoder.yudao.framework.common.pojo.PageResult;
+import cn.iocoder.yudao.module.mes.controller.admin.pro.workorder.vo.MesProWorkOrderSaveReqVO;
 import cn.iocoder.yudao.module.mes.controller.admin.pro.workorder.vo.bom.MesProWorkOrderBomPageReqVO;
 import cn.iocoder.yudao.module.mes.controller.admin.pro.workorder.vo.bom.MesProWorkOrderBomSaveReqVO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.pro.workorder.MesProWorkOrderBomDO;
@@ -67,5 +68,16 @@ public interface MesProWorkOrderBomService {
      * @param workOrderId 工单编号
      */
     void deleteWorkOrderBomByWorkOrderId(Long workOrderId);
+
+    /**
+     * 根据产品 BOM 自动生成工单 BOM 行
+     * <p>
+     * 如果 updated 为 true，会先清理旧的 BOM 数据再重新生成
+     *
+     * @param workOrderId 工单编号
+     * @param reqVO       工单创建/更新请求（取 productId、quantity）
+     * @param updated     是否为更新场景（true 时先删除旧 BOM）
+     */
+    void generateWorkOrderBom(Long workOrderId, MesProWorkOrderSaveReqVO reqVO, boolean updated);
 
 }

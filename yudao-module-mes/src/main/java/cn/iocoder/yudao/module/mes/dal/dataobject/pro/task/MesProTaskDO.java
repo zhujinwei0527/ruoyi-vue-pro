@@ -1,12 +1,14 @@
 package cn.iocoder.yudao.module.mes.dal.dataobject.pro.task;
 
 import cn.iocoder.yudao.framework.mybatis.core.dataobject.BaseDO;
+import cn.iocoder.yudao.module.mes.dal.dataobject.md.client.MesMdClientDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.md.item.MesMdItemDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.md.unitmeasure.MesMdUnitMeasureDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.md.workstation.MesMdWorkstationDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.pro.process.MesProProcessDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.pro.route.MesProRouteDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.pro.workorder.MesProWorkOrderDO;
+import cn.iocoder.yudao.module.mes.enums.pro.MesProTaskStatusEnum;
 import com.baomidou.mybatisplus.annotation.KeySequence;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
@@ -79,6 +81,7 @@ public class MesProTaskDO extends BaseDO {
      * 关联 {@link MesMdUnitMeasureDO#getId()}
      */
     private Long unitMeasureId;
+
     /**
      * 排产数量
      */
@@ -99,8 +102,11 @@ public class MesProTaskDO extends BaseDO {
      * 调整数量
      */
     private BigDecimal changedQuantity;
+
     /**
      * 客户编号
+     *
+     * 关联 {@link MesMdClientDO#getId()}
      */
     private Long clientId;
     /**
@@ -127,8 +133,11 @@ public class MesProTaskDO extends BaseDO {
      * 取消日期
      */
     private LocalDateTime cancelDate;
+
     /**
      * 任务状态
+     *
+     * 枚举 {@link MesProTaskStatusEnum}
      */
     private Integer status;
     /**

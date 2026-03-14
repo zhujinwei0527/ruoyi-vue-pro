@@ -32,6 +32,11 @@ import java.time.LocalDateTime;
 public class MesProWorkOrderDO extends BaseDO {
 
     /**
+     * 父工单编号，空值
+     */
+    public static final Long PARENT_ID_NULL = 0L;
+
+    /**
      * 编号
      */
     @TableId

@@ -90,4 +90,18 @@ public interface MesProTaskService {
         return convertMap(getTaskList(ids), MesProTaskDO::getId);
     }
 
+    /**
+     * 根据工单编号，完成所有关联任务
+     *
+     * @param workOrderId 工单编号
+     */
+    void finishTaskByOrderId(Long workOrderId);
+
+    /**
+     * 根据工单编号，取消所有关联任务
+     *
+     * @param workOrderId 工单编号
+     */
+    void cancelTaskByOrderId(Long workOrderId);
+
 }
