@@ -2,7 +2,6 @@ package cn.iocoder.yudao.module.mes.dal.dataobject.pro.workorder;
 
 import cn.iocoder.yudao.framework.mybatis.core.dataobject.BaseDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.md.item.MesMdItemDO;
-import cn.iocoder.yudao.module.mes.dal.dataobject.md.unitmeasure.MesMdUnitMeasureDO;
 import com.baomidou.mybatisplus.annotation.KeySequence;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
@@ -42,12 +41,6 @@ public class MesProWorkOrderBomDO extends BaseDO {
      * 关联 {@link MesMdItemDO#getId()}
      */
     private Long itemId;
-    /**
-     * 单位编号
-     *
-     * 关联 {@link MesMdUnitMeasureDO#getId()}
-     */
-    private Long unitMeasureId;
     /**
      * 预计使用量
      */

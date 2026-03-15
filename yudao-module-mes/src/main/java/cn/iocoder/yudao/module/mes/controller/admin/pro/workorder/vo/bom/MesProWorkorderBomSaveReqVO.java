@@ -21,10 +21,6 @@ public class MesProWorkOrderBomSaveReqVO {
     @NotNull(message = "BOM 物料不能为空")
     private Long itemId;
 
-    @Schema(description = "单位编号", requiredMode = Schema.RequiredMode.REQUIRED, example = "300")
-    @NotNull(message = "单位不能为空")
-    private Long unitMeasureId;
-
     @Schema(description = "预计使用量", requiredMode = Schema.RequiredMode.REQUIRED, example = "10.00")
     @NotNull(message = "预计使用量不能为空")
     private BigDecimal quantity;
@@ -32,4 +28,4 @@ public class MesProWorkOrderBomSaveReqVO {
     @Schema(description = "备注", example = "备注")
     private String remark;
 
-    }
+}

@@ -113,7 +113,7 @@ public class MesProWorkOrderBomController {
 
         // 2. 逐层展开，得到叶子物料 itemId → quantity
         Map<Long, BigDecimal> leafItems = buildWorkOrderItems(bomList);
-        if (leafItems.isEmpty()) {
+        if (CollUtil.isEmpty(leafItems)) {
             return success(Collections.emptyList());
         }
 
@@ -147,7 +147,7 @@ public class MesProWorkOrderBomController {
         Map<Long, MesMdItemDO> itemMap = itemService.getItemMap(
                 convertSet(list, MesProWorkOrderBomDO::getItemId));
         Map<Long, MesMdUnitMeasureDO> unitMeasureMap = unitMeasureService.getUnitMeasureMap(
-                convertSet(list, MesProWorkOrderBomDO::getUnitMeasureId));
+                convertSet(itemMap.values(), MesMdItemDO::getUnitMeasureId));
         Map<Long, MesMdItemTypeDO> itemTypeMap = itemTypeService.getItemTypeMap(
                 convertSet(itemMap.values(), MesMdItemDO::getItemTypeId));
         // 2. 拼接 VO
@@ -157,9 +157,9 @@ public class MesProWorkOrderBomController {
                         .setItemSpec(item.getSpecification());
                 MapUtils.findAndThen(itemTypeMap, item.getItemTypeId(),
                         itemType -> vo.setItemOrProduct(itemType.getItemOrProduct()));
+                MapUtils.findAndThen(unitMeasureMap, item.getUnitMeasureId(),
+                        unitMeasure -> vo.setUnitMeasureName(unitMeasure.getName()));
             });
-            MapUtils.findAndThen(unitMeasureMap, vo.getUnitMeasureId(),
-                    unitMeasure -> vo.setUnitMeasureName(unitMeasure.getName()));
         });
     }
 

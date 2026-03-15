@@ -127,9 +127,8 @@ public class MesProWorkOrderBomServiceImpl implements MesProWorkOrderBomService 
         // 3. 构建工单 BOM 列表并批量插入
         List<MesProWorkOrderBomDO> bomList = new ArrayList<>(productBomList.size());
         for (MesMdProductBomDO productBom : productBomList) {
-            MesMdItemDO bomItem = itemMap.get(productBom.getBomItemId());
             bomList.add(new MesProWorkOrderBomDO().setWorkOrderId(workOrderId).setItemId(productBom.getBomItemId())
-                    .setQuantity(reqVO.getQuantity().multiply(productBom.getQuantity())).setUnitMeasureId(bomItem.getUnitMeasureId()));
+                    .setQuantity(reqVO.getQuantity().multiply(productBom.getQuantity())));
         }
         workOrderBomMapper.insertBatch(bomList);
     }
