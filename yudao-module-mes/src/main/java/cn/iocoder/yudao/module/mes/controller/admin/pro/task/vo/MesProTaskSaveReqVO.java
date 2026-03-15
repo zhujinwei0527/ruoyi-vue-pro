@@ -43,10 +43,6 @@ public class MesProTaskSaveReqVO {
     @NotNull(message = "产品不能为空")
     private Long itemId;
 
-    @Schema(description = "单位编号", requiredMode = Schema.RequiredMode.REQUIRED, example = "200")
-    @NotNull(message = "单位不能为空")
-    private Long unitMeasureId;
-
     @Schema(description = "排产数量", requiredMode = Schema.RequiredMode.REQUIRED, example = "100.00")
     @NotNull(message = "排产数量不能为空")
     private BigDecimal quantity;

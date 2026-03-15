@@ -31,6 +31,9 @@ public class MesProTaskRespVO {
     @Schema(description = "工作站编号", example = "1")
     private Long workstationId;
 
+    @Schema(description = "工作站编码", example = "WS-001")
+    private String workstationCode;
+
     @Schema(description = "工作站名称", example = "注塑工作站")
     private String workstationName;
 
@@ -54,12 +57,6 @@ public class MesProTaskRespVO {
 
     @Schema(description = "规格型号", example = "100x200mm")
     private String itemSpec;
-
-    @Schema(description = "单位编号", example = "200")
-    private Long unitMeasureId;
-
-    @Schema(description = "单位名称", example = "个")
-    private String unitMeasureName;
 
     @Schema(description = "排产数量", example = "100.00")
     private BigDecimal quantity;

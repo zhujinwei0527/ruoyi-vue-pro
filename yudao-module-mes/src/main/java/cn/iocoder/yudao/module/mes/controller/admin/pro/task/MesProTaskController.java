@@ -12,14 +12,12 @@ import cn.iocoder.yudao.module.mes.controller.admin.pro.task.vo.MesProTaskRespVO
 import cn.iocoder.yudao.module.mes.controller.admin.pro.task.vo.MesProTaskSaveReqVO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.md.client.MesMdClientDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.md.item.MesMdItemDO;
-import cn.iocoder.yudao.module.mes.dal.dataobject.md.unitmeasure.MesMdUnitMeasureDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.md.workstation.MesMdWorkstationDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.pro.process.MesProProcessDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.pro.task.MesProTaskDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.pro.workorder.MesProWorkOrderDO;
 import cn.iocoder.yudao.module.mes.service.md.client.MesMdClientService;
 import cn.iocoder.yudao.module.mes.service.md.item.MesMdItemService;
-import cn.iocoder.yudao.module.mes.service.md.unitmeasure.MesMdUnitMeasureService;
 import cn.iocoder.yudao.module.mes.service.md.workstation.MesMdWorkstationService;
 import cn.iocoder.yudao.module.mes.service.pro.process.MesProProcessService;
 import cn.iocoder.yudao.module.mes.service.pro.task.MesProTaskService;
@@ -65,9 +63,6 @@ public class MesProTaskController {
 
     @Resource
     private MesMdItemService itemService;
-
-    @Resource
-    private MesMdUnitMeasureService unitMeasureService;
 
     @Resource
     private MesMdClientService clientService;
@@ -154,30 +149,19 @@ public class MesProTaskController {
                 new java.util.ArrayList<>(convertSet(list, MesProTaskDO::getProcessId)));
         Map<Long, MesMdItemDO> itemMap = itemService.getItemMap(
                 convertSet(list, MesProTaskDO::getItemId));
-        Map<Long, MesMdUnitMeasureDO> unitMeasureMap = unitMeasureService.getUnitMeasureMap(
-                convertSet(list, MesProTaskDO::getUnitMeasureId));
         Map<Long, MesMdClientDO> clientMap = clientService.getClientMap(
                 convertSet(list, MesProTaskDO::getClientId));
-
         // 拼接 VO
         return convertList(list, task -> {
             MesProTaskRespVO vo = BeanUtils.toBean(task, MesProTaskRespVO.class);
-            findAndThen(workOrderMap, task.getWorkOrderId(), wo -> {
-                vo.setWorkOrderCode(wo.getCode());
-                vo.setWorkOrderName(wo.getName());
-                vo.setRequestDate(wo.getRequestDate());
-            });
+            findAndThen(workOrderMap, task.getWorkOrderId(), wo ->
+                    vo.setWorkOrderCode(wo.getCode()).setWorkOrderName(wo.getName()).setRequestDate(wo.getRequestDate()));
             findAndThen(workstationMap, task.getWorkstationId(), ws ->
-                    vo.setWorkstationName(ws.getName()));
+                    vo.setWorkstationCode(ws.getCode()).setWorkstationName(ws.getName()));
             findAndThen(processMap, task.getProcessId(), p ->
                     vo.setProcessName(p.getName()));
-            findAndThen(itemMap, task.getItemId(), item -> {
-                vo.setItemCode(item.getCode());
-                vo.setItemName(item.getName());
-                vo.setItemSpec(item.getSpecification());
-            });
-            findAndThen(unitMeasureMap, task.getUnitMeasureId(), um ->
-                    vo.setUnitMeasureName(um.getName()));
+            findAndThen(itemMap, task.getItemId(), item ->
+                    vo.setItemCode(item.getCode()).setItemName(item.getName()).setItemSpec(item.getSpecification()));
             findAndThen(clientMap, task.getClientId(), c ->
                     vo.setClientName(c.getName()));
             return vo;
