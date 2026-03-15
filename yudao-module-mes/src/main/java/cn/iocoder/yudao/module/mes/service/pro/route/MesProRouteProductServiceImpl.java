@@ -105,6 +105,11 @@ public class MesProRouteProductServiceImpl implements MesProRouteProductService 
     }
 
     @Override
+    public MesProRouteProductDO getRouteProductByItemId(Long itemId) {
+        return routeProductMapper.selectByItemId(itemId);
+    }
+
+    @Override
     public List<MesProRouteProductDO> getRouteProductListByRouteId(Long routeId) {
         return routeProductMapper.selectListByRouteId(routeId);
     }

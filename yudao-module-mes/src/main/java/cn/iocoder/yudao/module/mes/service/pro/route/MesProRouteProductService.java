@@ -34,6 +34,14 @@ public interface MesProRouteProductService {
     MesProRouteProductDO getRouteProduct(Long id);
 
     /**
+     * 按产品（物料）获得工艺路线产品
+     *
+     * @param itemId 产品编号
+     * @return 工艺路线产品，如果未配置则返回 null
+     */
+    MesProRouteProductDO getRouteProductByItemId(Long itemId);
+
+    /**
      * 按工艺路线获得产品列表
      */
     List<MesProRouteProductDO> getRouteProductListByRouteId(Long routeId);
