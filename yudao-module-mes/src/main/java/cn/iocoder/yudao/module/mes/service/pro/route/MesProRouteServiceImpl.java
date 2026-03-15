@@ -99,7 +99,8 @@ public class MesProRouteServiceImpl implements MesProRouteService {
         routeMapper.deleteById(id);
     }
 
-    private MesProRouteDO validateRouteExists(Long id) {
+    @Override
+    public MesProRouteDO validateRouteExists(Long id) {
         MesProRouteDO route = routeMapper.selectById(id);
         if (route == null) {
             throw exception(PRO_ROUTE_NOT_EXISTS);

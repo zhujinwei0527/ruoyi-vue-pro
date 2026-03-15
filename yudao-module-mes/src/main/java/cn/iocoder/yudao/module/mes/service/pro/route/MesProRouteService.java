@@ -65,6 +65,14 @@ public interface MesProRouteService {
     void validateRouteNotEnable(Long routeId);
 
     /**
+     * 校验工艺路线存在
+     *
+     * @param id 工艺路线编号
+     * @return 工艺路线
+     */
+    MesProRouteDO validateRouteExists(Long id);
+
+    /**
      * 获得工艺路线列表
      *
      * @param ids 编号数组

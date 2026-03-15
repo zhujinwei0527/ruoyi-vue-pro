@@ -5,10 +5,19 @@ import cn.iocoder.yudao.framework.common.pojo.PageResult;
 import cn.iocoder.yudao.framework.common.util.object.BeanUtils;
 import cn.iocoder.yudao.module.mes.controller.admin.pro.task.vo.MesProTaskPageReqVO;
 import cn.iocoder.yudao.module.mes.controller.admin.pro.task.vo.MesProTaskSaveReqVO;
+import cn.iocoder.yudao.module.mes.dal.dataobject.md.item.MesMdItemDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.pro.task.MesProTaskDO;
 import cn.iocoder.yudao.module.mes.dal.mysql.pro.task.MesProTaskMapper;
+import cn.iocoder.yudao.module.mes.enums.md.autocode.MesMdAutoCodeRuleCodeEnum;
 import cn.iocoder.yudao.module.mes.enums.pro.MesProTaskStatusEnum;
+import cn.iocoder.yudao.module.mes.service.md.autocode.MesMdAutoCodeRecordService;
+import cn.iocoder.yudao.module.mes.service.md.item.MesMdItemService;
+import cn.iocoder.yudao.module.mes.service.md.workstation.MesMdWorkstationService;
+import cn.iocoder.yudao.module.mes.service.pro.process.MesProProcessService;
+import cn.iocoder.yudao.module.mes.service.pro.route.MesProRouteService;
+import cn.iocoder.yudao.module.mes.service.pro.workorder.MesProWorkOrderService;
 import jakarta.annotation.Resource;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 
@@ -32,23 +41,61 @@ public class MesProTaskServiceImpl implements MesProTaskService {
     @Resource
     private MesProTaskMapper taskMapper;
 
+    @Resource
+    @Lazy
+    private MesProWorkOrderService workOrderService;
+    @Resource
+    private MesMdWorkstationService workstationService;
+    @Resource
+    private MesProProcessService processService;
+    @Resource
+    private MesMdItemService itemService;
+    @Resource
+    private MesProRouteService routeService;
+    @Resource
+    private MesMdAutoCodeRecordService autoCodeRecordService;
+
     @Override
     public Long createTask(MesProTaskSaveReqVO createReqVO) {
-        MesProTaskDO task = BeanUtils.toBean(createReqVO, MesProTaskDO.class);
+        // 1. 校验关联数据存在
+        workOrderService.validateWorkOrderExists(createReqVO.getWorkOrderId());
+        workstationService.validateWorkstationExists(createReqVO.getWorkstationId());
+        routeService.validateRouteExists(createReqVO.getRouteId());
+        processService.validateProcessExists(createReqVO.getProcessId());
+        MesMdItemDO item = itemService.validateItemExists(createReqVO.getItemId());
+
+        // 2.1 构建任务 DO
+        MesProTaskDO task = BeanUtils.toBean(createReqVO, MesProTaskDO.class)
+                .setName(item.getName() + "【" + createReqVO.getQuantity() + "】")
+                .setCode(autoCodeRecordService.generateAutoCode(MesMdAutoCodeRuleCodeEnum.TASK_CODE.getCode()))
+                .setStatus(MesProTaskStatusEnum.PREPARE.getStatus());
+        // 2.2 插入
         taskMapper.insert(task);
         return task.getId();
     }
 
     @Override
     public void updateTask(MesProTaskSaveReqVO updateReqVO) {
+        // 1.1 校验存在
         validateTaskExists(updateReqVO.getId());
-        MesProTaskDO updateObj = BeanUtils.toBean(updateReqVO, MesProTaskDO.class);
+        // 1.2 校验关联数据存在
+        workOrderService.validateWorkOrderExists(updateReqVO.getWorkOrderId());
+        workstationService.validateWorkstationExists(updateReqVO.getWorkstationId());
+        routeService.validateRouteExists(updateReqVO.getRouteId());
+        processService.validateProcessExists(updateReqVO.getProcessId());
+        MesMdItemDO item = itemService.validateItemExists(updateReqVO.getItemId());
+
+        // 2. 更新
+        MesProTaskDO updateObj = BeanUtils.toBean(updateReqVO, MesProTaskDO.class)
+                .setName(item.getName() + "【" + updateReqVO.getQuantity() + "】");
         taskMapper.updateById(updateObj);
     }
 
     @Override
     public void deleteTask(Long id) {
+        // 1. 校验存在
         validateTaskExists(id);
+        // 2. 删除
         taskMapper.deleteById(id);
     }
 
