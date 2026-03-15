@@ -165,21 +165,23 @@ public class MesProWorkOrderController {
                 convertSet(list, MesProWorkOrderDO::getClientId));
         Map<Long, MesMdVendorDO> vendorMap = vendorService.getVendorMap(
                 convertSet(list, MesProWorkOrderDO::getVendorId));
+        // 单位从产品关联的 item 获得
         Map<Long, MesMdUnitMeasureDO> unitMeasureMap = unitMeasureService.getUnitMeasureMap(
-                convertSet(list, MesProWorkOrderDO::getUnitMeasureId));
+                convertSet(itemMap.values(), MesMdItemDO::getUnitMeasureId));
         Map<Long, MesProWorkOrderDO> parentMap = workOrderService.getWorkOrderMap(
                 convertSet(list, MesProWorkOrderDO::getParentId));
-        // 2. 拼接 VO
+        // 2. 拼接 VO（单位名称从产品关联的 item 获得）
         return BeanUtils.toBean(list, MesProWorkOrderRespVO.class, vo -> {
-            MapUtils.findAndThen(itemMap, vo.getProductId(), item ->
-                    vo.setProductName(item.getName()).setProductCode(item.getCode())
-                            .setProductSpec(item.getSpecification()));
+            MapUtils.findAndThen(itemMap, vo.getProductId(), item -> {
+                vo.setProductName(item.getName()).setProductCode(item.getCode())
+                        .setProductSpec(item.getSpecification());
+                MapUtils.findAndThen(unitMeasureMap, item.getUnitMeasureId(),
+                        unitMeasure -> vo.setUnitMeasureName(unitMeasure.getName()));
+            });
             MapUtils.findAndThen(clientMap, vo.getClientId(),
                     client -> vo.setClientName(client.getName()).setClientCode(client.getCode()));
             MapUtils.findAndThen(vendorMap, vo.getVendorId(),
                     vendor -> vo.setVendorName(vendor.getName()).setVendorCode(vendor.getCode()));
-            MapUtils.findAndThen(unitMeasureMap, vo.getUnitMeasureId(),
-                    unitMeasure -> vo.setUnitMeasureName(unitMeasure.getName()));
             MapUtils.findAndThen(parentMap, vo.getParentId(),
                     parent -> vo.setParentCode(parent.getCode()));
         });

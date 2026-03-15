@@ -38,10 +38,6 @@ public class MesProWorkOrderSaveReqVO {
     @NotNull(message = "产品不能为空")
     private Long productId;
 
-    @Schema(description = "单位编号", requiredMode = Schema.RequiredMode.REQUIRED, example = "200")
-    @NotNull(message = "单位不能为空")
-    private Long unitMeasureId;
-
     @Schema(description = "生产数量", requiredMode = Schema.RequiredMode.REQUIRED, example = "100.00")
     @NotNull(message = "生产数量不能为空")
     private BigDecimal quantity;

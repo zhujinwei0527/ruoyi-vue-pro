@@ -3,7 +3,6 @@ package cn.iocoder.yudao.module.mes.dal.dataobject.pro.workorder;
 import cn.iocoder.yudao.framework.mybatis.core.dataobject.BaseDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.md.client.MesMdClientDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.md.item.MesMdItemDO;
-import cn.iocoder.yudao.module.mes.dal.dataobject.md.unitmeasure.MesMdUnitMeasureDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.md.vendor.MesMdVendorDO;
 import cn.iocoder.yudao.module.mes.enums.pro.MesProWorkOrderSourceTypeEnum;
 import cn.iocoder.yudao.module.mes.enums.pro.MesProWorkOrderStatusEnum;
@@ -71,12 +70,6 @@ public class MesProWorkOrderDO extends BaseDO {
      * 关联 {@link MesMdItemDO#getId()}
      */
     private Long productId;
-    /**
-     * 单位编号
-     *
-     * 关联 {@link MesMdUnitMeasureDO#getId()}
-     */
-    private Long unitMeasureId;
     /**
      * 生产数量
      */

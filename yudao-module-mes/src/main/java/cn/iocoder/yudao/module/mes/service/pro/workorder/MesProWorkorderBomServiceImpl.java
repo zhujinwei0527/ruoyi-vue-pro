@@ -2,7 +2,6 @@ package cn.iocoder.yudao.module.mes.service.pro.workorder;
 
 import cn.hutool.core.collection.CollUtil;
 import cn.iocoder.yudao.framework.common.pojo.PageResult;
-import cn.iocoder.yudao.framework.common.util.collection.CollectionUtils;
 import cn.iocoder.yudao.framework.common.util.object.BeanUtils;
 import cn.iocoder.yudao.module.mes.controller.admin.pro.workorder.vo.MesProWorkOrderSaveReqVO;
 import cn.iocoder.yudao.module.mes.controller.admin.pro.workorder.vo.bom.MesProWorkOrderBomPageReqVO;
@@ -18,9 +17,13 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception;
+import static cn.iocoder.yudao.framework.common.util.collection.CollectionUtils.convertSet;
 import static cn.iocoder.yudao.module.mes.enums.ErrorCodeConstants.MD_ITEM_NOT_EXISTS;
 import static cn.iocoder.yudao.module.mes.enums.ErrorCodeConstants.PRO_WORK_ORDER_BOM_NOT_EXISTS;
 
@@ -113,7 +116,7 @@ public class MesProWorkOrderBomServiceImpl implements MesProWorkOrderBomService 
             return;
         }
         // 2.2 批量获取并校验 BOM 物料
-        Set<Long> bomItemIds = CollectionUtils.convertSet(productBomList, MesMdProductBomDO::getBomItemId);
+        Set<Long> bomItemIds = convertSet(productBomList, MesMdProductBomDO::getBomItemId);
         Map<Long, MesMdItemDO> itemMap = itemService.getItemMap(bomItemIds);
         bomItemIds.forEach(itemId -> {
             if (itemMap.get(itemId) == null) {

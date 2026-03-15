@@ -57,9 +57,6 @@ public class MesProWorkOrderRespVO {
     @ExcelProperty("规格型号")
     private String productSpec;
 
-    @Schema(description = "单位编号", example = "200")
-    private Long unitMeasureId;
-
     @Schema(description = "单位名称", example = "个")
     @ExcelProperty("单位")
     private String unitMeasureName;
