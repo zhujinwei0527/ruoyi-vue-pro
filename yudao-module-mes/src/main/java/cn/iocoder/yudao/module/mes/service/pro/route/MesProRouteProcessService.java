@@ -57,6 +57,16 @@ public interface MesProRouteProcessService {
     MesProRouteProcessDO getRouteProcessByRouteIdAndProcessId(Long routeId, Long processId);
 
     /**
+     * 按产品获得工序列表
+     *
+     * 根据产品查找关联的工艺路线，返回该路线的工序列表
+     *
+     * @param productId 产品编号
+     * @return 工序列表
+     */
+    List<MesProRouteProcessDO> getRouteProcessListByProductId(Long productId);
+
+    /**
      * 按工艺路线删除工序（级联删除使用）
      *
      * @param routeId 工艺路线编号

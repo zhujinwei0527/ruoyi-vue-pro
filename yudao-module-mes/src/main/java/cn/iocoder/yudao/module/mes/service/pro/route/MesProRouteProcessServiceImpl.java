@@ -4,7 +4,9 @@ import cn.hutool.core.collection.CollUtil;
 import cn.iocoder.yudao.framework.common.util.object.BeanUtils;
 import cn.iocoder.yudao.module.mes.controller.admin.pro.route.vo.process.MesProRouteProcessSaveReqVO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.pro.route.MesProRouteProcessDO;
+import cn.iocoder.yudao.module.mes.dal.dataobject.pro.route.MesProRouteProductDO;
 import cn.iocoder.yudao.module.mes.dal.mysql.pro.route.MesProRouteProcessMapper;
+import cn.iocoder.yudao.module.mes.dal.mysql.pro.route.MesProRouteProductMapper;
 import cn.iocoder.yudao.module.mes.service.pro.process.MesProProcessService;
 import jakarta.annotation.Resource;
 import org.springframework.context.annotation.Lazy;
@@ -31,6 +33,10 @@ public class MesProRouteProcessServiceImpl implements MesProRouteProcessService 
 
     @Resource
     private MesProRouteProcessMapper routeProcessMapper;
+
+    // TODO @AI：应该使用 MesProRouteProductService；
+    @Resource
+    private MesProRouteProductMapper routeProductMapper;
 
     @Resource
     @Lazy
@@ -181,6 +187,18 @@ public class MesProRouteProcessServiceImpl implements MesProRouteProcessService 
     @Override
     public MesProRouteProcessDO getRouteProcessByRouteIdAndProcessId(Long routeId, Long processId) {
         return routeProcessMapper.selectByRouteIdAndProcessId(routeId, processId);
+    }
+
+    @Override
+    public List<MesProRouteProcessDO> getRouteProcessListByProductId(Long productId) {
+        // 1. 根据产品查找关联的工艺路线产品记录
+        MesProRouteProductDO routeProduct = routeProductMapper.selectByItemId(productId);
+        if (routeProduct == null) {
+            // TODO @芋艿：会不会存在配置了多个的情况？？？
+            return Collections.emptyList();
+        }
+        // 2. 返回该工艺路线的工序列表
+        return routeProcessMapper.selectListByRouteId(routeProduct.getRouteId());
     }
 
     @Override

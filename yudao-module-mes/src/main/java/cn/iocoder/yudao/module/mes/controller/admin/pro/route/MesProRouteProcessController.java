@@ -74,6 +74,16 @@ public class MesProRouteProcessController {
         return success(buildRouteProcessRespVO(routeProcess));
     }
 
+    // TODO @芋艿：到底叫 list-by-item 还是 list-by-product？
+    @GetMapping("/list-by-product")
+    @Operation(summary = "按产品获得工序列表", description = "根据产品查找关联的工艺路线，返回该路线的工序列表")
+    @Parameter(name = "productId", description = "产品编号", required = true, example = "1")
+    @PreAuthorize("@ss.hasPermission('mes:pro-route:query')")
+    public CommonResult<List<MesProRouteProcessRespVO>> getRouteProcessListByProduct(@RequestParam("productId") Long productId) {
+        List<MesProRouteProcessDO> list = routeProcessService.getRouteProcessListByProductId(productId);
+        return success(buildRouteProcessRespVOList(list));
+    }
+
     @GetMapping("/list-by-route")
     @Operation(summary = "按工艺路线获得工序列表")
     @Parameter(name = "routeId", description = "工艺路线编号", required = true, example = "1")
