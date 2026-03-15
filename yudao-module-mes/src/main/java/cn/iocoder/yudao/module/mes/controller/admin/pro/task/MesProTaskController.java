@@ -122,6 +122,15 @@ public class MesProTaskController {
                 .setStatus(task.getStatus())));
     }
 
+    @GetMapping("/gantt-list")
+    @Operation(summary = "获得甘特图任务列表", description = "非分页接口，返回所有匹配任务用于甘特图渲染")
+    @PreAuthorize("@ss.hasPermission('mes:pro-task:query')")
+    public CommonResult<List<MesProTaskRespVO>> listGanttTaskList(@Valid MesProTaskPageReqVO reqVO) {
+        reqVO.setPageSize(PageParam.PAGE_SIZE_NONE);
+        List<MesProTaskDO> list = taskService.getTaskPage(reqVO).getList();
+        return success(buildTaskRespVOList(list));
+    }
+
     @GetMapping("/export-excel")
     @Operation(summary = "导出生产任务 Excel")
     @PreAuthorize("@ss.hasPermission('mes:pro-task:export')")
