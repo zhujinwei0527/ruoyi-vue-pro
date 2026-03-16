@@ -23,6 +23,7 @@ import org.springframework.validation.annotation.Validated;
 
 import java.time.LocalDateTime;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception;
@@ -110,11 +111,16 @@ public class MesProTaskServiceImpl implements MesProTaskService {
     }
 
     @Override
-    public List<MesProTaskDO> getTaskSimpleList(Long workOrderId) {
-        if (workOrderId != null) {
-            return taskMapper.selectListByWorkOrderId(workOrderId);
+    public List<MesProTaskDO> getTaskListByWorkOrderId(Long workOrderId) {
+        return taskMapper.selectListByWorkOrderId(workOrderId);
+    }
+
+    @Override
+    public List<MesProTaskDO> getTaskListByWorkOrderIds(Collection<Long> workOrderIds) {
+        if (CollUtil.isEmpty(workOrderIds)) {
+            return Collections.emptyList();
         }
-        return taskMapper.selectList();
+        return taskMapper.selectListByWorkOrderIds(workOrderIds);
     }
 
     @Override

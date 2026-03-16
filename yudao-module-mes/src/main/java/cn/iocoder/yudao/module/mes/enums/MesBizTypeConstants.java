@@ -40,6 +40,7 @@ public final class MesBizTypeConstants {
     public static final int PRO_CARD = 300; // 流转卡：MesProCardDO
     public static final int PRO_WORKORDER = 301; // 工单：MesProWorkOrderDO
     public static final int PRO_TRANS_ORDER = 302; // 流转单：MesProTransOrderDO
+    public static final int PRO_TASK = 303; // 生产任务：MesProTaskDO
 
     // ========== DV 设备模块 [400, 500) ==========
 

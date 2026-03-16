@@ -35,4 +35,10 @@ public interface MesProTaskMapper extends BaseMapperX<MesProTaskDO> {
                 .orderByDesc(MesProTaskDO::getId));
     }
 
+    default List<MesProTaskDO> selectListByWorkOrderIds(java.util.Collection<Long> workOrderIds) {
+        return selectList(new LambdaQueryWrapperX<MesProTaskDO>()
+                .in(MesProTaskDO::getWorkOrderId, workOrderIds)
+                .orderByDesc(MesProTaskDO::getId));
+    }
+
 }
