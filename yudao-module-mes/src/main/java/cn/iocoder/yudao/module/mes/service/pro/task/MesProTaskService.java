@@ -77,8 +77,9 @@ public interface MesProTaskService {
      * 校验任务是否存在
      *
      * @param id 编号
+     * @return 生产任务
      */
-    void validateTaskExists(Long id);
+    MesProTaskDO validateTaskExists(Long id);
 
     /**
      * 获得生产任务列表

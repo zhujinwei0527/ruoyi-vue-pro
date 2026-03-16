@@ -16,30 +16,24 @@ public class MesProTaskSaveReqVO {
     @Schema(description = "编号", requiredMode = Schema.RequiredMode.REQUIRED, example = "1024")
     private Long id;
 
-    @Schema(description = "生产工单编号", requiredMode = Schema.RequiredMode.REQUIRED, example = "1")
-    @NotNull(message = "生产工单不能为空")
-    private Long workOrderId;
+    @Schema(description = "生产工单编号", example = "1")
+    private Long workOrderId; // 编辑时，可不传递
 
-    @Schema(description = "工作站编号", requiredMode = Schema.RequiredMode.REQUIRED, example = "1")
-    @NotNull(message = "工作站不能为空")
-    private Long workstationId;
+    @Schema(description = "工作站编号", example = "1")
+    private Long workstationId; // 编辑时，可不传递
 
-    @Schema(description = "工艺路线编号", requiredMode = Schema.RequiredMode.REQUIRED, example = "1")
-    @NotNull(message = "工艺路线不能为空")
-    private Long routeId;
+    @Schema(description = "工艺路线编号", example = "1")
+    private Long routeId; // 编辑时，可不传递
 
-    @Schema(description = "工序编号", requiredMode = Schema.RequiredMode.REQUIRED, example = "1")
-    @NotNull(message = "工序不能为空")
-    private Long processId;
+    @Schema(description = "工序编号", example = "1")
+    private Long processId; // 编辑时，可不传递
 
-    @Schema(description = "产品物料编号", requiredMode = Schema.RequiredMode.REQUIRED, example = "100")
-    @NotNull(message = "产品不能为空")
-    private Long itemId;
+    @Schema(description = "产品物料编号", example = "100")
+    private Long itemId; // 编辑时，可不传递
 
-    @Schema(description = "排产数量", requiredMode = Schema.RequiredMode.REQUIRED, example = "100.00")
-    @NotNull(message = "排产数量不能为空")
+    @Schema(description = "排产数量", example = "100.00")
     @DecimalMin(value = "0", inclusive = false, message = "排产数量必须大于 0")
-    private BigDecimal quantity;
+    private BigDecimal quantity; // 编辑时，可不传递
 
     @Schema(description = "开始生产时间")
     private LocalDateTime startTime;

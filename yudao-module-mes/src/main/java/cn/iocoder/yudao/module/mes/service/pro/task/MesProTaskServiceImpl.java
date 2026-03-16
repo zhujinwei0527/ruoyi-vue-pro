@@ -78,13 +78,26 @@ public class MesProTaskServiceImpl implements MesProTaskService {
     @Override
     public void updateTask(MesProTaskSaveReqVO updateReqVO) {
         // 1.1 校验存在
-        validateTaskExists(updateReqVO.getId());
+        MesProTaskDO task = validateTaskExists(updateReqVO.getId());
         // 1.2 校验关联数据存在
-        workOrderService.validateWorkOrderExists(updateReqVO.getWorkOrderId());
-        workstationService.validateWorkstationExists(updateReqVO.getWorkstationId());
-        routeService.validateRouteExists(updateReqVO.getRouteId());
-        processService.validateProcessExists(updateReqVO.getProcessId());
-        MesMdItemDO item = itemService.validateItemExists(updateReqVO.getItemId());
+        if (updateReqVO.getWorkOrderId() != null) {
+            workOrderService.validateWorkOrderExists(updateReqVO.getWorkOrderId());
+        }
+        if (updateReqVO.getWorkstationId() != null) {
+            workstationService.validateWorkstationExists(updateReqVO.getWorkstationId());
+        }
+        if (updateReqVO.getRouteId() != null) {
+            routeService.validateRouteExists(updateReqVO.getRouteId());
+        }
+        if (updateReqVO.getProcessId() != null) {
+            processService.validateProcessExists(updateReqVO.getProcessId());
+        }
+        MesMdItemDO item;
+        if (updateReqVO.getItemId() != null) {
+            item = itemService.validateItemExists(updateReqVO.getItemId());
+        } else {
+            item = itemService.validateItemExists(task.getItemId());
+        }
 
         // 2. 更新
         MesProTaskDO updateObj = BeanUtils.toBean(updateReqVO, MesProTaskDO.class)
@@ -124,10 +137,12 @@ public class MesProTaskServiceImpl implements MesProTaskService {
     }
 
     @Override
-    public void validateTaskExists(Long id) {
-        if (taskMapper.selectById(id) == null) {
+    public MesProTaskDO validateTaskExists(Long id) {
+        MesProTaskDO task = taskMapper.selectById(id);
+        if (task == null) {
             throw exception(PRO_TASK_NOT_EXISTS);
         }
+        return task;
     }
 
     @Override
