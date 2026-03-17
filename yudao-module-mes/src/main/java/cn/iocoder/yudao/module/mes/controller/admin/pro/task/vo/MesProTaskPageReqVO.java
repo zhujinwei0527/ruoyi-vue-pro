@@ -26,6 +26,9 @@ public class MesProTaskPageReqVO extends PageParam {
     @Schema(description = "生产工单编号", example = "1")
     private Long workOrderId;
 
+    @Schema(description = "工艺路线编号", example = "1")
+    private Long routeId;
+
     @Schema(description = "工序编号", example = "1")
     private Long processId;
 

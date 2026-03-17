@@ -22,6 +22,7 @@ public interface MesProTaskMapper extends BaseMapperX<MesProTaskDO> {
                 .likeIfPresent(MesProTaskDO::getCode, reqVO.getCode())
                 .likeIfPresent(MesProTaskDO::getName, reqVO.getName())
                 .eqIfPresent(MesProTaskDO::getWorkOrderId, reqVO.getWorkOrderId())
+                .eqIfPresent(MesProTaskDO::getRouteId, reqVO.getRouteId())
                 .eqIfPresent(MesProTaskDO::getProcessId, reqVO.getProcessId())
                 .eqIfPresent(MesProTaskDO::getWorkstationId, reqVO.getWorkstationId())
                 .eqIfPresent(MesProTaskDO::getStatus, reqVO.getStatus())
