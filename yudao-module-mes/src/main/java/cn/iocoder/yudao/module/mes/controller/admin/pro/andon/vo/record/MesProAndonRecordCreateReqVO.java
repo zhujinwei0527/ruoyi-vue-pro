@@ -1,13 +1,12 @@
 package cn.iocoder.yudao.module.mes.controller.admin.pro.andon.vo.record;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
 @Schema(description = "管理后台 - MES 安灯呼叫记录新增 Request VO")
 @Data
-public class MesProAndonRecordSaveReqVO {
+public class MesProAndonRecordCreateReqVO {
 
     @Schema(description = "安灯配置编号", requiredMode = Schema.RequiredMode.REQUIRED, example = "1")
     @NotNull(message = "安灯配置不能为空")

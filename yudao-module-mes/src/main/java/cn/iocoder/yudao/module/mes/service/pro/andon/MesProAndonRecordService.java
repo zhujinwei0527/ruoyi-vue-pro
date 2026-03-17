@@ -1,9 +1,9 @@
 package cn.iocoder.yudao.module.mes.service.pro.andon;
 
 import cn.iocoder.yudao.framework.common.pojo.PageResult;
-import cn.iocoder.yudao.module.mes.controller.admin.pro.andon.vo.record.MesProAndonRecordHandleReqVO;
+import cn.iocoder.yudao.module.mes.controller.admin.pro.andon.vo.record.MesProAndonRecordUpdateReqVO;
 import cn.iocoder.yudao.module.mes.controller.admin.pro.andon.vo.record.MesProAndonRecordPageReqVO;
-import cn.iocoder.yudao.module.mes.controller.admin.pro.andon.vo.record.MesProAndonRecordSaveReqVO;
+import cn.iocoder.yudao.module.mes.controller.admin.pro.andon.vo.record.MesProAndonRecordCreateReqVO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.pro.andon.MesProAndonRecordDO;
 import jakarta.validation.Valid;
 
@@ -20,7 +20,7 @@ public interface MesProAndonRecordService {
      * @param createReqVO 创建信息
      * @return 编号
      */
-    Long createAndonRecord(@Valid MesProAndonRecordSaveReqVO createReqVO);
+    Long createAndonRecord(@Valid MesProAndonRecordCreateReqVO createReqVO);
 
     /**
      * 删除安灯呼叫记录
@@ -30,11 +30,11 @@ public interface MesProAndonRecordService {
     void deleteAndonRecord(Long id);
 
     /**
-     * 处置安灯呼叫记录
+     * 更新安灯呼叫记录（保存处置信息 / 标记已处置）
      *
-     * @param handleReqVO 处置信息
+     * @param updateReqVO 更新信息
      */
-    void handleAndonRecord(@Valid MesProAndonRecordHandleReqVO handleReqVO);
+    void updateAndonRecord(@Valid MesProAndonRecordUpdateReqVO updateReqVO);
 
     /**
      * 获得安灯呼叫记录

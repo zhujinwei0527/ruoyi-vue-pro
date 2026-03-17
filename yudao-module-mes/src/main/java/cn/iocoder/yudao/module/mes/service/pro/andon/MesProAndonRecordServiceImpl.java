@@ -3,9 +3,9 @@ package cn.iocoder.yudao.module.mes.service.pro.andon;
 import cn.hutool.core.util.ObjUtil;
 import cn.iocoder.yudao.framework.common.pojo.PageResult;
 import cn.iocoder.yudao.framework.common.util.object.BeanUtils;
-import cn.iocoder.yudao.module.mes.controller.admin.pro.andon.vo.record.MesProAndonRecordHandleReqVO;
+import cn.iocoder.yudao.module.mes.controller.admin.pro.andon.vo.record.MesProAndonRecordUpdateReqVO;
 import cn.iocoder.yudao.module.mes.controller.admin.pro.andon.vo.record.MesProAndonRecordPageReqVO;
-import cn.iocoder.yudao.module.mes.controller.admin.pro.andon.vo.record.MesProAndonRecordSaveReqVO;
+import cn.iocoder.yudao.module.mes.controller.admin.pro.andon.vo.record.MesProAndonRecordCreateReqVO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.pro.andon.MesProAndonConfigDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.pro.andon.MesProAndonRecordDO;
 import cn.iocoder.yudao.module.mes.dal.mysql.pro.andon.MesProAndonRecordMapper;
@@ -45,7 +45,7 @@ public class MesProAndonRecordServiceImpl implements MesProAndonRecordService {
     private MesProAndonConfigService andonConfigService;
 
     @Override
-    public Long createAndonRecord(MesProAndonRecordSaveReqVO createReqVO) {
+    public Long createAndonRecord(MesProAndonRecordCreateReqVO createReqVO) {
         // 1. 校验关联数据存在
         MesProAndonConfigDO config = andonConfigService.validateAndonConfigExists(createReqVO.getConfigId());
         workstationService.validateWorkstationExists(createReqVO.getWorkstationId());
@@ -56,9 +56,9 @@ public class MesProAndonRecordServiceImpl implements MesProAndonRecordService {
             processService.validateProcessExists(createReqVO.getProcessId());
         }
 
-        // 2. 插入
+        // 2. 插入记录
         MesProAndonRecordDO record = BeanUtils.toBean(createReqVO, MesProAndonRecordDO.class);
-        record.setReason(config.getReason()).setLevel(config.getLevel());
+        record.setReason(config.getReason()).setLevel(config.getLevel()); // 快照配置中的原因和级别
         record.setStatus(MesProAndonStatusEnum.ACTIVE.getStatus());
         andonRecordMapper.insert(record);
         return record.getId();
@@ -66,23 +66,23 @@ public class MesProAndonRecordServiceImpl implements MesProAndonRecordService {
 
     @Override
     public void deleteAndonRecord(Long id) {
-        // 1. 校验存在 + 未处置
+        // 1. 校验存在，且未处置
         validateAndonRecordNotHandled(id);
         // 2. 删除
         andonRecordMapper.deleteById(id);
     }
 
     @Override
-    public void handleAndonRecord(MesProAndonRecordHandleReqVO handleReqVO) {
-        // 1. 校验存在 + 未处置
-        validateAndonRecordNotHandled(handleReqVO.getId());
+    public void updateAndonRecord(MesProAndonRecordUpdateReqVO updateReqVO) {
+        // 1. 校验存在，且未处置
+        validateAndonRecordNotHandled(updateReqVO.getId());
 
-        // 2. 更新为已处置
-        andonRecordMapper.updateById(new MesProAndonRecordDO().setId(handleReqVO.getId())
-                .setStatus(MesProAndonStatusEnum.HANDLED.getStatus())
-                .setHandleTime(handleReqVO.getHandleTime())
-                .setHandlerUserId(handleReqVO.getHandlerUserId())
-                .setRemark(handleReqVO.getRemark()));
+        // 2. 更新
+        andonRecordMapper.updateById(new MesProAndonRecordDO().setId(updateReqVO.getId())
+                .setStatus(updateReqVO.getStatus())
+                .setHandleTime(updateReqVO.getHandleTime())
+                .setHandlerUserId(updateReqVO.getHandlerUserId())
+                .setRemark(updateReqVO.getRemark()));
     }
 
     /**

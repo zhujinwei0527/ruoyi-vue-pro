@@ -233,6 +233,8 @@ public interface ErrorCodeConstants {
     // ========== MES 生产管理-安灯呼叫记录（1-040-505-000） ==========
     ErrorCode PRO_ANDON_RECORD_NOT_EXISTS = new ErrorCode(1_040_505_000, "安灯呼叫记录不存在");
     ErrorCode PRO_ANDON_RECORD_ALREADY_HANDLED = new ErrorCode(1_040_505_001, "安灯记录已处置，不允许重复处置");
+    ErrorCode PRO_ANDON_RECORD_HANDLE_TIME_REQUIRED = new ErrorCode(1_040_505_002, "标记已处置时，处置时间不能为空");
+    ErrorCode PRO_ANDON_RECORD_HANDLER_USER_REQUIRED = new ErrorCode(1_040_505_003, "标记已处置时，处置人不能为空");
 
     // ========== MES 生产管理-生产报工（1-040-506-000） ==========
     ErrorCode PRO_FEEDBACK_NOT_EXISTS = new ErrorCode(1_040_506_000, "生产报工不存在");

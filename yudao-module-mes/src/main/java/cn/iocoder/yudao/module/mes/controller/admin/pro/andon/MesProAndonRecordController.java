@@ -8,10 +8,10 @@ import cn.iocoder.yudao.framework.common.pojo.PageResult;
 import cn.iocoder.yudao.framework.common.util.collection.MapUtils;
 import cn.iocoder.yudao.framework.common.util.object.BeanUtils;
 import cn.iocoder.yudao.framework.excel.core.util.ExcelUtils;
-import cn.iocoder.yudao.module.mes.controller.admin.pro.andon.vo.record.MesProAndonRecordHandleReqVO;
+import cn.iocoder.yudao.module.mes.controller.admin.pro.andon.vo.record.MesProAndonRecordUpdateReqVO;
 import cn.iocoder.yudao.module.mes.controller.admin.pro.andon.vo.record.MesProAndonRecordPageReqVO;
 import cn.iocoder.yudao.module.mes.controller.admin.pro.andon.vo.record.MesProAndonRecordRespVO;
-import cn.iocoder.yudao.module.mes.controller.admin.pro.andon.vo.record.MesProAndonRecordSaveReqVO;
+import cn.iocoder.yudao.module.mes.controller.admin.pro.andon.vo.record.MesProAndonRecordCreateReqVO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.md.workstation.MesMdWorkstationDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.pro.andon.MesProAndonRecordDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.pro.process.MesProProcessDO;
@@ -65,7 +65,7 @@ public class MesProAndonRecordController {
     @PostMapping("/create")
     @Operation(summary = "创建安灯呼叫记录")
     @PreAuthorize("@ss.hasPermission('mes:pro-andon-record:create')")
-    public CommonResult<Long> createAndonRecord(@Valid @RequestBody MesProAndonRecordSaveReqVO createReqVO) {
+    public CommonResult<Long> createAndonRecord(@Valid @RequestBody MesProAndonRecordCreateReqVO createReqVO) {
         return success(andonRecordService.createAndonRecord(createReqVO));
     }
 
@@ -78,11 +78,11 @@ public class MesProAndonRecordController {
         return success(true);
     }
 
-    @PutMapping("/handle")
-    @Operation(summary = "处置安灯呼叫记录")
+    @PutMapping("/update")
+    @Operation(summary = "更新安灯呼叫记录")
     @PreAuthorize("@ss.hasPermission('mes:pro-andon-record:update')")
-    public CommonResult<Boolean> handleAndonRecord(@Valid @RequestBody MesProAndonRecordHandleReqVO handleReqVO) {
-        andonRecordService.handleAndonRecord(handleReqVO);
+    public CommonResult<Boolean> updateAndonRecord(@Valid @RequestBody MesProAndonRecordUpdateReqVO updateReqVO) {
+        andonRecordService.updateAndonRecord(updateReqVO);
         return success(true);
     }
 
