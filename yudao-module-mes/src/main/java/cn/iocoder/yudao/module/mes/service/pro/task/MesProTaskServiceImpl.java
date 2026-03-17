@@ -21,6 +21,7 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.Collections;
@@ -67,7 +68,7 @@ public class MesProTaskServiceImpl implements MesProTaskService {
 
         // 2.1 构建任务 DO
         MesProTaskDO task = BeanUtils.toBean(createReqVO, MesProTaskDO.class)
-                .setName(item.getName() + "【" + createReqVO.getQuantity() + "】")
+                .setName(buildTaskName(item.getName(), createReqVO.getQuantity()))
                 .setCode(autoCodeRecordService.generateAutoCode(MesMdAutoCodeRuleCodeEnum.TASK_CODE.getCode()))
                 .setStatus(MesProTaskStatusEnum.PREPARE.getStatus());
         // 2.2 插入
@@ -98,11 +99,16 @@ public class MesProTaskServiceImpl implements MesProTaskService {
         } else {
             item = itemService.validateItemExists(task.getItemId());
         }
+        BigDecimal quantity = updateReqVO.getQuantity() != null ? updateReqVO.getQuantity() : task.getQuantity();
 
         // 2. 更新
         MesProTaskDO updateObj = BeanUtils.toBean(updateReqVO, MesProTaskDO.class)
-                .setName(item.getName() + "【" + updateReqVO.getQuantity() + "】");
+                .setName(buildTaskName(item.getName(), quantity));
         taskMapper.updateById(updateObj);
+    }
+
+    private String buildTaskName(String itemName, BigDecimal quantity) {
+        return itemName + "【" + quantity + "】";
     }
 
     @Override
@@ -181,4 +187,3 @@ public class MesProTaskServiceImpl implements MesProTaskService {
     }
 
 }
-
