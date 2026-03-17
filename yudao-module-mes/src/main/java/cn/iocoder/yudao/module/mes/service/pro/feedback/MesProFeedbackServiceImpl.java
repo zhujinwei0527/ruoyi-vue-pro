@@ -2,6 +2,7 @@ package cn.iocoder.yudao.module.mes.service.pro.feedback;
 
 import cn.hutool.core.util.BooleanUtil;
 import cn.hutool.core.util.ObjUtil;
+import cn.hutool.core.util.ObjectUtil;
 import cn.iocoder.yudao.framework.common.pojo.PageResult;
 import cn.iocoder.yudao.framework.common.util.object.BeanUtils;
 import cn.iocoder.yudao.framework.common.util.object.ObjectUtils;
@@ -11,13 +12,17 @@ import cn.iocoder.yudao.module.mes.dal.dataobject.pro.feedback.MesProFeedbackDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.pro.route.MesProRouteProcessDO;
 import cn.iocoder.yudao.module.mes.dal.mysql.pro.feedback.MesProFeedbackMapper;
 import cn.iocoder.yudao.module.mes.enums.pro.MesProFeedbackStatusEnum;
+import cn.iocoder.yudao.module.mes.service.md.workstation.MesMdWorkstationService;
 import cn.iocoder.yudao.module.mes.service.pro.route.MesProRouteProcessService;
+import cn.iocoder.yudao.module.mes.service.pro.task.MesProTaskService;
 import cn.iocoder.yudao.module.mes.service.pro.workorder.MesProWorkOrderService;
 import jakarta.annotation.Resource;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception;
@@ -42,23 +47,31 @@ public class MesProFeedbackServiceImpl implements MesProFeedbackService {
     @Resource
     private MesProRouteProcessService routeProcessService;
 
+    @Resource
+    private MesMdWorkstationService workstationService;
+
+    @Resource
+    @Lazy // 避免循环依赖
+    private MesProTaskService taskService;
+
     @Override
     public Long createFeedback(MesProFeedbackSaveReqVO createReqVO) {
-        // 1. 校验工单已确认
-        workOrderService.validateWorkOrderConfirmed(createReqVO.getWorkOrderId());
-        // TODO @芋艿：校验 pro_task 存在且未完成（待 pro_task 服务迁移）
+        // 1. 校验
+        validateFeedbackData(createReqVO);
 
         // 2. 插入
-        MesProFeedbackDO feedback = BeanUtils.toBean(createReqVO, MesProFeedbackDO.class);
-        feedback.setStatus(MesProFeedbackStatusEnum.PREPARE.getStatus());
+        MesProFeedbackDO feedback = BeanUtils.toBean(createReqVO, MesProFeedbackDO.class)
+                .setStatus(MesProFeedbackStatusEnum.PREPARE.getStatus());
         feedbackMapper.insert(feedback);
         return feedback.getId();
     }
 
     @Override
     public void updateFeedback(MesProFeedbackSaveReqVO updateReqVO) {
-        // 1. 校验存在 + 草稿状态
+        // 1.1 校验存在 + 草稿状态
         validateFeedbackStatusPrepare(updateReqVO.getId());
+        // 1.2 校验业务数据
+        validateFeedbackData(updateReqVO);
 
         // 2. 更新
         MesProFeedbackDO updateObj = BeanUtils.toBean(updateReqVO, MesProFeedbackDO.class);
@@ -170,6 +183,45 @@ public class MesProFeedbackServiceImpl implements MesProFeedbackService {
             throw exception(PRO_FEEDBACK_NOT_APPROVING);
         }
         return feedback;
+    }
+
+    /**
+     * 校验报工单的业务数据（创建 & 修改共用）
+     *
+     * @param reqVO 报工请求
+     */
+    private void validateFeedbackData(MesProFeedbackSaveReqVO reqVO) {
+        // 1. 校验工作站存在
+        workstationService.validateWorkstationExists(reqVO.getWorkstationId());
+
+        // 2.1 校验工艺路线 + 工序配置有效
+        MesProRouteProcessDO routeProcess = routeProcessService.getRouteProcessByRouteIdAndProcessId(
+                reqVO.getRouteId(), reqVO.getProcessId());
+        if (routeProcess == null) {
+            throw exception(PRO_FEEDBACK_ROUTE_PROCESS_INVALID);
+        }
+        // 2.2 校验数量
+        boolean checkFlag = Boolean.TRUE.equals(routeProcess.getCheckFlag());
+        if (checkFlag) {
+            // 需要检验：只需填报工数量，且必须 > 0
+            if (reqVO.getFeedbackQuantity() == null
+                    || reqVO.getFeedbackQuantity().compareTo(BigDecimal.ZERO) <= 0) {
+                throw exception(PRO_FEEDBACK_QUANTITY_MUST_POSITIVE);
+            }
+        } else {
+            // 不需检验：需填合格品 + 不良品数量，合计 > 0
+            BigDecimal qualified = ObjectUtil.defaultIfNull(reqVO.getQualifiedQuantity(), BigDecimal.ZERO);
+            BigDecimal unqualified = ObjectUtil.defaultIfNull(reqVO.getUnqualifiedQuantity(), BigDecimal.ZERO);
+            if (qualified.add(unqualified).compareTo(BigDecimal.ZERO) <= 0) {
+                throw exception(PRO_FEEDBACK_QUALIFIED_UNQUALIFIED_REQUIRED);
+            }
+        }
+
+        // 3. 校验工单已确认
+        workOrderService.validateWorkOrderConfirmed(reqVO.getWorkOrderId());
+
+        // 4. 校验任务存在且未终态（已完成/已取消）
+        taskService.validateTaskNotFinished(reqVO.getTaskId());
     }
 
     /**

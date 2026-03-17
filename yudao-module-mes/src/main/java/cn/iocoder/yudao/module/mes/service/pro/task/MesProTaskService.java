@@ -82,6 +82,14 @@ public interface MesProTaskService {
     MesProTaskDO validateTaskExists(Long id);
 
     /**
+     * 校验任务存在且未完成（非终态）
+     *
+     * @param id 编号
+     * @return 生产任务
+     */
+    MesProTaskDO validateTaskNotFinished(Long id);
+
+    /**
      * 获得生产任务列表
      *
      * @param ids 编号列表

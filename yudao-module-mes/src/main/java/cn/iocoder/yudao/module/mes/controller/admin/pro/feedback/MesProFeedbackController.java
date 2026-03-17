@@ -55,25 +55,18 @@ public class MesProFeedbackController {
 
     @Resource
     private MesProFeedbackService feedbackService;
-
     @Resource
     private MesMdWorkstationService workstationService;
-
     @Resource
     private MesProRouteService routeService;
-
     @Resource
     private MesProProcessService processService;
-
     @Resource
     private MesProWorkOrderService workOrderService;
-
     @Resource
     private MesMdItemService itemService;
-
     @Resource
     private MesMdUnitMeasureService unitMeasureService;
-
     @Resource
     private MesProRouteProcessService routeProcessService;
 
@@ -226,6 +219,7 @@ public class MesProFeedbackController {
             findAndThen(workOrderMap, vo.getWorkOrderId(), wo ->
                     vo.setWorkOrderCode(wo.getCode()).setWorkOrderName(wo.getName()));
             // TODO @芋艿：task code 待 pro_task 服务迁移后补充
+            // TODO @AI：貌似已经支持，可以跟进下
             // 物料、计量单位
             findAndThen(itemMap, vo.getItemId(), item ->
                     vo.setItemCode(item.getCode()).setItemName(item.getName()).setItemSpec(item.getSpecification()));

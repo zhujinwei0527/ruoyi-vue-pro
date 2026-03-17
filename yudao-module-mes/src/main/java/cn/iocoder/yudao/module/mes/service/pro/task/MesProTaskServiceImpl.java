@@ -29,6 +29,7 @@ import java.util.List;
 
 import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception;
 import static cn.iocoder.yudao.framework.common.util.collection.CollectionUtils.convertList;
+import static cn.iocoder.yudao.module.mes.enums.ErrorCodeConstants.PRO_TASK_ALREADY_FINISHED;
 import static cn.iocoder.yudao.module.mes.enums.ErrorCodeConstants.PRO_TASK_NOT_EXISTS;
 
 /**
@@ -147,6 +148,15 @@ public class MesProTaskServiceImpl implements MesProTaskService {
         MesProTaskDO task = taskMapper.selectById(id);
         if (task == null) {
             throw exception(PRO_TASK_NOT_EXISTS);
+        }
+        return task;
+    }
+
+    @Override
+    public MesProTaskDO validateTaskNotFinished(Long id) {
+        MesProTaskDO task = validateTaskExists(id);
+        if (MesProTaskStatusEnum.isEndStatus(task.getStatus())) {
+            throw exception(PRO_TASK_ALREADY_FINISHED);
         }
         return task;
     }
