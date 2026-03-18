@@ -22,9 +22,6 @@ public class MesProFeedbackSaveReqVO {
     @NotNull(message = "报工类型不能为空")
     private Integer type;
 
-    @Schema(description = "报工途径", example = "PC")
-    private String channel;
-
     @Schema(description = "工作站编号", requiredMode = Schema.RequiredMode.REQUIRED, example = "1")
     @NotNull(message = "工作站不能为空")
     private Long workstationId;
@@ -45,19 +42,8 @@ public class MesProFeedbackSaveReqVO {
     @NotNull(message = "生产任务不能为空")
     private Long taskId;
 
-    @Schema(description = "产品物料编号", requiredMode = Schema.RequiredMode.REQUIRED, example = "75")
-    @NotNull(message = "产品物料不能为空")
-    private Long itemId;
-
-    @Schema(description = "单位编号", requiredMode = Schema.RequiredMode.REQUIRED, example = "202")
-    @NotNull(message = "单位不能为空")
-    private Long unitMeasureId;
-
     @Schema(description = "过期日期")
     private LocalDateTime expireDate;
-
-    @Schema(description = "批次号", example = "B20250315001")
-    private String batchCode;
 
     @Schema(description = "排产数量", example = "5000.00")
     private BigDecimal scheduledQuantity;

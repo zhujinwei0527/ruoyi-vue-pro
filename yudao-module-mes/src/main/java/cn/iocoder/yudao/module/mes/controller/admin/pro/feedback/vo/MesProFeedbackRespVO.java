@@ -110,10 +110,6 @@ public class MesProFeedbackRespVO {
     @Schema(description = "过期日期")
     private LocalDateTime expireDate;
 
-    @Schema(description = "批次号", example = "B20250315001")
-    @ExcelProperty("批次号")
-    private String batchCode;
-
     @Schema(description = "排产数量", example = "5000.00")
     @ExcelProperty("排产数量")
     private BigDecimal scheduledQuantity;

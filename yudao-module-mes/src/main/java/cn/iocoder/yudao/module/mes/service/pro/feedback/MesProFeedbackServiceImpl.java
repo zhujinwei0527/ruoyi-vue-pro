@@ -5,11 +5,11 @@ import cn.hutool.core.util.ObjUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.iocoder.yudao.framework.common.pojo.PageResult;
 import cn.iocoder.yudao.framework.common.util.object.BeanUtils;
-import cn.iocoder.yudao.framework.common.util.object.ObjectUtils;
 import cn.iocoder.yudao.module.mes.controller.admin.pro.feedback.vo.MesProFeedbackPageReqVO;
 import cn.iocoder.yudao.module.mes.controller.admin.pro.feedback.vo.MesProFeedbackSaveReqVO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.pro.feedback.MesProFeedbackDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.pro.route.MesProRouteProcessDO;
+import cn.iocoder.yudao.module.mes.dal.dataobject.pro.task.MesProTaskDO;
 import cn.iocoder.yudao.module.mes.dal.mysql.pro.feedback.MesProFeedbackMapper;
 import cn.iocoder.yudao.module.mes.enums.pro.MesProFeedbackStatusEnum;
 import cn.iocoder.yudao.module.mes.service.md.workstation.MesMdWorkstationService;
@@ -57,11 +57,12 @@ public class MesProFeedbackServiceImpl implements MesProFeedbackService {
     @Override
     public Long createFeedback(MesProFeedbackSaveReqVO createReqVO) {
         // 1. 校验
-        validateFeedbackData(createReqVO);
+        MesProTaskDO task = validateFeedbackData(createReqVO);
 
-        // 2. 插入
+        // 2. 插入（自动填充 itemId）
         MesProFeedbackDO feedback = BeanUtils.toBean(createReqVO, MesProFeedbackDO.class)
-                .setStatus(MesProFeedbackStatusEnum.PREPARE.getStatus());
+                .setStatus(MesProFeedbackStatusEnum.PREPARE.getStatus())
+                .setItemId(task.getItemId());
         feedbackMapper.insert(feedback);
         return feedback.getId();
     }
@@ -71,10 +72,11 @@ public class MesProFeedbackServiceImpl implements MesProFeedbackService {
         // 1.1 校验存在 + 草稿状态
         validateFeedbackStatusPrepare(updateReqVO.getId());
         // 1.2 校验业务数据
-        validateFeedbackData(updateReqVO);
+        MesProTaskDO task = validateFeedbackData(updateReqVO);
 
-        // 2. 更新
-        MesProFeedbackDO updateObj = BeanUtils.toBean(updateReqVO, MesProFeedbackDO.class);
+        // 2. 更新（自动填充 itemId）
+        MesProFeedbackDO updateObj = BeanUtils.toBean(updateReqVO, MesProFeedbackDO.class)
+                .setItemId(task.getItemId());
         feedbackMapper.updateById(updateObj);
     }
 
@@ -119,11 +121,25 @@ public class MesProFeedbackServiceImpl implements MesProFeedbackService {
                 .setStatus(MesProFeedbackStatusEnum.PREPARE.getStatus()));
     }
 
+    // TODO @AI：要不改成 boolean：看是不是 finish；如果非 finish 说明要前端提示“报工成功，请等待质量检验完成！”
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public void finishFeedback(Long id) {
-        // 1. 校验存在 + 审批中状态
+    public Integer approveFeedback(Long id) {
+        // TODO @AI: 逻辑需要继续跟进；
+        // 1.1 校验存在 + 审批中状态
         MesProFeedbackDO feedback = validateFeedbackStatusApproving(id);
+        // 1.2 校验报工数量 > 0
+        if (feedback.getFeedbackQuantity() == null
+                || feedback.getFeedbackQuantity().compareTo(BigDecimal.ZERO) <= 0) {
+            throw exception(PRO_FEEDBACK_QUANTITY_MUST_POSITIVE);
+        }
+        // 1.3 校验任务未完成
+        taskService.validateTaskNotFinished(feedback.getTaskId());
+        // 1.4 仍有待检数量时不能执行
+        if (feedback.getUncheckQuantity() != null
+                && feedback.getUncheckQuantity().compareTo(BigDecimal.ZERO) > 0) {
+            throw exception(PRO_FEEDBACK_NOT_APPROVING); // TODO @芋艿：新增一个专用错误码，例如 PRO_FEEDBACK_UNCHECK_QUANTITY_EXISTS
+        }
 
         // 2.1 查询工序的 checkFlag，决定目标状态
         boolean checkFlag = getCheckFlag(feedback.getRouteId(), feedback.getProcessId());
@@ -141,22 +157,7 @@ public class MesProFeedbackServiceImpl implements MesProFeedbackService {
             // TODO @芋艿：WM 产品产出（WmProductProduceService）未迁移，此处需补充产品产出逻辑
             // TODO @芋艿：updateProTaskAndWorkorder 待 pro_task 服务迁移后补充级联更新任务/工单的已生产数量
         }
-    }
-
-    @Override
-    public void cancelFeedback(Long id) {
-        // 1.1 校验存在
-        MesProFeedbackDO feedback = validateFeedbackExists(id);
-        // 1.2 只有草稿或审批中可以取消（已完成、已取消不可操作）
-        if (ObjectUtils.equalsAny(feedback.getStatus(),
-                MesProFeedbackStatusEnum.FINISHED.getStatus(),
-                MesProFeedbackStatusEnum.CANCELED.getStatus())) {
-            throw exception(PRO_FEEDBACK_STATUS_ERROR);
-        }
-
-        // 2. 更新状态为已取消
-        feedbackMapper.updateById(new MesProFeedbackDO().setId(id)
-                .setStatus(MesProFeedbackStatusEnum.CANCELED.getStatus()));
+        return targetStatus;
     }
 
     // ==================== 校验方法 ====================
@@ -189,8 +190,9 @@ public class MesProFeedbackServiceImpl implements MesProFeedbackService {
      * 校验报工单的业务数据（创建 & 修改共用）
      *
      * @param reqVO 报工请求
+     * @return 关联的生产任务
      */
-    private void validateFeedbackData(MesProFeedbackSaveReqVO reqVO) {
+    private MesProTaskDO validateFeedbackData(MesProFeedbackSaveReqVO reqVO) {
         // 1. 校验工作站存在
         workstationService.validateWorkstationExists(reqVO.getWorkstationId());
 
@@ -220,8 +222,8 @@ public class MesProFeedbackServiceImpl implements MesProFeedbackService {
         // 3. 校验工单已确认
         workOrderService.validateWorkOrderConfirmed(reqVO.getWorkOrderId());
 
-        // 4. 校验任务存在且未终态（已完成/已取消）
-        taskService.validateTaskNotFinished(reqVO.getTaskId());
+        // 4. 校验任务存在且未终态（已完成/已取消），并返回任务用于冗余 itemId
+        return taskService.validateTaskNotFinished(reqVO.getTaskId());
     }
 
     /**

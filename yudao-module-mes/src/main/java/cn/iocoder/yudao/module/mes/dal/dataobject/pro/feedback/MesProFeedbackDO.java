@@ -2,7 +2,6 @@ package cn.iocoder.yudao.module.mes.dal.dataobject.pro.feedback;
 
 import cn.iocoder.yudao.framework.mybatis.core.dataobject.BaseDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.md.item.MesMdItemDO;
-import cn.iocoder.yudao.module.mes.dal.dataobject.md.unitmeasure.MesMdUnitMeasureDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.md.workstation.MesMdWorkstationDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.pro.route.MesProRouteDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.pro.process.MesProProcessDO;
@@ -47,6 +46,7 @@ public class MesProFeedbackDO extends BaseDO {
      * 枚举 {@link MesProFeedbackTypeEnum}
      */
     private Integer type;
+    // TODO @芋艿：这个字段，暂时没使用到；
     /**
      * 报工途径
      *
@@ -87,25 +87,15 @@ public class MesProFeedbackDO extends BaseDO {
      */
     private Long taskId;
     /**
-     * 产品物料编号
+     * 产品物料编号（冗余自任务）
      *
      * 关联 {@link MesMdItemDO#getId()}
      */
     private Long itemId;
     /**
-     * 单位编号
-     *
-     * 关联 {@link MesMdUnitMeasureDO#getId()}
-     */
-    private Long unitMeasureId;
-    /**
      * 过期日期
      */
     private LocalDateTime expireDate;
-    /**
-     * 批次号
-     */
-    private String batchCode;
     /**
      * 排产数量
      */

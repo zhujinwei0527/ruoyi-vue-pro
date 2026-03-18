@@ -66,17 +66,12 @@ public interface MesProFeedbackService {
     void rejectFeedback(Long id);
 
     /**
-     * 执行报工（审批中 → 已完成 或 待检验）
+     * 审批报工（审批中 -> 已完成 或 待检验）
      *
      * @param id 编号
+     * @return 审批后的状态
      */
-    void finishFeedback(Long id);
-
-    /**
-     * 取消报工
-     *
-     * @param id 编号
-     */
-    void cancelFeedback(Long id);
+    Integer approveFeedback(Long id);
 
 }
+

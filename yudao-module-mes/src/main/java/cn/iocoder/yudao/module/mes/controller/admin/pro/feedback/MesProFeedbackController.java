@@ -17,6 +17,7 @@ import cn.iocoder.yudao.module.mes.dal.dataobject.pro.feedback.MesProFeedbackDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.pro.process.MesProProcessDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.pro.route.MesProRouteDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.pro.route.MesProRouteProcessDO;
+import cn.iocoder.yudao.module.mes.dal.dataobject.pro.task.MesProTaskDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.pro.workorder.MesProWorkOrderDO;
 import cn.iocoder.yudao.module.mes.service.md.item.MesMdItemService;
 import cn.iocoder.yudao.module.mes.service.md.unitmeasure.MesMdUnitMeasureService;
@@ -25,6 +26,7 @@ import cn.iocoder.yudao.module.mes.service.pro.feedback.MesProFeedbackService;
 import cn.iocoder.yudao.module.mes.service.pro.process.MesProProcessService;
 import cn.iocoder.yudao.module.mes.service.pro.route.MesProRouteProcessService;
 import cn.iocoder.yudao.module.mes.service.pro.route.MesProRouteService;
+import cn.iocoder.yudao.module.mes.service.pro.task.MesProTaskService;
 import cn.iocoder.yudao.module.mes.service.pro.workorder.MesProWorkOrderService;
 import cn.iocoder.yudao.module.system.api.user.AdminUserApi;
 import cn.iocoder.yudao.module.system.api.user.dto.AdminUserRespDTO;
@@ -69,6 +71,8 @@ public class MesProFeedbackController {
     private MesMdUnitMeasureService unitMeasureService;
     @Resource
     private MesProRouteProcessService routeProcessService;
+    @Resource
+    private MesProTaskService taskService;
 
     @Resource
     private AdminUserApi adminUserApi;
@@ -147,22 +151,12 @@ public class MesProFeedbackController {
         return success(true);
     }
 
-    @PutMapping("/finish")
-    @Operation(summary = "执行报工")
+    @PutMapping("/approve")
+    @Operation(summary = "审批报工")
     @Parameter(name = "id", description = "编号", required = true)
-    @PreAuthorize("@ss.hasPermission('mes:pro-feedback:finish')")
-    public CommonResult<Boolean> finishFeedback(@RequestParam("id") Long id) {
-        feedbackService.finishFeedback(id);
-        return success(true);
-    }
-
-    @PutMapping("/cancel")
-    @Operation(summary = "取消报工")
-    @Parameter(name = "id", description = "编号", required = true)
-    @PreAuthorize("@ss.hasPermission('mes:pro-feedback:update')")
-    public CommonResult<Boolean> cancelFeedback(@RequestParam("id") Long id) {
-        feedbackService.cancelFeedback(id);
-        return success(true);
+    @PreAuthorize("@ss.hasPermission('mes:pro-feedback:approve')")
+    public CommonResult<Integer> approveFeedback(@RequestParam("id") Long id) {
+        return success(feedbackService.approveFeedback(id));
     }
 
     // ==================== 拼接 VO ====================
@@ -171,24 +165,27 @@ public class MesProFeedbackController {
         if (CollUtil.isEmpty(list)) {
             return Collections.emptyList();
         }
-        // 1.1 物料、计量单位
+        // 1.1 任务（获取 taskCode）
+        Map<Long, MesProTaskDO> taskMap = taskService.getTaskMap(
+                convertSet(list, MesProFeedbackDO::getTaskId));
+        // 1.2 物料（直接从 DO.itemId）、计量单位（从 item.unitMeasureId）
         Map<Long, MesMdItemDO> itemMap = itemService.getItemMap(
                 convertSet(list, MesProFeedbackDO::getItemId));
         Map<Long, MesMdUnitMeasureDO> unitMeasureMap = unitMeasureService.getUnitMeasureMap(
-                convertSet(list, MesProFeedbackDO::getUnitMeasureId));
-        // 1.2 工单
+                convertSet(itemMap.values(), MesMdItemDO::getUnitMeasureId));
+        // 1.3 工单
         Map<Long, MesProWorkOrderDO> workOrderMap = workOrderService.getWorkOrderMap(
                 convertSet(list, MesProFeedbackDO::getWorkOrderId));
-        // 1.3 工作站
+        // 1.4 工作站
         Map<Long, MesMdWorkstationDO> workstationMap = workstationService.getWorkstationMap(
                 convertSet(list, MesProFeedbackDO::getWorkstationId));
-        // 1.4 工艺路线
+        // 1.5 工艺路线
         Set<Long> routeIds = convertSet(list, MesProFeedbackDO::getRouteId);
         Map<Long, MesProRouteDO> routeMap = routeService.getRouteMap(routeIds);
-        // 1.5 工序
+        // 1.6 工序
         Map<Long, MesProProcessDO> processMap = processService.getProcessMap(
                 new ArrayList<>(convertSet(list, MesProFeedbackDO::getProcessId)));
-        // 1.6 工序的 checkFlag：批量查询后直接构建 routeId -> processId -> checkFlag 的双层 Map
+        // 1.7 工序的 checkFlag：批量查询后直接构建 routeId -> processId -> checkFlag 的双层 Map
         List<MesProRouteProcessDO> allRouteProcesses = routeProcessService.getRouteProcessListByRouteIds(routeIds);
         Map<Long, Map<Long, Boolean>> routeProcessCheckFlagMap = new HashMap<>();
         for (MesProRouteProcessDO rp : allRouteProcesses) {
@@ -196,7 +193,7 @@ public class MesProFeedbackController {
                     .computeIfAbsent(rp.getRouteId(), k -> new HashMap<>())
                     .put(rp.getProcessId(), Boolean.TRUE.equals(rp.getCheckFlag()));
         }
-        // 1.7 报工人/审核人
+        // 1.8 报工人/审核人
         Map<Long, AdminUserRespDTO> userMap = adminUserApi.getUserMap(
                 convertSetByFlatMap(list, feedback ->
                         Stream.of(feedback.getFeedbackUserId(), feedback.getApproveUserId())));
@@ -218,13 +215,17 @@ public class MesProFeedbackController {
             // 工单
             findAndThen(workOrderMap, vo.getWorkOrderId(), wo ->
                     vo.setWorkOrderCode(wo.getCode()).setWorkOrderName(wo.getName()));
-            // TODO @芋艿：task code 待 pro_task 服务迁移后补充
-            // TODO @AI：貌似已经支持，可以跟进下
-            // 物料、计量单位
-            findAndThen(itemMap, vo.getItemId(), item ->
-                    vo.setItemCode(item.getCode()).setItemName(item.getName()).setItemSpec(item.getSpecification()));
-            findAndThen(unitMeasureMap, vo.getUnitMeasureId(), unit ->
-                    vo.setUnitMeasureName(unit.getName()));
+            // 任务
+            findAndThen(taskMap, vo.getTaskId(), task ->
+                    vo.setTaskCode(task.getCode()));
+            // 物料 → 单位
+            findAndThen(itemMap, vo.getItemId(), item -> {
+                // TODO @AI：specification 全称
+                vo.setItemCode(item.getCode()).setItemName(item.getName()).setItemSpec(item.getSpecification())
+                        .setUnitMeasureId(item.getUnitMeasureId());
+                findAndThen(unitMeasureMap, item.getUnitMeasureId(), unit ->
+                        vo.setUnitMeasureName(unit.getName()));
+            });
             // 报工人、审核人
             findAndThen(userMap, vo.getFeedbackUserId(), user ->
                     vo.setFeedbackUserNickname(user.getNickname()));
