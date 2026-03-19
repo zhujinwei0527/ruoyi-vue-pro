@@ -68,10 +68,11 @@ public interface MesProFeedbackService {
     /**
      * 审批报工（审批中 -> 已完成 或 待检验）
      *
-     * @param id 编号
+     * @param id     编号
+     * @param userId 当前操作用户编号
      * @return true=已完成, false=待检验
      */
-    boolean approveFeedback(Long id);
+    boolean approveFeedback(Long id, Long userId);
 
 }
 

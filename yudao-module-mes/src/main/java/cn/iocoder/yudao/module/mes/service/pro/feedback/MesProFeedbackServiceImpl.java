@@ -1,6 +1,5 @@
 package cn.iocoder.yudao.module.mes.service.pro.feedback;
 
-import cn.hutool.core.util.BooleanUtil;
 import cn.hutool.core.util.ObjUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.iocoder.yudao.framework.common.pojo.PageResult;
@@ -9,6 +8,7 @@ import cn.iocoder.yudao.module.mes.controller.admin.pro.feedback.vo.MesProFeedba
 import cn.iocoder.yudao.module.mes.controller.admin.pro.feedback.vo.MesProFeedbackSaveReqVO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.pro.feedback.MesProFeedbackDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.pro.route.MesProRouteProcessDO;
+import cn.iocoder.yudao.module.mes.dal.dataobject.wm.itemconsume.MesWmItemConsumeDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.pro.task.MesProTaskDO;
 import cn.iocoder.yudao.module.mes.dal.mysql.pro.feedback.MesProFeedbackMapper;
 import cn.iocoder.yudao.module.mes.enums.pro.MesProFeedbackStatusEnum;
@@ -16,6 +16,7 @@ import cn.iocoder.yudao.module.mes.service.md.workstation.MesMdWorkstationServic
 import cn.iocoder.yudao.module.mes.service.pro.route.MesProRouteProcessService;
 import cn.iocoder.yudao.module.mes.service.pro.task.MesProTaskService;
 import cn.iocoder.yudao.module.mes.service.pro.workorder.MesProWorkOrderService;
+import cn.iocoder.yudao.module.mes.service.wm.itemconsume.MesWmItemConsumeService;
 import jakarta.annotation.Resource;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
@@ -53,6 +54,9 @@ public class MesProFeedbackServiceImpl implements MesProFeedbackService {
     @Resource
     @Lazy // 避免循环依赖
     private MesProTaskService taskService;
+
+    @Resource
+    private MesWmItemConsumeService itemConsumeService;
 
     @Override
     public Long createFeedback(MesProFeedbackSaveReqVO createReqVO) {
@@ -121,43 +125,55 @@ public class MesProFeedbackServiceImpl implements MesProFeedbackService {
                 .setStatus(MesProFeedbackStatusEnum.PREPARE.getStatus()));
     }
 
-    // DONE @AI：改成 boolean：true 表示已完成；false 表示待检验，前端需提示"报工成功，请等待质量检验完成！"
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public boolean approveFeedback(Long id) {
-        // TODO @AI: 逻辑需要继续跟进；
-        // 1.1 校验存在 + 审批中状态
+    public boolean approveFeedback(Long id, Long userId) {
+        // 1.1.a 校验存在 + 审批中状态
         MesProFeedbackDO feedback = validateFeedbackStatusApproving(id);
-        // 1.2 校验报工数量 > 0
+        // 1.1.b 校验报工数量 > 0
         if (feedback.getFeedbackQuantity() == null
                 || feedback.getFeedbackQuantity().compareTo(BigDecimal.ZERO) <= 0) {
             throw exception(PRO_FEEDBACK_QUANTITY_MUST_POSITIVE);
         }
-        // 1.3 校验任务未完成
+        // 1.2.a 校验任务未完成
         taskService.validateTaskNotFinished(feedback.getTaskId());
-        // 1.4 仍有待检数量时不能执行
+        // 1.2.b 仍有待检数量时不能执行
         if (feedback.getUncheckQuantity() != null
                 && feedback.getUncheckQuantity().compareTo(BigDecimal.ZERO) > 0) {
-            throw exception(PRO_FEEDBACK_NOT_APPROVING); // TODO @芋艿：新增一个专用错误码，例如 PRO_FEEDBACK_UNCHECK_QUANTITY_EXISTS
+            throw exception(PRO_FEEDBACK_UNCHECK_QUANTITY_EXISTS, feedback.getUncheckQuantity());
         }
 
-        // 2.1 查询工序的 checkFlag，决定目标状态
-        boolean checkFlag = getCheckFlag(feedback.getRouteId(), feedback.getProcessId());
-        Integer targetStatus = checkFlag
-                ? MesProFeedbackStatusEnum.UNCHECK.getStatus()    // 需要检验 → 待检验
-                : MesProFeedbackStatusEnum.FINISHED.getStatus();  // 无需检验 → 已完成
-        // 2.2 更新状态 + 审核人
+        // 2. 物料消耗：根据工序 BOM 生成消耗记录
+        MesWmItemConsumeDO itemConsume = itemConsumeService.generateItemConsume(feedback);
+        if (itemConsume != null) {
+            itemConsumeService.finishItemConsume(itemConsume.getId());
+        }
+
+        // 3. 查询工序的 keyFlag + checkFlag
+        MesProRouteProcessDO routeProcess = routeProcessService.getRouteProcessByRouteIdAndProcessId(
+                feedback.getRouteId(), feedback.getProcessId());
+        boolean keyFlag = routeProcess != null && Boolean.TRUE.equals(routeProcess.getKeyFlag());
+        boolean checkFlag = routeProcess != null && Boolean.TRUE.equals(routeProcess.getCheckFlag());
+
+        // 4. 情况一：关键工序 + 需要检验 → 待检验状态（等质检完成后入库）
+        if (keyFlag && checkFlag) {
+            feedbackMapper.updateById(new MesProFeedbackDO().setId(id)
+                    .setStatus(MesProFeedbackStatusEnum.UNCHECK.getStatus())
+                    .setApproveUserId(userId));
+            // TODO @芋艿：WM 产品产出（WmProductProduceService）待补充 generateProductProduce（质量状态=待检验）
+            return false;
+        }
+
+        // 4.1 情况二：关键工序 + 无需检验 → 直接完成
+        if (keyFlag) {
+            // TODO @芋艿：WM 产品产出（WmProductProduceService）待补充 generateProductProduce + executeProductProduce
+            // TODO @芋艿：updateProTaskAndWorkorder 待补充级联更新任务/工单的已生产数量
+        }
+        // 4.2 更新状态为已完成 + 审核人
         feedbackMapper.updateById(new MesProFeedbackDO().setId(id)
-                .setStatus(targetStatus)
-                .setApproveUserId(getLoginUserId()));
-
-        // 3. 如果不需要检验（直接完成），执行后续操作
-        if (BooleanUtil.isFalse(checkFlag)) {
-            // TODO @芋艿：WM 物料消耗（WmItemConsumeService）未迁移，此处需补充物料消耗逻辑
-            // TODO @芋艿：WM 产品产出（WmProductProduceService）未迁移，此处需补充产品产出逻辑
-            // TODO @芋艿：updateProTaskAndWorkorder 待 pro_task 服务迁移后补充级联更新任务/工单的已生产数量
-        }
-        return BooleanUtil.isFalse(checkFlag); // true=已完成, false=待检验
+                .setStatus(MesProFeedbackStatusEnum.FINISHED.getStatus())
+                .setApproveUserId(userId));
+        return true; // 已完成
     }
 
     // ==================== 校验方法 ====================
@@ -224,18 +240,6 @@ public class MesProFeedbackServiceImpl implements MesProFeedbackService {
 
         // 4. 校验任务存在且未终态（已完成/已取消），并返回任务用于冗余 itemId
         return taskService.validateTaskNotFinished(reqVO.getTaskId());
-    }
-
-    /**
-     * 获取指定工艺路线中指定工序的 checkFlag
-     *
-     * @param routeId   工艺路线编号
-     * @param processId 工序编号
-     * @return 是否需要检验
-     */
-    private boolean getCheckFlag(Long routeId, Long processId) {
-        MesProRouteProcessDO routeProcess = routeProcessService.getRouteProcessByRouteIdAndProcessId(routeId, processId);
-        return routeProcess != null && Boolean.TRUE.equals(routeProcess.getCheckFlag());
     }
 
 }
