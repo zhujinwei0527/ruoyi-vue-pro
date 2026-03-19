@@ -1,5 +1,7 @@
 package cn.iocoder.yudao.module.mes.service.wm.itemconsume;
 
+import cn.iocoder.yudao.framework.common.pojo.PageResult;
+import cn.iocoder.yudao.module.mes.controller.admin.wm.itemconsume.vo.MesWmItemConsumeLinePageReqVO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.wm.itemconsume.MesWmItemConsumeLineDO;
 
 import java.util.List;
@@ -19,11 +21,11 @@ public interface MesWmItemConsumeLineService {
     void createItemConsumeLineBatch(List<MesWmItemConsumeLineDO> lines);
 
     /**
-     * 根据消耗记录编号查询消耗行
+     * 根据报工记录编号分页查询消耗行
      *
-     * @param consumeId 消耗记录编号
-     * @return 消耗行列表
+     * @param pageReqVO 分页查询参数（含 feedbackId）
+     * @return 消耗行分页
      */
-    List<MesWmItemConsumeLineDO> getItemConsumeLineListByConsumeId(Long consumeId);
+    PageResult<MesWmItemConsumeLineDO> getItemConsumeLinePage(MesWmItemConsumeLinePageReqVO pageReqVO);
 
 }
