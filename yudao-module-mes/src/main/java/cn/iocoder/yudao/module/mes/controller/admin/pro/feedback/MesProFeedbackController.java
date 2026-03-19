@@ -155,7 +155,7 @@ public class MesProFeedbackController {
     @Operation(summary = "审批报工")
     @Parameter(name = "id", description = "编号", required = true)
     @PreAuthorize("@ss.hasPermission('mes:pro-feedback:approve')")
-    public CommonResult<Integer> approveFeedback(@RequestParam("id") Long id) {
+    public CommonResult<Boolean> approveFeedback(@RequestParam("id") Long id) {
         return success(feedbackService.approveFeedback(id));
     }
 
@@ -220,8 +220,7 @@ public class MesProFeedbackController {
                     vo.setTaskCode(task.getCode()));
             // 物料 → 单位
             findAndThen(itemMap, vo.getItemId(), item -> {
-                // TODO @AI：specification 全称
-                vo.setItemCode(item.getCode()).setItemName(item.getName()).setItemSpec(item.getSpecification())
+                vo.setItemCode(item.getCode()).setItemName(item.getName()).setItemSpecification(item.getSpecification())
                         .setUnitMeasureId(item.getUnitMeasureId());
                 findAndThen(unitMeasureMap, item.getUnitMeasureId(), unit ->
                         vo.setUnitMeasureName(unit.getName()));

@@ -98,7 +98,7 @@ public class MesProFeedbackRespVO {
 
     @Schema(description = "规格型号", example = "一字型")
     @ExcelProperty("规格型号")
-    private String itemSpec;
+    private String itemSpecification;
 
     @Schema(description = "单位编号", example = "202")
     private Long unitMeasureId;

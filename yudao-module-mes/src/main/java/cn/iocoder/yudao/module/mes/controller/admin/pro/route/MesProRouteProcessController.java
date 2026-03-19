@@ -93,6 +93,18 @@ public class MesProRouteProcessController {
         return success(buildRouteProcessRespVOList(list));
     }
 
+    @GetMapping("/get-by-route-and-process")
+    @Operation(summary = "按工艺路线+工序获得工序配置")
+    @Parameter(name = "routeId", description = "工艺路线编号", required = true, example = "1")
+    @Parameter(name = "processId", description = "工序编号", required = true, example = "1")
+    @PreAuthorize("@ss.hasPermission('mes:pro-route:query')")
+    public CommonResult<MesProRouteProcessRespVO> getRouteProcessByRouteAndProcess(
+            @RequestParam("routeId") Long routeId,
+            @RequestParam("processId") Long processId) {
+        MesProRouteProcessDO routeProcess = routeProcessService.getRouteProcessByRouteIdAndProcessId(routeId, processId);
+        return success(buildRouteProcessRespVO(routeProcess));
+    }
+
     // ==================== 拼接 VO ====================
 
     private List<MesProRouteProcessRespVO> buildRouteProcessRespVOList(List<MesProRouteProcessDO> list) {

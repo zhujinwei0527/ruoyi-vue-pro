@@ -42,6 +42,10 @@ public class MesProFeedbackSaveReqVO {
     @NotNull(message = "生产任务不能为空")
     private Long taskId;
 
+    @Schema(description = "产品物料编号", requiredMode = Schema.RequiredMode.REQUIRED, example = "100")
+    @NotNull(message = "产品物料不能为空")
+    private Long itemId;
+
     @Schema(description = "过期日期")
     private LocalDateTime expireDate;
 
@@ -69,6 +73,18 @@ public class MesProFeedbackSaveReqVO {
 
     @Schema(description = "其他废品数量", example = "0")
     private BigDecimal otherScrapQuantity;
+
+    @Schema(description = "报工人编号", requiredMode = Schema.RequiredMode.REQUIRED, example = "1")
+    @NotNull(message = "报工人不能为空")
+    private Long feedbackUserId;
+
+    @Schema(description = "报工时间", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotNull(message = "报工时间不能为空")
+    private LocalDateTime feedbackTime;
+
+    @Schema(description = "审核人编号", requiredMode = Schema.RequiredMode.REQUIRED, example = "1")
+    @NotNull(message = "审核人不能为空")
+    private Long approveUserId;
 
     @Schema(description = "备注", example = "备注")
     private String remark;

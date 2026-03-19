@@ -121,10 +121,10 @@ public class MesProFeedbackServiceImpl implements MesProFeedbackService {
                 .setStatus(MesProFeedbackStatusEnum.PREPARE.getStatus()));
     }
 
-    // TODO @AI：要不改成 boolean：看是不是 finish；如果非 finish 说明要前端提示“报工成功，请等待质量检验完成！”
+    // DONE @AI：改成 boolean：true 表示已完成；false 表示待检验，前端需提示"报工成功，请等待质量检验完成！"
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public Integer approveFeedback(Long id) {
+    public boolean approveFeedback(Long id) {
         // TODO @AI: 逻辑需要继续跟进；
         // 1.1 校验存在 + 审批中状态
         MesProFeedbackDO feedback = validateFeedbackStatusApproving(id);
@@ -157,7 +157,7 @@ public class MesProFeedbackServiceImpl implements MesProFeedbackService {
             // TODO @芋艿：WM 产品产出（WmProductProduceService）未迁移，此处需补充产品产出逻辑
             // TODO @芋艿：updateProTaskAndWorkorder 待 pro_task 服务迁移后补充级联更新任务/工单的已生产数量
         }
-        return targetStatus;
+        return BooleanUtil.isFalse(checkFlag); // true=已完成, false=待检验
     }
 
     // ==================== 校验方法 ====================

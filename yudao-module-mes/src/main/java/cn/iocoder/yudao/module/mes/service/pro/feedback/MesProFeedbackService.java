@@ -69,9 +69,9 @@ public interface MesProFeedbackService {
      * 审批报工（审批中 -> 已完成 或 待检验）
      *
      * @param id 编号
-     * @return 审批后的状态
+     * @return true=已完成, false=待检验
      */
-    Integer approveFeedback(Long id);
+    boolean approveFeedback(Long id);
 
 }
 

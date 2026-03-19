@@ -128,8 +128,9 @@ public class MesProTaskController {
         List<MesProTaskDO> list = taskService.getTaskListByWorkOrderId(workOrderId);
         return success(convertList(list, task -> new MesProTaskRespVO()
                 .setId(task.getId()).setCode(task.getCode()).setName(task.getName())
-                .setWorkOrderId(task.getWorkOrderId()).setProcessId(task.getProcessId())
-                .setStatus(task.getStatus())));
+                .setWorkOrderId(task.getWorkOrderId()).setWorkstationId(task.getWorkstationId())
+                .setRouteId(task.getRouteId()).setProcessId(task.getProcessId())
+                .setItemId(task.getItemId()).setStatus(task.getStatus())));
     }
 
     @GetMapping("/gantt-list")
