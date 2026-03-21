@@ -97,4 +97,9 @@ public class MesWmProductProduceLineServiceImpl implements MesWmProductProduceLi
         return line;
     }
 
+    @Override
+    public List<MesWmProductProduceLineDO> getProductProduceLineListByFeedbackId(Long feedbackId) {
+        return produceLineMapper.selectListByFeedbackId(feedbackId);
+    }
+
 }

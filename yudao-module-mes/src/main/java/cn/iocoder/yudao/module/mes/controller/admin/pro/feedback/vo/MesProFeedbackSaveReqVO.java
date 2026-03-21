@@ -49,6 +49,9 @@ public class MesProFeedbackSaveReqVO {
     @Schema(description = "过期日期")
     private LocalDateTime expireDate;
 
+    @Schema(description = "生产批号", example = "LOT20260321")
+    private String lotNumber;
+
     @Schema(description = "排产数量", example = "5000.00")
     private BigDecimal scheduledQuantity;
 

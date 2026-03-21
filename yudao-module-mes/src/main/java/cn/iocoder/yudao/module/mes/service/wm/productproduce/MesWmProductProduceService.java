@@ -3,6 +3,7 @@ package cn.iocoder.yudao.module.mes.service.wm.productproduce;
 import cn.iocoder.yudao.framework.common.pojo.PageResult;
 import cn.iocoder.yudao.module.mes.controller.admin.wm.productproduce.vo.MesWmProductProducePageReqVO;
 import cn.iocoder.yudao.module.mes.controller.admin.wm.productproduce.vo.MesWmProductProduceSaveReqVO;
+import cn.iocoder.yudao.module.mes.dal.dataobject.pro.feedback.MesProFeedbackDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.wm.productproduce.MesWmProductProduceDO;
 import jakarta.validation.Valid;
 
@@ -78,5 +79,14 @@ public interface MesWmProductProduceService {
      * @return 是否全部一致
      */
     Boolean checkProductProduceQuantity(Long id);
+
+    /**
+     * 根据报工记录，自动生成产品产出单（头 + 行 + 明细）
+     *
+     * @param feedback  报工记录
+     * @param checkFlag 是否需要检验（true=待检验，false=按合格/不合格拆分行）
+     * @return 生成的产品产出单
+     */
+    MesWmProductProduceDO generateProductProduce(MesProFeedbackDO feedback, boolean checkFlag);
 
 }

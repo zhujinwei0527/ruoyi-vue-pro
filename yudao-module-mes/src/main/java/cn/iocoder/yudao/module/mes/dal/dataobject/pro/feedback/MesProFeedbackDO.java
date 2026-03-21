@@ -97,6 +97,12 @@ public class MesProFeedbackDO extends BaseDO {
      */
     private LocalDateTime expireDate;
     /**
+     * 生产批号
+     *
+     * TODO @芋艿：预留字段，当前未启用
+     */
+    private String lotNumber;
+    /**
      * 排产数量
      */
     private BigDecimal scheduledQuantity;

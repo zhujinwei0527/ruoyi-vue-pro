@@ -6,6 +6,7 @@ import cn.iocoder.yudao.module.mes.controller.admin.pro.workorder.vo.MesProWorkO
 import cn.iocoder.yudao.module.mes.dal.dataobject.pro.workorder.MesProWorkOrderDO;
 import jakarta.validation.Valid;
 
+import java.math.BigDecimal;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -118,5 +119,13 @@ public interface MesProWorkOrderService {
      * @return 工单列表
      */
     List<MesProWorkOrderDO> getWorkOrderSimpleList();
+
+    /**
+     * 累加工单的已生产数量
+     *
+     * @param id                   工单编号
+     * @param incrQuantityProduced 本次已生产数量增量
+     */
+    void updateProducedQuantity(Long id, BigDecimal incrQuantityProduced);
 
 }

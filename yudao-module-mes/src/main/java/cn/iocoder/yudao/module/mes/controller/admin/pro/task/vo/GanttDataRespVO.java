@@ -8,7 +8,7 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 /**
- * 甘特图数据项 VO（对齐 KTG GanttData）
+ * 甘特图数据项 VO
  */
 @Schema(description = "管理后台 - 甘特图数据项 Response VO")
 @Data

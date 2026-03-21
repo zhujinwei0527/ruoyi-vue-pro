@@ -124,7 +124,8 @@ public class MesQcIpqcServiceImpl implements MesQcIpqcService {
         updateObj.setStatus(MesQcStatusEnum.FINISHED.getStatus());
         ipqcMapper.updateById(updateObj);
 
-        // TODO @芋艿：IPQC 完成时的 PRO/WM 联动（报工反馈更新、产品产出单拆分），待 WM 模块迁移后对接
+        // TODO @AI（from codex）：如果检验来源是报工，需要对待检产出按检验结果拆分合格/不合格行、生成产出明细、完成产品产出入库、
+        //  回写任务/工单数量，并将报工状态从待检验改为已完成。
     }
 
     @Override

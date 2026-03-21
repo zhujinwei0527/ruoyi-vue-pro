@@ -20,8 +20,6 @@ import static cn.iocoder.yudao.framework.common.util.collection.CollectionUtils.
 /**
  * MES 物料消耗记录 Service 实现类
  *
- * 参考 KTG {@code WmItemConsumeServiceImpl#generateItemConsume}
- *
  * @author 芋道源码
  */
 @Service
@@ -60,12 +58,13 @@ public class MesWmItemConsumeServiceImpl implements MesWmItemConsumeService {
                 .consumeId(consume.getId()).itemId(bom.getItemId())
                 .quantity(bom.getQuantity().multiply(feedback.getFeedbackQuantity())).build());
         itemConsumeLineService.createItemConsumeLineBatch(lines);
+        // TODO @AI（from codex）：对齐，这里还需要按线边库/FIFO 生成消耗明细，并在库存不足时回退为无批次消耗明细。
         return consume;
     }
 
     @Override
     public void finishItemConsume(Long consumeId) {
-        // TODO @芋艿：待 MaterialStockService 补充 decreaseStock 后实现库存扣减
+        // TODO @AI（from codex）：对齐，这里还需要按消耗明细扣减线边库库存，不能只把消耗单状态改为已完成。
         // List<MesWmItemConsumeLineDO> lines = itemConsumeLineService.getItemConsumeLineListByConsumeId(consumeId);
         // for (MesWmItemConsumeLineDO line : lines) {
         //     materialStockService.decreaseStock(line.getItemId(), ..., line.getQuantity());

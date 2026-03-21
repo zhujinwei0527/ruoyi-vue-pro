@@ -196,4 +196,15 @@ public class MesProTaskServiceImpl implements MesProTaskService {
         }
     }
 
+    @Override
+    public void updateProducedQuantity(Long id,
+                                       BigDecimal incrProducedQuantity,
+                                       BigDecimal incrQualifyQuantity,
+                                       BigDecimal incrUnqualifyQuantity) {
+        // 校验任务存在
+        validateTaskExists(id);
+        // 更新数量
+        taskMapper.updateProducedQuantity(id, incrProducedQuantity, incrQualifyQuantity, incrUnqualifyQuantity);
+    }
+
 }

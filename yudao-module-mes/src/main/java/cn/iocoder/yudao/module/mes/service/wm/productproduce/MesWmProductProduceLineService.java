@@ -74,4 +74,12 @@ public interface MesWmProductProduceLineService {
      */
     MesWmProductProduceLineDO validateProductProduceLineExists(Long id);
 
+    /**
+     * 根据报工记录ID获取行列表
+     *
+     * @param feedbackId 报工记录ID
+     * @return 行列表
+     */
+    List<MesWmProductProduceLineDO> getProductProduceLineListByFeedbackId(Long feedbackId);
+
 }

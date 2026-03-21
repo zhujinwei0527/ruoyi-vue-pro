@@ -2,25 +2,36 @@ package cn.iocoder.yudao.module.mes.service.wm.productproduce;
 
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.ObjUtil;
+import cn.hutool.core.util.ObjectUtil;
 import cn.iocoder.yudao.framework.common.pojo.PageResult;
 import cn.iocoder.yudao.framework.common.util.collection.CollectionUtils;
 import cn.iocoder.yudao.framework.common.util.object.BeanUtils;
 import cn.iocoder.yudao.framework.common.util.object.ObjectUtils;
+import cn.iocoder.yudao.module.mes.controller.admin.wm.batch.vo.MesWmBatchGenerateReqVO;
 import cn.iocoder.yudao.module.mes.controller.admin.wm.productproduce.vo.MesWmProductProducePageReqVO;
 import cn.iocoder.yudao.module.mes.controller.admin.wm.productproduce.vo.MesWmProductProduceSaveReqVO;
+import cn.iocoder.yudao.module.mes.dal.dataobject.pro.feedback.MesProFeedbackDO;
+import cn.iocoder.yudao.module.mes.dal.dataobject.pro.workorder.MesProWorkOrderDO;
+import cn.iocoder.yudao.module.mes.dal.dataobject.wm.batch.MesWmBatchDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.wm.productproduce.MesWmProductProduceDetailDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.wm.productproduce.MesWmProductProduceDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.wm.productproduce.MesWmProductProduceLineDO;
+import cn.iocoder.yudao.module.mes.dal.mysql.wm.productproduce.MesWmProductProduceDetailMapper;
+import cn.iocoder.yudao.module.mes.dal.mysql.wm.productproduce.MesWmProductProduceLineMapper;
 import cn.iocoder.yudao.module.mes.dal.mysql.wm.productproduce.MesWmProductProduceMapper;
 import cn.iocoder.yudao.module.mes.enums.wm.MesWmProductProduceStatusEnum;
+import cn.iocoder.yudao.module.mes.enums.wm.MesWmQualityStatusEnum;
 import cn.iocoder.yudao.module.mes.service.md.workstation.MesMdWorkstationService;
 import cn.iocoder.yudao.module.mes.service.pro.workorder.MesProWorkOrderService;
+import cn.iocoder.yudao.module.mes.service.wm.batch.MesWmBatchService;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception;
@@ -34,7 +45,13 @@ import static cn.iocoder.yudao.module.mes.enums.ErrorCodeConstants.*;
 public class MesWmProductProduceServiceImpl implements MesWmProductProduceService {
 
     @Resource
-    private MesWmProductProduceMapper produceMapper;
+    private MesWmProductProduceMapper productProduceMapper;
+    // TODO @芋艿：需要优化，不要直接调用对方的 mapper
+    @Resource
+    private MesWmProductProduceLineMapper produceLineMapper;
+    // TODO @芋艿：需要优化，不要直接调用对方的 mapper
+    @Resource
+    private MesWmProductProduceDetailMapper produceDetailMapper;
 
     @Resource
     private MesWmProductProduceLineService produceLineService;
@@ -44,6 +61,8 @@ public class MesWmProductProduceServiceImpl implements MesWmProductProduceServic
     private MesMdWorkstationService workstationService;
     @Resource
     private MesProWorkOrderService workOrderService;
+    @Resource
+    private MesWmBatchService batchService;
 
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -59,7 +78,7 @@ public class MesWmProductProduceServiceImpl implements MesWmProductProduceServic
         // 2. 插入主表
         MesWmProductProduceDO produce = BeanUtils.toBean(createReqVO, MesWmProductProduceDO.class);
         produce.setStatus(MesWmProductProduceStatusEnum.PREPARE.getStatus());
-        produceMapper.insert(produce);
+        productProduceMapper.insert(produce);
         return produce.getId();
     }
 
@@ -78,7 +97,7 @@ public class MesWmProductProduceServiceImpl implements MesWmProductProduceServic
 
         // 2. 更新主表
         MesWmProductProduceDO updateObj = BeanUtils.toBean(updateReqVO, MesWmProductProduceDO.class);
-        produceMapper.updateById(updateObj);
+        productProduceMapper.updateById(updateObj);
     }
 
     @Override
@@ -92,32 +111,31 @@ public class MesWmProductProduceServiceImpl implements MesWmProductProduceServic
         // 2.2 级联删除行
         produceLineService.deleteProductProduceLineByProduceId(id);
         // 2.3 删除主表
-        produceMapper.deleteById(id);
+        productProduceMapper.deleteById(id);
     }
 
     @Override
     public MesWmProductProduceDO getProductProduce(Long id) {
-        return produceMapper.selectById(id);
+        return productProduceMapper.selectById(id);
     }
 
     @Override
     public PageResult<MesWmProductProduceDO> getProductProducePage(MesWmProductProducePageReqVO pageReqVO) {
-        return produceMapper.selectPage(pageReqVO);
+        return productProduceMapper.selectPage(pageReqVO);
     }
 
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void finishProductProduce(Long id) {
-        // 1. 校验存在 + 草稿状态
+        // 1.1 校验存在 + 草稿状态
         validateProductProduceExistsAndPrepare(id);
-
-        // 2. 校验至少有一条行
+        // 1.2 校验至少有一条行
         List<MesWmProductProduceLineDO> lines = produceLineService.getProductProduceLineListByProduceId(id);
         if (CollUtil.isEmpty(lines)) {
             throw exception(WM_PRODUCT_PRODUCE_NO_LINE);
         }
 
-        // 3. 校验每行明细数量之和等于行数量
+        // 2. 校验每行明细数量之和等于行数量
         for (MesWmProductProduceLineDO line : lines) {
             List<MesWmProductProduceDetailDO> details = produceDetailService.getProductProduceDetailListByLineId(line.getId());
             BigDecimal totalDetailQty = CollectionUtils.getSumValue(details,
@@ -127,17 +145,17 @@ public class MesWmProductProduceServiceImpl implements MesWmProductProduceServic
             }
         }
 
-        // TODO @芋艿：完成入库时更新库存（对齐 ktg-mes 的 storageCoreService.processProductProduce），待库存事务模块就绪后实现
+        // TODO @AI（from codex）：对齐，这里还需要按产出明细执行库存入账，而不是只校验明细并更新单据状态。
 
-        // 4. 更新入库单状态
-        produceMapper.updateById(new MesWmProductProduceDO()
+        // 3. 更新入库单状态
+        productProduceMapper.updateById(new MesWmProductProduceDO()
                 .setId(id).setStatus(MesWmProductProduceStatusEnum.FINISHED.getStatus()));
     }
 
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void cancelProductProduce(Long id) {
-        // 校验存在
+        // 1. 校验存在
         MesWmProductProduceDO produce = validateProductProduceExists(id);
         // 已完成和已取消不允许取消
         if (ObjectUtils.equalsAny(produce.getStatus(),
@@ -146,8 +164,8 @@ public class MesWmProductProduceServiceImpl implements MesWmProductProduceServic
             throw exception(WM_PRODUCT_PRODUCE_CANCEL_NOT_ALLOWED);
         }
 
-        // 取消
-        produceMapper.updateById(new MesWmProductProduceDO()
+        // 2. 取消
+        productProduceMapper.updateById(new MesWmProductProduceDO()
                 .setId(id).setStatus(MesWmProductProduceStatusEnum.CANCELED.getStatus()));
     }
 
@@ -166,8 +184,93 @@ public class MesWmProductProduceServiceImpl implements MesWmProductProduceServic
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
+    public MesWmProductProduceDO generateProductProduce(MesProFeedbackDO feedback, boolean checkFlag) {
+        // 0. 查询关联的工单（用于获取 clientId 等信息）
+        MesProWorkOrderDO workOrder = workOrderService.getWorkOrder(feedback.getWorkOrderId());
+
+        // 1. 创建产出单头
+        MesWmProductProduceDO produce = MesWmProductProduceDO.builder()
+                .workOrderId(feedback.getWorkOrderId()).feedbackId(feedback.getId()).taskId(feedback.getTaskId())
+                .workstationId(feedback.getWorkstationId()).processId(feedback.getProcessId())
+                .produceDate(LocalDateTime.now()).status(MesWmProductProduceStatusEnum.PREPARE.getStatus())
+                .build();
+        productProduceMapper.insert(produce);
+
+        // 2. 获取或生成批次
+        MesWmBatchGenerateReqVO batchReqVO = new MesWmBatchGenerateReqVO()
+                .setItemId(feedback.getItemId())
+                .setProduceDate(LocalDate.now().atStartOfDay()) // 截断到当天零点，确保同一天的报工生成相同批次号
+                .setExpireDate(feedback.getExpireDate())
+                .setWorkOrderId(feedback.getWorkOrderId())
+                .setClientId(workOrder != null ? workOrder.getClientId() : null)
+                .setWorkstationId(feedback.getWorkstationId())
+                .setLotNumber(feedback.getLotNumber());
+        // TODO @AI（from codex）：对齐 批次生成还需要带上工单来源单号（salesOrderCode / coCode 对应 orderSourceCode）；
+        //  否则启用该维度的批次规则会生成错误批次或直接缺参失败。
+        MesWmBatchDO batch = batchService.getOrGenerateBatchCode(batchReqVO);
+        Long batchId = batch != null ? batch.getId() : null;
+        String batchCode = batch != null ? batch.getCode() : null;
+
+        // 3. 根据是否需要检验分支处理
+        if (checkFlag) {
+            // 3.1 需要检验：创建一条行（质量状态=待检验），不生成明细
+            MesWmProductProduceLineDO line = buildProduceLine(produce, feedback, batchId, batchCode,
+                    feedback.getFeedbackQuantity(), MesWmQualityStatusEnum.PENDING.getStatus());
+            produceLineMapper.insert(line);
+            // TODO @芋艿：先不生成明细行，等待检验完成时，再根据行的质量状态生成明细行
+        } else {
+            // 3.2 无需检验：按合格品/不合格品各生成一行 + 明细
+            BigDecimal qualifiedQty = ObjectUtil.defaultIfNull(feedback.getQualifiedQuantity(), BigDecimal.ZERO);
+            BigDecimal unqualifiedQty = ObjectUtil.defaultIfNull(feedback.getUnqualifiedQuantity(), BigDecimal.ZERO);
+            // 3.2.1 不合格品行 + 明细
+            if (unqualifiedQty.compareTo(BigDecimal.ZERO) > 0) {
+                MesWmProductProduceLineDO unqualifiedLine = buildProduceLine(produce, feedback, batchId, batchCode,
+                        unqualifiedQty, MesWmQualityStatusEnum.FAIL.getStatus());
+                produceLineMapper.insert(unqualifiedLine);
+                MesWmProductProduceDetailDO unqualifiedDetail = buildProduceDetail(produce, feedback, batchId, batchCode,
+                        unqualifiedLine.getId(), unqualifiedQty);
+                produceDetailMapper.insert(unqualifiedDetail);
+            }
+            // 3.2.2 合格品行 + 明细
+            if (qualifiedQty.compareTo(BigDecimal.ZERO) > 0) {
+                MesWmProductProduceLineDO qualifiedLine = buildProduceLine(produce, feedback, batchId, batchCode,
+                        qualifiedQty, MesWmQualityStatusEnum.PASS.getStatus());
+                produceLineMapper.insert(qualifiedLine);
+                MesWmProductProduceDetailDO qualifiedDetail = buildProduceDetail(produce, feedback, batchId, batchCode,
+                        qualifiedLine.getId(), qualifiedQty);
+                produceDetailMapper.insert(qualifiedDetail);
+            }
+        }
+        return produce;
+    }
+
+    private MesWmProductProduceLineDO buildProduceLine(MesWmProductProduceDO produce, MesProFeedbackDO feedback,
+                                                       Long batchId, String batchCode,
+                                                       BigDecimal quantity, Integer qualityStatus) {
+        return MesWmProductProduceLineDO.builder()
+                .produceId(produce.getId()).feedbackId(feedback.getId())
+                .itemId(feedback.getItemId()).quantity(quantity)
+                .batchId(batchId).batchCode(batchCode)
+                .expireDate(feedback.getExpireDate()).lotNumber(feedback.getLotNumber())
+                .qualityStatus(qualityStatus)
+                .build();
+    }
+
+    private MesWmProductProduceDetailDO buildProduceDetail(MesWmProductProduceDO produce, MesProFeedbackDO feedback,
+                                                           Long batchId, String batchCode,
+                                                           Long lineId, BigDecimal quantity) {
+        return MesWmProductProduceDetailDO.builder()
+                .produceId(produce.getId()).lineId(lineId)
+                .itemId(feedback.getItemId()).quantity(quantity)
+                .batchId(batchId).batchCode(batchCode)
+                // TODO @AI（from codex）：对齐 产出明细需要补齐虚拟仓/库区/库位（VIRTUAL_WH/VIRTUAL_WS/VIRTUAL_WA），否则后续库存入账定位不完整。
+                .build();
+    }
+
+    @Override
     public MesWmProductProduceDO validateProductProduceExists(Long id) {
-        MesWmProductProduceDO produce = produceMapper.selectById(id);
+        MesWmProductProduceDO produce = productProduceMapper.selectById(id);
         if (produce == null) {
             throw exception(WM_PRODUCT_PRODUCE_NOT_EXISTS);
         }
@@ -179,10 +282,11 @@ public class MesWmProductProduceServiceImpl implements MesWmProductProduceServic
      */
     private MesWmProductProduceDO validateProductProduceExistsAndPrepare(Long id) {
         MesWmProductProduceDO produce = validateProductProduceExists(id);
-        if (ObjUtil.notEqual(MesWmProductProduceStatusEnum.PREPARE.getStatus(), produce.getStatus())) {
+        if (ObjUtil.notEqual(produce.getStatus(), MesWmProductProduceStatusEnum.PREPARE.getStatus())) {
             throw exception(WM_PRODUCT_PRODUCE_STATUS_INVALID);
         }
         return produce;
     }
+
 
 }

@@ -5,7 +5,10 @@ import cn.iocoder.yudao.framework.mybatis.core.mapper.BaseMapperX;
 import cn.iocoder.yudao.framework.mybatis.core.query.LambdaQueryWrapperX;
 import cn.iocoder.yudao.module.mes.controller.admin.pro.workorder.vo.MesProWorkOrderPageReqVO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.pro.workorder.MesProWorkOrderDO;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import org.apache.ibatis.annotations.Mapper;
+
+import java.math.BigDecimal;
 
 /**
  * MES 生产工单 Mapper
@@ -30,6 +33,12 @@ public interface MesProWorkOrderMapper extends BaseMapperX<MesProWorkOrderDO> {
 
     default MesProWorkOrderDO selectByCode(String code) {
         return selectOne(MesProWorkOrderDO::getCode, code);
+    }
+
+    default void updateProducedQuantity(Long id, BigDecimal incrQuantityProduced) {
+        update(null, new LambdaUpdateWrapper<MesProWorkOrderDO>()
+                .eq(MesProWorkOrderDO::getId, id)
+                .setSql("quantity_produced = IFNULL(quantity_produced, 0) + " + incrQuantityProduced));
     }
 
 }

@@ -66,11 +66,24 @@ public interface MesProFeedbackService {
     void rejectFeedback(Long id);
 
     /**
-     * 审批报工（审批中 -> 已完成 或 待检验）
+     * 审批通过报工单，执行生产入库流程
      *
-     * @param id     编号
-     * @param userId 当前操作用户编号
-     * @return true=已完成, false=待检验
+     * <p>整体流程如下：
+     * <ol>
+     *   <li>校验报工单状态和数量</li>
+     *   <li>生成物料消耗单，扣减线边库物料</li>
+     *   <li>根据工序配置（关键工序 & 是否需要检验）分情况处理：
+     *     <ul>
+     *       <li><b>关键工序 + 需要检验</b>：生成产出单（质量状态=待检验），报工单状态 → 待检验，等待质检完成回调</li>
+     *       <li><b>关键工序 + 无需检验</b>：生成产出单（按合格/不合格拆行），执行产品入库，更新任务/工单已生产数量，报工单状态 → 已完成</li>
+     *       <li><b>非关键工序</b>：不生成产出单，不更新任务/工单数量，报工单状态 → 已完成</li>
+     *     </ul>
+     *   </li>
+     * </ol>
+     *
+     * @param id     报工单编号
+     * @param userId 当前操作用户编号（审核人）
+     * @return true=已完成, false=待检验（需等质检回调）
      */
     boolean approveFeedback(Long id, Long userId);
 

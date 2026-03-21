@@ -6,6 +6,7 @@ import cn.iocoder.yudao.module.mes.controller.admin.pro.task.vo.MesProTaskSaveRe
 import cn.iocoder.yudao.module.mes.dal.dataobject.pro.task.MesProTaskDO;
 import jakarta.validation.Valid;
 
+import java.math.BigDecimal;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -120,5 +121,18 @@ public interface MesProTaskService {
      * @param workOrderId 工单编号
      */
     void cancelTaskByOrderId(Long workOrderId);
+
+    /**
+     * 累加任务的已生产、合格、不合格数量
+     *
+     * @param id                    任务编号
+     * @param incrProducedQuantity  本次已生产数量增量（不良品也计入）
+     * @param incrQualifyQuantity   本次合格品数量增量
+     * @param incrUnqualifyQuantity 本次不合格品数量增量
+     */
+    void updateProducedQuantity(Long id,
+                                BigDecimal incrProducedQuantity,
+                                BigDecimal incrQualifyQuantity,
+                                BigDecimal incrUnqualifyQuantity);
 
 }

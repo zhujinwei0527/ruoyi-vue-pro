@@ -134,7 +134,7 @@ public class MesProTaskController {
     }
 
     @GetMapping("/gantt-list")
-    @Operation(summary = "获得甘特图任务列表", description = "对齐 KTG：后端组装工单=project + 任务=task 列表")
+    @Operation(summary = "获得甘特图任务列表", description = "后端组装工单=project + 任务=task 列表")
     @PreAuthorize("@ss.hasPermission('mes:pro-task:query')")
     public CommonResult<List<GanttDataRespVO>> listGanttTaskList(@Valid MesProWorkOrderPageReqVO reqVO) {
         // 1.1 查询匹配的工单（不分页）
@@ -251,7 +251,7 @@ public class MesProTaskController {
     }
 
     /**
-     * 拼接甘特图显示文本，对齐 KTG 格式："[产品名][数量][单位]"
+     * 拼接甘特图显示文本，格式："[产品名][数量][单位]"
      */
     private String buildGanttText(MesMdItemDO item, BigDecimal quantity,
                                   Map<Long, MesMdUnitMeasureDO> unitMap) {

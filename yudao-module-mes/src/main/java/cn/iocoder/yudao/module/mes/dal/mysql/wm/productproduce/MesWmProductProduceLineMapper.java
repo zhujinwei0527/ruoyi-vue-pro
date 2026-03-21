@@ -31,4 +31,8 @@ public interface MesWmProductProduceLineMapper extends BaseMapperX<MesWmProductP
         delete(MesWmProductProduceLineDO::getProduceId, produceId);
     }
 
+    default List<MesWmProductProduceLineDO> selectListByFeedbackId(Long feedbackId) {
+        return selectList(MesWmProductProduceLineDO::getFeedbackId, feedbackId);
+    }
+
 }

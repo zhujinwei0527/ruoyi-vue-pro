@@ -5,8 +5,10 @@ import cn.iocoder.yudao.framework.mybatis.core.mapper.BaseMapperX;
 import cn.iocoder.yudao.framework.mybatis.core.query.LambdaQueryWrapperX;
 import cn.iocoder.yudao.module.mes.controller.admin.pro.task.vo.MesProTaskPageReqVO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.pro.task.MesProTaskDO;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import org.apache.ibatis.annotations.Mapper;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 /**
@@ -40,6 +42,17 @@ public interface MesProTaskMapper extends BaseMapperX<MesProTaskDO> {
         return selectList(new LambdaQueryWrapperX<MesProTaskDO>()
                 .in(MesProTaskDO::getWorkOrderId, workOrderIds)
                 .orderByDesc(MesProTaskDO::getId));
+    }
+
+    default void updateProducedQuantity(Long id,
+                                        BigDecimal incrProducedQuantity,
+                                        BigDecimal incrQualifyQuantity,
+                                        BigDecimal incrUnqualifyQuantity) {
+        update(null, new LambdaUpdateWrapper<MesProTaskDO>()
+                .eq(MesProTaskDO::getId, id)
+                .setSql("produced_quantity = IFNULL(produced_quantity, 0) + " + incrProducedQuantity)
+                .setSql("qualify_quantity = IFNULL(qualify_quantity, 0) + " + incrQualifyQuantity)
+                .setSql("unqualify_quantity = IFNULL(unqualify_quantity, 0) + " + incrUnqualifyQuantity));
     }
 
 }

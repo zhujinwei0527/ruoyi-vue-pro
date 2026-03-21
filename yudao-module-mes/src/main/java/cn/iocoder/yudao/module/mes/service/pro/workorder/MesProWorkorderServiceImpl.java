@@ -20,6 +20,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.Collections;
@@ -231,6 +232,14 @@ public class MesProWorkOrderServiceImpl implements MesProWorkOrderService {
     @Override
     public List<MesProWorkOrderDO> getWorkOrderSimpleList() {
         return workOrderMapper.selectList();
+    }
+
+    @Override
+    public void updateProducedQuantity(Long id, BigDecimal incrQuantityProduced) {
+        // 校验工单存在
+        validateWorkOrderExists(id);
+        // 更新数量
+        workOrderMapper.updateProducedQuantity(id, incrQuantityProduced);
     }
 
 }
