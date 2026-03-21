@@ -5,9 +5,8 @@ import cn.iocoder.yudao.framework.common.pojo.CommonResult;
 import cn.iocoder.yudao.framework.common.pojo.PageResult;
 import cn.iocoder.yudao.framework.common.util.collection.MapUtils;
 import cn.iocoder.yudao.framework.common.util.object.BeanUtils;
-import cn.iocoder.yudao.module.mes.controller.admin.wm.productproduce.vo.line.MesWmProductProduceLinePageReqVO;
-import cn.iocoder.yudao.module.mes.controller.admin.wm.productproduce.vo.line.MesWmProductProduceLineRespVO;
-import cn.iocoder.yudao.module.mes.controller.admin.wm.productproduce.vo.line.MesWmProductProduceLineSaveReqVO;
+import cn.iocoder.yudao.module.mes.controller.admin.wm.productproduce.vo.MesWmProductProduceLinePageReqVO;
+import cn.iocoder.yudao.module.mes.controller.admin.wm.productproduce.vo.MesWmProductProduceLineRespVO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.md.item.MesMdItemDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.md.unitmeasure.MesMdUnitMeasureDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.wm.productproduce.MesWmProductProduceLineDO;
@@ -15,13 +14,14 @@ import cn.iocoder.yudao.module.mes.service.md.item.MesMdItemService;
 import cn.iocoder.yudao.module.mes.service.md.unitmeasure.MesMdUnitMeasureService;
 import cn.iocoder.yudao.module.mes.service.wm.productproduce.MesWmProductProduceLineService;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
 import jakarta.validation.Valid;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Collections;
 import java.util.List;
@@ -37,67 +37,20 @@ import static cn.iocoder.yudao.framework.common.util.collection.CollectionUtils.
 public class MesWmProductProduceLineController {
 
     @Resource
-    private MesWmProductProduceLineService produceLineService;
-
+    private MesWmProductProduceLineService productProduceLineService;
     @Resource
     private MesMdItemService itemService;
-
     @Resource
     private MesMdUnitMeasureService unitMeasureService;
-
-    @PostMapping("/create")
-    @Operation(summary = "创建生产入库单行")
-    @PreAuthorize("@ss.hasPermission('mes:wm-product-produce:create')")
-    public CommonResult<Long> createProductProduceLine(@Valid @RequestBody MesWmProductProduceLineSaveReqVO createReqVO) {
-        return success(produceLineService.createProductProduceLine(createReqVO));
-    }
-
-    @PutMapping("/update")
-    @Operation(summary = "修改生产入库单行")
-    @PreAuthorize("@ss.hasPermission('mes:wm-product-produce:update')")
-    public CommonResult<Boolean> updateProductProduceLine(@Valid @RequestBody MesWmProductProduceLineSaveReqVO updateReqVO) {
-        produceLineService.updateProductProduceLine(updateReqVO);
-        return success(true);
-    }
-
-    @DeleteMapping("/delete")
-    @Operation(summary = "删除生产入库单行")
-    @Parameter(name = "id", description = "编号", required = true)
-    @PreAuthorize("@ss.hasPermission('mes:wm-product-produce:delete')")
-    public CommonResult<Boolean> deleteProductProduceLine(@RequestParam("id") Long id) {
-        produceLineService.deleteProductProduceLine(id);
-        return success(true);
-    }
-
-    @GetMapping("/get")
-    @Operation(summary = "获得生产入库单行")
-    @Parameter(name = "id", description = "编号", required = true, example = "1024")
-    @PreAuthorize("@ss.hasPermission('mes:wm-product-produce:query')")
-    public CommonResult<MesWmProductProduceLineRespVO> getProductProduceLine(@RequestParam("id") Long id) {
-        MesWmProductProduceLineDO line = produceLineService.getProductProduceLine(id);
-        if (line == null) {
-            return success(null);
-        }
-        return success(buildRespVOList(Collections.singletonList(line)).get(0));
-    }
 
     @GetMapping("/page")
     @Operation(summary = "获得生产入库单行分页")
     @PreAuthorize("@ss.hasPermission('mes:wm-product-produce:query')")
     public CommonResult<PageResult<MesWmProductProduceLineRespVO>> getProductProduceLinePage(
             @Valid MesWmProductProduceLinePageReqVO pageReqVO) {
-        PageResult<MesWmProductProduceLineDO> pageResult = produceLineService.getProductProduceLinePage(pageReqVO);
+        PageResult<MesWmProductProduceLineDO> pageResult = productProduceLineService.getProductProduceLinePage(
+                pageReqVO);
         return success(new PageResult<>(buildRespVOList(pageResult.getList()), pageResult.getTotal()));
-    }
-
-    @GetMapping("/list-by-produce")
-    @Operation(summary = "获得生产入库单行列表（按入库单编号）")
-    @Parameter(name = "produceId", description = "入库单编号", required = true, example = "1024")
-    @PreAuthorize("@ss.hasPermission('mes:wm-product-produce:query')")
-    public CommonResult<List<MesWmProductProduceLineRespVO>> getProductProduceLineListByProduceId(
-            @RequestParam("produceId") Long produceId) {
-        List<MesWmProductProduceLineDO> list = produceLineService.getProductProduceLineListByProduceId(produceId);
-        return success(buildRespVOList(list));
     }
 
     // ==================== 拼接 VO ====================

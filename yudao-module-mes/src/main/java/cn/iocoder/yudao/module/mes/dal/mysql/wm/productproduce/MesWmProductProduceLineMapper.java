@@ -3,7 +3,7 @@ package cn.iocoder.yudao.module.mes.dal.mysql.wm.productproduce;
 import cn.iocoder.yudao.framework.common.pojo.PageResult;
 import cn.iocoder.yudao.framework.mybatis.core.mapper.BaseMapperX;
 import cn.iocoder.yudao.framework.mybatis.core.query.LambdaQueryWrapperX;
-import cn.iocoder.yudao.module.mes.controller.admin.wm.productproduce.vo.line.MesWmProductProduceLinePageReqVO;
+import cn.iocoder.yudao.module.mes.controller.admin.wm.productproduce.vo.MesWmProductProduceLinePageReqVO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.wm.productproduce.MesWmProductProduceLineDO;
 import org.apache.ibatis.annotations.Mapper;
 
@@ -19,16 +19,12 @@ public interface MesWmProductProduceLineMapper extends BaseMapperX<MesWmProductP
 
     default PageResult<MesWmProductProduceLineDO> selectPage(MesWmProductProduceLinePageReqVO reqVO) {
         return selectPage(reqVO, new LambdaQueryWrapperX<MesWmProductProduceLineDO>()
-                .eqIfPresent(MesWmProductProduceLineDO::getProduceId, reqVO.getProduceId())
+                .eqIfPresent(MesWmProductProduceLineDO::getFeedbackId, reqVO.getFeedbackId())
                 .orderByDesc(MesWmProductProduceLineDO::getId));
     }
 
     default List<MesWmProductProduceLineDO> selectListByProduceId(Long produceId) {
         return selectList(MesWmProductProduceLineDO::getProduceId, produceId);
-    }
-
-    default void deleteByProduceId(Long produceId) {
-        delete(MesWmProductProduceLineDO::getProduceId, produceId);
     }
 
     default List<MesWmProductProduceLineDO> selectListByFeedbackId(Long feedbackId) {

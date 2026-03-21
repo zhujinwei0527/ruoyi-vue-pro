@@ -1,34 +1,40 @@
-package cn.iocoder.yudao.module.mes.controller.admin.wm.productproduce.vo.line;
+package cn.iocoder.yudao.module.mes.controller.admin.wm.productproduce.vo;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.DecimalMin;
-import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
-@Schema(description = "管理后台 - MES 生产入库单行 Save Request VO")
+@Schema(description = "管理后台 - MES 生产入库单行 Response VO")
 @Data
-public class MesWmProductProduceLineSaveReqVO {
+public class MesWmProductProduceLineRespVO {
 
     @Schema(description = "行ID", example = "1")
     private Long id;
 
-    @Schema(description = "入库单ID", requiredMode = Schema.RequiredMode.REQUIRED, example = "1")
-    @NotNull(message = "入库单ID不能为空")
+    @Schema(description = "入库单ID", example = "1")
     private Long produceId;
 
     @Schema(description = "报工单 ID", example = "1")
     private Long feedbackId;
 
-    @Schema(description = "物料ID", requiredMode = Schema.RequiredMode.REQUIRED, example = "1")
-    @NotNull(message = "物料ID不能为空")
+    @Schema(description = "物料ID", example = "1")
     private Long itemId;
 
-    @Schema(description = "入库数量", requiredMode = Schema.RequiredMode.REQUIRED, example = "100.00")
-    @NotNull(message = "入库数量不能为空")
-    @DecimalMin(value = "0", inclusive = false, message = "入库数量必须大于 0")
+    @Schema(description = "物料编码", example = "M001")
+    private String itemCode;
+
+    @Schema(description = "物料名称", example = "钢板")
+    private String itemName;
+
+    @Schema(description = "规格型号", example = "10mm*100mm")
+    private String specification;
+
+    @Schema(description = "计量单位名称", example = "千克")
+    private String unitMeasureName;
+
+    @Schema(description = "入库数量", example = "100.00")
     private BigDecimal quantity;
 
     @Schema(description = "批次ID", example = "1")
@@ -48,5 +54,8 @@ public class MesWmProductProduceLineSaveReqVO {
 
     @Schema(description = "备注", example = "备注")
     private String remark;
+
+    @Schema(description = "创建时间")
+    private LocalDateTime createTime;
 
 }

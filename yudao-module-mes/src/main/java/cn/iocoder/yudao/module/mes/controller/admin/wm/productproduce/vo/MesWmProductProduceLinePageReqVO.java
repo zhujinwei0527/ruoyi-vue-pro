@@ -1,4 +1,4 @@
-package cn.iocoder.yudao.module.mes.controller.admin.wm.productproduce.vo.line;
+package cn.iocoder.yudao.module.mes.controller.admin.wm.productproduce.vo;
 
 import cn.iocoder.yudao.framework.common.pojo.PageParam;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -13,8 +13,8 @@ import lombok.ToString;
 @ToString(callSuper = true)
 public class MesWmProductProduceLinePageReqVO extends PageParam {
 
-    @Schema(description = "入库单编号", requiredMode = Schema.RequiredMode.REQUIRED, example = "1")
-    @NotNull(message = "入库单编号不能为空")
-    private Long produceId;
+    @Schema(description = "报工单编号", requiredMode = Schema.RequiredMode.REQUIRED, example = "1")
+    @NotNull(message = "报工单编号不能为空")
+    private Long feedbackId;
 
 }

@@ -18,12 +18,4 @@ public interface MesWmProductProduceDetailMapper extends BaseMapperX<MesWmProduc
         return selectList(MesWmProductProduceDetailDO::getLineId, lineId);
     }
 
-    default List<MesWmProductProduceDetailDO> selectListByProduceId(Long produceId) {
-        return selectList(MesWmProductProduceDetailDO::getProduceId, produceId);
-    }
-
-    default void deleteByProduceId(Long produceId) {
-        delete(MesWmProductProduceDetailDO::getProduceId, produceId);
-    }
-
 }
