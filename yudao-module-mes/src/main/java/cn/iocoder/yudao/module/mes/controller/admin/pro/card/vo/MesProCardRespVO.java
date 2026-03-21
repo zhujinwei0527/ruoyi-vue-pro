@@ -1,8 +1,5 @@
 package cn.iocoder.yudao.module.mes.controller.admin.pro.card.vo;
 
-import cn.iocoder.yudao.framework.excel.core.annotations.DictFormat;
-import cn.iocoder.yudao.framework.excel.core.convert.DictConvert;
-import cn.iocoder.yudao.module.mes.enums.DictTypeConstants;
 import cn.idev.excel.annotation.ExcelIgnoreUnannotated;
 import cn.idev.excel.annotation.ExcelProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -61,17 +58,9 @@ public class MesProCardRespVO {
     @ExcelProperty("单位")
     private String unitMeasureName;
 
-    @Schema(description = "条码地址", example = "https://xxx")
-    private String barcodeUrl;
-
     @Schema(description = "流转数量", example = "100.00")
     @ExcelProperty("流转数量")
     private BigDecimal transferedQuantity;
-
-    @Schema(description = "状态", example = "0")
-    @ExcelProperty(value = "状态", converter = DictConvert.class)
-    @DictFormat(DictTypeConstants.MES_PRO_WORK_ORDER_STATUS)
-    private Integer status;
 
     @Schema(description = "备注", example = "备注")
     @ExcelProperty("备注")

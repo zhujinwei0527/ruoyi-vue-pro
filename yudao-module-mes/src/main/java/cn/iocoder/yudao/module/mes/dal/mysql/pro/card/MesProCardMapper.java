@@ -21,8 +21,6 @@ public interface MesProCardMapper extends BaseMapperX<MesProCardDO> {
                 .eqIfPresent(MesProCardDO::getWorkOrderId, reqVO.getWorkOrderId())
                 .eqIfPresent(MesProCardDO::getItemId, reqVO.getItemId())
                 .likeIfPresent(MesProCardDO::getBatchCode, reqVO.getBatchCode())
-                .eqIfPresent(MesProCardDO::getStatus, reqVO.getStatus())
-                .betweenIfPresent(MesProCardDO::getCreateTime, reqVO.getCreateTime())
                 .orderByDesc(MesProCardDO::getId));
     }
 

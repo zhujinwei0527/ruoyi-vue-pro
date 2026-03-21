@@ -33,10 +33,7 @@ public class MesProCardSaveReqVO {
     @NotNull(message = "流转数量不能为空")
     private BigDecimal transferedQuantity;
 
-    @Schema(description = "状态", example = "0")
-    private Integer status;
-
     @Schema(description = "备注", example = "备注")
     private String remark;
 
-    }
+}

@@ -41,25 +41,20 @@ public class MesProCardDO extends BaseDO {
      */
     private Long workOrderId;
     /**
-     * 批次号
-     */
-    private String batchCode;
-    /**
      * 产品物料编号
      *
      * 关联 {@link MesMdItemDO#getId()}
      */
     private Long itemId;
     /**
-     * 条码地址
-     *
-     * TODO @芋艿：条码生成功能，需等条码模块（wm_barcode）迁移后再对接
+     * 批次号
      */
-    private String barcodeUrl;
+    private String batchCode;
     /**
      * 流转数量
      */
     private BigDecimal transferedQuantity;
+    // TODO @芋艿：预留字段，暂未使用；
     /**
      * 状态
      *

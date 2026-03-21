@@ -7,17 +7,18 @@ import cn.iocoder.yudao.module.mes.controller.admin.pro.card.vo.MesProCardPageRe
 import cn.iocoder.yudao.module.mes.controller.admin.pro.card.vo.MesProCardSaveReqVO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.pro.card.MesProCardDO;
 import cn.iocoder.yudao.module.mes.dal.mysql.pro.card.MesProCardMapper;
-import cn.iocoder.yudao.module.mes.dal.mysql.pro.card.MesProCardProcessMapper;
 import cn.iocoder.yudao.module.mes.enums.wm.BarcodeBizTypeEnum;
 import cn.iocoder.yudao.module.mes.service.pro.workorder.MesProWorkOrderService;
 import cn.iocoder.yudao.module.mes.service.wm.barcode.MesWmBarcodeService;
 import jakarta.annotation.Resource;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 
 import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception;
-import static cn.iocoder.yudao.module.mes.enums.ErrorCodeConstants.*;
+import static cn.iocoder.yudao.module.mes.enums.ErrorCodeConstants.PRO_CARD_CODE_DUPLICATE;
+import static cn.iocoder.yudao.module.mes.enums.ErrorCodeConstants.PRO_CARD_NOT_EXISTS;
 
 /**
  * MES 生产流转卡 Service 实现类
@@ -31,12 +32,13 @@ public class MesProCardServiceImpl implements MesProCardService {
     @Resource
     private MesProCardMapper cardMapper;
 
+    // DONE @AI：会用对应的 service
     @Resource
-    private MesProCardProcessMapper cardProcessMapper;
+    @Lazy
+    private MesProCardProcessService cardProcessService;
 
     @Resource
     private MesProWorkOrderService workOrderService;
-
     @Resource
     private MesWmBarcodeService barcodeService;
 
@@ -77,7 +79,7 @@ public class MesProCardServiceImpl implements MesProCardService {
 
         // 2. 删除流转卡 + 级联删除工序记录
         cardMapper.deleteById(id);
-        cardProcessMapper.deleteByCardId(id);
+        cardProcessService.deleteCardProcessByCardId(id);
     }
 
     @Override

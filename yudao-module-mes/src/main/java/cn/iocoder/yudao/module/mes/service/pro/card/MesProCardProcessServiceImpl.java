@@ -80,4 +80,9 @@ public class MesProCardProcessServiceImpl implements MesProCardProcessService {
         }
     }
 
+    @Override
+    public void deleteCardProcessByCardId(Long cardId) {
+        cardProcessMapper.deleteByCardId(cardId);
+    }
+
 }

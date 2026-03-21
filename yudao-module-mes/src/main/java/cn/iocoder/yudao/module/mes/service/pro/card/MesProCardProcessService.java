@@ -51,4 +51,11 @@ public interface MesProCardProcessService {
      */
     PageResult<MesProCardProcessDO> getCardProcessPage(MesProCardProcessPageReqVO pageReqVO);
 
+    /**
+     * 根据流转卡编号，删除工序记录
+     *
+     * @param cardId 流转卡编号
+     */
+    void deleteCardProcessByCardId(Long cardId);
+
 }
