@@ -39,6 +39,7 @@ public class MesWmWarehouseAreaServiceImpl implements MesWmWarehouseAreaService 
     @Lazy
     private MesMdWorkstationService workstationService;
     @Resource
+    @Lazy
     private MesWmMaterialStockService materialStockService;
     @Resource
     @Lazy

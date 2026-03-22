@@ -85,6 +85,7 @@ public class MesWmTransactionSaveReqDTO {
     /**
      * 库位 ID
      */
+    @NotNull(message = "库位 ID 不能为空")
     private Long areaId;
 
     // ===== 台账补充字段（入库时用于初始化 MesWmMaterialStockDO） =====

@@ -29,6 +29,27 @@ public interface MesWmMaterialStockService {
     MesWmMaterialStockDO getMaterialStock(Long id);
 
     /**
+     * 按组合键查询库存记录
+     *
+     * @param itemId      物料编号
+     * @param warehouseId 仓库编号
+     * @param locationId  库区编号
+     * @param areaId      库位编号
+     * @param batchId     批次编号
+     * @return 库存记录，不存在返回 null
+     */
+    MesWmMaterialStockDO getMaterialStockByCompositeKey(Long itemId, Long warehouseId, Long locationId,
+                                                        Long areaId, Long batchId);
+
+    /**
+     * 查询指定库位的库存记录列表
+     *
+     * @param areaId 库位编号
+     * @return 库存记录列表
+     */
+    List<MesWmMaterialStockDO> getMaterialStockListByAreaId(Long areaId);
+
+    /**
      * 获得库存台账分页
      *
      * @param pageReqVO 分页参数
@@ -97,10 +118,10 @@ public interface MesWmMaterialStockService {
      * @param batchId        批次编号
      * @param vendorId       供应商编号
      * @param receiptTime    入库时间（为空则默认当前时间）
-     * @return 库存记录编号
+     * @return 库存记录
      */
-    Long getOrCreateMaterialStock(Long itemId, Long warehouseId, Long locationId, Long areaId,
-                                  Long batchId, Long vendorId, LocalDateTime receiptTime);
+    MesWmMaterialStockDO getOrCreateMaterialStock(Long itemId, Long warehouseId, Long locationId, Long areaId,
+                                                  Long batchId, Long vendorId, LocalDateTime receiptTime);
 
     /**
      * 更新库存数量
@@ -110,5 +131,16 @@ public interface MesWmMaterialStockService {
      * @param checkFlag       是否校验库存充足（为 true 且扣减后为负则报错）
      */
     void updateMaterialStockQuantity(Long materialStockId, BigDecimal quantity, boolean checkFlag);
+
+    /**
+     * 库位混放规则校验
+     *
+     * 根据库位配置的物料和批次混放规则，检查是否允许在该库位存放指定物料/批次
+     *
+     * @param areaId  库位编号
+     * @param itemId  物料编号
+     * @param batchId 批次编号（可为 null）
+     */
+    void checkAreaMixingRule(Long areaId, Long itemId, Long batchId);
 
 }
