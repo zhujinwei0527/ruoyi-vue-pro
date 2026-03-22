@@ -13,11 +13,15 @@ import cn.iocoder.yudao.module.mes.dal.dataobject.wm.returnissue.MesWmReturnIssu
 import cn.iocoder.yudao.module.mes.dal.dataobject.wm.returnissue.MesWmReturnIssueDetailDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.wm.returnissue.MesWmReturnIssueLineDO;
 import cn.iocoder.yudao.module.mes.dal.mysql.wm.returnissue.MesWmReturnIssueMapper;
+import cn.iocoder.yudao.module.mes.enums.MesBizTypeConstants;
 import cn.iocoder.yudao.module.mes.enums.wm.MesWmQualityStatusEnum;
 import cn.iocoder.yudao.module.mes.enums.wm.MesWmReturnIssueStatusEnum;
+import cn.iocoder.yudao.module.mes.enums.wm.MesWmTransactionTypeEnum;
 import cn.iocoder.yudao.module.mes.service.md.item.MesMdItemService;
 import cn.iocoder.yudao.module.mes.service.md.workstation.MesMdWorkstationService;
 import cn.iocoder.yudao.module.mes.service.pro.workorder.MesProWorkOrderService;
+import cn.iocoder.yudao.module.mes.service.wm.transaction.MesWmTransactionService;
+import cn.iocoder.yudao.module.mes.service.wm.transaction.dto.MesWmTransactionSaveReqDTO;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,6 +32,7 @@ import java.util.List;
 import java.util.Map;
 
 import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception;
+import static cn.iocoder.yudao.framework.common.util.collection.CollectionUtils.convertList;
 import static cn.iocoder.yudao.module.mes.enums.ErrorCodeConstants.*;
 
 /**
@@ -50,6 +55,8 @@ public class MesWmReturnIssueServiceImpl implements MesWmReturnIssueService {
     private MesProWorkOrderService workOrderService;
     @Resource
     private MesMdItemService itemService;
+    @Resource
+    private MesWmTransactionService wmTransactionService;
 
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -172,25 +179,29 @@ public class MesWmReturnIssueServiceImpl implements MesWmReturnIssueService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void finishReturnIssue(Long id) {
-        // 校验存在 + 待执行退料状态
+        // 1. 校验存在 + 待执行退料状态
         MesWmReturnIssueDO issue = validateReturnIssueExists(id);
         if (ObjUtil.notEqual(MesWmReturnIssueStatusEnum.APPROVED.getStatus(), issue.getStatus())) {
             throw exception(WM_RETURN_ISSUE_NOT_APPROVED);
         }
 
-        // 完成退料（待执行退料 → 已完成），更新库存台账
-        // 遍历所有明细，更新库存台账（增加库存，与领料出库相反）
-        // TODO @芋艿：【后续在弄】这里可能有点问题；缺少库存更新；后面在弄；
-        List<MesWmReturnIssueDetailDO> details = issueDetailService.getReturnIssueDetailListByIssueId(id);
-        for (MesWmReturnIssueDetailDO detail : details) {
-            // materialStockService.increaseStock(
-            //         detail.getItemId(), detail.getWarehouseId(), detail.getLocationId(), detail.getAreaId(),
-            //         detail.getBatchId(), detail.getQuantity(), issue.getWorkOrderId(), null, null);
-        }
+        // 2. 遍历所有明细，创建库存事务（增加库存 + 记录流水）
+        createTransactionList(issue);
 
-        // 更新退料单状态
+        // 3. 更新退料单状态
         issueMapper.updateById(new MesWmReturnIssueDO()
                 .setId(id).setStatus(MesWmReturnIssueStatusEnum.FINISHED.getStatus()));
+    }
+
+    private void createTransactionList(MesWmReturnIssueDO issue) {
+        List<MesWmReturnIssueDetailDO> details = issueDetailService.getReturnIssueDetailListByIssueId(issue.getId());
+        wmTransactionService.createTransactionList(convertList(details, detail -> new MesWmTransactionSaveReqDTO()
+                .setType(MesWmTransactionTypeEnum.IN.getType()).setItemId(detail.getItemId())
+                .setQuantity(detail.getQuantity()) // 入库数量为正数（退料回仓）
+                .setBatchId(detail.getBatchId()).setBatchCode(detail.getBatchCode())
+                .setWarehouseId(detail.getWarehouseId()).setLocationId(detail.getLocationId()).setAreaId(detail.getAreaId())
+                .setBizType(MesBizTypeConstants.WM_RETURN_ISSUE).setBizId(issue.getId())
+                .setBizCode(issue.getCode()).setBizLineId(detail.getLineId())));
     }
 
     @Override

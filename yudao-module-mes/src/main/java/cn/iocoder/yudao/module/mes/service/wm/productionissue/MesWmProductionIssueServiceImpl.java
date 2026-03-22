@@ -12,9 +12,13 @@ import cn.iocoder.yudao.module.mes.dal.dataobject.wm.productionissue.MesWmProduc
 import cn.iocoder.yudao.module.mes.dal.dataobject.wm.productionissue.MesWmProductionIssueDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.wm.productionissue.MesWmProductionIssueLineDO;
 import cn.iocoder.yudao.module.mes.dal.mysql.wm.productionissue.MesWmProductionIssueMapper;
+import cn.iocoder.yudao.module.mes.enums.MesBizTypeConstants;
 import cn.iocoder.yudao.module.mes.enums.wm.MesWmProductionIssueStatusEnum;
+import cn.iocoder.yudao.module.mes.enums.wm.MesWmTransactionTypeEnum;
 import cn.iocoder.yudao.module.mes.service.md.workstation.MesMdWorkstationService;
 import cn.iocoder.yudao.module.mes.service.pro.workorder.MesProWorkOrderService;
+import cn.iocoder.yudao.module.mes.service.wm.transaction.MesWmTransactionService;
+import cn.iocoder.yudao.module.mes.service.wm.transaction.dto.MesWmTransactionSaveReqDTO;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,6 +28,7 @@ import java.math.BigDecimal;
 import java.util.List;
 
 import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception;
+import static cn.iocoder.yudao.framework.common.util.collection.CollectionUtils.convertList;
 import static cn.iocoder.yudao.module.mes.enums.ErrorCodeConstants.*;
 
 /**
@@ -44,6 +49,8 @@ public class MesWmProductionIssueServiceImpl implements MesWmProductionIssueServ
     private MesMdWorkstationService workstationService;
     @Resource
     private MesProWorkOrderService workOrderService;
+    @Resource
+    private MesWmTransactionService wmTransactionService;
 
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -133,24 +140,29 @@ public class MesWmProductionIssueServiceImpl implements MesWmProductionIssueServ
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void finishProductionIssue(Long id) {
-        // 校验存在
+        // 1. 校验存在
         MesWmProductionIssueDO issue = validateProductionIssueExists(id);
         if (ObjUtil.notEqual(MesWmProductionIssueStatusEnum.APPROVED.getStatus(), issue.getStatus())) {
             throw exception(WM_PRODUCTION_ISSUE_STATUS_INVALID);
         }
 
-        // 遍历所有明细，更新库存台账（扣减库存）
-        // TODO @芋艿：【后续在弄】这里可能有点问题；缺少库存更新；后面在弄；
-        List<MesWmProductionIssueDetailDO> details = issueDetailService.getProductionIssueDetailListByIssueId(id);
-        for (MesWmProductionIssueDetailDO detail : details) {
-            // materialStockService.decreaseStock(
-            //         detail.getItemId(), detail.getWarehouseId(), detail.getLocationId(), detail.getAreaId(),
-            //         detail.getBatchId(), detail.getQuantity(), issue.getWorkOrderId(), null, null);
-        }
+        // 2. 遍历所有明细，创建库存事务（扣减库存 + 记录流水）
+        createTransactionList(issue);
 
-        // 更新出库单状态
+        // 3. 更新出库单状态
         issueMapper.updateById(new MesWmProductionIssueDO()
                 .setId(id).setStatus(MesWmProductionIssueStatusEnum.FINISHED.getStatus()));
+    }
+
+    private void createTransactionList(MesWmProductionIssueDO issue) {
+        List<MesWmProductionIssueDetailDO> details = issueDetailService.getProductionIssueDetailListByIssueId(issue.getId());
+        wmTransactionService.createTransactionList(convertList(details, detail -> new MesWmTransactionSaveReqDTO()
+                .setType(MesWmTransactionTypeEnum.OUT.getType()).setItemId(detail.getItemId())
+                .setQuantity(detail.getQuantity().negate()) // 出库数量为负数
+                .setBatchId(detail.getBatchId()).setBatchCode(detail.getBatchCode())
+                .setWarehouseId(detail.getWarehouseId()).setLocationId(detail.getLocationId()).setAreaId(detail.getAreaId())
+                .setBizType(MesBizTypeConstants.WM_ISSUE).setBizId(issue.getId())
+                .setBizCode(issue.getCode()).setBizLineId(detail.getLineId())));
     }
 
     @Override
