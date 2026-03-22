@@ -69,7 +69,7 @@ public class MesWmStockTakingTaskLineServiceImpl implements MesWmStockTakingTask
         // 3. 批量生成明细行
         List<MesWmStockTakingTaskLineDO> lines = convertList(stocks, stock -> MesWmStockTakingTaskLineDO.builder()
                 .taskId(task.getId()).materialStockId(stock.getId()).itemId(stock.getItemId())
-                .batchId(stock.getBatchId()).quantity(stock.getQuantityOnhand()).takingQuantity(BigDecimal.ZERO)
+                .batchId(stock.getBatchId()).quantity(stock.getQuantity()).takingQuantity(BigDecimal.ZERO)
                 .warehouseId(stock.getWarehouseId()).locationId(stock.getLocationId()).areaId(stock.getAreaId())
                 .status(MesWmStockTakingTaskLineStatusEnum.LOSS.getStatus()).build());
         stockTakingTaskLineMapper.insertBatch(lines);

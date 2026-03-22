@@ -29,6 +29,21 @@ public final class MesBizTypeConstants {
     public static final int WM_PACKAGE = 105; // 装箱单：MesWmPackageDO
     public static final int WM_STOCK = 106; // 库存：MesWmMaterialStockDO
     public static final int WM_BATCH = 107; // 批次：MesWmBatchDO
+    public static final int WM_TRANSACTION = 108; // 库存事务流水：MesWmTransactionDO
+    public static final int WM_ITEM_RECEIPT_IN = 110; // 采购入库：MesWmItemReceiptDO
+    public static final int WM_TRANSFER_OUT = 111; // 调拨出库：MesWmTransferDO
+    public static final int WM_TRANSFER_IN = 112; // 调拨入库：MesWmTransferDO
+    public static final int WM_MISC_ISSUE = 113; // 其他出库：MesWmMiscIssueDO
+    public static final int WM_MISC_RECPT = 114; // 其他入库：MesWmMiscReceiptDO
+    public static final int WM_ISSUE = 115; // 生产领料：MesWmProductionIssueDO
+    public static final int WM_RT_ISSUE = 116; // 生产退料：MesWmReturnIssueDO
+    public static final int WM_PRODUCT_RECPT = 117; // 生产入库：MesWmProductReceiptDO
+    public static final int WM_PRODUCT_SALES = 118; // 销售出库：MesWmProductSalesDO
+    public static final int WM_RT_SALES = 119; // 销售退货入库：MesWmReturnSalesDO
+    public static final int WM_OUTSOURCE_ISSUE = 120; // 外协发料：MesWmOutsourceIssueDO
+    public static final int WM_OUTSOURCE_RECPT = 121; // 外协入库：MesWmOutsourceReceiptDO
+    public static final int WM_ITEM_CONSUME = 122; // 生产消耗：MesWmItemConsumeDO
+    public static final int WM_PRODUCT_PRODUCE = 123; // 产品产出：MesWmProductProduceDO
 
     // ========== CAL 排班模块 [200, 300) ==========
 

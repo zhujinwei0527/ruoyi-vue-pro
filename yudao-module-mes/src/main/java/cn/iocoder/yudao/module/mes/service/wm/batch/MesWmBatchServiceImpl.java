@@ -54,6 +54,16 @@ public class MesWmBatchServiceImpl implements MesWmBatchService {
     }
 
     @Override
+    public MesWmBatchDO getBatch(Long id) {
+        return batchMapper.selectById(id);
+    }
+
+    @Override
+    public MesWmBatchDO getBatchByCode(String code) {
+        return batchMapper.selectByCode(code);
+    }
+
+    @Override
     @Transactional(rollbackFor = Exception.class)
     public MesWmBatchDO getOrGenerateBatchCode(MesWmBatchGenerateReqVO reqVO) {
         // 1.1 查询物料信息，检查是否启用批次管理

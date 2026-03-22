@@ -8,6 +8,7 @@ import cn.iocoder.yudao.module.mes.dal.dataobject.wm.materialstock.MesWmMaterial
 import jakarta.validation.Valid;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -26,14 +27,6 @@ public interface MesWmMaterialStockService {
      * @return 库存记录
      */
     MesWmMaterialStockDO getMaterialStock(Long id);
-
-    /**
-     * 校验库存记录存在
-     *
-     * @param id 编号
-     * @return 库存记录
-     */
-    MesWmMaterialStockDO validateMaterialStockExists(Long id);
 
     /**
      * 获得库存台账分页
@@ -95,31 +88,27 @@ public interface MesWmMaterialStockService {
     }
 
     /**
-     * 增加库存
-     *
-     * 按 itemId + warehouseId + locationId + areaId + batchId 查找已有库存，
-     * 存在则增加 quantity；不存在则新建记录。
+     * 获取或创建库存记录（按组合键唯一）
      *
      * @param itemId         物料编号
      * @param warehouseId    仓库编号
      * @param locationId     库区编号
      * @param areaId         库位编号
      * @param batchId        批次编号
-     * @param quantity       增加数量
      * @param vendorId       供应商编号
+     * @param receiptTime    入库时间（为空则默认当前时间）
+     * @return 库存记录编号
      */
-    void increaseStock(Long itemId, Long warehouseId, Long locationId, Long areaId,
-                       Long batchId, BigDecimal quantity, Long vendorId);
+    Long getOrCreateMaterialStock(Long itemId, Long warehouseId, Long locationId, Long areaId,
+                                  Long batchId, Long vendorId, LocalDateTime receiptTime);
 
     /**
-     * 扣减库存
+     * 更新库存数量
      *
-     * 根据库存记录 ID 直接扣减数量。
-     *
-     * @param materialStockId   库存记录编号
-     * @param quantity          扣减数量（正数）
-     * @param storageCheckFlag  是否校验库存充足
+     * @param materialStockId 库存记录编号
+     * @param quantity        变动数量（正数=增加，负数=扣减）
+     * @param checkFlag       是否校验库存充足（为 true 且扣减后为负则报错）
      */
-    void decreaseStock(Long materialStockId, BigDecimal quantity, boolean storageCheckFlag);
+    void updateMaterialStockQuantity(Long materialStockId, BigDecimal quantity, boolean checkFlag);
 
 }

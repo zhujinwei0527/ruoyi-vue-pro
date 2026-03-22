@@ -3,7 +3,6 @@ package cn.iocoder.yudao.module.mes.service.wm.miscissue;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.ObjUtil;
 import cn.iocoder.yudao.framework.common.pojo.PageResult;
-import cn.iocoder.yudao.framework.common.util.collection.CollectionUtils;
 import cn.iocoder.yudao.framework.common.util.object.BeanUtils;
 import cn.iocoder.yudao.framework.common.util.object.ObjectUtils;
 import cn.iocoder.yudao.module.mes.controller.admin.wm.miscissue.vo.MesWmMiscIssuePageReqVO;
@@ -12,17 +11,20 @@ import cn.iocoder.yudao.module.mes.dal.dataobject.wm.miscissue.MesWmMiscIssueDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.wm.miscissue.MesWmMiscIssueLineDO;
 import cn.iocoder.yudao.module.mes.dal.mysql.wm.miscissue.MesWmMiscIssueMapper;
 import cn.iocoder.yudao.module.mes.enums.wm.MesWmMiscIssueStatusEnum;
-import cn.iocoder.yudao.module.mes.service.wm.materialstock.MesWmMaterialStockService;
+import cn.iocoder.yudao.module.mes.enums.MesBizTypeConstants;
+import cn.iocoder.yudao.module.mes.enums.wm.MesWmTransactionTypeEnum;
+import cn.iocoder.yudao.module.mes.service.wm.transaction.MesWmTransactionService;
+import cn.iocoder.yudao.module.mes.service.wm.transaction.dto.MesWmTransactionSaveReqDTO;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 
-import java.math.BigDecimal;
 import java.util.List;
 
 import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception;
+import static cn.iocoder.yudao.framework.common.util.collection.CollectionUtils.convertList;
 import static cn.iocoder.yudao.module.mes.enums.ErrorCodeConstants.*;
 
 /**
@@ -38,6 +40,8 @@ public class MesWmMiscIssueServiceImpl implements MesWmMiscIssueService {
 
     @Resource
     private MesWmMiscIssueLineService miscIssueLineService;
+    @Resource
+    private MesWmTransactionService wmTransactionService;
 
     @Override
     public Long createMiscIssue(MesWmMiscIssueSaveReqVO createReqVO) {
@@ -110,19 +114,21 @@ public class MesWmMiscIssueServiceImpl implements MesWmMiscIssueService {
             throw exception(WM_MISC_ISSUE_STATUS_INVALID);
         }
 
-        // 遍历所有行，扣减库存
-        // TODO @AI：需要实现 materialStockService.decreaseStock 方法来扣减库存
-        List<MesWmMiscIssueLineDO> lines = miscIssueLineService.getMiscIssueLineListByIssueId(id);
-        for (MesWmMiscIssueLineDO line : lines) {
-            // materialStockService.decreaseStock(
-            //         line.getItemId(), line.getWarehouseId(), line.getLocationId(), line.getAreaId(),
-            //         line.getBatchId(), line.getQuantity());
-            log.warn("[finishMiscIssue][杂项出库单({}) 行({}) 需要扣减库存，但 decreaseStock 方法尚未实现]", id, line.getId());
-        }
+        // 2. 遍历所有行，创建库存事务（扣减库存 + 记录流水）
+        createTransactionList(issue);
 
-        // 更新出库单状态（待执行出库 → 已完成）
+        // 3. 更新出库单状态（待执行出库 → 已完成）
         miscIssueMapper.updateById(new MesWmMiscIssueDO()
                 .setId(id).setStatus(MesWmMiscIssueStatusEnum.FINISHED.getStatus()));
+    }
+
+    private void createTransactionList(MesWmMiscIssueDO issue) {
+        List<MesWmMiscIssueLineDO> lines = miscIssueLineService.getMiscIssueLineListByIssueId(issue.getId());
+        wmTransactionService.createTransactionList(convertList(lines, line -> new MesWmTransactionSaveReqDTO()
+                .setType(MesWmTransactionTypeEnum.OUT.getType()).setItemId(line.getItemId())
+                .setQuantity(line.getQuantity().negate()) // 出库数量为负数
+                .setWarehouseId(line.getWarehouseId()).setLocationId(line.getLocationId()).setAreaId(line.getAreaId())
+                .setBizType(MesBizTypeConstants.WM_MISC_ISSUE).setBizId(issue.getId()).setBizCode(issue.getCode()).setBizLineId(line.getId())));
     }
 
     @Override

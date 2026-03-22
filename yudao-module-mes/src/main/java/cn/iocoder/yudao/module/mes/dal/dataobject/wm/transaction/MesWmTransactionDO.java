@@ -40,16 +40,12 @@ public class MesWmTransactionDO extends BaseDO {
 
     // ==================== 业务归属 ====================
 
-    // codex reply：`transactionType` 收敛成 `type` 是对的，和项目里其他 DO 的命名保持一致。
-    // codex reply：不过这类改名要连同 `MesWmTransactionSaveReqVO`、Service 和查询条件一起同步，不然 DO 与上下游模型会割裂。
     /**
      * 事务类型
      *
      * 枚举 {@link MesWmTransactionTypeEnum}
      */
     private Integer type;
-    // codex reply：`transactionQuantity` 收敛成 `quantity` 是对的；在事务流水这个上下文里，`transaction` 前缀没有额外信息。
-    // codex reply：`transactionFlag` 删除也合理，直接存带符号数量更符合当前写入逻辑，后续聚合查询也可以直接 `SUM(quantity)`。
     /**
      * 本次变动数量
      *
@@ -109,7 +105,6 @@ public class MesWmTransactionDO extends BaseDO {
      * 关联 {@link MesWmBatchDO#getCode()}
      */
     private String batchCode;
-    // codex reply：`packageId` 当前删除是合理的。事务流水链路没有包装维度的输入输出，先不保留“预留字段”更干净。
 
     // ==================== 库存位置 ====================
 
@@ -134,8 +129,6 @@ public class MesWmTransactionDO extends BaseDO {
 
     // ==================== 时间 ====================
 
-    // codex reply：这里我不建议继续沿用 `erpTime` / `receiptTime` 这组命名；项目里的同类字段基本统一为 `receiptDate`，单独改成 `Time` 会破坏一致性。
-    // codex reply：如果这两个字段暂时没有业务赋值，建议宁可先删；若后续保留，ERP 侧更建议 `erpAccountDate`，收货侧保持 `receiptDate`。
     /**
      * 事务发生时间
      */

@@ -11,7 +11,10 @@ import cn.iocoder.yudao.module.mes.dal.dataobject.wm.miscreceipt.MesWmMiscReceip
 import cn.iocoder.yudao.module.mes.dal.mysql.wm.miscreceipt.MesWmMiscReceiptLineMapper;
 import cn.iocoder.yudao.module.mes.dal.mysql.wm.miscreceipt.MesWmMiscReceiptMapper;
 import cn.iocoder.yudao.module.mes.enums.wm.MesWmMiscReceiptStatusEnum;
-import cn.iocoder.yudao.module.mes.service.wm.materialstock.MesWmMaterialStockService;
+import cn.iocoder.yudao.module.mes.enums.MesBizTypeConstants;
+import cn.iocoder.yudao.module.mes.enums.wm.MesWmTransactionTypeEnum;
+import cn.iocoder.yudao.module.mes.service.wm.transaction.MesWmTransactionService;
+import cn.iocoder.yudao.module.mes.service.wm.transaction.dto.MesWmTransactionSaveReqDTO;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -21,6 +24,7 @@ import org.springframework.validation.annotation.Validated;
 import java.util.List;
 
 import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception;
+import static cn.iocoder.yudao.framework.common.util.collection.CollectionUtils.convertList;
 import static cn.iocoder.yudao.module.mes.enums.ErrorCodeConstants.*;
 
 /**
@@ -33,15 +37,13 @@ public class MesWmMiscReceiptServiceImpl implements MesWmMiscReceiptService {
 
     @Resource
     private MesWmMiscReceiptMapper miscReceiptMapper;
-
     @Resource
     private MesWmMiscReceiptLineMapper miscReceiptLineMapper;
 
     @Resource
     private MesWmMiscReceiptDetailService miscReceiptDetailService;
-
     @Resource
-    private MesWmMaterialStockService materialStockService;
+    private MesWmTransactionService wmTransactionService;
 
     @Override
     public Long createMiscReceipt(MesWmMiscReceiptSaveReqVO createReqVO) {
@@ -116,25 +118,21 @@ public class MesWmMiscReceiptServiceImpl implements MesWmMiscReceiptService {
             throw exception(WM_MISC_RECEIPT_STATUS_NOT_APPROVED);
         }
 
-        // 遍历所有行，更新库存台账
-        List<MesWmMiscReceiptLineDO> lines = miscReceiptLineMapper.selectListByReceiptId(id);
-        for (MesWmMiscReceiptLineDO line : lines) {
-            materialStockService.increaseStock(
-                    line.getItemId(),
-                    line.getWarehouseId(),
-                    line.getLocationId(),
-                    line.getAreaId(),
-                    null, // batchId 传 null（杂项入库使用 batchCode）
-                    line.getQuantity(),
-                    null, // vendorId 传 null（杂项入库无供应商）
-                    line.getProductionDate(),
-                    line.getExpireDate()
-            );
-        }
+        // 2. 遍历所有行，创建库存事务（增加库存 + 记录流水）
+        createTransactionList(receipt);
 
-        // 执行入库（已审批 → 已完成）
+        // 3. 执行入库（已审批 → 已完成）
         miscReceiptMapper.updateById(new MesWmMiscReceiptDO()
                 .setId(id).setStatus(MesWmMiscReceiptStatusEnum.FINISHED.getStatus()));
+    }
+
+    private void createTransactionList(MesWmMiscReceiptDO receipt) {
+        List<MesWmMiscReceiptLineDO> lines = miscReceiptLineMapper.selectListByReceiptId(receipt.getId());
+        wmTransactionService.createTransactionList(convertList(lines, line -> new MesWmTransactionSaveReqDTO()
+                .setType(MesWmTransactionTypeEnum.IN.getType()).setItemId(line.getItemId())
+                .setQuantity(line.getQuantity()) // 入库数量为正数
+                .setWarehouseId(line.getWarehouseId()).setLocationId(line.getLocationId()).setAreaId(line.getAreaId())
+                .setBizType(MesBizTypeConstants.WM_MISC_RECPT).setBizId(receipt.getId()).setBizCode(receipt.getCode()).setBizLineId(line.getId())));
     }
 
     @Override

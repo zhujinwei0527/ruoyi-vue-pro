@@ -20,6 +20,10 @@ import java.util.List;
 @Mapper
 public interface MesWmBatchMapper extends BaseMapperX<MesWmBatchDO> {
 
+    default MesWmBatchDO selectByCode(String code) {
+        return selectOne(MesWmBatchDO:: getCode, code);
+    }
+
     default PageResult<MesWmBatchDO> selectPage(MesWmBatchPageReqVO reqVO) {
         return selectPage(reqVO, new LambdaQueryWrapperX<MesWmBatchDO>()
                 .likeIfPresent(MesWmBatchDO::getCode, reqVO.getCode())

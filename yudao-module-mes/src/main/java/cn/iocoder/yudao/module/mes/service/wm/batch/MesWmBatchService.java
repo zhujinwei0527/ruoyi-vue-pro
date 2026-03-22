@@ -23,6 +23,22 @@ public interface MesWmBatchService {
     PageResult<MesWmBatchDO> getBatchPage(MesWmBatchPageReqVO pageReqVO);
 
     /**
+     * 获得批次
+     *
+     * @param id 批次编号
+     * @return 批次记录
+     */
+    MesWmBatchDO getBatch(Long id);
+
+    /**
+     * 根据批次号获得批次
+     *
+     * @param code 批次号
+     * @return 批次记录
+     */
+    MesWmBatchDO getBatchByCode(String code);
+
+    /**
      * 获取或生成批次编码
      * <p>
      * 根据物料批次配置，查询或生成批次记录

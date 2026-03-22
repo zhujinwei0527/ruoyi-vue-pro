@@ -46,7 +46,6 @@ public class MesWmMaterialStockServiceImpl implements MesWmMaterialStockService 
         return materialStockMapper.selectById(id);
     }
 
-    @Override
     public MesWmMaterialStockDO validateMaterialStockExists(Long id) {
         MesWmMaterialStockDO stock = materialStockMapper.selectById(id);
         if (stock == null) {
@@ -79,11 +78,10 @@ public class MesWmMaterialStockServiceImpl implements MesWmMaterialStockService 
     public void updateMaterialStockFrozen(MesWmMaterialStockFreezeReqVO updateReqVO) {
         // 校验存在
         validateMaterialStockExists(updateReqVO.getId());
+
         // 更新冻结状态
-        MesWmMaterialStockDO updateObj = new MesWmMaterialStockDO();
-        updateObj.setId(updateReqVO.getId());
-        updateObj.setFrozenFlag(updateReqVO.getFrozenFlag());
-        materialStockMapper.updateById(updateObj);
+        materialStockMapper.updateById(new MesWmMaterialStockDO()
+                .setId(updateReqVO.getId()).setFrozenFlag(updateReqVO.getFrozenFlag()));
     }
 
     @Override
@@ -115,37 +113,34 @@ public class MesWmMaterialStockServiceImpl implements MesWmMaterialStockService 
     }
 
     @Override
-    public void increaseStock(Long itemId, Long warehouseId, Long locationId, Long areaId,
-                              Long batchId, BigDecimal quantity, Long vendorId) {
+    public Long getOrCreateMaterialStock(Long itemId, Long warehouseId, Long locationId, Long areaId,
+                                         Long batchId, Long vendorId, LocalDateTime receiptTime) {
         // 1. 查找已有库存记录
         MesWmMaterialStockDO stock = materialStockMapper.selectByCompositeKey(
                 itemId, warehouseId, locationId, areaId, batchId);
-
-        // 2a. 存在则增加数量
         if (stock != null) {
-            materialStockMapper.updateQuantity(stock.getId(), quantity);
-            return;
+            return stock.getId();
         }
 
-        // 2b. 不存在则新建
+        // 2. 不存在则新建
         MesMdItemDO item = itemService.validateItemExists(itemId);
         MesWmMaterialStockDO newStock = MesWmMaterialStockDO.builder()
                 .itemId(itemId).itemTypeId(item.getItemTypeId())
                 .warehouseId(warehouseId).locationId(locationId).areaId(areaId)
-                .batchId(batchId).vendorId(vendorId).quantity(quantity)
-                .receiptTime(LocalDateTime.now()).frozenFlag(false)
+                .batchId(batchId).vendorId(vendorId)
+                .quantity(BigDecimal.ZERO) // 初始数量为 0，由 updateMaterialStockQuantity 更新
+                .receiptTime(receiptTime != null ? receiptTime : LocalDateTime.now())
+                .frozenFlag(false)
                 .build();
         materialStockMapper.insert(newStock);
+        return newStock.getId();
     }
 
     @Override
-    public void decreaseStock(Long materialStockId, BigDecimal quantity, boolean storageCheckFlag) {
-        // 1. 校验库存记录存在
-        validateMaterialStockExists(materialStockId);
-
-        // 2. 扣减库存（Mapper 层 CAS 防负库存）
-        int updatedRows = materialStockMapper.updateQuantity(materialStockId, quantity.negate());
-        if (storageCheckFlag && updatedRows == 0) {
+    public void updateMaterialStockQuantity(Long materialStockId, BigDecimal quantity, boolean checkFlag) {
+        // 更新库存数量（Mapper 层 CAS 防负库存；checkFlag=false 时允许负数）
+        int updatedRows = materialStockMapper.updateQuantity(materialStockId, quantity, checkFlag);
+        if (updatedRows == 0) {
             throw exception(WM_MATERIAL_STOCK_INSUFFICIENT);
         }
     }

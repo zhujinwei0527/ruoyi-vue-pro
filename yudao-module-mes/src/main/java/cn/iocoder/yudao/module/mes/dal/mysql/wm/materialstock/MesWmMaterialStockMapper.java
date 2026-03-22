@@ -51,15 +51,16 @@ public interface MesWmMaterialStockMapper extends BaseMapperX<MesWmMaterialStock
     /**
      * 增量更新库存数量
      *
-     * @param id    库存记录编号
-     * @param count 变动数量（正数=增加，负数=扣减）
-     * @return 影响行数（扣减时为 0 表示库存不足）
+     * @param id        库存记录编号
+     * @param count     变动数量（正数=增加，负数=扣减）
+     * @param checkFlag 是否校验库存充足（为 true 时扣减不允许变为负数）
+     * @return 影响行数
      */
-    default int updateQuantity(Long id, BigDecimal count) {
+    default int updateQuantity(Long id, BigDecimal count, boolean checkFlag) {
         LambdaUpdateWrapper<MesWmMaterialStockDO> updateWrapper = new LambdaUpdateWrapper<MesWmMaterialStockDO>()
                 .eq(MesWmMaterialStockDO::getId, id)
                 .setSql("quantity = quantity + " + count);
-        if (count.compareTo(BigDecimal.ZERO) < 0) {
+        if (checkFlag && count.compareTo(BigDecimal.ZERO) < 0) {
             updateWrapper.ge(MesWmMaterialStockDO::getQuantity, count.abs()); // CAS 防负库存
         }
         return update(null, updateWrapper);

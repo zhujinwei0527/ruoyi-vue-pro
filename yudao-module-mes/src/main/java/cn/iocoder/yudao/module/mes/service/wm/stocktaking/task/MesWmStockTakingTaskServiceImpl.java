@@ -211,7 +211,7 @@ public class MesWmStockTakingTaskServiceImpl implements MesWmStockTakingTaskServ
     private void updateMaterialStockFrozen(Long materialStockId, boolean frozen) {
         MesWmMaterialStockFreezeReqVO reqVO = new MesWmMaterialStockFreezeReqVO();
         reqVO.setId(materialStockId);
-        reqVO.setFrozen(frozen);
+        reqVO.setFrozenFlag(frozen);
         materialStockService.updateMaterialStockFrozen(reqVO);
     }
 
