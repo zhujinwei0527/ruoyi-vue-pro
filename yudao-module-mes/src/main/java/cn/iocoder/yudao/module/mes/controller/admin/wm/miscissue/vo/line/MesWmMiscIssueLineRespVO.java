@@ -52,6 +52,15 @@ public class MesWmMiscIssueLineRespVO {
     @Schema(description = "库位编号", example = "1")
     private Long areaId;
 
+    @Schema(description = "仓库名称", example = "原料仓")
+    private String warehouseName;
+
+    @Schema(description = "库区名称", example = "A区")
+    private String locationName;
+
+    @Schema(description = "库位名称", example = "1排1架")
+    private String areaName;
+
     @Schema(description = "备注", example = "备注")
     private String remark;
 

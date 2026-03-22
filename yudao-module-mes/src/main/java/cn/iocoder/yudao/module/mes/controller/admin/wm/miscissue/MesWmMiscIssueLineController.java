@@ -11,9 +11,15 @@ import cn.iocoder.yudao.module.mes.controller.admin.wm.miscissue.vo.line.MesWmMi
 import cn.iocoder.yudao.module.mes.dal.dataobject.md.item.MesMdItemDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.md.unitmeasure.MesMdUnitMeasureDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.wm.miscissue.MesWmMiscIssueLineDO;
+import cn.iocoder.yudao.module.mes.dal.dataobject.wm.warehouse.MesWmWarehouseDO;
+import cn.iocoder.yudao.module.mes.dal.dataobject.wm.warehouse.MesWmWarehouseLocationDO;
+import cn.iocoder.yudao.module.mes.dal.dataobject.wm.warehouse.MesWmWarehouseAreaDO;
 import cn.iocoder.yudao.module.mes.service.md.item.MesMdItemService;
 import cn.iocoder.yudao.module.mes.service.md.unitmeasure.MesMdUnitMeasureService;
 import cn.iocoder.yudao.module.mes.service.wm.miscissue.MesWmMiscIssueLineService;
+import cn.iocoder.yudao.module.mes.service.wm.warehouse.MesWmWarehouseService;
+import cn.iocoder.yudao.module.mes.service.wm.warehouse.MesWmWarehouseLocationService;
+import cn.iocoder.yudao.module.mes.service.wm.warehouse.MesWmWarehouseAreaService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -44,6 +50,15 @@ public class MesWmMiscIssueLineController {
 
     @Resource
     private MesMdUnitMeasureService unitMeasureService;
+
+    @Resource
+    private MesWmWarehouseService warehouseService;
+
+    @Resource
+    private MesWmWarehouseLocationService warehouseLocationService;
+
+    @Resource
+    private MesWmWarehouseAreaService warehouseAreaService;
 
     @PostMapping("/create")
     @Operation(summary = "创建杂项出库单行")
@@ -101,6 +116,13 @@ public class MesWmMiscIssueLineController {
                 convertSet(list, MesWmMiscIssueLineDO::getItemId));
         Map<Long, MesMdUnitMeasureDO> unitMeasureMap = unitMeasureService.getUnitMeasureMap(
                 convertSet(itemMap.values(), MesMdItemDO::getUnitMeasureId));
+        Map<Long, MesWmWarehouseDO> warehouseMap = warehouseService.getWarehouseMap(
+                convertSet(list, MesWmMiscIssueLineDO::getWarehouseId));
+        Map<Long, MesWmWarehouseLocationDO> locationMap = warehouseLocationService.getWarehouseLocationMap(
+                convertSet(list, MesWmMiscIssueLineDO::getLocationId));
+        Map<Long, MesWmWarehouseAreaDO> areaMap = warehouseAreaService.getWarehouseAreaMap(
+                convertSet(list, MesWmMiscIssueLineDO::getAreaId));
+
         // 2. 构建结果
         return BeanUtils.toBean(list, MesWmMiscIssueLineRespVO.class, vo -> {
             MapUtils.findAndThen(itemMap, vo.getItemId(), item -> {
@@ -108,6 +130,9 @@ public class MesWmMiscIssueLineController {
                 MapUtils.findAndThen(unitMeasureMap, item.getUnitMeasureId(),
                         unitMeasure -> vo.setUnitMeasureName(unitMeasure.getName()));
             });
+            MapUtils.findAndThen(warehouseMap, vo.getWarehouseId(), warehouse -> vo.setWarehouseName(warehouse.getName()));
+            MapUtils.findAndThen(locationMap, vo.getLocationId(), location -> vo.setLocationName(location.getName()));
+            MapUtils.findAndThen(areaMap, vo.getAreaId(), area -> vo.setAreaName(area.getName()));
         });
     }
 

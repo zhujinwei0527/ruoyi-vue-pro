@@ -11,7 +11,6 @@ import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.*;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
 
 /**
  * MES 杂项入库单行 DO
@@ -71,18 +70,6 @@ public class MesWmMiscReceiptLineDO extends BaseDO {
      * 关联 {@link MesWmWarehouseAreaDO#getId()}
      */
     private Long areaId;
-    /**
-     * 生产日期（暂不使用）
-     */
-    private LocalDateTime productionDate;
-    /**
-     * 有效期（暂不使用）
-     */
-    private LocalDateTime expireDate;
-    /**
-     * 生产批号（暂不使用）
-     */
-    private String lotNumber;
     /**
      * 备注
      */

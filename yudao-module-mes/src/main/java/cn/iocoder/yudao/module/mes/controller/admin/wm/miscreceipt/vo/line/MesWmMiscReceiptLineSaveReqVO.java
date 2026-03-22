@@ -6,7 +6,6 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
 
 @Schema(description = "管理后台 - MES 杂项入库单行新增/修改 Request VO")
 @Data
@@ -40,15 +39,6 @@ public class MesWmMiscReceiptLineSaveReqVO {
 
     @Schema(description = "库位编号", example = "1")
     private Long areaId;
-
-    @Schema(description = "生产日期")
-    private LocalDateTime productionDate;
-
-    @Schema(description = "有效期")
-    private LocalDateTime expireDate;
-
-    @Schema(description = "生产批号", example = "PROD20260301")
-    private String lotNumber;
 
     @Schema(description = "备注", example = "备注")
     private String remark;

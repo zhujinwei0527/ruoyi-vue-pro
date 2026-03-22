@@ -34,14 +34,26 @@ public class MesWmMiscReceiptLineRespVO {
     @Schema(description = "库位编号", example = "1")
     private Long areaId;
 
-    @Schema(description = "生产日期")
-    private LocalDateTime productionDate;
+    @Schema(description = "物料编码", example = "M001")
+    private String itemCode;
 
-    @Schema(description = "有效期")
-    private LocalDateTime expireDate;
+    @Schema(description = "物料名称", example = "钢板")
+    private String itemName;
 
-    @Schema(description = "生产批号", example = "PROD20260301")
-    private String lotNumber;
+    @Schema(description = "规格型号", example = "10mm*100mm")
+    private String specification;
+
+    @Schema(description = "计量单位名称", example = "千克")
+    private String unitMeasureName;
+
+    @Schema(description = "仓库名称", example = "原料仓")
+    private String warehouseName;
+
+    @Schema(description = "库区名称", example = "A区")
+    private String locationName;
+
+    @Schema(description = "库位名称", example = "1排1架")
+    private String areaName;
 
     @Schema(description = "备注", example = "备注")
     private String remark;

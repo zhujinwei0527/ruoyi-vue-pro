@@ -35,7 +35,8 @@ public class MesWmMiscIssueSaveReqVO {
     @Schema(description = "来源单据类型", example = "PURCHASE_ORDER")
     private String sourceDocType;
 
-    @Schema(description = "出库日期")
+    @Schema(description = "出库日期", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotNull(message = "出库日期不能为空")
     private LocalDateTime issueDate;
 
     @Schema(description = "备注", example = "备注")
