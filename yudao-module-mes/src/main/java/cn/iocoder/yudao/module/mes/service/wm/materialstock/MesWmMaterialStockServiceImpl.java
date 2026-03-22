@@ -22,6 +22,7 @@ import java.util.*;
 
 import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception;
 import static cn.iocoder.yudao.framework.common.util.collection.CollectionUtils.convertSet;
+import static cn.iocoder.yudao.module.mes.enums.ErrorCodeConstants.WM_MATERIAL_STOCK_INSUFFICIENT;
 import static cn.iocoder.yudao.module.mes.enums.ErrorCodeConstants.WM_MATERIAL_STOCK_NOT_EXISTS;
 
 /**
@@ -81,7 +82,7 @@ public class MesWmMaterialStockServiceImpl implements MesWmMaterialStockService 
         // 更新冻结状态
         MesWmMaterialStockDO updateObj = new MesWmMaterialStockDO();
         updateObj.setId(updateReqVO.getId());
-        updateObj.setFrozen(updateReqVO.getFrozen());
+        updateObj.setFrozenFlag(updateReqVO.getFrozenFlag());
         materialStockMapper.updateById(updateObj);
     }
 
@@ -113,30 +114,40 @@ public class MesWmMaterialStockServiceImpl implements MesWmMaterialStockService 
         return materialStockMapper.selectListForStockTaking(reqVO);
     }
 
-    // TODO DONE @AI：increaseStock 方法命名合理，语义清晰
     @Override
     public void increaseStock(Long itemId, Long warehouseId, Long locationId, Long areaId,
-                              Long batchId, BigDecimal quantity, Long vendorId,
-                              LocalDateTime productionDate, LocalDateTime expireDate) {
+                              Long batchId, BigDecimal quantity, Long vendorId) {
         // 1. 查找已有库存记录
         MesWmMaterialStockDO stock = materialStockMapper.selectByCompositeKey(
                 itemId, warehouseId, locationId, areaId, batchId);
 
         // 2a. 存在则增加数量
         if (stock != null) {
-            materialStockMapper.incrQuantityOnhand(stock.getId(), quantity);
+            materialStockMapper.updateQuantity(stock.getId(), quantity);
             return;
         }
 
-        // 2. 不存在则新建
+        // 2b. 不存在则新建
         MesMdItemDO item = itemService.validateItemExists(itemId);
         MesWmMaterialStockDO newStock = MesWmMaterialStockDO.builder()
-                .itemId(itemId).itemTypeId(item.getItemTypeId()).unitMeasureId(item.getUnitMeasureId())
+                .itemId(itemId).itemTypeId(item.getItemTypeId())
                 .warehouseId(warehouseId).locationId(locationId).areaId(areaId)
-                .batchId(batchId).vendorId(vendorId).quantityOnhand(quantity)
-                .recptDate(LocalDateTime.now()).productionDate(productionDate).expireDate(expireDate).frozen(false)
+                .batchId(batchId).vendorId(vendorId).quantity(quantity)
+                .receiptTime(LocalDateTime.now()).frozenFlag(false)
                 .build();
         materialStockMapper.insert(newStock);
+    }
+
+    @Override
+    public void decreaseStock(Long materialStockId, BigDecimal quantity, boolean storageCheckFlag) {
+        // 1. 校验库存记录存在
+        validateMaterialStockExists(materialStockId);
+
+        // 2. 扣减库存（Mapper 层 CAS 防负库存）
+        int updatedRows = materialStockMapper.updateQuantity(materialStockId, quantity.negate());
+        if (storageCheckFlag && updatedRows == 0) {
+            throw exception(WM_MATERIAL_STOCK_INSUFFICIENT);
+        }
     }
 
 }

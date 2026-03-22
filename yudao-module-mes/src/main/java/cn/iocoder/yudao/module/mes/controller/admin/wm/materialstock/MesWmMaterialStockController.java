@@ -14,7 +14,6 @@ import cn.iocoder.yudao.module.mes.controller.admin.wm.materialstock.vo.MesWmMat
 import cn.iocoder.yudao.module.mes.dal.dataobject.md.item.MesMdItemDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.md.unitmeasure.MesMdUnitMeasureDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.md.vendor.MesMdVendorDO;
-import cn.iocoder.yudao.module.mes.dal.dataobject.pro.workorder.MesProWorkOrderDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.wm.materialstock.MesWmMaterialStockDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.wm.warehouse.MesWmWarehouseAreaDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.wm.warehouse.MesWmWarehouseDO;
@@ -22,7 +21,6 @@ import cn.iocoder.yudao.module.mes.dal.dataobject.wm.warehouse.MesWmWarehouseLoc
 import cn.iocoder.yudao.module.mes.service.md.item.MesMdItemService;
 import cn.iocoder.yudao.module.mes.service.md.unitmeasure.MesMdUnitMeasureService;
 import cn.iocoder.yudao.module.mes.service.md.vendor.MesMdVendorService;
-import cn.iocoder.yudao.module.mes.service.pro.workorder.MesProWorkOrderService;
 import cn.iocoder.yudao.module.mes.service.wm.materialstock.MesWmMaterialStockService;
 import cn.iocoder.yudao.module.mes.service.wm.warehouse.MesWmWarehouseAreaService;
 import cn.iocoder.yudao.module.mes.service.wm.warehouse.MesWmWarehouseLocationService;
@@ -72,9 +70,6 @@ public class MesWmMaterialStockController {
 
     @Resource
     private MesMdVendorService vendorService;
-
-    @Resource
-    private MesProWorkOrderService workOrderService;
 
     @GetMapping("/get")
     @Operation(summary = "获得库存记录")
@@ -128,7 +123,7 @@ public class MesWmMaterialStockController {
         Map<Long, MesMdItemDO> itemMap = itemService.getItemMap(
                 convertSet(list, MesWmMaterialStockDO::getItemId));
         Map<Long, MesMdUnitMeasureDO> unitMeasureMap = unitMeasureService.getUnitMeasureMap(
-                convertSet(list, MesWmMaterialStockDO::getUnitMeasureId));
+                convertSet(itemMap.values(), MesMdItemDO::getUnitMeasureId));
         Map<Long, MesWmWarehouseDO> warehouseMap = warehouseService.getWarehouseMap(
                 convertSet(list, MesWmMaterialStockDO::getWarehouseId));
         Map<Long, MesWmWarehouseLocationDO> locationMap = locationService.getWarehouseLocationMap(
@@ -137,16 +132,13 @@ public class MesWmMaterialStockController {
                 convertSet(list, MesWmMaterialStockDO::getAreaId));
         Map<Long, MesMdVendorDO> vendorMap = vendorService.getVendorMap(
                 convertSet(list, MesWmMaterialStockDO::getVendorId));
-        Map<Long, MesProWorkOrderDO> workOrderMap = workOrderService.getWorkOrderMap(
-                convertSet(list, MesWmMaterialStockDO::getWorkOrderId));
-        // TODO DONE @芋艿：待 mes_wm_batch 模块迁移后，补充 batchCode 的拼接
-
         // 2. 构建结果
         return BeanUtils.toBean(list, MesWmMaterialStockRespVO.class, vo -> {
-            MapUtils.findAndThen(itemMap, vo.getItemId(), item ->
-                    vo.setItemCode(item.getCode()).setItemName(item.getName()).setSpecification(item.getSpecification()));
-            MapUtils.findAndThen(unitMeasureMap, vo.getUnitMeasureId(),
-                    unitMeasure -> vo.setUnitMeasureName(unitMeasure.getName()));
+            MapUtils.findAndThen(itemMap, vo.getItemId(), item -> {
+                vo.setItemCode(item.getCode()).setItemName(item.getName()).setSpecification(item.getSpecification());
+                MapUtils.findAndThen(unitMeasureMap, item.getUnitMeasureId(),
+                        unitMeasure -> vo.setUnitMeasureName(unitMeasure.getName()));
+            });
             MapUtils.findAndThen(warehouseMap, vo.getWarehouseId(),
                     warehouse -> vo.setWarehouseName(warehouse.getName()));
             MapUtils.findAndThen(locationMap, vo.getLocationId(),
@@ -155,8 +147,6 @@ public class MesWmMaterialStockController {
                     area -> vo.setAreaName(area.getName()));
             MapUtils.findAndThen(vendorMap, vo.getVendorId(),
                     vendor -> vo.setVendorName(vendor.getName()));
-            MapUtils.findAndThen(workOrderMap, vo.getWorkOrderId(),
-                    workOrder -> vo.setWorkOrderCode(workOrder.getCode()));
         });
     }
 

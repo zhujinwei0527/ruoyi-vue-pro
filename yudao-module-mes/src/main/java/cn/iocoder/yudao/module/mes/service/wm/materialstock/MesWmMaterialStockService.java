@@ -8,7 +8,6 @@ import cn.iocoder.yudao.module.mes.dal.dataobject.wm.materialstock.MesWmMaterial
 import jakarta.validation.Valid;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -99,7 +98,7 @@ public interface MesWmMaterialStockService {
      * 增加库存
      *
      * 按 itemId + warehouseId + locationId + areaId + batchId 查找已有库存，
-     * 存在则增加 quantityOnhand；不存在则新建记录。
+     * 存在则增加 quantity；不存在则新建记录。
      *
      * @param itemId         物料编号
      * @param warehouseId    仓库编号
@@ -108,11 +107,19 @@ public interface MesWmMaterialStockService {
      * @param batchId        批次编号
      * @param quantity       增加数量
      * @param vendorId       供应商编号
-     * @param productionDate 生产日期
-     * @param expireDate     过期日期
      */
     void increaseStock(Long itemId, Long warehouseId, Long locationId, Long areaId,
-                       Long batchId, BigDecimal quantity, Long vendorId,
-                       LocalDateTime productionDate, LocalDateTime expireDate);
+                       Long batchId, BigDecimal quantity, Long vendorId);
+
+    /**
+     * 扣减库存
+     *
+     * 根据库存记录 ID 直接扣减数量。
+     *
+     * @param materialStockId   库存记录编号
+     * @param quantity          扣减数量（正数）
+     * @param storageCheckFlag  是否校验库存充足
+     */
+    void decreaseStock(Long materialStockId, BigDecimal quantity, boolean storageCheckFlag);
 
 }

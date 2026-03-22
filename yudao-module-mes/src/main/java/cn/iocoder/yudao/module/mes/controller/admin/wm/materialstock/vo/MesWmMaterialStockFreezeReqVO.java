@@ -4,7 +4,6 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
-// TODO DONE @AI：已重命名为 FreezeReqVO，语义与冻结/解冻操作一致
 @Schema(description = "管理后台 - MES 库存台账冻结/解冻 Request VO")
 @Data
 public class MesWmMaterialStockFreezeReqVO {
@@ -15,6 +14,7 @@ public class MesWmMaterialStockFreezeReqVO {
 
     @Schema(description = "是否冻结", requiredMode = Schema.RequiredMode.REQUIRED, example = "false")
     @NotNull(message = "冻结状态不能为空")
-    private Boolean frozen;
+    private Boolean frozenFlag;
 
 }
+

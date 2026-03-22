@@ -35,9 +35,6 @@ public class MesWmMaterialStockRespVO {
     @ExcelProperty("规格型号")
     private String specification;
 
-    @Schema(description = "计量单位编号", example = "1")
-    private Long unitMeasureId;
-
     @Schema(description = "计量单位名称", example = "千克")
     @ExcelProperty("计量单位")
     private String unitMeasureName;
@@ -77,32 +74,17 @@ public class MesWmMaterialStockRespVO {
     @ExcelProperty("供应商")
     private String vendorName;
 
-    @Schema(description = "生产工单编号", example = "1")
-    private Long workOrderId;
-
-    @Schema(description = "生产工单编码", example = "WO20260101")
-    @ExcelProperty("生产工单")
-    private String workOrderCode;
-
     @Schema(description = "在库数量", requiredMode = Schema.RequiredMode.REQUIRED, example = "100.0000")
     @ExcelProperty("在库数量")
-    private BigDecimal quantityOnhand;
+    private BigDecimal quantity;
 
     @Schema(description = "入库时间")
     @ExcelProperty("入库时间")
-    private LocalDateTime recptDate;
-
-    @Schema(description = "生产日期")
-    @ExcelProperty("生产日期")
-    private LocalDateTime productionDate;
-
-    @Schema(description = "库存有效期")
-    @ExcelProperty("有效期")
-    private LocalDateTime expireDate;
+    private LocalDateTime receiptTime;
 
     @Schema(description = "是否冻结", requiredMode = Schema.RequiredMode.REQUIRED, example = "false")
     @ExcelProperty("是否冻结")
-    private Boolean frozen;
+    private Boolean frozenFlag;
 
     @Schema(description = "创建时间", requiredMode = Schema.RequiredMode.REQUIRED)
     @ExcelProperty("创建时间")

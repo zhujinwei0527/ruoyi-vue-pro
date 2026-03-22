@@ -27,9 +27,9 @@ public interface MesWmMaterialStockMapper extends BaseMapperX<MesWmMaterialStock
                 .inIfPresent(MesWmMaterialStockDO::getItemId, itemIds)
                 .eqIfPresent(MesWmMaterialStockDO::getWarehouseId, reqVO.getWarehouseId())
                 .eqIfPresent(MesWmMaterialStockDO::getLocationId, reqVO.getLocationId())
-                .eqIfPresent(MesWmMaterialStockDO::getFrozen, reqVO.getFrozen())
-                .ne(MesWmMaterialStockDO::getQuantityOnhand, BigDecimal.ZERO)
-                .orderByAsc(MesWmMaterialStockDO::getRecptDate));
+                .eqIfPresent(MesWmMaterialStockDO::getFrozenFlag, reqVO.getFrozen())
+                .ne(MesWmMaterialStockDO::getQuantity, BigDecimal.ZERO)
+                .orderByAsc(MesWmMaterialStockDO::getReceiptTime));
     }
 
     default Long selectCountByWarehouseId(Long warehouseId) {
@@ -48,11 +48,21 @@ public interface MesWmMaterialStockMapper extends BaseMapperX<MesWmMaterialStock
         return selectByIds(ids);
     }
 
-    // TODO @AI：参考别的模块，最好使用 update某个字段，有例子的；然后看看，有没可能，尽量不写字段，而是通过 lamba 表达式获得名字。
-    default void incrQuantityOnhand(Long id, BigDecimal quantity) {
-        update(null, new LambdaUpdateWrapper<MesWmMaterialStockDO>()
+    /**
+     * 增量更新库存数量
+     *
+     * @param id    库存记录编号
+     * @param count 变动数量（正数=增加，负数=扣减）
+     * @return 影响行数（扣减时为 0 表示库存不足）
+     */
+    default int updateQuantity(Long id, BigDecimal count) {
+        LambdaUpdateWrapper<MesWmMaterialStockDO> updateWrapper = new LambdaUpdateWrapper<MesWmMaterialStockDO>()
                 .eq(MesWmMaterialStockDO::getId, id)
-                .setSql("quantity_onhand = quantity_onhand + " + quantity));
+                .setSql("quantity = quantity + " + count);
+        if (count.compareTo(BigDecimal.ZERO) < 0) {
+            updateWrapper.ge(MesWmMaterialStockDO::getQuantity, count.abs()); // CAS 防负库存
+        }
+        return update(null, updateWrapper);
     }
 
     default MesWmMaterialStockDO selectByCompositeKey(Long itemId, Long warehouseId, Long locationId,
@@ -74,8 +84,8 @@ public interface MesWmMaterialStockMapper extends BaseMapperX<MesWmMaterialStock
                 .eqIfPresent(MesWmMaterialStockDO::getBatchId, reqVO.getBatchId())
                 .geIfPresent(MesWmMaterialStockDO::getUpdateTime, reqVO.getStartTime())
                 .leIfPresent(MesWmMaterialStockDO::getUpdateTime, reqVO.getEndTime())
-                .ne(MesWmMaterialStockDO::getQuantityOnhand, BigDecimal.ZERO) // TODO @芋艿：需要在考虑下，要不要支持；
-                .orderByAsc(MesWmMaterialStockDO::getRecptDate));
+                .ne(MesWmMaterialStockDO::getQuantity, BigDecimal.ZERO) // TODO @芋艿：需要在考虑下，要不要支持；
+                .orderByAsc(MesWmMaterialStockDO::getReceiptTime));
     }
 
 }
