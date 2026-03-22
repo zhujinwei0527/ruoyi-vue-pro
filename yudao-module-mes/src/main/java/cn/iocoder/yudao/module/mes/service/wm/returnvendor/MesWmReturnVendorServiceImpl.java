@@ -12,8 +12,12 @@ import cn.iocoder.yudao.module.mes.dal.dataobject.wm.returnvendor.MesWmReturnVen
 import cn.iocoder.yudao.module.mes.dal.dataobject.wm.returnvendor.MesWmReturnVendorDetailDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.wm.returnvendor.MesWmReturnVendorLineDO;
 import cn.iocoder.yudao.module.mes.dal.mysql.wm.returnvendor.MesWmReturnVendorMapper;
+import cn.iocoder.yudao.module.mes.enums.MesBizTypeConstants;
 import cn.iocoder.yudao.module.mes.enums.wm.MesWmReturnVendorStatusEnum;
+import cn.iocoder.yudao.module.mes.enums.wm.MesWmTransactionTypeEnum;
 import cn.iocoder.yudao.module.mes.service.md.vendor.MesMdVendorService;
+import cn.iocoder.yudao.module.mes.service.wm.transaction.MesWmTransactionService;
+import cn.iocoder.yudao.module.mes.service.wm.transaction.dto.MesWmTransactionSaveReqDTO;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,6 +27,7 @@ import java.math.BigDecimal;
 import java.util.List;
 
 import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception;
+import static cn.iocoder.yudao.framework.common.util.collection.CollectionUtils.convertList;
 import static cn.iocoder.yudao.module.mes.enums.ErrorCodeConstants.*;
 
 /**
@@ -41,6 +46,8 @@ public class MesWmReturnVendorServiceImpl implements MesWmReturnVendorService {
     private MesWmReturnVendorDetailService returnVendorDetailService;
     @Resource
     private MesMdVendorService vendorService;
+    @Resource
+    private MesWmTransactionService wmTransactionService;
 
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -124,24 +131,30 @@ public class MesWmReturnVendorServiceImpl implements MesWmReturnVendorService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void finishReturnVendor(Long id) {
-        // 校验存在
+        // 1. 校验存在
         MesWmReturnVendorDO returnVendor = validateReturnVendorExists(id);
         if (ObjUtil.notEqual(MesWmReturnVendorStatusEnum.APPROVED.getStatus(), returnVendor.getStatus())) {
             throw exception(WM_RETURN_VENDOR_STATUS_INVALID);
         }
 
-        // 遍历所有明细，更新库存台账（扣减库存）
-        // DONE @芋艿：【后续在弄】这里可能有点问题；缺少库存更新；后面在弄；（AI 未修复原因：标注为后续处理，需人工介入）
-        List<MesWmReturnVendorDetailDO> details = returnVendorDetailService.getReturnVendorDetailListByReturnId(id);
-        for (MesWmReturnVendorDetailDO detail : details) {
-            // materialStockService.decreaseStock(
-            //         detail.getItemId(), detail.getWarehouseId(), detail.getLocationId(), detail.getAreaId(),
-            //         detail.getBatchId(), detail.getQuantity(), null, null, null);
-        }
+        // 2. 遍历所有明细，创建库存事务（扣减库存 + 记录流水）
+        createTransactionList(returnVendor);
 
-        // 更新退货单状态
+        // 3. 更新退货单状态
         returnVendorMapper.updateById(new MesWmReturnVendorDO()
                 .setId(id).setStatus(MesWmReturnVendorStatusEnum.FINISHED.getStatus()));
+    }
+
+    private void createTransactionList(MesWmReturnVendorDO returnVendor) {
+        List<MesWmReturnVendorDetailDO> details = returnVendorDetailService.getReturnVendorDetailListByReturnId(returnVendor.getId());
+        wmTransactionService.createTransactionList(convertList(details, detail -> new MesWmTransactionSaveReqDTO()
+                .setType(MesWmTransactionTypeEnum.OUT.getType()).setItemId(detail.getItemId())
+                .setQuantity(detail.getQuantity().negate()) // 出库数量为负数
+                .setBatchId(detail.getBatchId()).setBatchCode(detail.getBatchCode())
+                .setWarehouseId(detail.getWarehouseId()).setLocationId(detail.getLocationId()).setAreaId(detail.getAreaId())
+                .setVendorId(returnVendor.getVendorId())
+                .setBizType(MesBizTypeConstants.WM_RETURN_VENDOR).setBizId(returnVendor.getId())
+                .setBizCode(returnVendor.getCode()).setBizLineId(detail.getLineId())));
     }
 
     @Override

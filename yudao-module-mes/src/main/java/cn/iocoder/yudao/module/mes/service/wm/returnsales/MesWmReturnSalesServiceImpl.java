@@ -13,10 +13,14 @@ import cn.iocoder.yudao.module.mes.dal.dataobject.wm.returnsales.MesWmReturnSale
 import cn.iocoder.yudao.module.mes.dal.dataobject.wm.returnsales.MesWmReturnSalesDetailDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.wm.returnsales.MesWmReturnSalesLineDO;
 import cn.iocoder.yudao.module.mes.dal.mysql.wm.returnsales.MesWmReturnSalesMapper;
+import cn.iocoder.yudao.module.mes.enums.MesBizTypeConstants;
 import cn.iocoder.yudao.module.mes.enums.wm.MesWmQualityStatusEnum;
 import cn.iocoder.yudao.module.mes.enums.wm.MesWmReturnSalesStatusEnum;
+import cn.iocoder.yudao.module.mes.enums.wm.MesWmTransactionTypeEnum;
 import cn.iocoder.yudao.module.mes.service.md.client.MesMdClientService;
 import cn.iocoder.yudao.module.mes.service.md.item.MesMdItemService;
+import cn.iocoder.yudao.module.mes.service.wm.transaction.MesWmTransactionService;
+import cn.iocoder.yudao.module.mes.service.wm.transaction.dto.MesWmTransactionSaveReqDTO;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,6 +31,7 @@ import java.util.List;
 import java.util.Map;
 
 import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception;
+import static cn.iocoder.yudao.framework.common.util.collection.CollectionUtils.convertList;
 import static cn.iocoder.yudao.module.mes.enums.ErrorCodeConstants.*;
 
 /**
@@ -49,6 +54,8 @@ public class MesWmReturnSalesServiceImpl implements MesWmReturnSalesService {
     private MesMdClientService clientService;
     @Resource
     private MesMdItemService itemService;
+    @Resource
+    private MesWmTransactionService wmTransactionService;
 
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -162,18 +169,23 @@ public class MesWmReturnSalesServiceImpl implements MesWmReturnSalesService {
             }
         }
 
-        // 2. 遍历所有明细，更新库存台账（增加库存）
-        // DONE @芋艿：【后续在弄】这里需要库存更新；后面在弄（AI 未修复原因：标注为后续处理，需人工介入）
-        List<MesWmReturnSalesDetailDO> details = returnSalesDetailService.getReturnSalesDetailListByReturnId(id);
-        for (MesWmReturnSalesDetailDO detail : details) {
-            // materialStockService.increaseStock(
-            //         detail.getItemId(), detail.getWarehouseId(), detail.getLocationId(), detail.getAreaId(),
-            //         detail.getBatchId(), detail.getQuantity(), null, null, null);
-        }
+        // 2. 遍历所有明细，创建库存事务（增加库存 + 记录流水）
+        createTransactionList(returnSales);
 
         // 3. 更新退货单状态
         returnSalesMapper.updateById(new MesWmReturnSalesDO()
                 .setId(id).setStatus(MesWmReturnSalesStatusEnum.FINISHED.getStatus()));
+    }
+
+    private void createTransactionList(MesWmReturnSalesDO returnSales) {
+        List<MesWmReturnSalesDetailDO> details = returnSalesDetailService.getReturnSalesDetailListByReturnId(returnSales.getId());
+        wmTransactionService.createTransactionList(convertList(details, detail -> new MesWmTransactionSaveReqDTO()
+                .setType(MesWmTransactionTypeEnum.IN.getType()).setItemId(detail.getItemId())
+                .setQuantity(detail.getQuantity()) // 入库数量为正数
+                .setBatchId(detail.getBatchId())
+                .setWarehouseId(detail.getWarehouseId()).setLocationId(detail.getLocationId()).setAreaId(detail.getAreaId())
+                .setBizType(MesBizTypeConstants.WM_RETURN_SALES).setBizId(returnSales.getId())
+                .setBizCode(returnSales.getCode()).setBizLineId(detail.getLineId())));
     }
 
     @Override

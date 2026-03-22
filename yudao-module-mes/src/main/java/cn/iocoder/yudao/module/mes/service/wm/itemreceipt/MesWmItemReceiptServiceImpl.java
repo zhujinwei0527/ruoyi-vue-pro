@@ -12,9 +12,12 @@ import cn.iocoder.yudao.module.mes.dal.dataobject.wm.itemreceipt.MesWmItemReceip
 import cn.iocoder.yudao.module.mes.dal.dataobject.wm.itemreceipt.MesWmItemReceiptDetailDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.wm.itemreceipt.MesWmItemReceiptLineDO;
 import cn.iocoder.yudao.module.mes.dal.mysql.wm.itemreceipt.MesWmItemReceiptMapper;
+import cn.iocoder.yudao.module.mes.enums.MesBizTypeConstants;
 import cn.iocoder.yudao.module.mes.enums.wm.MesWmItemReceiptStatusEnum;
+import cn.iocoder.yudao.module.mes.enums.wm.MesWmTransactionTypeEnum;
 import cn.iocoder.yudao.module.mes.service.wm.arrivalnotice.MesWmArrivalNoticeService;
-import cn.iocoder.yudao.module.mes.service.wm.materialstock.MesWmMaterialStockService;
+import cn.iocoder.yudao.module.mes.service.wm.transaction.MesWmTransactionService;
+import cn.iocoder.yudao.module.mes.service.wm.transaction.dto.MesWmTransactionSaveReqDTO;
 import jakarta.annotation.Resource;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
@@ -25,6 +28,7 @@ import java.math.BigDecimal;
 import java.util.List;
 
 import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception;
+import static cn.iocoder.yudao.framework.common.util.collection.CollectionUtils.convertList;
 import static cn.iocoder.yudao.module.mes.enums.ErrorCodeConstants.*;
 
 /**
@@ -39,16 +43,14 @@ public class MesWmItemReceiptServiceImpl implements MesWmItemReceiptService {
 
     @Resource
     private MesWmItemReceiptLineService itemReceiptLineService;
-
     @Resource
     private MesWmItemReceiptDetailService itemReceiptDetailService;
-
     @Resource
     @Lazy
     private MesWmArrivalNoticeService arrivalNoticeService;
 
     @Resource
-    private MesWmMaterialStockService materialStockService;
+    private MesWmTransactionService wmTransactionService;
 
     @Override
     public Long createItemReceipt(MesWmItemReceiptSaveReqVO createReqVO) {
@@ -140,29 +142,35 @@ public class MesWmItemReceiptServiceImpl implements MesWmItemReceiptService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void finishItemReceipt(Long id) {
-        // 校验存在
+        // 1. 校验存在
         MesWmItemReceiptDO receipt = validateItemReceiptExists(id);
         if (ObjUtil.notEqual(MesWmItemReceiptStatusEnum.APPROVED.getStatus(), receipt.getStatus())) {
             throw exception(WM_ITEM_RECEIPT_STATUS_ERROR);
         }
 
-        // 遍历所有明细，更新库存台账
-        // TODO @AI：【后续在弄】这里可能有点问题；缺少库存更新；后面在弄；
-        List<MesWmItemReceiptDetailDO> details = itemReceiptDetailService.getItemReceiptDetailListByReceiptId(id);
-        for (MesWmItemReceiptDetailDO detail : details) {
-            materialStockService.increaseStock(
-                    detail.getItemId(), detail.getWarehouseId(), detail.getLocationId(), detail.getAreaId(),
-                    detail.getBatchId(), detail.getQuantity(), receipt.getVendorId(), null, null);
-        }
+        // 2. 遍历所有明细，创建库存事务（增加库存 + 记录流水）
+        createTransactionList(receipt);
 
-        // 更新入库单状态
+        // 3. 更新入库单状态
         itemReceiptMapper.updateById(new MesWmItemReceiptDO()
                 .setId(id).setStatus(MesWmItemReceiptStatusEnum.FINISHED.getStatus()));
 
-        // 更新关联的到货通知单状态
+        // 4. 更新关联的到货通知单状态
         if (receipt.getNoticeId() != null) {
             arrivalNoticeService.finishArrivalNotice(receipt.getNoticeId());
         }
+    }
+
+    private void createTransactionList(MesWmItemReceiptDO receipt) {
+        List<MesWmItemReceiptDetailDO> details = itemReceiptDetailService.getItemReceiptDetailListByReceiptId(receipt.getId());
+        wmTransactionService.createTransactionList(convertList(details, detail -> new MesWmTransactionSaveReqDTO()
+                .setType(MesWmTransactionTypeEnum.IN.getType()).setItemId(detail.getItemId())
+                .setQuantity(detail.getQuantity()) // 入库数量为正数
+                .setBatchId(detail.getBatchId())
+                .setWarehouseId(detail.getWarehouseId()).setLocationId(detail.getLocationId()).setAreaId(detail.getAreaId())
+                .setVendorId(receipt.getVendorId()).setReceiptTime(receipt.getReceiptDate())
+                .setBizType(MesBizTypeConstants.WM_ITEM_RECEIPT_IN).setBizId(receipt.getId())
+                .setBizCode(receipt.getCode()).setBizLineId(detail.getLineId())));
     }
 
     @Override

@@ -44,4 +44,9 @@ public class MesWmItemConsumeLineServiceImpl implements MesWmItemConsumeLineServ
         return itemConsumeLineMapper.selectPage(pageReqVO, consume.getId());
     }
 
+    @Override
+    public List<MesWmItemConsumeLineDO> getItemConsumeLineListByConsumeId(Long consumeId) {
+        return itemConsumeLineMapper.selectListByConsumeId(consumeId);
+    }
+
 }

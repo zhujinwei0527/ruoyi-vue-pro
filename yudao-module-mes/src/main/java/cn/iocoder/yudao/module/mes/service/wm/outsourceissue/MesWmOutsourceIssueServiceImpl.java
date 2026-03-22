@@ -12,9 +12,12 @@ import cn.iocoder.yudao.module.mes.dal.dataobject.wm.outsourceissue.MesWmOutsour
 import cn.iocoder.yudao.module.mes.dal.dataobject.wm.outsourceissue.MesWmOutsourceIssueDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.wm.outsourceissue.MesWmOutsourceIssueLineDO;
 import cn.iocoder.yudao.module.mes.dal.mysql.wm.outsourceissue.MesWmOutsourceIssueMapper;
+import cn.iocoder.yudao.module.mes.enums.MesBizTypeConstants;
 import cn.iocoder.yudao.module.mes.enums.wm.MesWmOutsourceIssueStatusEnum;
+import cn.iocoder.yudao.module.mes.enums.wm.MesWmTransactionTypeEnum;
+import cn.iocoder.yudao.module.mes.service.wm.transaction.MesWmTransactionService;
+import cn.iocoder.yudao.module.mes.service.wm.transaction.dto.MesWmTransactionSaveReqDTO;
 import jakarta.annotation.Resource;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
@@ -24,6 +27,7 @@ import java.util.List;
 import java.util.Map;
 
 import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception;
+import static cn.iocoder.yudao.framework.common.util.collection.CollectionUtils.convertList;
 import static cn.iocoder.yudao.module.mes.enums.ErrorCodeConstants.*;
 
 /**
@@ -33,7 +37,6 @@ import static cn.iocoder.yudao.module.mes.enums.ErrorCodeConstants.*;
  */
 @Service
 @Validated
-@Slf4j
 public class MesWmOutsourceIssueServiceImpl implements MesWmOutsourceIssueService {
 
     @Resource
@@ -41,9 +44,10 @@ public class MesWmOutsourceIssueServiceImpl implements MesWmOutsourceIssueServic
 
     @Resource
     private MesWmOutsourceIssueLineService outsourceIssueLineService;
-
     @Resource
     private MesWmOutsourceIssueDetailService outsourceIssueDetailService;
+    @Resource
+    private MesWmTransactionService wmTransactionService;
 
     @Override
     public Long createOutsourceIssue(MesWmOutsourceIssueSaveReqVO createReqVO) {
@@ -153,18 +157,24 @@ public class MesWmOutsourceIssueServiceImpl implements MesWmOutsourceIssueServic
             throw exception(WM_OUTSOURCE_ISSUE_STATUS_NOT_APPROVED);
         }
 
-        // 2. 扣减库存（遍历明细表，逐条扣减）
-        List<MesWmOutsourceIssueDetailDO> details = outsourceIssueDetailService.getOutsourceIssueDetailListByIssueId(id);
-        for (MesWmOutsourceIssueDetailDO detail : details) {
-            // TODO: 调用库存服务扣减库存
-            // materialStockService.decreaseStock(detail.getMaterialStockId(), detail.getQuantity());
-            log.info("[finishOutsourceIssue][发料单({}) 扣减库存 - 库存ID: {}, 数量: {}]",
-                    id, detail.getMaterialStockId(), detail.getQuantity());
-        }
+        // 2. 遍历所有明细，创建库存事务（扣减库存 + 记录流水）
+        createTransactionList(issue);
 
         // 3. 更新单据状态为已完成
         outsourceIssueMapper.updateById(new MesWmOutsourceIssueDO()
                 .setId(id).setStatus(MesWmOutsourceIssueStatusEnum.FINISHED.getStatus()));
+    }
+
+    private void createTransactionList(MesWmOutsourceIssueDO issue) {
+        List<MesWmOutsourceIssueDetailDO> details = outsourceIssueDetailService.getOutsourceIssueDetailListByIssueId(issue.getId());
+        wmTransactionService.createTransactionList(convertList(details, detail -> new MesWmTransactionSaveReqDTO()
+                .setType(MesWmTransactionTypeEnum.OUT.getType()).setItemId(detail.getItemId())
+                .setQuantity(detail.getQuantity().negate()) // 出库数量为负数
+                .setBatchId(detail.getBatchId())
+                .setWarehouseId(detail.getWarehouseId()).setLocationId(detail.getLocationId()).setAreaId(detail.getAreaId())
+                .setVendorId(issue.getVendorId())
+                .setBizType(MesBizTypeConstants.WM_OUTSOURCE_ISSUE).setBizId(issue.getId())
+                .setBizCode(issue.getCode()).setBizLineId(detail.getLineId())));
     }
 
     @Override

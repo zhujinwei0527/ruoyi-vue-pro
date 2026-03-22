@@ -28,4 +28,12 @@ public interface MesWmItemConsumeLineService {
      */
     PageResult<MesWmItemConsumeLineDO> getItemConsumeLinePage(MesWmItemConsumeLinePageReqVO pageReqVO);
 
+    /**
+     * 查询指定消耗记录的所有行
+     *
+     * @param consumeId 消耗记录编号
+     * @return 消耗行列表
+     */
+    List<MesWmItemConsumeLineDO> getItemConsumeLineListByConsumeId(Long consumeId);
+
 }

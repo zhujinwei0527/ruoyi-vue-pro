@@ -13,9 +13,12 @@ import cn.iocoder.yudao.module.mes.dal.dataobject.wm.productsales.MesWmProductSa
 import cn.iocoder.yudao.module.mes.dal.dataobject.wm.productsales.MesWmProductSalesDetailDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.wm.productsales.MesWmProductSalesLineDO;
 import cn.iocoder.yudao.module.mes.dal.mysql.wm.productsales.MesWmProductSalesMapper;
+import cn.iocoder.yudao.module.mes.enums.MesBizTypeConstants;
 import cn.iocoder.yudao.module.mes.enums.wm.MesWmProductSalesStatusEnum;
+import cn.iocoder.yudao.module.mes.enums.wm.MesWmTransactionTypeEnum;
 import cn.iocoder.yudao.module.mes.service.md.client.MesMdClientService;
-import cn.iocoder.yudao.module.mes.service.wm.materialstock.MesWmMaterialStockService;
+import cn.iocoder.yudao.module.mes.service.wm.transaction.MesWmTransactionService;
+import cn.iocoder.yudao.module.mes.service.wm.transaction.dto.MesWmTransactionSaveReqDTO;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,6 +28,7 @@ import java.math.BigDecimal;
 import java.util.List;
 
 import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception;
+import static cn.iocoder.yudao.framework.common.util.collection.CollectionUtils.convertList;
 import static cn.iocoder.yudao.module.mes.enums.ErrorCodeConstants.*;
 
 /**
@@ -49,7 +53,7 @@ public class MesWmProductSalesServiceImpl implements MesWmProductSalesService {
     private MesMdClientService clientService;
 
     @Resource
-    private MesWmMaterialStockService materialStockService;
+    private MesWmTransactionService wmTransactionService;
 
     @Override
     public Long createProductSales(MesWmProductSalesSaveReqVO createReqVO) {
@@ -170,24 +174,29 @@ public class MesWmProductSalesServiceImpl implements MesWmProductSalesService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void finishProductSales(Long id) {
-        // 校验存在
+        // 1. 校验存在
         MesWmProductSalesDO sales = validateProductSalesExists(id);
         if (ObjUtil.notEqual(MesWmProductSalesStatusEnum.APPROVED.getStatus(), sales.getStatus())) {
             throw exception(WM_PRODUCT_SALES_CANNOT_FINISH);
         }
 
-        // 遍历所有明细，扣减库存
-        // DONE @AI：需要实现 decreaseStock 方法（AI 未修复原因：需要 materialStockService 提供 decreaseStock 方法实现）
-        List<MesWmProductSalesDetailDO> details = productSalesDetailService.getProductSalesDetailListBySalesId(id);
-        for (MesWmProductSalesDetailDO detail : details) {
-            // materialStockService.decreaseStock(
-            //         detail.getItemId(), detail.getWarehouseId(), detail.getLocationId(), detail.getAreaId(),
-            //         detail.getBatchId(), detail.getQuantity(), sales.getClientId(), null, null);
-        }
+        // 2. 遍历所有明细，创建库存事务（扣减库存 + 记录流水）
+        createTransactionList(sales);
 
-        // 更新出库单状态
+        // 3. 更新出库单状态
         productSalesMapper.updateById(new MesWmProductSalesDO()
                 .setId(id).setStatus(MesWmProductSalesStatusEnum.FINISHED.getStatus()));
+    }
+
+    private void createTransactionList(MesWmProductSalesDO sales) {
+        List<MesWmProductSalesDetailDO> details = productSalesDetailService.getProductSalesDetailListBySalesId(sales.getId());
+        wmTransactionService.createTransactionList(convertList(details, detail -> new MesWmTransactionSaveReqDTO()
+                .setType(MesWmTransactionTypeEnum.OUT.getType()).setItemId(detail.getItemId())
+                .setQuantity(detail.getQuantity().negate()) // 出库数量为负数
+                .setBatchId(detail.getBatchId())
+                .setWarehouseId(detail.getWarehouseId()).setLocationId(detail.getLocationId()).setAreaId(detail.getAreaId())
+                .setBizType(MesBizTypeConstants.WM_PRODUCT_SALES).setBizId(sales.getId())
+                .setBizCode(sales.getCode()).setBizLineId(detail.getLineId())));
     }
 
     @Override
