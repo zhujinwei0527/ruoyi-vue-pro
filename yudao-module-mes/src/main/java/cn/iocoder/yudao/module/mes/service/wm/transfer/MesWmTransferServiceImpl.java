@@ -11,8 +11,12 @@ import cn.iocoder.yudao.module.mes.dal.dataobject.wm.transfer.MesWmTransferDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.wm.transfer.MesWmTransferDetailDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.wm.transfer.MesWmTransferLineDO;
 import cn.iocoder.yudao.module.mes.dal.mysql.wm.transfer.MesWmTransferMapper;
+import cn.iocoder.yudao.module.mes.enums.MesBizTypeConstants;
+import cn.iocoder.yudao.module.mes.enums.wm.MesWmTransactionTypeEnum;
 import cn.iocoder.yudao.module.mes.enums.wm.MesWmTransferStatusEnum;
 import cn.iocoder.yudao.module.mes.service.wm.materialstock.MesWmMaterialStockService;
+import cn.iocoder.yudao.module.mes.service.wm.transaction.MesWmTransactionService;
+import cn.iocoder.yudao.module.mes.service.wm.transaction.dto.MesWmTransactionSaveReqDTO;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,6 +24,7 @@ import org.springframework.validation.annotation.Validated;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Map;
 
 import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception;
 import static cn.iocoder.yudao.module.mes.enums.ErrorCodeConstants.*;
@@ -40,6 +45,8 @@ public class MesWmTransferServiceImpl implements MesWmTransferService {
     private MesWmTransferDetailService transferDetailService;
     @Resource
     private MesWmMaterialStockService materialStockService;
+    @Resource
+    private MesWmTransactionService wmTransactionService;
 
     @Override
     public Long createTransfer(MesWmTransferSaveReqVO createReqVO) {
@@ -148,22 +155,57 @@ public class MesWmTransferServiceImpl implements MesWmTransferService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void finishTransfer(Long id) {
-        // 校验存在 + 待执行状态
+        // 1. 校验存在 + 待执行状态
         MesWmTransferDO transfer = validateTransferExistsAndApproved(id);
         List<MesWmTransferLineDO> lines = transferLineService.getTransferLineListByTransferId(id);
         if (CollUtil.isEmpty(lines)) {
             throw exception(WM_TRANSFER_NO_LINE);
         }
 
-        // DONE @AI：库存转移涉及出入库落账与库存事务联动，当前提交先保留状态流转与冻结解冻校验，不在本轮 TODO 修复中扩展业务实现
+        // 2. 创建库存事务（调拨移出 + 调拨移入）
+        createTransferTransactions(transfer, lines);
 
-        // 更新状态：待执行 -> 已完成
+        // 3. 更新状态：待执行 -> 已完成
         transfer.setStatus(MesWmTransferStatusEnum.FINISHED.getStatus());
         transferMapper.updateById(transfer);
 
-        // 配送模式下，执行完成后解除来源库存冻结
+        // 4. 配送模式下，执行完成后解除来源库存冻结
         if (Boolean.TRUE.equals(transfer.getDeliveryFlag())) {
             freezeTransferLineStocks(lines, false);
+        }
+    }
+
+    /**
+     * 创建调拨事务：基于 detail (明细) 的视角，不是纯粹的 line（行）的视角。
+     * 因为明细才代表了实际调往各个目标仓位的动作，所以每条明細产生一笔出库（MOVE_OUT）和一笔入库（MOVE_IN）。
+     */
+    private void createTransferTransactions(MesWmTransferDO transfer, List<MesWmTransferLineDO> lines) {
+        // 1. 预加载所有明细，按 lineId 分组，避免 N+1 查询
+        List<MesWmTransferDetailDO> allDetails = transferDetailService.getTransferDetailListByTransferId(transfer.getId());
+        Map<Long, List<MesWmTransferDetailDO>> detailMap = CollectionUtils.convertMultiMap(
+                allDetails, MesWmTransferDetailDO::getLineId);
+        // 2. 遍历行和对应的明细，创建事务
+        for (MesWmTransferLineDO line : lines) {
+            List<MesWmTransferDetailDO> details = detailMap.getOrDefault(line.getId(), List.of());
+            for (MesWmTransferDetailDO detail : details) {
+                // 2.1 先执行出库：调拨移出（从源仓库扣减库存），出库数量基于当前明细的数量
+                Long outTransactionId = wmTransactionService.createTransaction(new MesWmTransactionSaveReqDTO()
+                        .setType(MesWmTransactionTypeEnum.MOVE_OUT.getType()).setItemId(line.getItemId())
+                        .setQuantity(detail.getQuantity().negate()) // 库存减少（按 detail 的数量出）
+                        .setBatchId(line.getBatchId())
+                        .setWarehouseId(line.getFromWarehouseId()).setLocationId(line.getFromLocationId()).setAreaId(line.getFromAreaId())
+                        .setBizType(MesBizTypeConstants.WM_TRANSFER_OUT).setBizId(transfer.getId())
+                        .setBizCode(transfer.getCode()).setBizLineId(line.getId()));
+                // 2.2 再执行入库：调拨移入（向目标仓库增加库存），入库数量等于相同明细的数量
+                wmTransactionService.createTransaction(new MesWmTransactionSaveReqDTO()
+                        .setType(MesWmTransactionTypeEnum.MOVE_IN.getType()).setItemId(line.getItemId()) // 物料信息来自 line
+                        .setQuantity(detail.getQuantity()) // 库存增加（按 detail 的数量入）
+                        .setBatchId(line.getBatchId()) // 批次信息来自 line
+                        .setWarehouseId(detail.getToWarehouseId()).setLocationId(detail.getToLocationId()).setAreaId(detail.getToAreaId())
+                        .setBizType(MesBizTypeConstants.WM_TRANSFER_IN).setBizId(transfer.getId())
+                        .setBizCode(transfer.getCode()).setBizLineId(line.getId())
+                        .setRelatedTransactionId(outTransactionId)); // 关联本次的具体出库事务
+            }
         }
     }
 
