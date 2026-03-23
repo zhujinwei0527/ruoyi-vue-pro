@@ -32,9 +32,6 @@ public class MesQcIqcPageReqVO extends PageParam {
     @Schema(description = "检测结果", example = "1")
     private Integer checkResult;
 
-    @Schema(description = "状态", example = "0")
-    private Integer status;
-
     @Schema(description = "检测人员用户 ID", example = "1")
     private Long inspectorUserId;
 

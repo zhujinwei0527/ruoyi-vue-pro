@@ -22,7 +22,6 @@ public interface MesQcIqcMapper extends BaseMapperX<MesQcIqcDO> {
                 .likeIfPresent(MesQcIqcDO::getVendorBatch, reqVO.getVendorBatch())
                 .eqIfPresent(MesQcIqcDO::getItemId, reqVO.getItemId())
                 .eqIfPresent(MesQcIqcDO::getCheckResult, reqVO.getCheckResult())
-                .eqIfPresent(MesQcIqcDO::getStatus, reqVO.getStatus())
                 .betweenIfPresent(MesQcIqcDO::getReceiveDate, reqVO.getReceiveDate())
                 .betweenIfPresent(MesQcIqcDO::getInspectDate, reqVO.getInspectDate())
                 .eqIfPresent(MesQcIqcDO::getInspectorUserId, reqVO.getInspectorUserId())
