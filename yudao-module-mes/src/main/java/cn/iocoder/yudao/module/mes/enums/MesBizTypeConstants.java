@@ -35,7 +35,7 @@ public final class MesBizTypeConstants {
     public static final int WM_TRANSFER_IN = 112; // 调拨入库：MesWmTransferDO
     public static final int WM_MISC_ISSUE = 113; // 其他出库：MesWmMiscIssueDO
     public static final int WM_MISC_RECPT = 114; // 其他入库：MesWmMiscReceiptDO
-    public static final int WM_ISSUE = 115; // 生产领料：MesWmProductionIssueDO
+    public static final int WM_ISSUE = 115; // 生产领料：MesWmProductIssueDO
     public static final int WM_RETURN_ISSUE = 116; // 生产退料：MesWmReturnIssueDO
     public static final int WM_PRODUCT_RECPT = 117; // 生产入库：MesWmProductReceiptDO
     public static final int WM_PRODUCT_SALES = 118; // 销售出库：MesWmProductSalesDO

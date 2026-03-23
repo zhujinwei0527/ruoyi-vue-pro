@@ -1,4 +1,4 @@
-package cn.iocoder.yudao.module.mes.controller.admin.wm.productionissue.vo.line;
+package cn.iocoder.yudao.module.mes.controller.admin.wm.productissue.vo.line;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.DecimalMin;
@@ -9,7 +9,7 @@ import java.math.BigDecimal;
 
 @Schema(description = "管理后台 - MES 领料出库单行 Save Request VO")
 @Data
-public class MesWmProductionIssueLineSaveReqVO {
+public class MesWmProductIssueLineSaveReqVO {
 
     @Schema(description = "行ID", example = "1")
     private Long id;

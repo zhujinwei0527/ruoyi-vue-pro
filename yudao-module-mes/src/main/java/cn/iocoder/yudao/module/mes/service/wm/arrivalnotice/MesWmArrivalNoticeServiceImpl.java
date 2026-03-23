@@ -21,7 +21,6 @@ import java.math.BigDecimal;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
 
 import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception;
 import static cn.iocoder.yudao.module.mes.enums.ErrorCodeConstants.*;
@@ -100,6 +99,7 @@ public class MesWmArrivalNoticeServiceImpl implements MesWmArrivalNoticeService 
         // 2. 检查所有行的 iqcCheckFlag：如果没有需要检验的行，则直接审批通过
         boolean needCheck = CollectionUtils.anyMatch(lines,
                 line -> Boolean.TRUE.equals(line.getIqcCheckFlag()));
+        // TODO @AI：if return；并且不要取反；
         if (!needCheck) {
             // 不需要检验，直接进入待入库
             arrivalNoticeMapper.updateById(new MesWmArrivalNoticeDO()

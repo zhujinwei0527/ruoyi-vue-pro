@@ -1,4 +1,4 @@
-package cn.iocoder.yudao.module.mes.controller.admin.wm.productionissue.vo;
+package cn.iocoder.yudao.module.mes.controller.admin.wm.productissue.vo;
 
 import cn.iocoder.yudao.framework.common.pojo.PageParam;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -13,7 +13,7 @@ import static cn.iocoder.yudao.framework.common.util.date.DateUtils.FORMAT_YEAR_
 @Schema(description = "管理后台 - MES 领料出库单分页 Request VO")
 @Data
 @EqualsAndHashCode(callSuper = true)
-public class MesWmProductionIssuePageReqVO extends PageParam {
+public class MesWmProductIssuePageReqVO extends PageParam {
 
     @Schema(description = "领料单编号", example = "ISSUE20250226001")
     private String code;

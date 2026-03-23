@@ -1,10 +1,10 @@
-package cn.iocoder.yudao.module.mes.dal.dataobject.wm.productionissue;
+package cn.iocoder.yudao.module.mes.dal.dataobject.wm.productissue;
 
 import cn.iocoder.yudao.framework.mybatis.core.dataobject.BaseDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.md.workstation.MesMdWorkstationDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.pro.task.MesProTaskDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.pro.workorder.MesProWorkOrderDO;
-import cn.iocoder.yudao.module.mes.enums.wm.MesWmProductionIssueStatusEnum;
+import cn.iocoder.yudao.module.mes.enums.wm.MesWmProductIssueStatusEnum;
 import com.baomidou.mybatisplus.annotation.KeySequence;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
@@ -15,15 +15,15 @@ import java.time.LocalDateTime;
 /**
  * MES 领料出库单 DO
  */
-@TableName("mes_wm_production_issue")
-@KeySequence("mes_wm_production_issue_seq")
+@TableName("mes_wm_product_issue")
+@KeySequence("mes_wm_product_issue_seq")
 @Data
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class MesWmProductionIssueDO extends BaseDO {
+public class MesWmProductIssueDO extends BaseDO {
 
     /**
      * 编号
@@ -69,7 +69,7 @@ public class MesWmProductionIssueDO extends BaseDO {
     /**
      * 状态
      *
-     * 枚举 {@link MesWmProductionIssueStatusEnum}
+     * 枚举 {@link MesWmProductIssueStatusEnum}
      */
     private Integer status;
     /**

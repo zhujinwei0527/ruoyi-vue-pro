@@ -1,4 +1,4 @@
-package cn.iocoder.yudao.module.mes.controller.admin.wm.productionissue.vo;
+package cn.iocoder.yudao.module.mes.controller.admin.wm.productissue.vo;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 
 @Schema(description = "管理后台 - MES 领料出库单新增/修改 Request VO")
 @Data
-public class MesWmProductionIssueSaveReqVO {
+public class MesWmProductIssueSaveReqVO {
 
     @Schema(description = "编号", example = "1024")
     private Long id;

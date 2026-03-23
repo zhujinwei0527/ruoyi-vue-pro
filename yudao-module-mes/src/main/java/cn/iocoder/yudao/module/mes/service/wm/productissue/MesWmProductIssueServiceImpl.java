@@ -1,4 +1,4 @@
-package cn.iocoder.yudao.module.mes.service.wm.productionissue;
+package cn.iocoder.yudao.module.mes.service.wm.productissue;
 
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.ObjUtil;
@@ -6,14 +6,14 @@ import cn.iocoder.yudao.framework.common.pojo.PageResult;
 import cn.iocoder.yudao.framework.common.util.collection.CollectionUtils;
 import cn.iocoder.yudao.framework.common.util.object.BeanUtils;
 import cn.iocoder.yudao.framework.common.util.object.ObjectUtils;
-import cn.iocoder.yudao.module.mes.controller.admin.wm.productionissue.vo.MesWmProductionIssuePageReqVO;
-import cn.iocoder.yudao.module.mes.controller.admin.wm.productionissue.vo.MesWmProductionIssueSaveReqVO;
-import cn.iocoder.yudao.module.mes.dal.dataobject.wm.productionissue.MesWmProductionIssueDetailDO;
-import cn.iocoder.yudao.module.mes.dal.dataobject.wm.productionissue.MesWmProductionIssueDO;
-import cn.iocoder.yudao.module.mes.dal.dataobject.wm.productionissue.MesWmProductionIssueLineDO;
-import cn.iocoder.yudao.module.mes.dal.mysql.wm.productionissue.MesWmProductionIssueMapper;
+import cn.iocoder.yudao.module.mes.controller.admin.wm.productissue.vo.MesWmProductIssuePageReqVO;
+import cn.iocoder.yudao.module.mes.controller.admin.wm.productissue.vo.MesWmProductIssueSaveReqVO;
+import cn.iocoder.yudao.module.mes.dal.dataobject.wm.productissue.MesWmProductIssueDetailDO;
+import cn.iocoder.yudao.module.mes.dal.dataobject.wm.productissue.MesWmProductIssueDO;
+import cn.iocoder.yudao.module.mes.dal.dataobject.wm.productissue.MesWmProductIssueLineDO;
+import cn.iocoder.yudao.module.mes.dal.mysql.wm.productissue.MesWmProductIssueMapper;
 import cn.iocoder.yudao.module.mes.enums.MesBizTypeConstants;
-import cn.iocoder.yudao.module.mes.enums.wm.MesWmProductionIssueStatusEnum;
+import cn.iocoder.yudao.module.mes.enums.wm.MesWmProductIssueStatusEnum;
 import cn.iocoder.yudao.module.mes.enums.wm.MesWmTransactionTypeEnum;
 import cn.iocoder.yudao.module.mes.service.md.workstation.MesMdWorkstationService;
 import cn.iocoder.yudao.module.mes.service.pro.workorder.MesProWorkOrderService;
@@ -41,15 +41,15 @@ import static cn.iocoder.yudao.module.mes.enums.ErrorCodeConstants.*;
  */
 @Service
 @Validated
-public class MesWmProductionIssueServiceImpl implements MesWmProductionIssueService {
+public class MesWmProductIssueServiceImpl implements MesWmProductIssueService {
 
     @Resource
-    private MesWmProductionIssueMapper issueMapper;
+    private MesWmProductIssueMapper issueMapper;
 
     @Resource
-    private MesWmProductionIssueLineService issueLineService;
+    private MesWmProductIssueLineService issueLineService;
     @Resource
-    private MesWmProductionIssueDetailService issueDetailService;
+    private MesWmProductIssueDetailService issueDetailService;
     @Resource
     private MesMdWorkstationService workstationService;
     @Resource
@@ -65,7 +65,7 @@ public class MesWmProductionIssueServiceImpl implements MesWmProductionIssueServ
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public Long createProductionIssue(MesWmProductionIssueSaveReqVO createReqVO) {
+    public Long createProductIssue(MesWmProductIssueSaveReqVO createReqVO) {
         // 1. 校验关联数据
         workOrderService.validateWorkOrderExists(createReqVO.getWorkOrderId());
         if (createReqVO.getWorkstationId() != null) {
@@ -73,17 +73,17 @@ public class MesWmProductionIssueServiceImpl implements MesWmProductionIssueServ
         }
 
         // 2. 插入主表
-        MesWmProductionIssueDO issue = BeanUtils.toBean(createReqVO, MesWmProductionIssueDO.class);
-        issue.setStatus(MesWmProductionIssueStatusEnum.PREPARE.getStatus());
+        MesWmProductIssueDO issue = BeanUtils.toBean(createReqVO, MesWmProductIssueDO.class);
+        issue.setStatus(MesWmProductIssueStatusEnum.PREPARE.getStatus());
         issueMapper.insert(issue);
         return issue.getId();
     }
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public void updateProductionIssue(MesWmProductionIssueSaveReqVO updateReqVO) {
+    public void updateProductIssue(MesWmProductIssueSaveReqVO updateReqVO) {
         // 1.1 校验存在 + 准备中状态
-        validateProductionIssueExistsAndPrepare(updateReqVO.getId());
+        validateProductIssueExistsAndPrepare(updateReqVO.getId());
         // 1.2 校验关联数据
         workOrderService.validateWorkOrderExists(updateReqVO.getWorkOrderId());
         if (updateReqVO.getWorkstationId() != null) {
@@ -91,89 +91,89 @@ public class MesWmProductionIssueServiceImpl implements MesWmProductionIssueServ
         }
 
         // 2. 更新主表
-        MesWmProductionIssueDO updateObj = BeanUtils.toBean(updateReqVO, MesWmProductionIssueDO.class);
+        MesWmProductIssueDO updateObj = BeanUtils.toBean(updateReqVO, MesWmProductIssueDO.class);
         issueMapper.updateById(updateObj);
     }
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public void deleteProductionIssue(Long id) {
+    public void deleteProductIssue(Long id) {
         // 1. 校验存在 + 准备中状态
-        validateProductionIssueExistsAndPrepare(id);
+        validateProductIssueExistsAndPrepare(id);
 
         // 2.1 级联删除明细
-        issueDetailService.deleteProductionIssueDetailByIssueId(id);
+        issueDetailService.deleteProductIssueDetailByIssueId(id);
         // 2.2 级联删除行
-        issueLineService.deleteProductionIssueLineByIssueId(id);
+        issueLineService.deleteProductIssueLineByIssueId(id);
         // 2.3 删除主表
         issueMapper.deleteById(id);
     }
 
     @Override
-    public MesWmProductionIssueDO getProductionIssue(Long id) {
+    public MesWmProductIssueDO getProductIssue(Long id) {
         return issueMapper.selectById(id);
     }
 
     @Override
-    public PageResult<MesWmProductionIssueDO> getProductionIssuePage(MesWmProductionIssuePageReqVO pageReqVO) {
+    public PageResult<MesWmProductIssueDO> getProductIssuePage(MesWmProductIssuePageReqVO pageReqVO) {
         return issueMapper.selectPage(pageReqVO);
     }
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public void submitProductionIssue(Long id) {
+    public void submitProductIssue(Long id) {
         // 校验存在 + 草稿状态
-        validateProductionIssueExistsAndPrepare(id);
+        validateProductIssueExistsAndPrepare(id);
         // 校验至少有一条行
-        List<MesWmProductionIssueLineDO> lines = issueLineService.getProductionIssueLineListByIssueId(id);
+        List<MesWmProductIssueLineDO> lines = issueLineService.getProductIssueLineListByIssueId(id);
         if (CollUtil.isEmpty(lines)) {
-            throw exception(WM_PRODUCTION_ISSUE_NO_LINE);
+            throw exception(WM_PRODUCT_ISSUE_NO_LINE);
         }
 
         // 提交（草稿 → 待拣货）
-        issueMapper.updateById(new MesWmProductionIssueDO()
-                .setId(id).setStatus(MesWmProductionIssueStatusEnum.APPROVING.getStatus()));
+        issueMapper.updateById(new MesWmProductIssueDO()
+                .setId(id).setStatus(MesWmProductIssueStatusEnum.APPROVING.getStatus()));
     }
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public void stockProductionIssue(Long id) {
+    public void stockProductIssue(Long id) {
         // 校验存在
-        MesWmProductionIssueDO issue = validateProductionIssueExists(id);
-        if (ObjUtil.notEqual(MesWmProductionIssueStatusEnum.APPROVING.getStatus(), issue.getStatus())) {
-            throw exception(WM_PRODUCTION_ISSUE_STATUS_INVALID);
+        MesWmProductIssueDO issue = validateProductIssueExists(id);
+        if (ObjUtil.notEqual(MesWmProductIssueStatusEnum.APPROVING.getStatus(), issue.getStatus())) {
+            throw exception(WM_PRODUCT_ISSUE_STATUS_INVALID);
         }
         // 执行拣货（待拣货 → 待执行领出）
-        issueMapper.updateById(new MesWmProductionIssueDO()
-                .setId(id).setStatus(MesWmProductionIssueStatusEnum.APPROVED.getStatus()));
+        issueMapper.updateById(new MesWmProductIssueDO()
+                .setId(id).setStatus(MesWmProductIssueStatusEnum.APPROVED.getStatus()));
     }
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public void finishProductionIssue(Long id) {
+    public void finishProductIssue(Long id) {
         // 1. 校验存在
-        MesWmProductionIssueDO issue = validateProductionIssueExists(id);
-        if (ObjUtil.notEqual(MesWmProductionIssueStatusEnum.APPROVED.getStatus(), issue.getStatus())) {
-            throw exception(WM_PRODUCTION_ISSUE_STATUS_INVALID);
+        MesWmProductIssueDO issue = validateProductIssueExists(id);
+        if (ObjUtil.notEqual(MesWmProductIssueStatusEnum.APPROVED.getStatus(), issue.getStatus())) {
+            throw exception(WM_PRODUCT_ISSUE_STATUS_INVALID);
         }
 
         // 2. 遍历所有明细，创建库存事务（扣减库存 + 记录流水）
         createTransactionList(issue);
 
         // 3. 更新出库单状态
-        issueMapper.updateById(new MesWmProductionIssueDO()
-                .setId(id).setStatus(MesWmProductionIssueStatusEnum.FINISHED.getStatus()));
+        issueMapper.updateById(new MesWmProductIssueDO()
+                .setId(id).setStatus(MesWmProductIssueStatusEnum.FINISHED.getStatus()));
     }
 
-    private void createTransactionList(MesWmProductionIssueDO issue) {
+    private void createTransactionList(MesWmProductIssueDO issue) {
         // 1. 查询虚拟线边库
         MesWmWarehouseDO virtualWarehouse = warehouseService.getWarehouseByCode(MesWmWarehouseDO.WIP_VIRTUAL_WAREHOUSE);
         MesWmWarehouseLocationDO virtualLocation = locationService.getWarehouseLocationByCode(MesWmWarehouseLocationDO.WIP_VIRTUAL_LOCATION);
         MesWmWarehouseAreaDO virtualArea = areaService.getWarehouseAreaByCode(MesWmWarehouseAreaDO.WIP_VIRTUAL_AREA);
 
         // 2. 遍历明细，每条明细产生 OUT（实际仓库扣减）+ IN（虚拟线边库增加）
-        List<MesWmProductionIssueDetailDO> details = issueDetailService.getProductionIssueDetailListByIssueId(issue.getId());
-        for (MesWmProductionIssueDetailDO detail : details) {
+        List<MesWmProductIssueDetailDO> details = issueDetailService.getProductIssueDetailListByIssueId(issue.getId());
+        for (MesWmProductIssueDetailDO detail : details) {
             // 2.1 先从实际仓库出库（库存减少）
             Long outTransactionId = wmTransactionService.createTransaction(new MesWmTransactionSaveReqDTO()
                     .setType(MesWmTransactionTypeEnum.OUT.getType()).setItemId(detail.getItemId())
@@ -196,28 +196,28 @@ public class MesWmProductionIssueServiceImpl implements MesWmProductionIssueServ
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public void cancelProductionIssue(Long id) {
+    public void cancelProductIssue(Long id) {
         // 校验存在
-        MesWmProductionIssueDO issue = validateProductionIssueExists(id);
+        MesWmProductIssueDO issue = validateProductIssueExists(id);
         // 已完成和已取消不允许取消
         if (ObjectUtils.equalsAny(issue.getStatus(),
-                MesWmProductionIssueStatusEnum.FINISHED.getStatus(),
-                MesWmProductionIssueStatusEnum.CANCELED.getStatus())) {
-            throw exception(WM_PRODUCTION_ISSUE_CANCEL_NOT_ALLOWED);
+                MesWmProductIssueStatusEnum.FINISHED.getStatus(),
+                MesWmProductIssueStatusEnum.CANCELED.getStatus())) {
+            throw exception(WM_PRODUCT_ISSUE_CANCEL_NOT_ALLOWED);
         }
 
         // 取消
-        issueMapper.updateById(new MesWmProductionIssueDO()
-                .setId(id).setStatus(MesWmProductionIssueStatusEnum.CANCELED.getStatus()));
+        issueMapper.updateById(new MesWmProductIssueDO()
+                .setId(id).setStatus(MesWmProductIssueStatusEnum.CANCELED.getStatus()));
     }
 
     @Override
-    public Boolean checkProductionIssueQuantity(Long id) {
-        List<MesWmProductionIssueLineDO> lines = issueLineService.getProductionIssueLineListByIssueId(id);
-        for (MesWmProductionIssueLineDO line : lines) {
-            List<MesWmProductionIssueDetailDO> details = issueDetailService.getProductionIssueDetailListByLineId(line.getId());
+    public Boolean checkProductIssueQuantity(Long id) {
+        List<MesWmProductIssueLineDO> lines = issueLineService.getProductIssueLineListByIssueId(id);
+        for (MesWmProductIssueLineDO line : lines) {
+            List<MesWmProductIssueDetailDO> details = issueDetailService.getProductIssueDetailListByLineId(line.getId());
             BigDecimal totalDetailQty = CollectionUtils.getSumValue(details,
-                    MesWmProductionIssueDetailDO::getQuantity, BigDecimal::add, BigDecimal.ZERO);
+                    MesWmProductIssueDetailDO::getQuantity, BigDecimal::add, BigDecimal.ZERO);
             if (line.getQuantity() != null && totalDetailQty.compareTo(line.getQuantity()) != 0) {
                 return false;
             }
@@ -226,10 +226,10 @@ public class MesWmProductionIssueServiceImpl implements MesWmProductionIssueServ
     }
 
     @Override
-    public MesWmProductionIssueDO validateProductionIssueExists(Long id) {
-        MesWmProductionIssueDO issue = issueMapper.selectById(id);
+    public MesWmProductIssueDO validateProductIssueExists(Long id) {
+        MesWmProductIssueDO issue = issueMapper.selectById(id);
         if (issue == null) {
-            throw exception(WM_PRODUCTION_ISSUE_NOT_EXISTS);
+            throw exception(WM_PRODUCT_ISSUE_NOT_EXISTS);
         }
         return issue;
     }
@@ -237,10 +237,10 @@ public class MesWmProductionIssueServiceImpl implements MesWmProductionIssueServ
     /**
      * 校验领料出库单存在且为准备中状态
      */
-    private MesWmProductionIssueDO validateProductionIssueExistsAndPrepare(Long id) {
-        MesWmProductionIssueDO issue = validateProductionIssueExists(id);
-        if (ObjUtil.notEqual(MesWmProductionIssueStatusEnum.PREPARE.getStatus(), issue.getStatus())) {
-            throw exception(WM_PRODUCTION_ISSUE_STATUS_INVALID);
+    private MesWmProductIssueDO validateProductIssueExistsAndPrepare(Long id) {
+        MesWmProductIssueDO issue = validateProductIssueExists(id);
+        if (ObjUtil.notEqual(MesWmProductIssueStatusEnum.PREPARE.getStatus(), issue.getStatus())) {
+            throw exception(WM_PRODUCT_ISSUE_STATUS_INVALID);
         }
         return issue;
     }

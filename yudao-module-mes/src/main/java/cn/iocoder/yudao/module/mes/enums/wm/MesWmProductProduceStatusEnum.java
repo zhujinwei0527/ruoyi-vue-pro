@@ -16,7 +16,7 @@ import java.util.Arrays;
 @AllArgsConstructor
 public enum MesWmProductProduceStatusEnum implements ArrayValuable<Integer> {
 
-    // TODO @AI：对应的方法；参考别的 MesWmProductionIssueStatusEnum
+    // TODO @AI：对应的方法；参考别的 MesWmProductIssueStatusEnum
     /**
      * 草稿
      */

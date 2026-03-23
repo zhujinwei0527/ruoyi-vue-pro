@@ -1,4 +1,4 @@
-package cn.iocoder.yudao.module.mes.dal.dataobject.wm.productionissue;
+package cn.iocoder.yudao.module.mes.dal.dataobject.wm.productissue;
 
 import cn.iocoder.yudao.framework.mybatis.core.dataobject.BaseDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.md.item.MesMdItemDO;
@@ -16,15 +16,15 @@ import java.math.BigDecimal;
 /**
  * MES 领料出库明细 DO
  */
-@TableName("mes_wm_production_issue_detail")
-@KeySequence("mes_wm_production_issue_detail_seq")
+@TableName("mes_wm_product_issue_detail")
+@KeySequence("mes_wm_product_issue_detail_seq")
 @Data
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class MesWmProductionIssueDetailDO extends BaseDO {
+public class MesWmProductIssueDetailDO extends BaseDO {
 
     /**
      * 编号
@@ -34,13 +34,13 @@ public class MesWmProductionIssueDetailDO extends BaseDO {
     /**
      * 领料单ID
      *
-     * 关联 {@link MesWmProductionIssueDO#getId()}
+     * 关联 {@link MesWmProductIssueDO#getId()}
      */
     private Long issueId;
     /**
      * 行ID
      *
-     * 关联 {@link MesWmProductionIssueLineDO#getId()}
+     * 关联 {@link MesWmProductIssueLineDO#getId()}
      */
     private Long lineId;
     /**

@@ -12,13 +12,13 @@
     <!-- DONE @AI：看看能不能直接使用 MesWmBatchDO 返回（当前使用 resultMap 映射部分字段是合理的） -->
     <!-- DONE @AI：查询到 pf.work_order_id,pf.item_id, ppl.batch_id；然后 controller 补全这些信息（当前实现已满足需求） -->
     <!-- TODO @芋艿（暂不调整，暂未实现）：
-        mes_wm_production_issue_detail => wm_item_consume_detail
-        mes_wm_production_issue =》wm_item_consume
+        mes_wm_product_issue_detail => wm_item_consume_detail
+        mes_wm_product_issue =》wm_item_consume
     -->
     <select id="selectListByForward" parameterType="String" resultMap="BatchTraceResult">
         SELECT DISTINCT pf.workorder_id AS workorder_code, pf.item_id, ppl.batch_id, ppl.batch_code
-        FROM mes_wm_production_issue_detail icl
-        LEFT JOIN mes_wm_production_issue ic ON icl.issue_id = ic.id
+        FROM mes_wm_product_issue_detail icl
+        LEFT JOIN mes_wm_product_issue ic ON icl.issue_id = ic.id
         LEFT JOIN mes_pro_feedback pf ON pf.id = ic.feedback_id
         LEFT JOIN mes_wm_product_produce pp ON pp.work_order_id = ic.work_order_id
         LEFT JOIN mes_wm_product_produce_line ppl ON pp.id = ppl.produce_id
@@ -27,15 +27,15 @@
 
     <!-- DONE @AI：看看能不能直接使用 MesWmBatchDO 返回（当前使用 resultMap 映射部分字段是合理的） -->
     <!-- DONE @AI：work_order_id 返回就行，不用 as（已优化，统一使用 AS 保持一致性） -->
-    <!---  TODO @芋艿：mes_wm_production_issue 应该改成 wm_item_consume，还没开发；
-        mes_wm_production_issue_detail 应该改成 wm_item_consume_detail，还没开发；先不调整了；
+    <!---  TODO @芋艿：mes_wm_product_issue 应该改成 wm_item_consume，还没开发；
+        mes_wm_product_issue_detail 应该改成 wm_item_consume_detail，还没开发；先不调整了；
      -->
     <select id="selectListByBackward" parameterType="String" resultMap="BatchTraceResult">
         SELECT DISTINCT ic.work_order_id AS workorder_code, icd.item_id, icd.batch_id, icd.batch_code
         FROM mes_wm_product_produce_detail ppd
         LEFT JOIN mes_wm_product_produce pp ON ppd.produce_id = pp.id
-        LEFT JOIN mes_wm_production_issue ic ON pp.work_order_id = ic.work_order_id
-        LEFT JOIN mes_wm_production_issue_detail icd ON ic.id = icd.issue_id
+        LEFT JOIN mes_wm_product_issue ic ON pp.work_order_id = ic.work_order_id
+        LEFT JOIN mes_wm_product_issue_detail icd ON ic.id = icd.issue_id
         WHERE ppd.batch_code = #{batchCode}
         AND icd.batch_code IS NOT NULL
     </select>

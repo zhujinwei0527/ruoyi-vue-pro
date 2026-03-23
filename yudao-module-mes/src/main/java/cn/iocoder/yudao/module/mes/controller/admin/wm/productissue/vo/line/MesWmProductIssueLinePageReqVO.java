@@ -1,4 +1,4 @@
-package cn.iocoder.yudao.module.mes.controller.admin.wm.productionissue.vo.line;
+package cn.iocoder.yudao.module.mes.controller.admin.wm.productissue.vo.line;
 
 import cn.iocoder.yudao.framework.common.pojo.PageParam;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -11,7 +11,7 @@ import lombok.ToString;
 @Data
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
-public class MesWmProductionIssueLinePageReqVO extends PageParam {
+public class MesWmProductIssueLinePageReqVO extends PageParam {
 
     @Schema(description = "领料单编号", requiredMode = Schema.RequiredMode.REQUIRED, example = "1")
     @NotNull(message = "领料单编号不能为空")

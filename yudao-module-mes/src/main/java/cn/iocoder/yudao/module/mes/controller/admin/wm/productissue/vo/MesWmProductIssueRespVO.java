@@ -1,4 +1,4 @@
-package cn.iocoder.yudao.module.mes.controller.admin.wm.productionissue.vo;
+package cn.iocoder.yudao.module.mes.controller.admin.wm.productissue.vo;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
@@ -7,7 +7,7 @@ import java.time.LocalDateTime;
 
 @Schema(description = "管理后台 - MES 领料出库单 Response VO")
 @Data
-public class MesWmProductionIssueRespVO {
+public class MesWmProductIssueRespVO {
 
     @Schema(description = "编号", requiredMode = Schema.RequiredMode.REQUIRED, example = "1")
     private Long id;

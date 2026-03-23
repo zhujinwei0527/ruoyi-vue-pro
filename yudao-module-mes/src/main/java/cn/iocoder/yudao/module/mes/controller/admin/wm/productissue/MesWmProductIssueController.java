@@ -1,4 +1,4 @@
-package cn.iocoder.yudao.module.mes.controller.admin.wm.productionissue;
+package cn.iocoder.yudao.module.mes.controller.admin.wm.productissue;
 
 import cn.hutool.core.collection.CollUtil;
 import cn.iocoder.yudao.framework.apilog.core.annotation.ApiAccessLog;
@@ -8,15 +8,15 @@ import cn.iocoder.yudao.framework.common.pojo.PageResult;
 import cn.iocoder.yudao.framework.common.util.collection.MapUtils;
 import cn.iocoder.yudao.framework.common.util.object.BeanUtils;
 import cn.iocoder.yudao.framework.excel.core.util.ExcelUtils;
-import cn.iocoder.yudao.module.mes.controller.admin.wm.productionissue.vo.MesWmProductionIssuePageReqVO;
-import cn.iocoder.yudao.module.mes.controller.admin.wm.productionissue.vo.MesWmProductionIssueRespVO;
-import cn.iocoder.yudao.module.mes.controller.admin.wm.productionissue.vo.MesWmProductionIssueSaveReqVO;
+import cn.iocoder.yudao.module.mes.controller.admin.wm.productissue.vo.MesWmProductIssuePageReqVO;
+import cn.iocoder.yudao.module.mes.controller.admin.wm.productissue.vo.MesWmProductIssueRespVO;
+import cn.iocoder.yudao.module.mes.controller.admin.wm.productissue.vo.MesWmProductIssueSaveReqVO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.md.workstation.MesMdWorkstationDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.pro.workorder.MesProWorkOrderDO;
-import cn.iocoder.yudao.module.mes.dal.dataobject.wm.productionissue.MesWmProductionIssueDO;
+import cn.iocoder.yudao.module.mes.dal.dataobject.wm.productissue.MesWmProductIssueDO;
 import cn.iocoder.yudao.module.mes.service.md.workstation.MesMdWorkstationService;
 import cn.iocoder.yudao.module.mes.service.pro.workorder.MesProWorkOrderService;
-import cn.iocoder.yudao.module.mes.service.wm.productionissue.MesWmProductionIssueService;
+import cn.iocoder.yudao.module.mes.service.wm.productissue.MesWmProductIssueService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -38,12 +38,12 @@ import static cn.iocoder.yudao.framework.common.util.collection.CollectionUtils.
 
 @Tag(name = "管理后台 - MES 领料出库单")
 @RestController
-@RequestMapping("/mes/wm/production-issue")
+@RequestMapping("/mes/wm/product-issue")
 @Validated
-public class MesWmProductionIssueController {
+public class MesWmProductIssueController {
 
     @Resource
-    private MesWmProductionIssueService issueService;
+    private MesWmProductIssueService issueService;
     @Resource
     private MesMdWorkstationService workstationService;
     @Resource
@@ -51,34 +51,34 @@ public class MesWmProductionIssueController {
 
     @PostMapping("/create")
     @Operation(summary = "创建领料出库单")
-    @PreAuthorize("@ss.hasPermission('mes:wm-production-issue:create')")
-    public CommonResult<Long> createProductionIssue(@Valid @RequestBody MesWmProductionIssueSaveReqVO createReqVO) {
-        return success(issueService.createProductionIssue(createReqVO));
+    @PreAuthorize("@ss.hasPermission('mes:wm-product-issue:create')")
+    public CommonResult<Long> createProductIssue(@Valid @RequestBody MesWmProductIssueSaveReqVO createReqVO) {
+        return success(issueService.createProductIssue(createReqVO));
     }
 
     @PutMapping("/update")
     @Operation(summary = "修改领料出库单")
-    @PreAuthorize("@ss.hasPermission('mes:wm-production-issue:update')")
-    public CommonResult<Boolean> updateProductionIssue(@Valid @RequestBody MesWmProductionIssueSaveReqVO updateReqVO) {
-        issueService.updateProductionIssue(updateReqVO);
+    @PreAuthorize("@ss.hasPermission('mes:wm-product-issue:update')")
+    public CommonResult<Boolean> updateProductIssue(@Valid @RequestBody MesWmProductIssueSaveReqVO updateReqVO) {
+        issueService.updateProductIssue(updateReqVO);
         return success(true);
     }
 
     @DeleteMapping("/delete")
     @Operation(summary = "删除领料出库单")
     @Parameter(name = "id", description = "编号", required = true)
-    @PreAuthorize("@ss.hasPermission('mes:wm-production-issue:delete')")
-    public CommonResult<Boolean> deleteProductionIssue(@RequestParam("id") Long id) {
-        issueService.deleteProductionIssue(id);
+    @PreAuthorize("@ss.hasPermission('mes:wm-product-issue:delete')")
+    public CommonResult<Boolean> deleteProductIssue(@RequestParam("id") Long id) {
+        issueService.deleteProductIssue(id);
         return success(true);
     }
 
     @GetMapping("/get")
     @Operation(summary = "获得领料出库单")
     @Parameter(name = "id", description = "编号", required = true, example = "1024")
-    @PreAuthorize("@ss.hasPermission('mes:wm-production-issue:query')")
-    public CommonResult<MesWmProductionIssueRespVO> getProductionIssue(@RequestParam("id") Long id) {
-        MesWmProductionIssueDO issue = issueService.getProductionIssue(id);
+    @PreAuthorize("@ss.hasPermission('mes:wm-product-issue:query')")
+    public CommonResult<MesWmProductIssueRespVO> getProductIssue(@RequestParam("id") Long id) {
+        MesWmProductIssueDO issue = issueService.getProductIssue(id);
         if (issue == null) {
             return success(null);
         }
@@ -87,82 +87,82 @@ public class MesWmProductionIssueController {
 
     @GetMapping("/page")
     @Operation(summary = "获得领料出库单分页")
-    @PreAuthorize("@ss.hasPermission('mes:wm-production-issue:query')")
-    public CommonResult<PageResult<MesWmProductionIssueRespVO>> getProductionIssuePage(
-            @Valid MesWmProductionIssuePageReqVO pageReqVO) {
-        PageResult<MesWmProductionIssueDO> pageResult = issueService.getProductionIssuePage(pageReqVO);
+    @PreAuthorize("@ss.hasPermission('mes:wm-product-issue:query')")
+    public CommonResult<PageResult<MesWmProductIssueRespVO>> getProductIssuePage(
+            @Valid MesWmProductIssuePageReqVO pageReqVO) {
+        PageResult<MesWmProductIssueDO> pageResult = issueService.getProductIssuePage(pageReqVO);
         return success(new PageResult<>(buildRespVOList(pageResult.getList()), pageResult.getTotal()));
     }
 
     @GetMapping("/export-excel")
     @Operation(summary = "导出领料出库单 Excel")
-    @PreAuthorize("@ss.hasPermission('mes:wm-production-issue:export')")
+    @PreAuthorize("@ss.hasPermission('mes:wm-product-issue:export')")
     @ApiAccessLog(operateType = EXPORT)
-    public void exportProductionIssueExcel(@Valid MesWmProductionIssuePageReqVO pageReqVO,
+    public void exportProductIssueExcel(@Valid MesWmProductIssuePageReqVO pageReqVO,
                                             HttpServletResponse response) throws IOException {
         pageReqVO.setPageSize(PageParam.PAGE_SIZE_NONE);
-        PageResult<MesWmProductionIssueDO> pageResult = issueService.getProductionIssuePage(pageReqVO);
-        ExcelUtils.write(response, "领料出库单.xls", "数据", MesWmProductionIssueRespVO.class,
+        PageResult<MesWmProductIssueDO> pageResult = issueService.getProductIssuePage(pageReqVO);
+        ExcelUtils.write(response, "领料出库单.xls", "数据", MesWmProductIssueRespVO.class,
                 buildRespVOList(pageResult.getList()));
     }
 
     @PutMapping("/finish")
     @Operation(summary = "完成领料出库单")
     @Parameter(name = "id", description = "编号", required = true)
-    @PreAuthorize("@ss.hasPermission('mes:wm-production-issue:finish')")
-    public CommonResult<Boolean> finishProductionIssue(@RequestParam("id") Long id) {
-        issueService.finishProductionIssue(id);
+    @PreAuthorize("@ss.hasPermission('mes:wm-product-issue:finish')")
+    public CommonResult<Boolean> finishProductIssue(@RequestParam("id") Long id) {
+        issueService.finishProductIssue(id);
         return success(true);
     }
 
     @PutMapping("/submit")
     @Operation(summary = "提交领料出库单")
     @Parameter(name = "id", description = "编号", required = true)
-    @PreAuthorize("@ss.hasPermission('mes:wm-production-issue:update')")
-    public CommonResult<Boolean> submitProductionIssue(@RequestParam("id") Long id) {
-        issueService.submitProductionIssue(id);
+    @PreAuthorize("@ss.hasPermission('mes:wm-product-issue:update')")
+    public CommonResult<Boolean> submitProductIssue(@RequestParam("id") Long id) {
+        issueService.submitProductIssue(id);
         return success(true);
     }
 
     @PutMapping("/stock")
     @Operation(summary = "执行拣货")
     @Parameter(name = "id", description = "编号", required = true)
-    @PreAuthorize("@ss.hasPermission('mes:wm-production-issue:update')")
-    public CommonResult<Boolean> stockProductionIssue(@RequestParam("id") Long id) {
-        issueService.stockProductionIssue(id);
+    @PreAuthorize("@ss.hasPermission('mes:wm-product-issue:update')")
+    public CommonResult<Boolean> stockProductIssue(@RequestParam("id") Long id) {
+        issueService.stockProductIssue(id);
         return success(true);
     }
 
     @PutMapping("/cancel")
     @Operation(summary = "取消领料出库单")
     @Parameter(name = "id", description = "编号", required = true)
-    @PreAuthorize("@ss.hasPermission('mes:wm-production-issue:update')")
-    public CommonResult<Boolean> cancelProductionIssue(@RequestParam("id") Long id) {
-        issueService.cancelProductionIssue(id);
+    @PreAuthorize("@ss.hasPermission('mes:wm-product-issue:update')")
+    public CommonResult<Boolean> cancelProductIssue(@RequestParam("id") Long id) {
+        issueService.cancelProductIssue(id);
         return success(true);
     }
 
     @GetMapping("/check-quantity")
     @Operation(summary = "校验领料出库单数量", description = "校验每行明细数量之和是否等于行领料数量")
     @Parameter(name = "id", description = "编号", required = true)
-    @PreAuthorize("@ss.hasPermission('mes:wm-production-issue:query')")
-    public CommonResult<Boolean> checkProductionIssueQuantity(@RequestParam("id") Long id) {
-        return success(issueService.checkProductionIssueQuantity(id));
+    @PreAuthorize("@ss.hasPermission('mes:wm-product-issue:query')")
+    public CommonResult<Boolean> checkProductIssueQuantity(@RequestParam("id") Long id) {
+        return success(issueService.checkProductIssueQuantity(id));
     }
 
     // ==================== 拼接 VO ====================
 
-    private List<MesWmProductionIssueRespVO> buildRespVOList(List<MesWmProductionIssueDO> list) {
+    private List<MesWmProductIssueRespVO> buildRespVOList(List<MesWmProductIssueDO> list) {
         if (CollUtil.isEmpty(list)) {
             return Collections.emptyList();
         }
         // 1. 获得关联数据
         Map<Long, MesMdWorkstationDO> workstationMap = workstationService.getWorkstationMap(
-                convertSet(list, MesWmProductionIssueDO::getWorkstationId));
+                convertSet(list, MesWmProductIssueDO::getWorkstationId));
         Map<Long, MesProWorkOrderDO> workOrderMap = workOrderService.getWorkOrderMap(
-                convertSet(list, MesWmProductionIssueDO::getWorkOrderId));
+                convertSet(list, MesWmProductIssueDO::getWorkOrderId));
         // 2. 构建结果
-        return BeanUtils.toBean(list, MesWmProductionIssueRespVO.class, vo -> {
+        return BeanUtils.toBean(list, MesWmProductIssueRespVO.class, vo -> {
             // 2.1 填充工作站名称
             MapUtils.findAndThen(workstationMap, vo.getWorkstationId(),
                     workstation -> vo.setWorkstationName(workstation.getName()));
