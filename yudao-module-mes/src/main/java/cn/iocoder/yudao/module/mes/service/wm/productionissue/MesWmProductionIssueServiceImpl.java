@@ -19,6 +19,12 @@ import cn.iocoder.yudao.module.mes.service.md.workstation.MesMdWorkstationServic
 import cn.iocoder.yudao.module.mes.service.pro.workorder.MesProWorkOrderService;
 import cn.iocoder.yudao.module.mes.service.wm.transaction.MesWmTransactionService;
 import cn.iocoder.yudao.module.mes.service.wm.transaction.dto.MesWmTransactionSaveReqDTO;
+import cn.iocoder.yudao.module.mes.service.wm.warehouse.MesWmWarehouseAreaService;
+import cn.iocoder.yudao.module.mes.service.wm.warehouse.MesWmWarehouseLocationService;
+import cn.iocoder.yudao.module.mes.service.wm.warehouse.MesWmWarehouseService;
+import cn.iocoder.yudao.module.mes.dal.dataobject.wm.warehouse.MesWmWarehouseAreaDO;
+import cn.iocoder.yudao.module.mes.dal.dataobject.wm.warehouse.MesWmWarehouseDO;
+import cn.iocoder.yudao.module.mes.dal.dataobject.wm.warehouse.MesWmWarehouseLocationDO;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,7 +34,6 @@ import java.math.BigDecimal;
 import java.util.List;
 
 import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception;
-import static cn.iocoder.yudao.framework.common.util.collection.CollectionUtils.convertList;
 import static cn.iocoder.yudao.module.mes.enums.ErrorCodeConstants.*;
 
 /**
@@ -51,6 +56,12 @@ public class MesWmProductionIssueServiceImpl implements MesWmProductionIssueServ
     private MesProWorkOrderService workOrderService;
     @Resource
     private MesWmTransactionService wmTransactionService;
+    @Resource
+    private MesWmWarehouseService warehouseService;
+    @Resource
+    private MesWmWarehouseLocationService locationService;
+    @Resource
+    private MesWmWarehouseAreaService areaService;
 
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -155,14 +166,32 @@ public class MesWmProductionIssueServiceImpl implements MesWmProductionIssueServ
     }
 
     private void createTransactionList(MesWmProductionIssueDO issue) {
+        // 1. 查询虚拟线边库
+        MesWmWarehouseDO virtualWarehouse = warehouseService.getWarehouseByCode(MesWmWarehouseDO.WIP_VIRTUAL_WAREHOUSE);
+        MesWmWarehouseLocationDO virtualLocation = locationService.getWarehouseLocationByCode(MesWmWarehouseLocationDO.WIP_VIRTUAL_LOCATION);
+        MesWmWarehouseAreaDO virtualArea = areaService.getWarehouseAreaByCode(MesWmWarehouseAreaDO.WIP_VIRTUAL_AREA);
+
+        // 2. 遍历明细，每条明细产生 OUT（实际仓库扣减）+ IN（虚拟线边库增加）
         List<MesWmProductionIssueDetailDO> details = issueDetailService.getProductionIssueDetailListByIssueId(issue.getId());
-        wmTransactionService.createTransactionList(convertList(details, detail -> new MesWmTransactionSaveReqDTO()
-                .setType(MesWmTransactionTypeEnum.OUT.getType()).setItemId(detail.getItemId())
-                .setQuantity(detail.getQuantity().negate()) // 出库数量为负数
-                .setBatchId(detail.getBatchId()).setBatchCode(detail.getBatchCode())
-                .setWarehouseId(detail.getWarehouseId()).setLocationId(detail.getLocationId()).setAreaId(detail.getAreaId())
-                .setBizType(MesBizTypeConstants.WM_ISSUE).setBizId(issue.getId())
-                .setBizCode(issue.getCode()).setBizLineId(detail.getLineId())));
+        for (MesWmProductionIssueDetailDO detail : details) {
+            // 2.1 先从实际仓库出库（库存减少）
+            Long outTransactionId = wmTransactionService.createTransaction(new MesWmTransactionSaveReqDTO()
+                    .setType(MesWmTransactionTypeEnum.OUT.getType()).setItemId(detail.getItemId())
+                    .setQuantity(detail.getQuantity().negate()) // 库存减少
+                    .setBatchId(detail.getBatchId()).setBatchCode(detail.getBatchCode())
+                    .setWarehouseId(detail.getWarehouseId()).setLocationId(detail.getLocationId()).setAreaId(detail.getAreaId())
+                    .setBizType(MesBizTypeConstants.WM_ISSUE).setBizId(issue.getId())
+                    .setBizCode(issue.getCode()).setBizLineId(detail.getLineId()));
+            // 2.2 再入虚拟线边库（库存增加）
+            wmTransactionService.createTransaction(new MesWmTransactionSaveReqDTO()
+                    .setType(MesWmTransactionTypeEnum.IN.getType()).setItemId(detail.getItemId())
+                    .setQuantity(detail.getQuantity()) // 库存增加
+                    .setBatchId(detail.getBatchId()).setBatchCode(detail.getBatchCode())
+                    .setWarehouseId(virtualWarehouse.getId()).setLocationId(virtualLocation.getId()).setAreaId(virtualArea.getId())
+                    .setBizType(MesBizTypeConstants.WM_ISSUE).setBizId(issue.getId())
+                    .setBizCode(issue.getCode()).setBizLineId(detail.getLineId())
+                    .setRelatedTransactionId(outTransactionId)); // 关联出库事务
+        }
     }
 
     @Override

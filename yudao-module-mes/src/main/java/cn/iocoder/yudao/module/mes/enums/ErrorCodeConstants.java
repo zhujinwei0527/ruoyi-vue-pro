@@ -363,6 +363,7 @@ public interface ErrorCodeConstants {
     ErrorCode WM_TRANSACTION_BATCH_REQUIRED = new ErrorCode(1_040_703_007, "当前物料启用了批次管理，批次号不能为空");
     ErrorCode WM_MATERIAL_STOCK_AREA_ITEM_MIXING_NOT_ALLOWED = new ErrorCode(1_040_703_008, "库位({})不允许物料混放，请选择其他库位");
     ErrorCode WM_MATERIAL_STOCK_AREA_BATCH_MIXING_NOT_ALLOWED = new ErrorCode(1_040_703_009, "库位({})不允许批次混放，请选择其他库位");
+    ErrorCode WM_TRANSACTION_RELATED_NOT_EXISTS = new ErrorCode(1_040_703_010, "关联的库存事务不存在");
 
     // ========== MES 仓库管理-到货通知单（1-040-704-000） ==========
     ErrorCode WM_ARRIVAL_NOTICE_NOT_EXISTS = new ErrorCode(1_040_704_000, "到货通知单不存在");
