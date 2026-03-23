@@ -6,6 +6,8 @@ import cn.iocoder.yudao.module.mes.controller.admin.wm.outsourcereceipt.vo.MesWm
 import cn.iocoder.yudao.module.mes.dal.dataobject.wm.outsourcereceipt.MesWmOutsourceReceiptDO;
 import jakarta.validation.Valid;
 
+import java.math.BigDecimal;
+
 /**
  * MES 外协入库单 Service 接口
  */
@@ -76,5 +78,17 @@ public interface MesWmOutsourceReceiptService {
      * @param id 编号
      */
     void cancelOutsourceReceipt(Long id);
+
+    /**
+     * IQC 检验完成后回写外协入库单（拆分行 + 推进主表状态）
+     *
+     * @param receiptId           外协入库单编号
+     * @param lineId              入库单行编号
+     * @param iqcId               IQC 检验单编号
+     * @param qualifiedQuantity   合格品数量
+     * @param unqualifiedQuantity 不合格品数量
+     */
+    void approveOutsourceReceiptWhenIqcComplete(Long receiptId, Long lineId, Long iqcId,
+                                                BigDecimal qualifiedQuantity, BigDecimal unqualifiedQuantity);
 
 }

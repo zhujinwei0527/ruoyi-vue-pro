@@ -6,14 +6,13 @@ import cn.iocoder.yudao.framework.common.pojo.PageResult;
 import cn.iocoder.yudao.framework.common.util.collection.CollectionUtils;
 import cn.iocoder.yudao.framework.common.util.object.BeanUtils;
 import cn.iocoder.yudao.framework.common.util.object.ObjectUtils;
-import cn.iocoder.yudao.module.mes.dal.dataobject.md.item.MesMdItemDO;
 import cn.iocoder.yudao.module.mes.controller.admin.wm.outsourcereceipt.vo.MesWmOutsourceReceiptPageReqVO;
 import cn.iocoder.yudao.module.mes.controller.admin.wm.outsourcereceipt.vo.MesWmOutsourceReceiptSaveReqVO;
+import cn.iocoder.yudao.module.mes.dal.dataobject.md.item.MesMdItemDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.wm.outsourcereceipt.MesWmOutsourceReceiptDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.wm.outsourcereceipt.MesWmOutsourceReceiptDetailDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.wm.outsourcereceipt.MesWmOutsourceReceiptLineDO;
-import cn.iocoder.yudao.module.mes.dal.mysql.wm.outsourcereceipt.MesWmOutsourceReceiptDetailMapper;
-import cn.iocoder.yudao.module.mes.dal.mysql.wm.outsourcereceipt.MesWmOutsourceReceiptLineMapper;
+
 import cn.iocoder.yudao.module.mes.dal.mysql.wm.outsourcereceipt.MesWmOutsourceReceiptMapper;
 import cn.iocoder.yudao.module.mes.enums.MesBizTypeConstants;
 import cn.iocoder.yudao.module.mes.enums.wm.MesWmOutsourceReceiptStatusEnum;
@@ -23,7 +22,6 @@ import cn.iocoder.yudao.module.mes.service.md.item.MesMdItemService;
 import cn.iocoder.yudao.module.mes.service.md.vendor.MesMdVendorService;
 import cn.iocoder.yudao.module.mes.service.wm.transaction.MesWmTransactionService;
 import cn.iocoder.yudao.module.mes.service.wm.transaction.dto.MesWmTransactionSaveReqDTO;
-import cn.iocoder.yudao.module.mes.service.wm.warehouse.MesWmWarehouseAreaService;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -48,22 +46,15 @@ public class MesWmOutsourceReceiptServiceImpl implements MesWmOutsourceReceiptSe
     private MesWmOutsourceReceiptMapper outsourceReceiptMapper;
 
     @Resource
-    private MesWmOutsourceReceiptLineMapper outsourceReceiptLineMapper;
-
+    private MesWmOutsourceReceiptLineService outsourceReceiptLineService;
     @Resource
-    private MesWmOutsourceReceiptDetailMapper outsourceReceiptDetailMapper;
-
+    private MesWmOutsourceReceiptDetailService outsourceReceiptDetailService;
     @Resource
     private MesWmTransactionService wmTransactionService;
-
     @Resource
     private MesMdVendorService vendorService;
-
     @Resource
     private MesMdItemService itemService;
-
-    @Resource
-    private MesWmWarehouseAreaService warehouseAreaService;
 
     @Override
     public Long createOutsourceReceipt(MesWmOutsourceReceiptSaveReqVO createReqVO) {
@@ -100,8 +91,8 @@ public class MesWmOutsourceReceiptServiceImpl implements MesWmOutsourceReceiptSe
         validateOutsourceReceiptExistsAndDraft(id);
 
         // 级联删除明细和行
-        outsourceReceiptDetailMapper.deleteByReceiptId(id);
-        outsourceReceiptLineMapper.deleteByReceiptId(id);
+        outsourceReceiptDetailService.deleteOutsourceReceiptDetailByReceiptId(id);
+        outsourceReceiptLineService.deleteOutsourceReceiptLineByReceiptId(id);
         // 删除
         outsourceReceiptMapper.deleteById(id);
     }
@@ -122,7 +113,7 @@ public class MesWmOutsourceReceiptServiceImpl implements MesWmOutsourceReceiptSe
         // 校验存在 + 草稿状态
         validateOutsourceReceiptExistsAndDraft(id);
         // 校验至少有一条行
-        List<MesWmOutsourceReceiptLineDO> lines = outsourceReceiptLineMapper.selectListByReceiptId(id);
+        List<MesWmOutsourceReceiptLineDO> lines = outsourceReceiptLineService.getOutsourceReceiptLineListByReceiptId(id);
         if (CollUtil.isEmpty(lines)) {
             throw exception(WM_OUTSOURCE_RECEIPT_NO_LINE);
         }
@@ -146,10 +137,10 @@ public class MesWmOutsourceReceiptServiceImpl implements MesWmOutsourceReceiptSe
             throw exception(WM_OUTSOURCE_RECEIPT_STATUS_ERROR);
         }
         // 1.2 检查每个行的明细数量是否完成上架
-        List<MesWmOutsourceReceiptLineDO> lines = outsourceReceiptLineMapper.selectListByReceiptId(id);
+        List<MesWmOutsourceReceiptLineDO> lines = outsourceReceiptLineService.getOutsourceReceiptLineListByReceiptId(id);
         if (CollUtil.isNotEmpty(lines)) {
             // 批量查询所有明细
-            List<MesWmOutsourceReceiptDetailDO> allDetails = outsourceReceiptDetailMapper.selectListByReceiptId(id);
+            List<MesWmOutsourceReceiptDetailDO> allDetails = outsourceReceiptDetailService.getOutsourceReceiptDetailListByReceiptId(id);
             Map<Long, List<MesWmOutsourceReceiptDetailDO>> detailMap = CollectionUtils.convertMultiMap(
                     allDetails, MesWmOutsourceReceiptDetailDO::getLineId);
             // 检查每行的明细数量
@@ -189,7 +180,7 @@ public class MesWmOutsourceReceiptServiceImpl implements MesWmOutsourceReceiptSe
     }
 
     private void createTransactionList(MesWmOutsourceReceiptDO receipt) {
-        List<MesWmOutsourceReceiptDetailDO> details = outsourceReceiptDetailMapper.selectListByReceiptId(receipt.getId());
+        List<MesWmOutsourceReceiptDetailDO> details = outsourceReceiptDetailService.getOutsourceReceiptDetailListByReceiptId(receipt.getId());
         wmTransactionService.createTransactionList(convertList(details, detail -> new MesWmTransactionSaveReqDTO()
                 .setType(MesWmTransactionTypeEnum.IN.getType()).setItemId(detail.getItemId())
                 .setQuantity(detail.getQuantity()) // 入库数量为正数
@@ -214,6 +205,41 @@ public class MesWmOutsourceReceiptServiceImpl implements MesWmOutsourceReceiptSe
         // 取消
         outsourceReceiptMapper.updateById(new MesWmOutsourceReceiptDO()
                 .setId(id).setStatus(MesWmOutsourceReceiptStatusEnum.CANCELED.getStatus()));
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void approveOutsourceReceiptWhenIqcComplete(Long receiptId, Long lineId, Long iqcId,
+                                                       BigDecimal qualifiedQuantity, BigDecimal unqualifiedQuantity) {
+        // 1.1 校验入库单存在
+        MesWmOutsourceReceiptDO receipt = validateOutsourceReceiptExists(receiptId);
+        // 1.2 校验状态为待检验
+        if (ObjUtil.notEqual(MesWmOutsourceReceiptStatusEnum.CONFIRMED.getStatus(), receipt.getStatus())) {
+            throw exception(WM_OUTSOURCE_RECEIPT_STATUS_ERROR);
+        }
+        // 1.3 校验行存在
+        MesWmOutsourceReceiptLineDO line = outsourceReceiptLineService.getOutsourceReceiptLine(lineId);
+        if (line == null) {
+            throw exception(WM_OUTSOURCE_RECEIPT_LINE_NOT_EXISTS);
+        }
+
+        // 2.1 合格品处理：更新原行（new 一个 DO，避免覆盖更新）
+        if (qualifiedQuantity != null && qualifiedQuantity.compareTo(BigDecimal.ZERO) > 0) {
+            outsourceReceiptLineService.updateOutsourceReceiptLineDO(new MesWmOutsourceReceiptLineDO()
+                    .setId(lineId).setQualityStatus(MesWmQualityStatusEnum.PASS.getStatus())
+                    .setIqcId(iqcId).setQuantity(qualifiedQuantity));
+        }
+        // 2.2 不合格品处理：拷贝原行全部属性，新增一行
+        if (unqualifiedQuantity != null && unqualifiedQuantity.compareTo(BigDecimal.ZERO) > 0) {
+            MesWmOutsourceReceiptLineDO unqualifiedLine = BeanUtils.toBean(line, MesWmOutsourceReceiptLineDO.class)
+                    .setId(null).setQualityStatus(MesWmQualityStatusEnum.FAIL.getStatus())
+                    .setIqcId(iqcId).setQuantity(unqualifiedQuantity);
+            outsourceReceiptLineService.createOutsourceReceiptLineDO(unqualifiedLine);
+        }
+
+        // 3. 直接更新主表状态为"待上架"（对齐 KTG：IQC 完成后直接推进状态）
+        outsourceReceiptMapper.updateById(new MesWmOutsourceReceiptDO()
+                .setId(receiptId).setStatus(MesWmOutsourceReceiptStatusEnum.APPROVING.getStatus()));
     }
 
     private MesWmOutsourceReceiptDO validateOutsourceReceiptExists(Long id) {

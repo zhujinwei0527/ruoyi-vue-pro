@@ -51,10 +51,32 @@ public interface MesWmOutsourceReceiptLineService {
     PageResult<MesWmOutsourceReceiptLineDO> getOutsourceReceiptLinePage(MesWmOutsourceReceiptLinePageReqVO pageReqVO);
 
     /**
-     * 删除委外收货单行（根据收货单编号）
+     * 获得外协入库单行列表（根据入库单编号）
      *
-     * @param receiptId 收货单编号
+     * @param receiptId 入库单编号
+     * @return 外协入库单行列表
+     */
+    List<MesWmOutsourceReceiptLineDO> getOutsourceReceiptLineListByReceiptId(Long receiptId);
+
+    /**
+     * 删除外协入库单行（根据入库单编号）
+     *
+     * @param receiptId 入库单编号
      */
     void deleteOutsourceReceiptLineByReceiptId(Long receiptId);
+
+    /**
+     * 直接更新外协入库单行 DO（用于 IQC 回写）
+     *
+     * @param line 行 DO
+     */
+    void updateOutsourceReceiptLineDO(MesWmOutsourceReceiptLineDO line);
+
+    /**
+     * 直接插入外协入库单行 DO（用于 QC 按质量拆分行）
+     *
+     * @param line 行 DO
+     */
+    void createOutsourceReceiptLineDO(MesWmOutsourceReceiptLineDO line);
 
 }

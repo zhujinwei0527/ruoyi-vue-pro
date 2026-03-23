@@ -20,6 +20,7 @@ import cn.iocoder.yudao.module.mes.service.md.vendor.MesMdVendorService;
 import cn.iocoder.yudao.module.mes.service.qc.defectrecord.MesQcDefectRecordService;
 import cn.iocoder.yudao.module.mes.service.qc.template.MesQcTemplateDetailService;
 import cn.iocoder.yudao.module.mes.service.wm.arrivalnotice.MesWmArrivalNoticeService;
+import cn.iocoder.yudao.module.mes.service.wm.outsourcereceipt.MesWmOutsourceReceiptService;
 import cn.iocoder.yudao.module.system.api.user.AdminUserApi;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
@@ -55,6 +56,8 @@ public class MesQcIqcServiceImpl implements MesQcIqcService {
     private MesQcDefectRecordService defectRecordService;
     @Resource
     private MesWmArrivalNoticeService arrivalNoticeService;
+    @Resource
+    private MesWmOutsourceReceiptService outsourceReceiptService;
     @Resource
     private MesMdVendorService vendorService;
     @Resource
@@ -147,8 +150,10 @@ public class MesQcIqcServiceImpl implements MesQcIqcService {
         if (Objects.equals(iqc.getSourceDocType(), MesBizTypeConstants.WM_ARRIVAL_NOTICE)) {
             arrivalNoticeService.approveArrivalNoticeWhenIqcComplete(iqc.getSourceDocId(), iqc.getSourceLineId(),
                     iqc.getId(), iqc.getQualifiedQuantity());
+        } else if (Objects.equals(iqc.getSourceDocType(), MesBizTypeConstants.WM_OUTSOURCE_RECPT)) {
+            outsourceReceiptService.approveOutsourceReceiptWhenIqcComplete(iqc.getSourceDocId(), iqc.getSourceLineId(),
+                    iqc.getId(), iqc.getQualifiedQuantity(), iqc.getUnqualifiedQuantity());
         }
-        // TODO 外协入库单：未实现，占位
     }
 
     @Override

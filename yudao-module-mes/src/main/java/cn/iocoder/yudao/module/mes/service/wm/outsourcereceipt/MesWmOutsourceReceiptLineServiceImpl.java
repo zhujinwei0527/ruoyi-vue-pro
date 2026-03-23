@@ -12,6 +12,8 @@ import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 
+import java.util.List;
+
 import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception;
 import static cn.iocoder.yudao.module.mes.enums.ErrorCodeConstants.WM_OUTSOURCE_RECEIPT_LINE_NOT_EXISTS;
 
@@ -82,6 +84,11 @@ public class MesWmOutsourceReceiptLineServiceImpl implements MesWmOutsourceRecei
     }
 
     @Override
+    public List<MesWmOutsourceReceiptLineDO> getOutsourceReceiptLineListByReceiptId(Long receiptId) {
+        return lineMapper.selectListByReceiptId(receiptId);
+    }
+
+    @Override
     public void deleteOutsourceReceiptLineByReceiptId(Long receiptId) {
         lineMapper.deleteByReceiptId(receiptId);
     }
@@ -90,6 +97,16 @@ public class MesWmOutsourceReceiptLineServiceImpl implements MesWmOutsourceRecei
         if (lineMapper.selectById(id) == null) {
             throw exception(WM_OUTSOURCE_RECEIPT_LINE_NOT_EXISTS);
         }
+    }
+
+    @Override
+    public void updateOutsourceReceiptLineDO(MesWmOutsourceReceiptLineDO line) {
+        lineMapper.updateById(line);
+    }
+
+    @Override
+    public void createOutsourceReceiptLineDO(MesWmOutsourceReceiptLineDO line) {
+        lineMapper.insert(line);
     }
 
 }
