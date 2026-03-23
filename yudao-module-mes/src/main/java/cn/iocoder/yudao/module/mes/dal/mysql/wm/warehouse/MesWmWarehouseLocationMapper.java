@@ -30,6 +30,11 @@ public interface MesWmWarehouseLocationMapper extends BaseMapperX<MesWmWarehouse
                 .eq(MesWmWarehouseLocationDO::getCode, code));
     }
 
+    default MesWmWarehouseLocationDO selectByCode(String code) {
+        return selectOne(new LambdaQueryWrapperX<MesWmWarehouseLocationDO>()
+                .eq(MesWmWarehouseLocationDO::getCode, code));
+    }
+
     default MesWmWarehouseLocationDO selectByName(Long warehouseId, String name) {
         return selectOne(new LambdaQueryWrapperX<MesWmWarehouseLocationDO>()
                 .eq(MesWmWarehouseLocationDO::getWarehouseId, warehouseId)

@@ -129,7 +129,7 @@ public class MesWmStockTakingTaskServiceImpl implements MesWmStockTakingTaskServ
 
         // 3. 根据冻结标识，对物资进行冻结
         // TODO @芋艿：后续跟进下！
-        if (Boolean.TRUE.equals(task.getFrozenFlag())) {
+        if (Boolean.TRUE.equals(task.getFrozen())) {
             for (MesWmStockTakingTaskLineDO line : lines) {
                 if (line.getMaterialStockId() != null) {
                     updateMaterialStockFrozen(line.getMaterialStockId(), true);
@@ -150,7 +150,7 @@ public class MesWmStockTakingTaskServiceImpl implements MesWmStockTakingTaskServ
 
         // 3. 解冻库存
         // TODO @芋艿：后续跟进下！
-        if (Boolean.TRUE.equals(task.getFrozenFlag())) {
+        if (Boolean.TRUE.equals(task.getFrozen())) {
             List<MesWmStockTakingTaskLineDO> lines = stockTakingTaskLineService.getStockTakingTaskLineListByTaskId(id);
             unfreezeStockTakingTaskStocks(lines);
         }
@@ -166,7 +166,7 @@ public class MesWmStockTakingTaskServiceImpl implements MesWmStockTakingTaskServ
         }
         task.setStatus(MesWmStockTakingTaskStatusEnum.CANCELED.getStatus());
         stockTakingTaskMapper.updateById(task);
-        if (Boolean.TRUE.equals(task.getFrozenFlag())) {
+        if (Boolean.TRUE.equals(task.getFrozen())) {
             unfreezeStockTakingTaskStocks(stockTakingTaskLineService.getStockTakingTaskLineListByTaskId(id));
         }
     }
@@ -211,7 +211,7 @@ public class MesWmStockTakingTaskServiceImpl implements MesWmStockTakingTaskServ
     private void updateMaterialStockFrozen(Long materialStockId, boolean frozen) {
         MesWmMaterialStockFreezeReqVO reqVO = new MesWmMaterialStockFreezeReqVO();
         reqVO.setId(materialStockId);
-        reqVO.setFrozenFlag(frozen);
+        reqVO.setFrozen(frozen);
         materialStockService.updateMaterialStockFrozen(reqVO);
     }
 

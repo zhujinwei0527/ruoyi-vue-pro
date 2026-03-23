@@ -91,4 +91,12 @@ public interface MesWmWarehouseLocationService {
      */
     Long getWarehouseLocationCountByWarehouseId(Long warehouseId);
 
+    /**
+     * 按编码获得库区（如果是虚拟线边库区编码且不存在，会自动插入）
+     *
+     * @param code 编码
+     * @return 库区
+     */
+    MesWmWarehouseLocationDO getWarehouseLocationByCode(String code);
+
 }

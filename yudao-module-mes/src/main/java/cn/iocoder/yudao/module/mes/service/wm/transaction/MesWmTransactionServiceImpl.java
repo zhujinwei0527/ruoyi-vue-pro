@@ -166,7 +166,7 @@ public class MesWmTransactionServiceImpl implements MesWmTransactionService {
         }
 
         // 2. 检查库存记录冻结
-        if (Boolean.TRUE.equals(materialStock.getFrozenFlag())) {
+        if (Boolean.TRUE.equals(materialStock.getFrozen())) {
             throw exception(WM_TRANSACTION_STOCK_FROZEN,
                     warehouse.getName(), location.getName(), area.getName());
         }

@@ -56,7 +56,7 @@ public class MesWmStockTakingTaskRespVO {
 
     @Schema(description = "是否冻结库存", requiredMode = Schema.RequiredMode.REQUIRED, example = "false")
     @ExcelProperty("是否冻结库存")
-    private Boolean frozenFlag;
+    private Boolean frozen;
 
     @Schema(description = "开始时间")
     @ExcelProperty("开始时间")

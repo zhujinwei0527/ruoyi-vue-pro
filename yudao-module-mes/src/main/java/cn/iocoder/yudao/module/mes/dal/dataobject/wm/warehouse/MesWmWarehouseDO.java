@@ -22,6 +22,15 @@ import java.math.BigDecimal;
 public class MesWmWarehouseDO extends BaseDO {
 
     /**
+     * 虚拟线边库编码
+     *
+     * 业务背景：在线边库模式下，物料从总仓库发放到车间，但未被工序消耗前，这部分物料属于在制品（WIP）。
+     * 为了在系统中实现“发料与实际消耗”的解耦，并在不增加物理库位管理复杂度的前提下防止生产报工被负库存阻塞，
+     * 系统默认提供一个虚拟的线边库统管这些在制品。
+     */
+    public static final String WIP_VIRTUAL_WAREHOUSE = "WIP_VIRTUAL_WAREHOUSE";
+
+    /**
      * 编号
      */
     @TableId

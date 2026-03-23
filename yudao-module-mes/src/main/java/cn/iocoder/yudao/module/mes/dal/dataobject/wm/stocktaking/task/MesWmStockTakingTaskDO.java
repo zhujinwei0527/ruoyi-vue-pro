@@ -71,7 +71,7 @@ public class MesWmStockTakingTaskDO extends BaseDO {
     /**
      * 是否冻结库存
      */
-    private Boolean frozenFlag;
+    private Boolean frozen;
 
     /**
      * 开始时间

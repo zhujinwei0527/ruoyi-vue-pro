@@ -100,4 +100,12 @@ public interface MesWmWarehouseAreaService {
      */
     void validateWarehouseAreaExists(Long warehouseId, Long locationId, Long areaId);
 
+    /**
+     * 按编码获得库位（如果是虚拟线边库位编码且不存在，会自动插入）
+     *
+     * @param code 编码
+     * @return 库位
+     */
+    MesWmWarehouseAreaDO getWarehouseAreaByCode(String code);
+
 }

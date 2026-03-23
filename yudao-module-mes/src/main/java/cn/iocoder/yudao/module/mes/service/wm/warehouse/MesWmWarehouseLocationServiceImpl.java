@@ -7,6 +7,7 @@ import cn.iocoder.yudao.framework.common.util.object.BeanUtils;
 import cn.iocoder.yudao.module.mes.controller.admin.wm.warehouse.vo.location.MesWmWarehouseLocationPageReqVO;
 import cn.iocoder.yudao.module.mes.controller.admin.wm.warehouse.vo.location.MesWmWarehouseLocationSaveReqVO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.wm.warehouse.MesWmWarehouseLocationDO;
+import cn.iocoder.yudao.module.mes.dal.dataobject.wm.warehouse.MesWmWarehouseDO;
 import cn.iocoder.yudao.module.mes.dal.mysql.wm.warehouse.MesWmWarehouseLocationMapper;
 import cn.iocoder.yudao.module.mes.enums.wm.BarcodeBizTypeEnum;
 import cn.iocoder.yudao.module.mes.service.md.workstation.MesMdWorkstationService;
@@ -158,6 +159,31 @@ public class MesWmWarehouseLocationServiceImpl implements MesWmWarehouseLocation
     @Override
     public Long getWarehouseLocationCountByWarehouseId(Long warehouseId) {
         return locationMapper.selectCountByWarehouseId(warehouseId);
+    }
+
+    @Override
+    public MesWmWarehouseLocationDO getWarehouseLocationByCode(String code) {
+        // 1. 查询库区，存在则直接返回
+        MesWmWarehouseLocationDO location = locationMapper.selectByCode(code);
+        if (location != null) {
+            return location;
+        }
+
+        // 2. 如果是虚拟线边库区编码，则自动初始化
+        if (MesWmWarehouseLocationDO.WIP_VIRTUAL_LOCATION.equals(code)) {
+            // 2.1 先确保虚拟仓库存在（getWarehouseByCode 会级联创建仓库）
+            MesWmWarehouseDO warehouse = warehouseService.getWarehouseByCode(MesWmWarehouseDO.WIP_VIRTUAL_WAREHOUSE);
+            cn.hutool.core.lang.Assert.notNull(warehouse, "虚拟仓库必须存在");
+            // 2.2 自动初始化
+            MesWmWarehouseLocationDO newLocation = MesWmWarehouseLocationDO.builder()
+                    .warehouseId(warehouse.getId()).code(code).name("虚拟线边库区")
+                    .areaStatus(cn.iocoder.yudao.framework.common.enums.CommonStatusEnum.ENABLE.getStatus())
+                    .frozen(false).remark("系统自动初始化的虚拟线边库区")
+                    .build();
+            locationMapper.insert(newLocation);
+            return newLocation;
+        }
+        return null;
     }
 
 }

@@ -95,7 +95,7 @@ public class MesWmMaterialStockServiceImpl implements MesWmMaterialStockService 
 
         // 更新冻结状态
         materialStockMapper.updateById(new MesWmMaterialStockDO()
-                .setId(updateReqVO.getId()).setFrozenFlag(updateReqVO.getFrozenFlag()));
+                .setId(updateReqVO.getId()).setFrozen(updateReqVO.getFrozen()));
     }
 
     @Override
@@ -144,7 +144,7 @@ public class MesWmMaterialStockServiceImpl implements MesWmMaterialStockService 
                 .batchId(batchId).vendorId(vendorId)
                 .quantity(BigDecimal.ZERO) // 初始数量为 0，由 updateMaterialStockQuantity 更新
                 .receiptTime(receiptTime != null ? receiptTime : LocalDateTime.now())
-                .frozenFlag(false)
+                .frozen(false)
                 .build();
         materialStockMapper.insert(newStock);
         return newStock;

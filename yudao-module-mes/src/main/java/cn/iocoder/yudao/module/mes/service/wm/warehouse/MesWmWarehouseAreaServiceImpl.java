@@ -1,7 +1,9 @@
 package cn.iocoder.yudao.module.mes.service.wm.warehouse;
 
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.lang.Assert;
 import cn.hutool.core.util.ObjUtil;
+import cn.iocoder.yudao.framework.common.enums.CommonStatusEnum;
 import cn.iocoder.yudao.framework.common.pojo.PageResult;
 import cn.iocoder.yudao.framework.common.util.object.BeanUtils;
 import cn.iocoder.yudao.module.mes.controller.admin.wm.warehouse.vo.area.MesWmWarehouseAreaPageReqVO;
@@ -109,7 +111,7 @@ public class MesWmWarehouseAreaServiceImpl implements MesWmWarehouseAreaService 
     }
 
     private void validateWarehouseAreaCodeUnique(Long id, Long locationId, String code) {
-        MesWmWarehouseAreaDO area = areaMapper.selectByCode(locationId, code);
+        MesWmWarehouseAreaDO area = areaMapper.selectByCode(code);
         if (area == null) {
             return;
         }
@@ -178,6 +180,33 @@ public class MesWmWarehouseAreaServiceImpl implements MesWmWarehouseAreaService 
                 throw exception(WM_WAREHOUSE_AREA_WAREHOUSE_MISMATCH);
             }
         }
+    }
+
+    @Override
+    public MesWmWarehouseAreaDO getWarehouseAreaByCode(String code) {
+        // 1. 查询库位，存在则直接返回
+        MesWmWarehouseAreaDO area = areaMapper.selectByCode(code);
+        if (area != null) {
+            return area;
+        }
+
+        // 2. 如果是虚拟线边库位编码，则自动初始化
+        if (MesWmWarehouseAreaDO.WIP_VIRTUAL_AREA.equals(code)) {
+            // 2.1 先确保虚拟库区存在（getWarehouseLocationByCode 会级联创建仓库 + 库区）
+            MesWmWarehouseLocationDO location = locationService.getWarehouseLocationByCode(
+                    MesWmWarehouseLocationDO.WIP_VIRTUAL_LOCATION);
+            Assert.notNull(location, "虚拟库区必须存在");
+            // 2.2 自动初始化
+            MesWmWarehouseAreaDO newArea = MesWmWarehouseAreaDO.builder()
+                    .locationId(location.getId()).code(code).name("虚拟线边库位")
+                    .status(CommonStatusEnum.ENABLE.getStatus()).frozen(false)
+                    .allowItemMixing(true).allowBatchMixing(true)
+                    .remark("系统自动初始化的虚拟线边库位")
+                    .build();
+            areaMapper.insert(newArea);
+            return newArea;
+        }
+        return null;
     }
 
 }

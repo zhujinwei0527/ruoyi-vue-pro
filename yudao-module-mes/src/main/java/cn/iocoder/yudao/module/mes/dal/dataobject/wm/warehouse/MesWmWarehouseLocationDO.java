@@ -22,6 +22,11 @@ import java.math.BigDecimal;
 public class MesWmWarehouseLocationDO extends BaseDO {
 
     /**
+     * 虚拟线边库区编码（配合 {@link MesWmWarehouseDO#WIP_VIRTUAL_WAREHOUSE} 使用）
+     */
+    public static final String WIP_VIRTUAL_LOCATION = "WIP_VIRTUAL_LOCATION";
+
+    /**
      * 编号
      */
     @TableId

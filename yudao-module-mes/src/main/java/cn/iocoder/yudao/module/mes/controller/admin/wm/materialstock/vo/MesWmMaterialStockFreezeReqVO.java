@@ -14,7 +14,7 @@ public class MesWmMaterialStockFreezeReqVO {
 
     @Schema(description = "是否冻结", requiredMode = Schema.RequiredMode.REQUIRED, example = "false")
     @NotNull(message = "冻结状态不能为空")
-    private Boolean frozenFlag;
+    private Boolean frozen;
 
 }
 

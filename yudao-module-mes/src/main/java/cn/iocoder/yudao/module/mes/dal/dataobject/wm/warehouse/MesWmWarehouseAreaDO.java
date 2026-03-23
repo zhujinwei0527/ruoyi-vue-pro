@@ -22,6 +22,11 @@ import java.math.BigDecimal;
 public class MesWmWarehouseAreaDO extends BaseDO {
 
     /**
+     * 虚拟线边库位编码（配合 {@link MesWmWarehouseDO#WIP_VIRTUAL_WAREHOUSE} 使用）
+     */
+    public static final String WIP_VIRTUAL_AREA = "WIP_VIRTUAL_AREA";
+
+    /**
      * 编号
      */
     @TableId
@@ -66,6 +71,7 @@ public class MesWmWarehouseAreaDO extends BaseDO {
      * 枚举 {@link cn.iocoder.yudao.framework.common.enums.CommonStatusEnum}
      */
     private Integer status;
+
     /**
      * 是否冻结
      */

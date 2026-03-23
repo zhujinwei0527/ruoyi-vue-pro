@@ -148,4 +148,24 @@ public class MesWmWarehouseServiceImpl implements MesWmWarehouseService {
         return warehouseMapper.selectListByIds(ids);
     }
 
+    @Override
+    public MesWmWarehouseDO getWarehouseByCode(String code) {
+        // 1. 查询仓库，存在则直接返回
+        MesWmWarehouseDO warehouse = warehouseMapper.selectByCode(code);
+        if (warehouse != null) {
+            return warehouse;
+        }
+
+        // 2. 如果是虚拟线边库编码，则自动初始化
+        if (MesWmWarehouseDO.WIP_VIRTUAL_WAREHOUSE.equals(code)) {
+            MesWmWarehouseDO newWarehouse = MesWmWarehouseDO.builder()
+                    .code(code).name("虚拟线边仓库").frozen(false)
+                    .remark("系统自动初始化的虚拟线边仓库（用于生产报工与在制品管理解耦）")
+                    .build();
+            warehouseMapper.insert(newWarehouse);
+            return newWarehouse;
+        }
+        return null;
+    }
+
 }

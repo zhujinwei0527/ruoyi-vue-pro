@@ -316,7 +316,7 @@ public class MesWmTransferServiceImpl implements MesWmTransferService {
             }
             MesWmMaterialStockFreezeReqVO freezeReqVO = new MesWmMaterialStockFreezeReqVO();
             freezeReqVO.setId(line.getMaterialStockId());
-            freezeReqVO.setFrozenFlag(frozen);
+            freezeReqVO.setFrozen(frozen);
             materialStockService.updateMaterialStockFrozen(freezeReqVO);
         }
     }

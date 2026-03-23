@@ -38,7 +38,7 @@ public class MesWmStockTakingPlanSaveReqVO {
 
     @Schema(description = "是否冻结库存", example = "false")
     @NotNull(message = "是否冻结库存不能为空")
-    private Boolean frozenFlag;
+    private Boolean frozen;
 
     @Schema(description = "备注", example = "备注")
     private String remark;

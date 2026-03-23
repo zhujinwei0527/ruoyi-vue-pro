@@ -27,7 +27,7 @@ public interface MesWmMaterialStockMapper extends BaseMapperX<MesWmMaterialStock
                 .inIfPresent(MesWmMaterialStockDO::getItemId, itemIds)
                 .eqIfPresent(MesWmMaterialStockDO::getWarehouseId, reqVO.getWarehouseId())
                 .eqIfPresent(MesWmMaterialStockDO::getLocationId, reqVO.getLocationId())
-                .eqIfPresent(MesWmMaterialStockDO::getFrozenFlag, reqVO.getFrozen())
+                .eqIfPresent(MesWmMaterialStockDO::getFrozen, reqVO.getFrozen())
                 .ne(MesWmMaterialStockDO::getQuantity, BigDecimal.ZERO)
                 .orderByAsc(MesWmMaterialStockDO::getReceiptTime));
     }

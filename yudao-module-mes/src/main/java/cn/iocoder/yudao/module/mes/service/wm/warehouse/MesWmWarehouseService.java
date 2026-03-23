@@ -82,4 +82,12 @@ public interface MesWmWarehouseService {
         return convertMap(getWarehouseList(ids), MesWmWarehouseDO::getId);
     }
 
+    /**
+     * 按编码获得仓库（如果是虚拟线边库编码且不存在，会自动插入）
+     *
+     * @param code 编码
+     * @return 仓库
+     */
+    MesWmWarehouseDO getWarehouseByCode(String code);
+
 }

@@ -27,9 +27,8 @@ public interface MesWmWarehouseAreaMapper extends BaseMapperX<MesWmWarehouseArea
                 .orderByDesc(MesWmWarehouseAreaDO::getId));
     }
 
-    default MesWmWarehouseAreaDO selectByCode(Long locationId, String code) {
+    default MesWmWarehouseAreaDO selectByCode(String code) {
         return selectOne(new LambdaQueryWrapperX<MesWmWarehouseAreaDO>()
-                .eq(MesWmWarehouseAreaDO::getLocationId, locationId)
                 .eq(MesWmWarehouseAreaDO::getCode, code));
     }
 

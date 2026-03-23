@@ -104,6 +104,6 @@ public class MesWmMaterialStockDO extends BaseDO {
     /**
      * 是否冻结
      */
-    private Boolean frozenFlag;
+    private Boolean frozen;
 
 }
