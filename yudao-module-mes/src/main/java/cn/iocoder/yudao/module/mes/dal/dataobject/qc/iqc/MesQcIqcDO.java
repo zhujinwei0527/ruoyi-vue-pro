@@ -6,6 +6,7 @@ import cn.iocoder.yudao.module.mes.dal.dataobject.md.vendor.MesMdVendorDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.qc.template.MesQcTemplateDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.wm.arrivalnotice.MesWmArrivalNoticeDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.wm.arrivalnotice.MesWmArrivalNoticeLineDO;
+import cn.iocoder.yudao.module.mes.enums.qc.MesQcCheckResultEnum;
 import cn.iocoder.yudao.module.mes.enums.qc.MesQcSourceDocTypeEnum;
 import cn.iocoder.yudao.module.mes.enums.qc.MesQcStatusEnum;
 import com.baomidou.mybatisplus.annotation.KeySequence;
@@ -147,7 +148,7 @@ public class MesQcIqcDO extends BaseDO {
     /**
      * 检测结果
      *
-     * 枚举 {@link cn.iocoder.yudao.module.mes.enums.qc.MesQcCheckResultEnum}
+     * 枚举 {@link MesQcCheckResultEnum}
      */
     private Integer checkResult;
     /**
