@@ -13,8 +13,19 @@ import cn.iocoder.yudao.module.mes.dal.dataobject.wm.productreceipt.MesWmProduct
 import cn.iocoder.yudao.module.mes.dal.dataobject.wm.productreceipt.MesWmProductReceiptDetailDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.wm.productreceipt.MesWmProductReceiptLineDO;
 import cn.iocoder.yudao.module.mes.dal.mysql.wm.productreceipt.MesWmProductReceiptMapper;
+import cn.iocoder.yudao.module.mes.dal.dataobject.wm.warehouse.MesWmWarehouseAreaDO;
+import cn.iocoder.yudao.module.mes.dal.dataobject.wm.warehouse.MesWmWarehouseDO;
+import cn.iocoder.yudao.module.mes.dal.dataobject.wm.warehouse.MesWmWarehouseLocationDO;
 import cn.iocoder.yudao.module.mes.enums.wm.MesWmProductReceiptStatusEnum;
+import cn.iocoder.yudao.module.mes.enums.MesBizTypeConstants;
+import cn.iocoder.yudao.module.mes.enums.wm.MesWmTransactionTypeEnum;
+import cn.iocoder.yudao.module.mes.service.pro.workorder.MesProWorkOrderService;
 import cn.iocoder.yudao.module.mes.service.wm.materialstock.MesWmMaterialStockService;
+import cn.iocoder.yudao.module.mes.service.wm.transaction.MesWmTransactionService;
+import cn.iocoder.yudao.module.mes.service.wm.transaction.dto.MesWmTransactionSaveReqDTO;
+import cn.iocoder.yudao.module.mes.service.wm.warehouse.MesWmWarehouseAreaService;
+import cn.iocoder.yudao.module.mes.service.wm.warehouse.MesWmWarehouseLocationService;
+import cn.iocoder.yudao.module.mes.service.wm.warehouse.MesWmWarehouseService;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -46,7 +57,16 @@ public class MesWmProductReceiptServiceImpl implements MesWmProductReceiptServic
     private MesWmMaterialStockService materialStockService;
 
     @Resource
-    private cn.iocoder.yudao.module.mes.service.pro.workorder.MesProWorkOrderService workOrderService;
+    private MesWmTransactionService wmTransactionService;
+
+    @Resource
+    private MesProWorkOrderService workOrderService;
+    @Resource
+    private MesWmWarehouseService warehouseService;
+    @Resource
+    private MesWmWarehouseLocationService locationService;
+    @Resource
+    private MesWmWarehouseAreaService areaService;
 
     @Override
     public Long createProductReceipt(MesWmProductReceiptSaveReqVO createReqVO) {
@@ -160,18 +180,42 @@ public class MesWmProductReceiptServiceImpl implements MesWmProductReceiptServic
             throw exception(WM_PRODUCT_RECPT_STATUS_ERROR);
         }
 
-        // 遍历所有明细，更新库存台账
-        // DONE @芋艿：【后面优化】（AI 未修复原因：标注为后续优化，需人工介入）
-        List<MesWmProductReceiptDetailDO> details = productReceiptDetailService.getProductReceiptDetailListByRecptId(id);
-        for (MesWmProductReceiptDetailDO detail : details) {
-            materialStockService.increaseStock(
-                    detail.getItemId(), detail.getWarehouseId(), detail.getLocationId(), detail.getAreaId(),
-                    detail.getBatchId(), detail.getQuantity(), null, null, null);
-        }
+        // 创建库存事务
+        createTransactionList(receipt);
 
         // 更新收货单状态
         productReceiptMapper.updateById(new MesWmProductReceiptDO()
                 .setId(id).setStatus(MesWmProductReceiptStatusEnum.FINISHED.getStatus()));
+    }
+
+    private void createTransactionList(MesWmProductReceiptDO receipt) {
+        // 1. 查询虚拟线边库
+        MesWmWarehouseDO virtualWarehouse = warehouseService.getWarehouseByCode(MesWmWarehouseDO.WIP_VIRTUAL_WAREHOUSE);
+        MesWmWarehouseLocationDO virtualLocation = locationService.getWarehouseLocationByCode(MesWmWarehouseLocationDO.WIP_VIRTUAL_LOCATION);
+        MesWmWarehouseAreaDO virtualArea = areaService.getWarehouseAreaByCode(MesWmWarehouseAreaDO.WIP_VIRTUAL_AREA);
+
+        // 2. 遍历明细，每条明细产生 OUT（虚拟线边库扣减）+ IN（实际仓库增加）
+        List<MesWmProductReceiptDetailDO> details = productReceiptDetailService.getProductReceiptDetailListByRecptId(receipt.getId());
+        for (MesWmProductReceiptDetailDO detail : details) {
+            // 2.1 先从虚拟线边库出库（库存减少）
+            Long outTransactionId = wmTransactionService.createTransaction(new MesWmTransactionSaveReqDTO()
+                    .setType(MesWmTransactionTypeEnum.OUT.getType()).setItemId(detail.getItemId())
+                    .setQuantity(detail.getQuantity().negate()) // 库存减少
+                    .setBatchId(detail.getBatchId())
+                    .setWarehouseId(virtualWarehouse.getId()).setLocationId(virtualLocation.getId()).setAreaId(virtualArea.getId())
+                    .setCheckFlag(false) // 线边库允许负库存
+                    .setBizType(MesBizTypeConstants.WM_PRODUCT_RECPT).setBizId(receipt.getId())
+                    .setBizCode(receipt.getCode()).setBizLineId(detail.getLineId()));
+            // 2.2 再入实际仓库（库存增加）
+            wmTransactionService.createTransaction(new MesWmTransactionSaveReqDTO()
+                    .setType(MesWmTransactionTypeEnum.IN.getType()).setItemId(detail.getItemId())
+                    .setQuantity(detail.getQuantity()) // 库存增加
+                    .setBatchId(detail.getBatchId())
+                    .setWarehouseId(detail.getWarehouseId()).setLocationId(detail.getLocationId()).setAreaId(detail.getAreaId())
+                    .setBizType(MesBizTypeConstants.WM_PRODUCT_RECPT).setBizId(receipt.getId())
+                    .setBizCode(receipt.getCode()).setBizLineId(detail.getLineId())
+                    .setRelatedTransactionId(outTransactionId)); // 关联出库事务
+        }
     }
 
     @Override

@@ -68,6 +68,8 @@ public class MesWmTransactionServiceImpl implements MesWmTransactionService {
         if (inbound) {
             materialStockService.checkAreaMixingRule(reqDTO.getAreaId(), reqDTO.getItemId(), reqDTO.getBatchId());
         }
+        // 1.5 关联事务校验
+        checkRelatedTransaction(reqDTO);
 
         // 2.1 获取或创建库存记录
         MesWmMaterialStockDO materialStock = materialStockService.getOrCreateMaterialStock(
@@ -143,6 +145,19 @@ public class MesWmTransactionServiceImpl implements MesWmTransactionService {
     }
 
     /**
+     * 关联事务校验：relatedTransactionId 不为空时，关联的事务必须存在
+     */
+    private void checkRelatedTransaction(MesWmTransactionSaveReqDTO reqDTO) {
+        if (reqDTO.getRelatedTransactionId() == null) {
+            return;
+        }
+        MesWmTransactionDO relatedTransaction = transactionMapper.selectById(reqDTO.getRelatedTransactionId());
+        if (relatedTransaction == null) {
+            throw exception(WM_TRANSACTION_RELATED_NOT_EXISTS);
+        }
+    }
+
+    /**
      * 冻结校验：检查仓库、库区、库位、库存记录是否被冻结
      *
      * @param reqDTO        事务请求 DTO
@@ -167,8 +182,7 @@ public class MesWmTransactionServiceImpl implements MesWmTransactionService {
 
         // 2. 检查库存记录冻结
         if (Boolean.TRUE.equals(materialStock.getFrozen())) {
-            throw exception(WM_TRANSACTION_STOCK_FROZEN,
-                    warehouse.getName(), location.getName(), area.getName());
+            throw exception(WM_TRANSACTION_STOCK_FROZEN, warehouse.getName(), location.getName(), area.getName());
         }
     }
 

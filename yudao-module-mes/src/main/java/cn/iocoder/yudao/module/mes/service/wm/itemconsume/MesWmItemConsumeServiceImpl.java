@@ -5,9 +5,19 @@ import cn.iocoder.yudao.module.mes.dal.dataobject.pro.feedback.MesProFeedbackDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.pro.route.MesProRouteProductBomDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.wm.itemconsume.MesWmItemConsumeDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.wm.itemconsume.MesWmItemConsumeLineDO;
+import cn.iocoder.yudao.module.mes.dal.dataobject.wm.warehouse.MesWmWarehouseAreaDO;
+import cn.iocoder.yudao.module.mes.dal.dataobject.wm.warehouse.MesWmWarehouseDO;
+import cn.iocoder.yudao.module.mes.dal.dataobject.wm.warehouse.MesWmWarehouseLocationDO;
 import cn.iocoder.yudao.module.mes.dal.mysql.wm.itemconsume.MesWmItemConsumeMapper;
 import cn.iocoder.yudao.module.mes.enums.wm.MesWmItemConsumeStatusEnum;
+import cn.iocoder.yudao.module.mes.enums.MesBizTypeConstants;
+import cn.iocoder.yudao.module.mes.enums.wm.MesWmTransactionTypeEnum;
 import cn.iocoder.yudao.module.mes.service.pro.route.MesProRouteProductBomService;
+import cn.iocoder.yudao.module.mes.service.wm.transaction.MesWmTransactionService;
+import cn.iocoder.yudao.module.mes.service.wm.transaction.dto.MesWmTransactionSaveReqDTO;
+import cn.iocoder.yudao.module.mes.service.wm.warehouse.MesWmWarehouseAreaService;
+import cn.iocoder.yudao.module.mes.service.wm.warehouse.MesWmWarehouseLocationService;
+import cn.iocoder.yudao.module.mes.service.wm.warehouse.MesWmWarehouseService;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
@@ -32,10 +42,14 @@ public class MesWmItemConsumeServiceImpl implements MesWmItemConsumeService {
     private MesWmItemConsumeLineService itemConsumeLineService;
     @Resource
     private MesProRouteProductBomService routeProductBomService;
-
-    // TODO @芋艿：待 MaterialStockService 补充 decreaseStock 后，注入并调用
-    // @Resource
-    // private MesWmMaterialStockService materialStockService;
+    @Resource
+    private MesWmTransactionService wmTransactionService;
+    @Resource
+    private MesWmWarehouseService warehouseService;
+    @Resource
+    private MesWmWarehouseLocationService locationService;
+    @Resource
+    private MesWmWarehouseAreaService areaService;
 
     @Override
     public MesWmItemConsumeDO generateItemConsume(MesProFeedbackDO feedback) {
@@ -64,11 +78,22 @@ public class MesWmItemConsumeServiceImpl implements MesWmItemConsumeService {
 
     @Override
     public void finishItemConsume(Long consumeId) {
-        // TODO @AI（from codex）：对齐，这里还需要按消耗明细扣减线边库库存，不能只把消耗单状态改为已完成。
-        // List<MesWmItemConsumeLineDO> lines = itemConsumeLineService.getItemConsumeLineListByConsumeId(consumeId);
-        // for (MesWmItemConsumeLineDO line : lines) {
-        //     materialStockService.decreaseStock(line.getItemId(), ..., line.getQuantity());
-        // }
+        MesWmWarehouseDO virtualWarehouse = warehouseService.getWarehouseByCode(MesWmWarehouseDO.WIP_VIRTUAL_WAREHOUSE);
+        MesWmWarehouseLocationDO virtualLocation = locationService.getWarehouseLocationByCode(MesWmWarehouseLocationDO.WIP_VIRTUAL_LOCATION);
+        MesWmWarehouseAreaDO virtualArea = areaService.getWarehouseAreaByCode(MesWmWarehouseAreaDO.WIP_VIRTUAL_AREA);
+
+        // 遍历消耗行，创建库存事务（从线边库扣减）
+        List<MesWmItemConsumeLineDO> lines = itemConsumeLineService.getItemConsumeLineListByConsumeId(consumeId);
+        for (MesWmItemConsumeLineDO line : lines) {
+            wmTransactionService.createTransaction(new MesWmTransactionSaveReqDTO()
+                    .setType(MesWmTransactionTypeEnum.OUT.getType()).setItemId(line.getItemId())
+                    .setQuantity(line.getQuantity().negate()) // 库存减少
+                    .setWarehouseId(virtualWarehouse.getId()).setLocationId(virtualLocation.getId()).setAreaId(virtualArea.getId())
+                    .setCheckFlag(false) // 线边库允许负库存
+                    .setBizType(MesBizTypeConstants.WM_ITEM_CONSUME).setBizId(consumeId)
+                    .setBizCode("").setBizLineId(line.getId()));
+        }
+
         // 更新消耗单状态为已完成
         itemConsumeMapper.updateById(MesWmItemConsumeDO.builder()
                 .id(consumeId).status(MesWmItemConsumeStatusEnum.FINISHED.getStatus()).build());

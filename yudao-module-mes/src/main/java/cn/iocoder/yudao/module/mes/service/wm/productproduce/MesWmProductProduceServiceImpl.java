@@ -14,8 +14,18 @@ import cn.iocoder.yudao.module.mes.dal.dataobject.wm.productproduce.MesWmProduct
 import cn.iocoder.yudao.module.mes.dal.mysql.wm.productproduce.MesWmProductProduceMapper;
 import cn.iocoder.yudao.module.mes.enums.wm.MesWmProductProduceStatusEnum;
 import cn.iocoder.yudao.module.mes.enums.wm.MesWmQualityStatusEnum;
+import cn.iocoder.yudao.module.mes.enums.MesBizTypeConstants;
+import cn.iocoder.yudao.module.mes.enums.wm.MesWmTransactionTypeEnum;
+import cn.iocoder.yudao.module.mes.dal.dataobject.wm.warehouse.MesWmWarehouseAreaDO;
+import cn.iocoder.yudao.module.mes.dal.dataobject.wm.warehouse.MesWmWarehouseDO;
+import cn.iocoder.yudao.module.mes.dal.dataobject.wm.warehouse.MesWmWarehouseLocationDO;
 import cn.iocoder.yudao.module.mes.service.pro.workorder.MesProWorkOrderService;
 import cn.iocoder.yudao.module.mes.service.wm.batch.MesWmBatchService;
+import cn.iocoder.yudao.module.mes.service.wm.transaction.MesWmTransactionService;
+import cn.iocoder.yudao.module.mes.service.wm.transaction.dto.MesWmTransactionSaveReqDTO;
+import cn.iocoder.yudao.module.mes.service.wm.warehouse.MesWmWarehouseAreaService;
+import cn.iocoder.yudao.module.mes.service.wm.warehouse.MesWmWarehouseLocationService;
+import cn.iocoder.yudao.module.mes.service.wm.warehouse.MesWmWarehouseService;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -47,6 +57,14 @@ public class MesWmProductProduceServiceImpl implements MesWmProductProduceServic
     private MesProWorkOrderService workOrderService;
     @Resource
     private MesWmBatchService batchService;
+    @Resource
+    private MesWmTransactionService wmTransactionService;
+    @Resource
+    private MesWmWarehouseService warehouseService;
+    @Resource
+    private MesWmWarehouseLocationService locationService;
+    @Resource
+    private MesWmWarehouseAreaService areaService;
 
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -59,8 +77,17 @@ public class MesWmProductProduceServiceImpl implements MesWmProductProduceServic
             throw exception(WM_PRODUCT_PRODUCE_NO_LINE);
         }
 
-        // 2. 校验每行明细数量之和等于行数量
+        // 2. 创建库存事务
+        createTransactionList(id, lines);
+
+        // 3. 更新入库单状态
+        productProduceMapper.updateById(new MesWmProductProduceDO()
+                .setId(id).setStatus(MesWmProductProduceStatusEnum.FINISHED.getStatus()));
+    }
+
+    private void createTransactionList(Long produceId, List<MesWmProductProduceLineDO> lines) {
         for (MesWmProductProduceLineDO line : lines) {
+            // 1. 校验每行明细数量之和等于行数量
             List<MesWmProductProduceDetailDO> details = productProduceDetailService.getProductProduceDetailListByLineId(
                     line.getId());
             BigDecimal totalDetailQty = CollectionUtils.getSumValue(details,
@@ -68,13 +95,17 @@ public class MesWmProductProduceServiceImpl implements MesWmProductProduceServic
             if (line.getQuantity() != null && totalDetailQty.compareTo(line.getQuantity()) != 0) {
                 throw exception(WM_PRODUCT_PRODUCE_DETAIL_QUANTITY_MISMATCH);
             }
+            // 2. 按明细创建库存事务（产品产出到线边库）
+            for (MesWmProductProduceDetailDO detail : details) {
+                wmTransactionService.createTransaction(new MesWmTransactionSaveReqDTO()
+                        .setType(MesWmTransactionTypeEnum.IN.getType()).setItemId(detail.getItemId())
+                        .setQuantity(detail.getQuantity())
+                        .setBatchId(detail.getBatchId()).setBatchCode(detail.getBatchCode())
+                        .setWarehouseId(detail.getWarehouseId()).setLocationId(detail.getLocationId()).setAreaId(detail.getAreaId())
+                        .setBizType(MesBizTypeConstants.WM_PRODUCT_PRODUCE).setBizId(produceId)
+                        .setBizCode("").setBizLineId(line.getId()));
+            }
         }
-
-        // TODO @AI（from codex）：对齐，这里还需要按产出明细执行库存入账，而不是只校验明细并更新单据状态。
-
-        // 3. 更新入库单状态
-        productProduceMapper.updateById(new MesWmProductProduceDO()
-                .setId(id).setStatus(MesWmProductProduceStatusEnum.FINISHED.getStatus()));
     }
 
     @Override
@@ -106,6 +137,11 @@ public class MesWmProductProduceServiceImpl implements MesWmProductProduceServic
         Long batchId = batch != null ? batch.getId() : null;
         String batchCode = batch != null ? batch.getCode() : null;
 
+        // 1.5 获取虚拟线边库
+        MesWmWarehouseDO virtualWarehouse = warehouseService.getWarehouseByCode(MesWmWarehouseDO.WIP_VIRTUAL_WAREHOUSE);
+        MesWmWarehouseLocationDO virtualLocation = locationService.getWarehouseLocationByCode(MesWmWarehouseLocationDO.WIP_VIRTUAL_LOCATION);
+        MesWmWarehouseAreaDO virtualArea = areaService.getWarehouseAreaByCode(MesWmWarehouseAreaDO.WIP_VIRTUAL_AREA);
+
         // 3. 根据是否需要检验分支处理
         if (checkFlag) {
             // 3.1 需要检验：创建一条行（质量状态=待检验），不生成明细
@@ -123,7 +159,8 @@ public class MesWmProductProduceServiceImpl implements MesWmProductProduceServic
                         unqualifiedQty, MesWmQualityStatusEnum.FAIL.getStatus());
                 productProduceLineService.createProductProduceLine(unqualifiedLine);
                 MesWmProductProduceDetailDO unqualifiedDetail = buildProduceDetail(produce, feedback, batchId, batchCode,
-                        unqualifiedLine.getId(), unqualifiedQty);
+                        unqualifiedLine.getId(), unqualifiedQty,
+                        virtualWarehouse.getId(), virtualLocation.getId(), virtualArea.getId());
                 productProduceDetailService.createProductProduceDetail(unqualifiedDetail);
             }
             // 3.2.2 合格品行 + 明细
@@ -132,7 +169,8 @@ public class MesWmProductProduceServiceImpl implements MesWmProductProduceServic
                         qualifiedQty, MesWmQualityStatusEnum.PASS.getStatus());
                 productProduceLineService.createProductProduceLine(qualifiedLine);
                 MesWmProductProduceDetailDO qualifiedDetail = buildProduceDetail(produce, feedback, batchId, batchCode,
-                        qualifiedLine.getId(), qualifiedQty);
+                        qualifiedLine.getId(), qualifiedQty,
+                        virtualWarehouse.getId(), virtualLocation.getId(), virtualArea.getId());
                 productProduceDetailService.createProductProduceDetail(qualifiedDetail);
             }
         }
@@ -153,12 +191,13 @@ public class MesWmProductProduceServiceImpl implements MesWmProductProduceServic
 
     private MesWmProductProduceDetailDO buildProduceDetail(MesWmProductProduceDO produce, MesProFeedbackDO feedback,
                                                            Long batchId, String batchCode,
-                                                           Long lineId, BigDecimal quantity) {
+                                                           Long lineId, BigDecimal quantity,
+                                                           Long warehouseId, Long locationId, Long areaId) {
         return MesWmProductProduceDetailDO.builder()
                 .produceId(produce.getId()).lineId(lineId)
                 .itemId(feedback.getItemId()).quantity(quantity)
                 .batchId(batchId).batchCode(batchCode)
-                // TODO @AI（from codex）：对齐 产出明细需要补齐虚拟仓/库区/库位（VIRTUAL_WH/VIRTUAL_WS/VIRTUAL_WA），否则后续库存入账定位不完整。
+                .warehouseId(warehouseId).locationId(locationId).areaId(areaId)
                 .build();
     }
 
