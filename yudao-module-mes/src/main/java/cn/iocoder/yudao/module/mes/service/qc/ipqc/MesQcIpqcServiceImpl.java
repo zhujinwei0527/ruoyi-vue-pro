@@ -6,6 +6,8 @@ import cn.iocoder.yudao.framework.common.pojo.PageResult;
 import cn.iocoder.yudao.framework.common.util.object.BeanUtils;
 import cn.iocoder.yudao.module.mes.controller.admin.qc.ipqc.vo.MesQcIpqcPageReqVO;
 import cn.iocoder.yudao.module.mes.controller.admin.qc.ipqc.vo.MesQcIpqcSaveReqVO;
+import cn.iocoder.yudao.module.mes.dal.dataobject.md.workstation.MesMdWorkstationDO;
+import cn.iocoder.yudao.module.mes.dal.dataobject.pro.route.MesProRouteProductDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.pro.workorder.MesProWorkOrderDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.qc.defectrecord.MesQcDefectRecordDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.qc.ipqc.MesQcIpqcDO;
@@ -18,6 +20,8 @@ import cn.iocoder.yudao.module.mes.enums.MesBizTypeConstants;
 import cn.iocoder.yudao.module.mes.service.md.item.MesMdItemService;
 import cn.iocoder.yudao.module.mes.service.md.workstation.MesMdWorkstationService;
 import cn.iocoder.yudao.module.mes.service.pro.feedback.MesProFeedbackService;
+import cn.iocoder.yudao.module.mes.service.pro.route.MesProRouteProcessService;
+import cn.iocoder.yudao.module.mes.service.pro.route.MesProRouteProductService;
 import cn.iocoder.yudao.module.mes.service.pro.workorder.MesProWorkOrderService;
 import cn.iocoder.yudao.module.mes.service.qc.defectrecord.MesQcDefectRecordService;
 import cn.iocoder.yudao.module.mes.service.qc.template.MesQcTemplateDetailService;
@@ -65,6 +69,12 @@ public class MesQcIpqcServiceImpl implements MesQcIpqcService {
     @Resource
     @Lazy
     private MesQcDefectRecordService defectRecordService;
+    @Resource
+    @Lazy
+    private MesProRouteProductService routeProductService;
+    @Resource
+    @Lazy
+    private MesProRouteProcessService routeProcessService;
 
     @Resource
     private AdminUserApi adminUserApi;
@@ -77,21 +87,21 @@ public class MesQcIpqcServiceImpl implements MesQcIpqcService {
     public Long createIpqc(MesQcIpqcSaveReqVO createReqVO) {
         // 1.1 校验编号唯一
         validateIpqcCodeUnique(null, createReqVO.getCode());
-        // 1.2 校验工单、工位、检测人员、物料存在
+        // 1.2 校验工单、工位、检测人员存在
         MesProWorkOrderDO workOrder = workOrderService.validateWorkOrderExists(createReqVO.getWorkOrderId());
-        workstationService.validateWorkstationExists(createReqVO.getWorkstationId());
+        MesMdWorkstationDO workstation = workstationService.validateWorkstationExists(createReqVO.getWorkstationId());
         adminUserApi.validateUser(createReqVO.getInspectorUserId());
-        itemService.validateItemExists(createReqVO.getItemId());
         // 1.3 根据产品 + 检验类型自动匹配模板
         MesQcTemplateItemDO templateItem = templateDetailService.getRequiredTemplateByItemIdAndType(
                 workOrder.getProductId(), MesQcTypeEnum.IPQC.getType());
         Long templateId = templateItem.getTemplateId();
-        // TODO @AI：processId 不应该是前端传递，而是通过 workstation + work order + route 表，联合查询出来的；
 
         // 2. 插入主表
-        MesQcIpqcDO ipqc = BeanUtils.toBean(createReqVO, MesQcIpqcDO.class);
-        ipqc.setItemId(workOrder.getProductId());
-        ipqc.setTemplateId(templateId).setStatus(MesQcStatusEnum.DRAFT.getStatus());
+        MesQcIpqcDO ipqc = BeanUtils.toBean(createReqVO, MesQcIpqcDO.class)
+                .setItemId(workOrder.getProductId())
+                .setProcessId(getProcessId(workOrder.getProductId(), workstation.getProcessId()))
+                .setTemplateId(templateId)
+                .setStatus(MesQcStatusEnum.DRAFT.getStatus());
         ipqcMapper.insert(ipqc);
 
         // 3. 从模板指标自动生成检验行
@@ -105,18 +115,18 @@ public class MesQcIpqcServiceImpl implements MesQcIpqcService {
         validateIpqcStatusPrepare(updateReqVO.getId());
         // 1.2 校验编号唯一
         validateIpqcCodeUnique(updateReqVO.getId(), updateReqVO.getCode());
-        // 1.3 校验工单、工位、检测人员、物料存在
-        workOrderService.validateWorkOrderExists(updateReqVO.getWorkOrderId());
-        workstationService.validateWorkstationExists(updateReqVO.getWorkstationId());
+        // 1.3 校验工位、检测人员存在
+        MesMdWorkstationDO workstation = workstationService.validateWorkstationExists(updateReqVO.getWorkstationId());
         adminUserApi.validateUser(updateReqVO.getInspectorUserId());
-        itemService.validateItemExists(updateReqVO.getItemId());
 
         // 2. 更新主表
+        MesQcIpqcDO existIpqc = validateIpqcExists(updateReqVO.getId());
         MesQcIpqcDO updateObj = BeanUtils.toBean(updateReqVO, MesQcIpqcDO.class);
         updateObj.setSourceDocType(null).setSourceDocId(null).setSourceLineId(null); // 不允许修改来源单据
         updateObj.setTemplateId(null); // 不允许修改模板
         updateObj.setItemId(null); // 不允许修改物料
         updateObj.setWorkOrderId(null); // 不允许修改工单
+        updateObj.setProcessId(getProcessId(existIpqc.getItemId(), workstation.getProcessId()));
         ipqcMapper.updateById(updateObj);
     }
 
@@ -212,6 +222,33 @@ public class MesQcIpqcServiceImpl implements MesQcIpqcService {
         if (ObjUtil.notEqual(ipqc.getId(), id)) {
             throw exception(QC_IPQC_CODE_DUPLICATE);
         }
+    }
+
+    /**
+     * 推导工序 ID：对齐 KTG getProcessInfo() 逻辑
+     *
+     * <p>通过产品 → 工艺路线产品 → 工艺路线 → 校验工位工序是否在该路线中
+     * <p>如果工位的工序在路线中，则返回该 processId；否则返回 null
+     *
+     * @param productId 产品 ID（工单产品）
+     * @param workstationProcessId 工位关联的工序 ID
+     * @return 推导出的工序 ID，无法推导时返回 null
+     */
+    private Long getProcessId(Long productId, Long workstationProcessId) {
+        if (productId == null || workstationProcessId == null) {
+            return null;
+        }
+        // 1. 产品 → 工艺路线
+        MesProRouteProductDO routeProduct = routeProductService.getRouteProductByItemId(productId);
+        if (routeProduct == null) {
+            return null;
+        }
+        // 2. 校验工位的工序是否在该路线中
+        if (routeProcessService.getRouteProcessByRouteIdAndProcessId(
+                routeProduct.getRouteId(), workstationProcessId) == null) {
+            return null;
+        }
+        return workstationProcessId;
     }
 
     @Override

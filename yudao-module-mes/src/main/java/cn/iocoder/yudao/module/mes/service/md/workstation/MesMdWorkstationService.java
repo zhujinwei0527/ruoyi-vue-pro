@@ -45,8 +45,9 @@ public interface MesMdWorkstationService {
      * 校验工作站存在
      *
      * @param id 编号
+     * @return 工作站
      */
-    void validateWorkstationExists(Long id);
+    MesMdWorkstationDO validateWorkstationExists(Long id);
 
     /**
      * 获得工作站

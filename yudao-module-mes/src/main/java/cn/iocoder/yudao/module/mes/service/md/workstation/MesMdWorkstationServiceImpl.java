@@ -121,10 +121,12 @@ public class MesMdWorkstationServiceImpl implements MesMdWorkstationService {
     }
 
     @Override
-    public void validateWorkstationExists(Long id) {
-        if (workstationMapper.selectById(id) == null) {
+    public MesMdWorkstationDO validateWorkstationExists(Long id) {
+        MesMdWorkstationDO workstation = workstationMapper.selectById(id);
+        if (workstation == null) {
             throw exception(MD_WORKSTATION_NOT_EXISTS);
         }
+        return workstation;
     }
 
     private void validateWorkshopExists(Long workshopId) {
