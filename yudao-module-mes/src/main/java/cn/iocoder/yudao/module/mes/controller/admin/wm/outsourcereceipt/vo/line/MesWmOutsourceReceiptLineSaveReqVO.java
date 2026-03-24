@@ -41,6 +41,9 @@ public class MesWmOutsourceReceiptLineSaveReqVO {
     @Schema(description = "生产批号", example = "PB20260301")
     private String lotNumber;
 
+    @Schema(description = "是否需要质检")
+    private Boolean iqcCheck;
+
     @Schema(description = "备注", example = "备注")
     private String remark;
 
