@@ -45,7 +45,7 @@ public class MesQcPendingInspectRespVO {
     // ========== 数量 ==========
 
     @Schema(description = "待检数量", example = "100.00")
-    private BigDecimal quantityToCheck;
+    private BigDecimal quantity;
 
     // ========== 供应商（IQC 场景） ==========
 

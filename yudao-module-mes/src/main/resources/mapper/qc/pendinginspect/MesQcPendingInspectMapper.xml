@@ -20,7 +20,7 @@
                 n.arrival_date AS recordTime,
                 ${@cn.iocoder.yudao.module.mes.enums.qc.MesQcTypeEnum@IQC.type} AS qcType,
                 l.item_id AS itemId,
-                l.arrival_quantity AS quantityToCheck,
+                l.arrival_quantity AS quantity,
                 n.vendor_id AS vendorId
             FROM mes_wm_arrival_notice n
                 JOIN mes_wm_arrival_notice_line l ON n.id = l.notice_id
@@ -41,7 +41,7 @@
                 r.receipt_date AS recordTime,
                 ${@cn.iocoder.yudao.module.mes.enums.qc.MesQcTypeEnum@IQC.type} AS qcType,
                 rl.item_id AS itemId,
-                rl.quantity AS quantityToCheck,
+                rl.quantity AS quantity,
                 r.vendor_id AS vendorId
             FROM mes_wm_outsource_receipt r
                 JOIN mes_wm_outsource_receipt_line rl ON r.id = rl.receipt_id
