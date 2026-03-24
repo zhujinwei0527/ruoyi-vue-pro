@@ -6,6 +6,8 @@ import cn.iocoder.yudao.module.mes.controller.admin.pro.feedback.vo.MesProFeedba
 import cn.iocoder.yudao.module.mes.dal.dataobject.pro.feedback.MesProFeedbackDO;
 import jakarta.validation.Valid;
 
+import java.math.BigDecimal;
+
 /**
  * MES 生产报工 Service 接口
  *
@@ -86,6 +88,22 @@ public interface MesProFeedbackService {
      * @return true=已完成, false=待检验（需等质检回调）
      */
     boolean approveFeedback(Long id, Long userId);
+
+    /**
+     * IPQC 完成后回调：完成报工单并更新任务/工单进度
+     *
+     * <p>由 IPQC 检验完成时调用，将报工单状态从待检验改为已完成，
+     * 并根据检验结果回写合格/不合格/废品数量，同时更新任务/工单的已生产数量。
+     *
+     * @param feedbackId          报工记录 ID
+     * @param qualifiedQty        合格品数量
+     * @param unqualifiedQty      不合格品数量
+     * @param laborScrapQty       工废数量
+     * @param materialScrapQty    料废数量
+     * @param otherScrapQty       其他废品数量
+     */
+    void completeFeedbackFromIpqc(Long feedbackId, BigDecimal qualifiedQty, BigDecimal unqualifiedQty,
+                                  BigDecimal laborScrapQty, BigDecimal materialScrapQty, BigDecimal otherScrapQty);
 
 }
 

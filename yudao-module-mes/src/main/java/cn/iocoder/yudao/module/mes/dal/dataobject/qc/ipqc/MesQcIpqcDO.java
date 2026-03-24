@@ -5,6 +5,7 @@ import cn.iocoder.yudao.module.mes.dal.dataobject.md.item.MesMdItemDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.md.workstation.MesMdWorkstationDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.pro.workorder.MesProWorkOrderDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.qc.template.MesQcTemplateDO;
+import cn.iocoder.yudao.module.mes.enums.qc.MesQcSourceDocTypeEnum;
 import cn.iocoder.yudao.module.mes.enums.qc.MesQcStatusEnum;
 import com.baomidou.mybatisplus.annotation.KeySequence;
 import com.baomidou.mybatisplus.annotation.TableId;
@@ -55,18 +56,26 @@ public class MesQcIpqcDO extends BaseDO {
      */
     private Long templateId;
 
-    // ========== 来源单据（TODO @芋艿：PRO/WM 模块联动后接入） ==========
+    // ========== 来源单据 ==========
 
     /**
+     * 来源单据类型
+     *
+     * 枚举 {@link MesQcSourceDocTypeEnum}
+     */
+    private Integer sourceDocType;
+    /**
      * 来源单据 ID
+     *
+     * 关联：根据 {@link #sourceDocType} 不同：
+     * 1. {@link MesQcSourceDocTypeEnum#FEEDBACK} 时，关联 {@link cn.iocoder.yudao.module.mes.dal.dataobject.pro.feedback.MesProFeedbackDO#getId()}
      */
     private Long sourceDocId;
     /**
-     * 来源单据类型
-     */
-    private String sourceDocType;
-    /**
      * 来源单据行 ID
+     *
+     * 关联：根据 {@link #sourceDocType} 不同：
+     * 1. {@link MesQcSourceDocTypeEnum#FEEDBACK} 时，暂不使用（预留）
      */
     private Long sourceLineId;
 

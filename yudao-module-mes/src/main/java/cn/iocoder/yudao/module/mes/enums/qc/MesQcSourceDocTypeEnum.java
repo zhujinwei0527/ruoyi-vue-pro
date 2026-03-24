@@ -17,7 +17,8 @@ import java.util.Arrays;
 public enum MesQcSourceDocTypeEnum implements ArrayValuable<Integer> {
 
     ARRIVAL_NOTICE(MesBizTypeConstants.WM_ARRIVAL_NOTICE, "到货通知单"),
-    // OUTSOURCE_RECPT(MesBizTypeConstants.WM_OUTSOURCE_RECPT, "外协入库单"), // TODO 未实现，占位
+    OUTSOURCE_RECPT(MesBizTypeConstants.WM_OUTSOURCE_RECPT, "外协入库单"),
+    FEEDBACK(MesBizTypeConstants.PRO_FEEDBACK, "生产报工"),
     ;
 
     public static final Integer[] ARRAYS = Arrays.stream(values()).map(MesQcSourceDocTypeEnum::getType).toArray(Integer[]::new);

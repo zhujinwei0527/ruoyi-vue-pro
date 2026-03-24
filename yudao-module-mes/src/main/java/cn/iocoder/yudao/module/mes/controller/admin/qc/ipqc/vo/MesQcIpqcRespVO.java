@@ -37,8 +37,8 @@ public class MesQcIpqcRespVO {
     @Schema(description = "来源单据 ID", example = "200")
     private Long sourceDocId;
 
-    @Schema(description = "来源单据类型", example = "FEEDBACK")
-    private String sourceDocType;
+    @Schema(description = "来源单据类型", example = "304")
+    private Integer sourceDocType;
 
     @Schema(description = "来源单据编号", example = "FB20250101001")
     private String sourceDocCode;

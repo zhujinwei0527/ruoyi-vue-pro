@@ -3,6 +3,8 @@ package cn.iocoder.yudao.module.mes.service.wm.productproduce;
 import cn.iocoder.yudao.module.mes.dal.dataobject.pro.feedback.MesProFeedbackDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.wm.productproduce.MesWmProductProduceDO;
 
+import java.math.BigDecimal;
+
 /**
  * MES 生产入库单 Service 接口
  */
@@ -31,5 +33,17 @@ public interface MesWmProductProduceService {
      * @return 生成的产品产出单
      */
     MesWmProductProduceDO generateProductProduce(MesProFeedbackDO feedback, boolean checkFlag);
+
+    /**
+     * IPQC 检验完成回调：将待检产出拆分为合格/不合格行、生成明细、完成入库
+     *
+     * <p>调用场景：IPQC 完成时，需要将之前 {@link #generateProductProduce} 生成的
+     * 待检产出（{@code checkFlag=true}）按检验结果拆分行，并执行入库。
+     *
+     * @param feedbackId      报工记录 ID
+     * @param qualifiedQty    合格品数量
+     * @param unqualifiedQty  不合格品数量
+     */
+    void splitPendingAndFinishProduce(Long feedbackId, BigDecimal qualifiedQty, BigDecimal unqualifiedQty);
 
 }

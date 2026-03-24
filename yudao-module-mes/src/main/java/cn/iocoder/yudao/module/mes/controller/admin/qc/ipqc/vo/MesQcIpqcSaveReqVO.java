@@ -33,8 +33,8 @@ public class MesQcIpqcSaveReqVO {
 
     // ========== 来源单据 ==========
 
-    @Schema(description = "来源单据类型", example = "FEEDBACK")
-    private String sourceDocType;
+    @Schema(description = "来源单据类型", example = "304")
+    private Integer sourceDocType;
 
     @Schema(description = "来源单据 ID", example = "200")
     private Long sourceDocId;

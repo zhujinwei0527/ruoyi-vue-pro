@@ -165,8 +165,7 @@ public class MesProFeedbackServiceImpl implements MesProFeedbackService {
         if (keyFlag) {
             // 4.1 需要检验：生成产出单（质量状态=待检验），更新报工状态为待检验，等质检完成回调后再入库
             if (checkFlag) {
-                // TODO @AI（from codex）：当前这里只生成待检产出并把报工置为待检验；后续还需要在 IPQC 完成时继续拆分产出行、完成产出入库、
-                //  回写任务/工单进度，并把报工状态改为已完成。
+                // 完成时回调见：MesQcIpqcServiceImpl#finishIpqc → splitPendingAndFinishProduce + completeFeedbackFromIpqc
                 productProduceService.generateProductProduce(feedback, true);
                 feedbackMapper.updateById(new MesProFeedbackDO().setId(id)
                         .setStatus(MesProFeedbackStatusEnum.UNCHECK.getStatus()));
@@ -282,6 +281,34 @@ public class MesProFeedbackServiceImpl implements MesProFeedbackService {
 
         // 4. 校验任务存在且未终态（已完成/已取消），并返回任务用于冗余 itemId
         return taskService.validateTaskNotFinished(reqVO.getTaskId());
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void completeFeedbackFromIpqc(Long feedbackId, BigDecimal qualifiedQty, BigDecimal unqualifiedQty,
+                                         BigDecimal laborScrapQty, BigDecimal materialScrapQty, BigDecimal otherScrapQty) {
+        // 1. 校验报工单存在且为待检验状态
+        MesProFeedbackDO feedback = validateFeedbackExists(feedbackId);
+        if (ObjUtil.notEqual(feedback.getStatus(), MesProFeedbackStatusEnum.UNCHECK.getStatus())) {
+            throw exception(PRO_FEEDBACK_NOT_UNCHECK);
+        }
+
+        // 2. 拆分待检产出行（合格/不合格），生成明细，完成产出入库
+        productProduceService.splitPendingAndFinishProduce(feedbackId, qualifiedQty, unqualifiedQty);
+
+        // 3. 回写合格/不合格/废品数量，更新状态为已完成
+        feedbackMapper.updateById(new MesProFeedbackDO().setId(feedbackId)
+                .setQualifiedQuantity(qualifiedQty)
+                .setUnqualifiedQuantity(unqualifiedQty)
+                .setUncheckQuantity(BigDecimal.ZERO)
+                .setLaborScrapQuantity(laborScrapQty)
+                .setMaterialScrapQuantity(materialScrapQty)
+                .setOtherScrapQuantity(otherScrapQty)
+                .setStatus(MesProFeedbackStatusEnum.FINISHED.getStatus()));
+
+        // 4. 更新任务/工单的已生产数量
+        feedback.setQualifiedQuantity(qualifiedQty).setUnqualifiedQuantity(unqualifiedQty);
+        updateTaskAndWorkOrderByFeedback(feedback);
     }
 
 }

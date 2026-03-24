@@ -26,6 +26,11 @@ public class MesWmProductProduceLineServiceImpl implements MesWmProductProduceLi
     }
 
     @Override
+    public void updateProductProduceLine(MesWmProductProduceLineDO line) {
+        productProduceLineMapper.updateById(line);
+    }
+
+    @Override
     public List<MesWmProductProduceLineDO> getProductProduceLineListByProduceId(Long produceId) {
         return productProduceLineMapper.selectListByProduceId(produceId);
     }

@@ -1,6 +1,7 @@
 package cn.iocoder.yudao.module.mes.service.qc.ipqc;
 
 import cn.hutool.core.util.ObjUtil;
+import cn.hutool.core.util.ObjectUtil;
 import cn.iocoder.yudao.framework.common.pojo.PageResult;
 import cn.iocoder.yudao.framework.common.util.object.BeanUtils;
 import cn.iocoder.yudao.module.mes.controller.admin.qc.ipqc.vo.MesQcIpqcPageReqVO;
@@ -13,8 +14,10 @@ import cn.iocoder.yudao.module.mes.dal.mysql.qc.ipqc.MesQcIpqcMapper;
 import cn.iocoder.yudao.module.mes.enums.qc.MesQcDefectLevelEnum;
 import cn.iocoder.yudao.module.mes.enums.qc.MesQcStatusEnum;
 import cn.iocoder.yudao.module.mes.enums.qc.MesQcTypeEnum;
+import cn.iocoder.yudao.module.mes.enums.MesBizTypeConstants;
 import cn.iocoder.yudao.module.mes.service.md.item.MesMdItemService;
 import cn.iocoder.yudao.module.mes.service.md.workstation.MesMdWorkstationService;
+import cn.iocoder.yudao.module.mes.service.pro.feedback.MesProFeedbackService;
 import cn.iocoder.yudao.module.mes.service.pro.workorder.MesProWorkOrderService;
 import cn.iocoder.yudao.module.mes.service.qc.defectrecord.MesQcDefectRecordService;
 import cn.iocoder.yudao.module.mes.service.qc.template.MesQcTemplateDetailService;
@@ -42,6 +45,7 @@ import static cn.iocoder.yudao.module.mes.enums.ErrorCodeConstants.*;
 @Validated
 public class MesQcIpqcServiceImpl implements MesQcIpqcService {
 
+
     @Resource
     private MesQcIpqcMapper ipqcMapper;
 
@@ -64,6 +68,9 @@ public class MesQcIpqcServiceImpl implements MesQcIpqcService {
 
     @Resource
     private AdminUserApi adminUserApi;
+    @Resource
+    @Lazy
+    private MesProFeedbackService feedbackService;
 
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -114,6 +121,7 @@ public class MesQcIpqcServiceImpl implements MesQcIpqcService {
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public void finishIpqc(Long id) {
         // 1.1 校验存在 + 草稿状态
         MesQcIpqcDO ipqc = validateIpqcStatusPrepare(id);
@@ -123,12 +131,40 @@ public class MesQcIpqcServiceImpl implements MesQcIpqcService {
         }
 
         // 2. 更新状态为已完成
-        MesQcIpqcDO updateObj = new MesQcIpqcDO()
-                .setId(id).setStatus(MesQcStatusEnum.FINISHED.getStatus());
-        ipqcMapper.updateById(updateObj);
+        ipqcMapper.updateById(new MesQcIpqcDO()
+                .setId(id).setStatus(MesQcStatusEnum.FINISHED.getStatus()));
 
-        // TODO @AI（from codex）：如果检验来源是报工，需要对待检产出按检验结果拆分合格/不合格行、生成产出明细、完成产品产出入库、
-        //  回写任务/工单数量，并将报工状态从待检验改为已完成。
+        // 3. 回写来源单据
+        writeBackSourceDoc(ipqc);
+    }
+
+    /**
+     * 回写来源单据（IPQC 完成后）
+     *
+     * <p>当来源为报工时，拆分待检产出行、完成产出入库、回写报工状态和任务/工单进度
+     *
+     * @param ipqc 过程检验单
+     */
+    private void writeBackSourceDoc(MesQcIpqcDO ipqc) {
+        if (ipqc.getSourceDocType() == null) {
+            return;
+        }
+        if (ipqc.getSourceDocId() == null) {
+            throw new IllegalArgumentException(
+                    "IPQC 单[" + ipqc.getId() + "] sourceDocType 非空但 sourceDocId 为空");
+        }
+
+        if (Objects.equals(ipqc.getSourceDocType(), MesBizTypeConstants.PRO_FEEDBACK)) {
+            feedbackService.completeFeedbackFromIpqc(ipqc.getSourceDocId(),
+                    ObjectUtil.defaultIfNull(ipqc.getQualifiedQuantity(), BigDecimal.ZERO),
+                    ObjectUtil.defaultIfNull(ipqc.getUnqualifiedQuantity(), BigDecimal.ZERO),
+                    ObjectUtil.defaultIfNull(ipqc.getLaborScrapQuantity(), BigDecimal.ZERO),
+                    ObjectUtil.defaultIfNull(ipqc.getMaterialScrapQuantity(), BigDecimal.ZERO),
+                    ObjectUtil.defaultIfNull(ipqc.getOtherScrapQuantity(), BigDecimal.ZERO));
+        } else {
+            throw new IllegalArgumentException(
+                    "IPQC 单[" + ipqc.getId() + "] sourceDocType=" + ipqc.getSourceDocType() + " 无法识别，无法回写来源单据");
+        }
     }
 
     @Override

@@ -12,4 +12,8 @@ import org.apache.ibatis.annotations.Mapper;
 @Mapper
 public interface MesWmProductProduceMapper extends BaseMapperX<MesWmProductProduceDO> {
 
+    default MesWmProductProduceDO selectByFeedbackId(Long feedbackId) {
+        return selectOne(MesWmProductProduceDO::getFeedbackId, feedbackId);
+    }
+
 }

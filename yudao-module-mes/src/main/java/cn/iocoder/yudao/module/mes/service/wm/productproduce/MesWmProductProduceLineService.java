@@ -19,6 +19,13 @@ public interface MesWmProductProduceLineService {
     void createProductProduceLine(MesWmProductProduceLineDO line);
 
     /**
+     * 更新生产入库单行（内部使用）
+     *
+     * @param line 行数据
+     */
+    void updateProductProduceLine(MesWmProductProduceLineDO line);
+
+    /**
      * 根据入库单 ID 获取行列表
      *
      * @param produceId 入库单 ID

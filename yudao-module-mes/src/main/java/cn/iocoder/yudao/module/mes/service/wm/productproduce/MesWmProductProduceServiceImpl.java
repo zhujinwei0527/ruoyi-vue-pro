@@ -221,4 +221,70 @@ public class MesWmProductProduceServiceImpl implements MesWmProductProduceServic
         return produce;
     }
 
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void splitPendingAndFinishProduce(Long feedbackId, BigDecimal qualifiedQty, BigDecimal unqualifiedQty) {
+        // 1.1 查询产出单
+        MesWmProductProduceDO produce = productProduceMapper.selectByFeedbackId(feedbackId);
+        if (produce == null) {
+            throw exception(WM_PRODUCT_PRODUCE_NOT_EXISTS);
+        }
+        // 1.2 获取虚拟线边库
+        MesWmWarehouseDO virtualWarehouse = warehouseService.getWarehouseByCode(MesWmWarehouseDO.WIP_VIRTUAL_WAREHOUSE);
+        MesWmWarehouseLocationDO virtualLocation = locationService.getWarehouseLocationByCode(MesWmWarehouseLocationDO.WIP_VIRTUAL_LOCATION);
+        MesWmWarehouseAreaDO virtualArea = areaService.getWarehouseAreaByCode(MesWmWarehouseAreaDO.WIP_VIRTUAL_AREA);
+
+        // 2. 查找待检验行（checkFlag=true 时只有一行 PENDING）
+        List<MesWmProductProduceLineDO> lines = productProduceLineService.getProductProduceLineListByProduceId(produce.getId());
+        // TODO @AI：hutool 的 findOne 方法，替代掉 stream；手动 if 判断为空，抛出异常；
+        MesWmProductProduceLineDO pendingLine = lines.stream()
+                .filter(l -> ObjUtil.equal(l.getQualityStatus(), MesWmQualityStatusEnum.PENDING.getStatus()))
+                .findFirst()
+                .orElseThrow(() -> exception(WM_PRODUCT_PRODUCE_LINE_NOT_EXISTS));
+
+        // 3A. 情况一：存在不合格品数量，需要拆分行
+        if (unqualifiedQty != null && unqualifiedQty.compareTo(BigDecimal.ZERO) > 0) {
+            // 3A.1 不合格品：新建一行 + 明细
+            MesWmProductProduceLineDO unqualifiedLine = MesWmProductProduceLineDO.builder()
+                    .produceId(produce.getId()).feedbackId(feedbackId)
+                    .itemId(pendingLine.getItemId()).quantity(unqualifiedQty)
+                    .batchId(pendingLine.getBatchId()).batchCode(pendingLine.getBatchCode())
+                    .expireDate(pendingLine.getExpireDate()).lotNumber(pendingLine.getLotNumber())
+                    .qualityStatus(MesWmQualityStatusEnum.FAIL.getStatus())
+                    .build();
+            productProduceLineService.createProductProduceLine(unqualifiedLine);
+            productProduceDetailService.createProductProduceDetail(MesWmProductProduceDetailDO.builder()
+                    .produceId(produce.getId()).lineId(unqualifiedLine.getId())
+                    .itemId(pendingLine.getItemId()).quantity(unqualifiedQty)
+                    .batchId(pendingLine.getBatchId()).batchCode(pendingLine.getBatchCode())
+                    .warehouseId(virtualWarehouse.getId()).locationId(virtualLocation.getId()).areaId(virtualArea.getId())
+                    .build());
+            // 3A.2 合格品：复用原待检行，更新数量和状态 + 明细
+            pendingLine.setQuantity(ObjectUtil.defaultIfNull(qualifiedQty, BigDecimal.ZERO));
+            pendingLine.setQualityStatus(MesWmQualityStatusEnum.PASS.getStatus());
+            productProduceLineService.updateProductProduceLine(pendingLine);
+            if (qualifiedQty != null && qualifiedQty.compareTo(BigDecimal.ZERO) > 0) {
+                productProduceDetailService.createProductProduceDetail(MesWmProductProduceDetailDO.builder()
+                        .produceId(produce.getId()).lineId(pendingLine.getId())
+                        .itemId(pendingLine.getItemId()).quantity(qualifiedQty)
+                        .batchId(pendingLine.getBatchId()).batchCode(pendingLine.getBatchCode())
+                        .warehouseId(virtualWarehouse.getId()).locationId(virtualLocation.getId()).areaId(virtualArea.getId())
+                        .build());
+            }
+        } else {
+            // 3B. 情况二：全部合格，直接更新行状态 + 明细
+            pendingLine.setQualityStatus(MesWmQualityStatusEnum.PASS.getStatus());
+            productProduceLineService.updateProductProduceLine(pendingLine);
+            productProduceDetailService.createProductProduceDetail(MesWmProductProduceDetailDO.builder()
+                    .produceId(produce.getId()).lineId(pendingLine.getId())
+                    .itemId(pendingLine.getItemId()).quantity(pendingLine.getQuantity())
+                    .batchId(pendingLine.getBatchId()).batchCode(pendingLine.getBatchCode())
+                    .warehouseId(virtualWarehouse.getId()).locationId(virtualLocation.getId()).areaId(virtualArea.getId())
+                    .build());
+        }
+
+        // 4. 完成产出单（创建库存事务 + 更新状态为已完成）
+        finishProductProduce(produce.getId());
+    }
+
 }
