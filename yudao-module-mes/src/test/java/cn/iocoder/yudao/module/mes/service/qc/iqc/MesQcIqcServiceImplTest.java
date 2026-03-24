@@ -58,7 +58,7 @@ public class MesQcIqcServiceImplTest extends BaseDbUnitTest {
 
     @Test
     public void testFinishIqc_writeBack_arrivalNotice() {
-        // mock 数据：插入一条草稿状态的 IQC 单，来源为到货通知单
+        // 准备数据：插入一条草稿状态的 IQC 单，来源为到货通知单
         Long sourceDocId = randomLongId();
         Long sourceLineId = randomLongId();
         MesQcIqcDO iqc = randomPojo(MesQcIqcDO.class, o -> {
@@ -79,16 +79,16 @@ public class MesQcIqcServiceImplTest extends BaseDbUnitTest {
         MesQcIqcDO updatedIqc = iqcMapper.selectById(iqc.getId());
         assertEquals(MesQcStatusEnum.FINISHED.getStatus(), updatedIqc.getStatus());
         // 断言：验证回写到货通知单（参数使用 any 避免 BigDecimal 精度问题）
-        verify(arrivalNoticeService).approveArrivalNoticeWhenIqcComplete(
+        verify(arrivalNoticeService).updateArrivalNoticeWhenIqcFinish(
                 eq(sourceDocId), eq(sourceLineId), eq(iqc.getId()), any(BigDecimal.class));
         // 断言：不应该调用外协入库单的回写
-        verify(outsourceReceiptService, never()).approveOutsourceReceiptWhenIqcComplete(
+        verify(outsourceReceiptService, never()).updateOutsourceReceiptWhenIqcFinish(
                 anyLong(), anyLong(), anyLong(), any(), any());
     }
 
     @Test
     public void testFinishIqc_writeBack_outsourceReceipt() {
-        // mock 数据：插入一条草稿状态的 IQC 单，来源为外协入库单
+        // 准备数据：插入一条草稿状态的 IQC 单，来源为外协入库单
         Long sourceDocId = randomLongId();
         Long sourceLineId = randomLongId();
         MesQcIqcDO iqc = randomPojo(MesQcIqcDO.class, o -> {
@@ -109,16 +109,16 @@ public class MesQcIqcServiceImplTest extends BaseDbUnitTest {
         MesQcIqcDO updatedIqc = iqcMapper.selectById(iqc.getId());
         assertEquals(MesQcStatusEnum.FINISHED.getStatus(), updatedIqc.getStatus());
         // 断言：验证回写外协入库单（参数使用 any 避免 BigDecimal 精度问题）
-        verify(outsourceReceiptService).approveOutsourceReceiptWhenIqcComplete(
+        verify(outsourceReceiptService).updateOutsourceReceiptWhenIqcFinish(
                 eq(sourceDocId), eq(sourceLineId), eq(iqc.getId()), any(BigDecimal.class), any(BigDecimal.class));
         // 断言：不应该调用到货通知单的回写
-        verify(arrivalNoticeService, never()).approveArrivalNoticeWhenIqcComplete(
+        verify(arrivalNoticeService, never()).updateArrivalNoticeWhenIqcFinish(
                 anyLong(), anyLong(), anyLong(), any());
     }
 
     @Test
     public void testFinishIqc_writeBack_noSourceDoc() {
-        // mock 数据：sourceDocType 为空，不需要回写
+        // 准备数据：sourceDocType 为空，不需要回写
         MesQcIqcDO iqc = randomPojo(MesQcIqcDO.class, o -> {
             o.setStatus(MesQcStatusEnum.DRAFT.getStatus());
             o.setCheckResult(1);
@@ -135,15 +135,15 @@ public class MesQcIqcServiceImplTest extends BaseDbUnitTest {
         MesQcIqcDO updatedIqc = iqcMapper.selectById(iqc.getId());
         assertEquals(MesQcStatusEnum.FINISHED.getStatus(), updatedIqc.getStatus());
         // 断言：不应该调用任何回写
-        verify(arrivalNoticeService, never()).approveArrivalNoticeWhenIqcComplete(
+        verify(arrivalNoticeService, never()).updateArrivalNoticeWhenIqcFinish(
                 anyLong(), anyLong(), anyLong(), any());
-        verify(outsourceReceiptService, never()).approveOutsourceReceiptWhenIqcComplete(
+        verify(outsourceReceiptService, never()).updateOutsourceReceiptWhenIqcFinish(
                 anyLong(), anyLong(), anyLong(), any(), any());
     }
 
     @Test
     public void testFinishIqc_writeBack_sourceDocTypeDirtyData() {
-        // mock 数据：sourceDocType 非空但 sourceLineId 为空，应该抛异常
+        // 准备数据：sourceDocType 非空但 sourceLineId 为空，应该抛异常
         MesQcIqcDO iqc = randomPojo(MesQcIqcDO.class, o -> {
             o.setStatus(MesQcStatusEnum.DRAFT.getStatus());
             o.setCheckResult(1);
@@ -159,7 +159,7 @@ public class MesQcIqcServiceImplTest extends BaseDbUnitTest {
 
     @Test
     public void testFinishIqc_writeBack_unknownSourceDocType() {
-        // mock 数据：sourceDocType 无法识别
+        // 准备数据：sourceDocType 无法识别
         MesQcIqcDO iqc = randomPojo(MesQcIqcDO.class, o -> {
             o.setStatus(MesQcStatusEnum.DRAFT.getStatus());
             o.setCheckResult(1);
@@ -171,6 +171,33 @@ public class MesQcIqcServiceImplTest extends BaseDbUnitTest {
 
         // 调用，并断言异常
         assertThrows(IllegalArgumentException.class, () -> iqcService.finishIqc(iqc.getId()));
+    }
+
+    @Test
+    public void testFinishIqc_checkResultEmpty() {
+        // 准备数据：checkResult 为空，应该报错
+        MesQcIqcDO iqc = randomPojo(MesQcIqcDO.class, o -> {
+            o.setStatus(MesQcStatusEnum.DRAFT.getStatus());
+            o.setCheckResult(null); // 检测结论为空
+            o.setSourceDocType(null);
+        });
+        iqcMapper.insert(iqc);
+
+        // 调用，应该抛异常（检测结论必填）
+        assertThrows(Exception.class, () -> iqcService.finishIqc(iqc.getId()));
+    }
+
+    @Test
+    public void testFinishIqc_notDraftStatus() {
+        // 准备数据：已完成状态，不能再次完成
+        MesQcIqcDO iqc = randomPojo(MesQcIqcDO.class, o -> {
+            o.setStatus(MesQcStatusEnum.FINISHED.getStatus());
+            o.setCheckResult(1);
+        });
+        iqcMapper.insert(iqc);
+
+        // 调用，应该抛异常（不是草稿状态）
+        assertThrows(Exception.class, () -> iqcService.finishIqc(iqc.getId()));
     }
 
 }

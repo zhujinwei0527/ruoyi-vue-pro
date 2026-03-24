@@ -1,5 +1,6 @@
 package cn.iocoder.yudao.module.mes.service.wm.productsales;
 
+import cn.iocoder.yudao.framework.common.pojo.PageResult;
 import cn.iocoder.yudao.module.mes.controller.admin.wm.productsales.vo.line.MesWmProductSalesLinePageReqVO;
 import cn.iocoder.yudao.module.mes.controller.admin.wm.productsales.vo.line.MesWmProductSalesLineSaveReqVO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.wm.productsales.MesWmProductSalesLineDO;
@@ -65,7 +66,15 @@ public interface MesWmProductSalesLineService {
      * @param pageReqVO 分页查询
      * @return 销售出库单行分页
      */
-    cn.iocoder.yudao.framework.common.pojo.PageResult<MesWmProductSalesLineDO> getProductSalesLinePage(
-            MesWmProductSalesLinePageReqVO pageReqVO);
+    PageResult<MesWmProductSalesLineDO> getProductSalesLinePage(MesWmProductSalesLinePageReqVO pageReqVO);
+
+    /**
+     * OQC 检验完成后，更新销售出库单行的 OQC 质检状态
+     *
+     * @param id 行 ID
+     * @param oqcId 质检单 ID
+     * @param checkResult 检验结果
+     */
+    void updateProductSalesLineWhenOqcFinish(Long id, Long oqcId, Integer checkResult);
 
 }

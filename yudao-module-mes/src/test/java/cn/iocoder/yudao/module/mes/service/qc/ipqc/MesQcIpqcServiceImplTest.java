@@ -88,7 +88,7 @@ public class MesQcIpqcServiceImplTest extends BaseDbUnitTest {
 
         // 断言 2：调用了 feedbackService.completeFeedbackFromIpqc，传递正确参数
         // 注意：数量经过 DB 存取后 scale 可能变化（例如 80 → 80.00），所以用 any() 匹配
-        verify(feedbackService).completeFeedbackFromIpqc(
+        verify(feedbackService).updateProFeedbackWhenIpqcFinish(
                 eq(sourceDocId),
                 any(BigDecimal.class),
                 any(BigDecimal.class),
@@ -119,7 +119,7 @@ public class MesQcIpqcServiceImplTest extends BaseDbUnitTest {
         ipqcService.finishIpqc(ipqc.getId());
 
         // 断言：所有数量参数都是 BigDecimal.ZERO（defaultIfNull 处理）
-        verify(feedbackService).completeFeedbackFromIpqc(
+        verify(feedbackService).updateProFeedbackWhenIpqcFinish(
                 eq(sourceDocId),
                 eq(BigDecimal.ZERO),
                 eq(BigDecimal.ZERO),
@@ -148,7 +148,7 @@ public class MesQcIpqcServiceImplTest extends BaseDbUnitTest {
         assertEquals(MesQcStatusEnum.FINISHED.getStatus(), updatedIpqc.getStatus());
 
         // 断言 2：不应该调用 feedbackService
-        verify(feedbackService, never()).completeFeedbackFromIpqc(
+        verify(feedbackService, never()).updateProFeedbackWhenIpqcFinish(
                 anyLong(), any(), any(), any(), any(), any());
     }
 

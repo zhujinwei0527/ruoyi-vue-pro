@@ -148,10 +148,10 @@ public class MesQcIqcServiceImpl implements MesQcIqcService {
 
         // 根据不同的来源单据类型，回写不同的单据
         if (Objects.equals(iqc.getSourceDocType(), MesBizTypeConstants.WM_ARRIVAL_NOTICE)) {
-            arrivalNoticeService.approveArrivalNoticeWhenIqcComplete(iqc.getSourceDocId(), iqc.getSourceLineId(),
+            arrivalNoticeService.updateArrivalNoticeWhenIqcFinish(iqc.getSourceDocId(), iqc.getSourceLineId(),
                     iqc.getId(), iqc.getQualifiedQuantity());
         } else if (Objects.equals(iqc.getSourceDocType(), MesBizTypeConstants.WM_OUTSOURCE_RECPT)) {
-            outsourceReceiptService.approveOutsourceReceiptWhenIqcComplete(iqc.getSourceDocId(), iqc.getSourceLineId(),
+            outsourceReceiptService.updateOutsourceReceiptWhenIqcFinish(iqc.getSourceDocId(), iqc.getSourceLineId(),
                     iqc.getId(), iqc.getQualifiedQuantity(), iqc.getUnqualifiedQuantity());
         } else {
             throw new IllegalArgumentException(

@@ -74,7 +74,7 @@ public interface MesWmArrivalNoticeLineService {
      * @param iqcId IQC 检验单编号
      * @param qualifiedQuantity 合格数量
      */
-    void updateByIqcComplete(Long lineId, Long iqcId, BigDecimal qualifiedQuantity);
+    void updateArrivalNoticeLineWhenIqcFinish(Long lineId, Long iqcId, BigDecimal qualifiedQuantity);
 
     /**
      * 校验到货通知单行存在

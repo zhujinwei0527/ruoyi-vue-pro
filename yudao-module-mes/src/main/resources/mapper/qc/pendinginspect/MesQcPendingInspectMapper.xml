@@ -3,11 +3,12 @@
 <mapper namespace="cn.iocoder.yudao.module.mes.dal.mysql.qc.pendinginspect.MesQcPendingInspectMapper">
 
     <!--
-        待检任务查询（UNION ALL 多来源），目前已实现的来源：
+        待检任务查询（UNION ALL 多来源），已实现的来源：
         1. 到货通知单（IQC）：状态=待质检(2)，行的 iqc_check_flag=1 且 iqc_id IS NULL
         2. 外协入库单（IQC/OIQC）：状态=待检验(1)，行的 iqc_check=1 且 iqc_id IS NULL
-
-        TODO IPQC/OQC/RQC 来源待对应模块就绪后补充
+        3. 生产报工（IPQC）：状态=待检验(3)
+        4. 销售出库单（OQC）：行的 oqc_check=1 且 oqc_id IS NULL
+        5. 生产退料单（RQC）：状态=待检验(5)，行的 qc_flag=1 且 quality_status=0（待检）
     -->
     <select id="selectQcPendingPage" resultType="cn.iocoder.yudao.module.mes.controller.admin.qc.pendinginspect.vo.MesQcPendingInspectRespVO">
         SELECT * FROM (
@@ -50,6 +51,64 @@
               AND rl.iqc_id IS NULL
               AND r.deleted = 0
               AND rl.deleted = 0
+
+            UNION ALL
+
+            <!-- 3. IPQC 来源：生产报工（状态=待检验） -->
+            SELECT
+                f.id AS sourceDocId,
+                ${@cn.iocoder.yudao.module.mes.enums.MesBizTypeConstants@PRO_FEEDBACK} AS sourceDocType,
+                f.code AS sourceDocCode,
+                NULL AS sourceLineId,
+                f.feedback_time AS recordTime,
+                ${@cn.iocoder.yudao.module.mes.enums.qc.MesQcTypeEnum@IPQC.type} AS qcType,
+                f.item_id AS itemId,
+                f.uncheck_quantity AS quantity,
+                NULL AS vendorId
+            FROM mes_pro_feedback f
+            WHERE f.status = ${@cn.iocoder.yudao.module.mes.enums.pro.MesProFeedbackStatusEnum@UNCHECK.status}
+              AND f.deleted = 0
+
+            UNION ALL
+
+            <!-- 4. OQC 来源：销售出库单行（oqc_check=1 且 oqc_id IS NULL） -->
+            SELECT
+                s.id AS sourceDocId,
+                ${@cn.iocoder.yudao.module.mes.enums.MesBizTypeConstants@WM_PRODUCT_SALES} AS sourceDocType,
+                s.code AS sourceDocCode,
+                sl.id AS sourceLineId,
+                s.sales_date AS recordTime,
+                ${@cn.iocoder.yudao.module.mes.enums.qc.MesQcTypeEnum@OQC.type} AS qcType,
+                sl.item_id AS itemId,
+                sl.quantity AS quantity,
+                NULL AS vendorId
+            FROM mes_wm_product_sales s
+                JOIN mes_wm_product_sales_line sl ON s.id = sl.sales_id
+            WHERE sl.oqc_check = 1
+              AND sl.oqc_id IS NULL
+              AND s.deleted = 0
+              AND sl.deleted = 0
+
+            UNION ALL
+
+            <!-- 5. RQC 来源：生产退料单行（状态=待检验，行的 qc_flag=1 且 quality_status=0） -->
+            SELECT
+                ri.id AS sourceDocId,
+                ${@cn.iocoder.yudao.module.mes.enums.MesBizTypeConstants@WM_RETURN_ISSUE} AS sourceDocType,
+                ri.code AS sourceDocCode,
+                ril.id AS sourceLineId,
+                ri.return_date AS recordTime,
+                ${@cn.iocoder.yudao.module.mes.enums.qc.MesQcTypeEnum@RQC.type} AS qcType,
+                ril.item_id AS itemId,
+                ril.quantity AS quantity,
+                NULL AS vendorId
+            FROM mes_wm_return_issue ri
+                JOIN mes_wm_return_issue_line ril ON ri.id = ril.issue_id
+            WHERE ri.status = ${@cn.iocoder.yudao.module.mes.enums.wm.MesWmReturnIssueStatusEnum@CONFIRMED.status}
+              AND ril.qc_flag = 1
+              AND ril.quality_status = ${@cn.iocoder.yudao.module.mes.enums.wm.MesWmQualityStatusEnum@PENDING.status}
+              AND ri.deleted = 0
+              AND ril.deleted = 0
         ) t
         <where>
             <if test="sourceDocCode != null and sourceDocCode != ''">

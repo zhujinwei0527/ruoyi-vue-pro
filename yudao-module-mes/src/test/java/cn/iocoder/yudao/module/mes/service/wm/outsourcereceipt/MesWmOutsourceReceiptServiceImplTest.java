@@ -26,7 +26,7 @@ import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 /**
- * {@link MesWmOutsourceReceiptServiceImpl#approveOutsourceReceiptWhenIqcComplete} 的单元测试
+ * {@link MesWmOutsourceReceiptServiceImpl} 的单元测试
  *
  * @author 芋道源码
  */
@@ -51,7 +51,7 @@ public class MesWmOutsourceReceiptServiceImplTest extends BaseDbUnitTest {
     private MesMdItemService itemService;
 
     @Test
-    public void testApproveOutsourceReceiptWhenIqcComplete_success_bothQualifiedAndUnqualified() {
+    public void testUpdateOutsourceReceiptWhenIqcFinish_success_bothQualifiedAndUnqualified() {
         // mock 数据：插入一条待检验状态的外协入库单
         MesWmOutsourceReceiptDO receipt = randomPojo(MesWmOutsourceReceiptDO.class, o -> {
             o.setStatus(MesWmOutsourceReceiptStatusEnum.CONFIRMED.getStatus());
@@ -73,7 +73,7 @@ public class MesWmOutsourceReceiptServiceImplTest extends BaseDbUnitTest {
         when(outsourceReceiptLineService.getOutsourceReceiptLine(eq(lineId))).thenReturn(line);
 
         // 调用
-        outsourceReceiptService.approveOutsourceReceiptWhenIqcComplete(
+        outsourceReceiptService.updateOutsourceReceiptWhenIqcFinish(
                 receiptId, lineId, iqcId, qualifiedQuantity, unqualifiedQuantity);
 
         // 断言：合格品行更新
@@ -94,7 +94,7 @@ public class MesWmOutsourceReceiptServiceImplTest extends BaseDbUnitTest {
     }
 
     @Test
-    public void testApproveOutsourceReceiptWhenIqcComplete_success_onlyQualified() {
+    public void testUpdateOutsourceReceiptWhenIqcFinish_success_onlyQualified() {
         // mock 数据：插入一条待检验状态的外协入库单
         MesWmOutsourceReceiptDO receipt = randomPojo(MesWmOutsourceReceiptDO.class, o -> {
             o.setStatus(MesWmOutsourceReceiptStatusEnum.CONFIRMED.getStatus());
@@ -115,7 +115,7 @@ public class MesWmOutsourceReceiptServiceImplTest extends BaseDbUnitTest {
         when(outsourceReceiptLineService.getOutsourceReceiptLine(eq(lineId))).thenReturn(line);
 
         // 调用
-        outsourceReceiptService.approveOutsourceReceiptWhenIqcComplete(
+        outsourceReceiptService.updateOutsourceReceiptWhenIqcFinish(
                 receiptId, lineId, iqcId, qualifiedQuantity, unqualifiedQuantity);
 
         // 断言：合格品行更新
@@ -129,7 +129,7 @@ public class MesWmOutsourceReceiptServiceImplTest extends BaseDbUnitTest {
     }
 
     @Test
-    public void testApproveOutsourceReceiptWhenIqcComplete_receiptNotExists() {
+    public void testUpdateOutsourceReceiptWhenIqcFinish_receiptNotExists() {
         // 准备参数
         Long receiptId = randomLongId();
         Long lineId = randomLongId();
@@ -139,13 +139,13 @@ public class MesWmOutsourceReceiptServiceImplTest extends BaseDbUnitTest {
 
         // 调用，并断言异常
         assertServiceException(
-                () -> outsourceReceiptService.approveOutsourceReceiptWhenIqcComplete(
+                () -> outsourceReceiptService.updateOutsourceReceiptWhenIqcFinish(
                         receiptId, lineId, iqcId, qualifiedQuantity, unqualifiedQuantity),
                 WM_OUTSOURCE_RECEIPT_NOT_EXISTS);
     }
 
     @Test
-    public void testApproveOutsourceReceiptWhenIqcComplete_statusNotConfirmed() {
+    public void testUpdateOutsourceReceiptWhenIqcFinish_statusNotConfirmed() {
         // mock 数据：插入一条草稿状态的外协入库单（非待检验状态）
         MesWmOutsourceReceiptDO receipt = randomPojo(MesWmOutsourceReceiptDO.class, o -> {
             o.setStatus(MesWmOutsourceReceiptStatusEnum.PREPARE.getStatus());
@@ -160,13 +160,13 @@ public class MesWmOutsourceReceiptServiceImplTest extends BaseDbUnitTest {
 
         // 调用，并断言异常
         assertServiceException(
-                () -> outsourceReceiptService.approveOutsourceReceiptWhenIqcComplete(
+                () -> outsourceReceiptService.updateOutsourceReceiptWhenIqcFinish(
                         receiptId, lineId, iqcId, qualifiedQuantity, unqualifiedQuantity),
                 WM_OUTSOURCE_RECEIPT_STATUS_ERROR);
     }
 
     @Test
-    public void testApproveOutsourceReceiptWhenIqcComplete_lineNotExists() {
+    public void testUpdateOutsourceReceiptWhenIqcFinish_lineNotExists() {
         // mock 数据：插入一条待检验状态的外协入库单
         MesWmOutsourceReceiptDO receipt = randomPojo(MesWmOutsourceReceiptDO.class, o -> {
             o.setStatus(MesWmOutsourceReceiptStatusEnum.CONFIRMED.getStatus());
@@ -184,7 +184,7 @@ public class MesWmOutsourceReceiptServiceImplTest extends BaseDbUnitTest {
 
         // 调用，并断言异常
         assertServiceException(
-                () -> outsourceReceiptService.approveOutsourceReceiptWhenIqcComplete(
+                () -> outsourceReceiptService.updateOutsourceReceiptWhenIqcFinish(
                         receiptId, lineId, iqcId, qualifiedQuantity, unqualifiedQuantity),
                 WM_OUTSOURCE_RECEIPT_LINE_NOT_EXISTS);
     }

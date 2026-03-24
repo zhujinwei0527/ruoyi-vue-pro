@@ -155,7 +155,7 @@ public class MesQcIpqcServiceImpl implements MesQcIpqcService {
         }
 
         if (Objects.equals(ipqc.getSourceDocType(), MesBizTypeConstants.PRO_FEEDBACK)) {
-            feedbackService.completeFeedbackFromIpqc(ipqc.getSourceDocId(),
+            feedbackService.updateProFeedbackWhenIpqcFinish(ipqc.getSourceDocId(),
                     ObjectUtil.defaultIfNull(ipqc.getQualifiedQuantity(), BigDecimal.ZERO),
                     ObjectUtil.defaultIfNull(ipqc.getUnqualifiedQuantity(), BigDecimal.ZERO),
                     ObjectUtil.defaultIfNull(ipqc.getLaborScrapQuantity(), BigDecimal.ZERO),

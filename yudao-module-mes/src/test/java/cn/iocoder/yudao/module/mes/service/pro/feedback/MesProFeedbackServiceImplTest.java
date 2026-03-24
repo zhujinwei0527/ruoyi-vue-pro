@@ -56,7 +56,7 @@ public class MesProFeedbackServiceImplTest extends BaseDbUnitTest {
     private MesWmProductProduceLineService produceLineService;
 
     @Test
-    public void testCompleteFeedbackFromIpqc_success_withUnqualified() {
+    public void testUpdateProFeedbackWhenIpqcFinish_success_withUnqualified() {
         // 准备数据：插入一条待检验状态的报工单
         Long taskId = randomLongId();
         Long workOrderId = randomLongId();
@@ -87,7 +87,7 @@ public class MesProFeedbackServiceImplTest extends BaseDbUnitTest {
         BigDecimal materialScrapQty = BigDecimal.valueOf(10);
         BigDecimal otherScrapQty = BigDecimal.valueOf(5);
 
-        feedbackService.completeFeedbackFromIpqc(feedback.getId(),
+        feedbackService.updateProFeedbackWhenIpqcFinish(feedback.getId(),
                 qualifiedQty, unqualifiedQty, laborScrapQty, materialScrapQty, otherScrapQty);
 
         // 断言 1：调用了 splitPendingAndFinishProduce
@@ -115,7 +115,7 @@ public class MesProFeedbackServiceImplTest extends BaseDbUnitTest {
     }
 
     @Test
-    public void testCompleteFeedbackFromIpqc_success_allQualified() {
+    public void testUpdateProFeedbackWhenIpqcFinish_success_allQualified() {
         // 准备数据：全部合格
         Long taskId = randomLongId();
         Long workOrderId = randomLongId();
@@ -136,7 +136,7 @@ public class MesProFeedbackServiceImplTest extends BaseDbUnitTest {
                 .thenReturn(List.of(qualifiedLine));
 
         // 调用
-        feedbackService.completeFeedbackFromIpqc(feedback.getId(),
+        feedbackService.updateProFeedbackWhenIpqcFinish(feedback.getId(),
                 BigDecimal.valueOf(50), BigDecimal.ZERO,
                 BigDecimal.ZERO, BigDecimal.ZERO, BigDecimal.ZERO);
 
@@ -151,17 +151,17 @@ public class MesProFeedbackServiceImplTest extends BaseDbUnitTest {
     }
 
     @Test
-    public void testCompleteFeedbackFromIpqc_feedbackNotExists() {
+    public void testUpdateProFeedbackWhenIpqcFinish_feedbackNotExists() {
         // 调用不存在的 feedbackId，应该抛异常
         Long feedbackId = randomLongId();
         assertThrows(Exception.class, () ->
-                feedbackService.completeFeedbackFromIpqc(feedbackId,
+                feedbackService.updateProFeedbackWhenIpqcFinish(feedbackId,
                         BigDecimal.TEN, BigDecimal.ZERO,
                         BigDecimal.ZERO, BigDecimal.ZERO, BigDecimal.ZERO));
     }
 
     @Test
-    public void testCompleteFeedbackFromIpqc_feedbackNotUncheck() {
+    public void testUpdateProFeedbackWhenIpqcFinish_feedbackNotUncheck() {
         // 准备数据：草稿状态（不是 UNCHECK），应该报错
         MesProFeedbackDO feedback = randomPojo(MesProFeedbackDO.class, o -> {
             o.setStatus(MesProFeedbackStatusEnum.PREPARE.getStatus());
@@ -170,7 +170,7 @@ public class MesProFeedbackServiceImplTest extends BaseDbUnitTest {
 
         // 调用，应该抛异常
         assertThrows(Exception.class, () ->
-                feedbackService.completeFeedbackFromIpqc(feedback.getId(),
+                feedbackService.updateProFeedbackWhenIpqcFinish(feedback.getId(),
                         BigDecimal.TEN, BigDecimal.ZERO,
                         BigDecimal.ZERO, BigDecimal.ZERO, BigDecimal.ZERO));
 
@@ -179,7 +179,7 @@ public class MesProFeedbackServiceImplTest extends BaseDbUnitTest {
     }
 
     @Test
-    public void testCompleteFeedbackFromIpqc_feedbackAlreadyFinished() {
+    public void testUpdateProFeedbackWhenIpqcFinish_feedbackAlreadyFinished() {
         // 准备数据：已完成状态，不能再次完成
         MesProFeedbackDO feedback = randomPojo(MesProFeedbackDO.class, o -> {
             o.setStatus(MesProFeedbackStatusEnum.FINISHED.getStatus());
@@ -188,7 +188,7 @@ public class MesProFeedbackServiceImplTest extends BaseDbUnitTest {
 
         // 调用，应该抛异常
         assertThrows(Exception.class, () ->
-                feedbackService.completeFeedbackFromIpqc(feedback.getId(),
+                feedbackService.updateProFeedbackWhenIpqcFinish(feedback.getId(),
                         BigDecimal.TEN, BigDecimal.ZERO,
                         BigDecimal.ZERO, BigDecimal.ZERO, BigDecimal.ZERO));
     }

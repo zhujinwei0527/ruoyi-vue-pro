@@ -33,8 +33,8 @@ public class MesQcOqcRespVO {
     @Schema(description = "来源单据 ID", example = "200")
     private Long sourceDocId;
 
-    @Schema(description = "来源单据类型", example = "SALES")
-    private String sourceDocType;
+    @Schema(description = "来源单据类型", example = "118")
+    private Integer sourceDocType;
 
     @Schema(description = "来源单据编号", example = "SO20250101001")
     private String sourceDocCode;
@@ -88,15 +88,15 @@ public class MesQcOqcRespVO {
 
     @Schema(description = "本次检测数量", example = "10")
     @ExcelProperty("检测数量")
-    private Integer checkQuantity;
+    private BigDecimal checkQuantity;
 
     @Schema(description = "合格品数量", example = "9")
     @ExcelProperty("合格品数量")
-    private Integer qualifiedQuantity;
+    private BigDecimal qualifiedQuantity;
 
     @Schema(description = "不合格品数量", example = "1")
     @ExcelProperty("不合格品数量")
-    private Integer unqualifiedQuantity;
+    private BigDecimal unqualifiedQuantity;
 
     // ========== 缺陷统计 ==========
 

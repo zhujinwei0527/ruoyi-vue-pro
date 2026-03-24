@@ -12,9 +12,12 @@ import cn.iocoder.yudao.module.mes.dal.mysql.qc.rqc.MesQcRqcMapper;
 import cn.iocoder.yudao.module.mes.enums.qc.MesQcStatusEnum;
 import cn.iocoder.yudao.module.mes.enums.qc.MesQcDefectLevelEnum;
 import cn.iocoder.yudao.module.mes.enums.qc.MesQcTypeEnum;
+import cn.iocoder.yudao.module.mes.enums.MesBizTypeConstants;
 import cn.iocoder.yudao.module.mes.service.md.item.MesMdItemService;
 import cn.iocoder.yudao.module.mes.service.qc.defectrecord.MesQcDefectRecordService;
 import cn.iocoder.yudao.module.mes.service.qc.template.MesQcTemplateDetailService;
+import cn.iocoder.yudao.module.mes.service.wm.returnissue.MesWmReturnIssueLineService;
+import cn.iocoder.yudao.module.mes.service.wm.returnsales.MesWmReturnSalesLineService;
 import cn.iocoder.yudao.module.system.api.user.AdminUserApi;
 import jakarta.annotation.Resource;
 import org.springframework.context.annotation.Lazy;
@@ -51,6 +54,12 @@ public class MesQcRqcServiceImpl implements MesQcRqcService {
     @Resource
     @Lazy
     private MesQcDefectRecordService defectRecordService;
+    @Resource
+    @Lazy
+    private MesWmReturnIssueLineService returnIssueLineService;
+    @Resource
+    @Lazy
+    private MesWmReturnSalesLineService returnSalesLineService;
 
     @Resource
     private AdminUserApi adminUserApi;
@@ -95,10 +104,15 @@ public class MesQcRqcServiceImpl implements MesQcRqcService {
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public void finishRqc(Long id) {
         // 1.1 校验存在 + 草稿状态
         MesQcRqcDO rqc = validateRqcStatusPrepare(id);
-        // 1.2 校验合格品 + 不合格品 = 检测数量
+        // 1.2 校验检测结论必填
+        if (rqc.getCheckResult() == null) {
+            throw exception(QC_RQC_CHECK_RESULT_EMPTY);
+        }
+        // 1.3 校验合格品 + 不合格品 = 检测数量
         if (rqc.getCheckQuantity() != null && rqc.getCheckQuantity().compareTo(BigDecimal.ZERO) > 0) {
             BigDecimal qualified = rqc.getQualifiedQuantity() != null ? rqc.getQualifiedQuantity() : BigDecimal.ZERO;
             BigDecimal unqualified = rqc.getUnqualifiedQuantity() != null ? rqc.getUnqualifiedQuantity() : BigDecimal.ZERO;
@@ -111,7 +125,40 @@ public class MesQcRqcServiceImpl implements MesQcRqcService {
         MesQcRqcDO updateObj = new MesQcRqcDO().setId(id).setStatus(MesQcStatusEnum.FINISHED.getStatus());
         rqcMapper.updateById(updateObj);
 
-        // TODO @芋艿：WM 模块迁移后，更新来源退料/退货单行的质量状态
+        // 3. 回写来源单据
+        writeBackSourceDoc(rqc);
+    }
+
+    /**
+     * 回写来源单据（RQC 完成后）
+     *
+     * <p>根据 sourceDocType 分发：
+     * <ul>
+     *     <li>WM_RETURN_ISSUE（生产退料单）→ 回写行的 qualityStatus</li>
+     *     <li>WM_RETURN_SALES（销售退货单）→ 回写行的 qualityStatus</li>
+     * </ul>
+     *
+     * @param rqc 退货检验单
+     */
+    private void writeBackSourceDoc(MesQcRqcDO rqc) {
+        if (rqc.getSourceDocType() == null) {
+            return;
+        }
+        if (rqc.getSourceLineId() == null) {
+            throw new IllegalArgumentException(
+                    "RQC 单[" + rqc.getId() + "] sourceDocType 非空但 sourceLineId 为空");
+        }
+
+        if (Objects.equals(rqc.getSourceDocType(), MesBizTypeConstants.WM_RETURN_ISSUE)) {
+            // 回写生产退料单行的 qualityStatus
+            returnIssueLineService.updateReturnIssueLineWhenRqcFinish(rqc.getSourceLineId(), rqc.getCheckResult());
+        } else if (Objects.equals(rqc.getSourceDocType(), MesBizTypeConstants.WM_RETURN_SALES)) {
+            // 回写销售退货单行的 qualityStatus
+            returnSalesLineService.updateReturnSalesLineWhenRqcFinish(rqc.getSourceLineId(), rqc.getCheckResult());
+        } else {
+            throw new IllegalArgumentException(
+                    "RQC 单[" + rqc.getId() + "] sourceDocType=" + rqc.getSourceDocType() + " 无法识别，无法回写来源单据");
+        }
     }
 
     @Override

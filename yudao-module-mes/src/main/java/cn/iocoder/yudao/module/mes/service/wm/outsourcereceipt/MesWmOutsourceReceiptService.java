@@ -88,8 +88,8 @@ public interface MesWmOutsourceReceiptService {
      * @param qualifiedQuantity   合格品数量
      * @param unqualifiedQuantity 不合格品数量
      */
-    void approveOutsourceReceiptWhenIqcComplete(Long receiptId, Long lineId, Long iqcId,
-                                                BigDecimal qualifiedQuantity, BigDecimal unqualifiedQuantity);
+    void updateOutsourceReceiptWhenIqcFinish(Long receiptId, Long lineId, Long iqcId,
+                                             BigDecimal qualifiedQuantity, BigDecimal unqualifiedQuantity);
 
     /**
      * 校验外协入库单和行存在

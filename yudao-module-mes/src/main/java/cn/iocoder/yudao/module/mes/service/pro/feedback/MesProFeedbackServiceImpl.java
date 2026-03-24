@@ -285,8 +285,8 @@ public class MesProFeedbackServiceImpl implements MesProFeedbackService {
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public void completeFeedbackFromIpqc(Long feedbackId, BigDecimal qualifiedQty, BigDecimal unqualifiedQty,
-                                         BigDecimal laborScrapQty, BigDecimal materialScrapQty, BigDecimal otherScrapQty) {
+    public void updateProFeedbackWhenIpqcFinish(Long feedbackId, BigDecimal qualifiedQty, BigDecimal unqualifiedQty,
+                                                BigDecimal laborScrapQty, BigDecimal materialScrapQty, BigDecimal otherScrapQty) {
         // 1. 校验报工单存在且为待检验状态
         MesProFeedbackDO feedback = validateFeedbackExists(feedbackId);
         if (ObjUtil.notEqual(feedback.getStatus(), MesProFeedbackStatusEnum.UNCHECK.getStatus())) {

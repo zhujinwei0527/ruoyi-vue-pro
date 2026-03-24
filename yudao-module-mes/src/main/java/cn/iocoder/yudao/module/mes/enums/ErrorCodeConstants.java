@@ -312,6 +312,7 @@ public interface ErrorCodeConstants {
     ErrorCode QC_OQC_NOT_PREPARE = new ErrorCode(1_040_607_002, "只有草稿状态的检验单才可操作");
     ErrorCode QC_OQC_QUANTITY_MISMATCH = new ErrorCode(1_040_607_004, "合格品与不合格品数量之和须等于检测数量");
     ErrorCode QC_OQC_NO_TEMPLATE = new ErrorCode(1_040_607_005, "当前产品未配置 OQC 检测模板");
+    ErrorCode QC_OQC_CHECK_RESULT_EMPTY = new ErrorCode(1_040_607_006, "完成检验单前，检测结果必须填写");
     // ========== MES 质量管理-出货检验行（1-040-607-100） ==========
     ErrorCode QC_OQC_LINE_NOT_EXISTS = new ErrorCode(1_040_607_100, "出货检验行不存在");
 
@@ -321,6 +322,7 @@ public interface ErrorCodeConstants {
     ErrorCode QC_RQC_NOT_PREPARE = new ErrorCode(1_040_608_002, "只有草稿状态的检验单才可操作");
     ErrorCode QC_RQC_QUANTITY_MISMATCH = new ErrorCode(1_040_608_004, "合格品与不合格品数量之和须等于检测数量");
     ErrorCode QC_RQC_NO_TEMPLATE = new ErrorCode(1_040_608_005, "当前产品未配置 RQC 检测模板");
+    ErrorCode QC_RQC_CHECK_RESULT_EMPTY = new ErrorCode(1_040_608_006, "完成检验单前，检测结果必须填写");
     // ========== MES 质量管理-退货检验行（1-040-608-100） ==========
     ErrorCode QC_RQC_LINE_NOT_EXISTS = new ErrorCode(1_040_608_100, "退货检验行不存在");
 

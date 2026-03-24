@@ -23,7 +23,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 /**
- * {@link MesWmArrivalNoticeServiceImpl#approveArrivalNoticeWhenIqcComplete} 的单元测试
+ * {@link MesWmArrivalNoticeServiceImpl} 的单元测试
  *
  * @author 芋道源码
  */
@@ -40,7 +40,7 @@ public class MesWmArrivalNoticeServiceImplTest extends BaseDbUnitTest {
     private MesWmArrivalNoticeLineService arrivalNoticeLineService;
 
     @Test
-    public void testApproveArrivalNoticeWhenIqcComplete_success_allLinesChecked() {
+    public void testUpdateArrivalNoticeWhenIqcFinish_success_allLinesChecked() {
         // mock 数据：插入一条待质检的到货通知单
         MesWmArrivalNoticeDO notice = randomPojo(MesWmArrivalNoticeDO.class, o -> {
             o.setStatus(MesWmArrivalNoticeStatusEnum.PENDING_QC.getStatus());
@@ -67,17 +67,17 @@ public class MesWmArrivalNoticeServiceImplTest extends BaseDbUnitTest {
                 .thenReturn(Arrays.asList(line1, line2));
 
         // 调用
-        arrivalNoticeService.approveArrivalNoticeWhenIqcComplete(noticeId, lineId, iqcId, qualifiedQuantity);
+        arrivalNoticeService.updateArrivalNoticeWhenIqcFinish(noticeId, lineId, iqcId, qualifiedQuantity);
 
         // 断言：行回写被调用
-        verify(arrivalNoticeLineService).updateByIqcComplete(eq(lineId), eq(iqcId), eq(qualifiedQuantity));
+        verify(arrivalNoticeLineService).updateArrivalNoticeLineWhenIqcFinish(eq(lineId), eq(iqcId), eq(qualifiedQuantity));
         // 断言：主表状态更新为待入库
         MesWmArrivalNoticeDO updatedNotice = arrivalNoticeMapper.selectById(noticeId);
         assertEquals(MesWmArrivalNoticeStatusEnum.PENDING_RECEIPT.getStatus(), updatedNotice.getStatus());
     }
 
     @Test
-    public void testApproveArrivalNoticeWhenIqcComplete_success_hasUncheckedLines() {
+    public void testUpdateArrivalNoticeWhenIqcFinish_success_hasUncheckedLines() {
         // mock 数据：插入一条待质检的到货通知单
         MesWmArrivalNoticeDO notice = randomPojo(MesWmArrivalNoticeDO.class, o -> {
             o.setStatus(MesWmArrivalNoticeStatusEnum.PENDING_QC.getStatus());
@@ -104,17 +104,17 @@ public class MesWmArrivalNoticeServiceImplTest extends BaseDbUnitTest {
                 .thenReturn(Arrays.asList(line1, line2));
 
         // 调用
-        arrivalNoticeService.approveArrivalNoticeWhenIqcComplete(noticeId, lineId, iqcId, qualifiedQuantity);
+        arrivalNoticeService.updateArrivalNoticeWhenIqcFinish(noticeId, lineId, iqcId, qualifiedQuantity);
 
         // 断言：行回写被调用
-        verify(arrivalNoticeLineService).updateByIqcComplete(eq(lineId), eq(iqcId), eq(qualifiedQuantity));
+        verify(arrivalNoticeLineService).updateArrivalNoticeLineWhenIqcFinish(eq(lineId), eq(iqcId), eq(qualifiedQuantity));
         // 断言：主表状态不变，仍然是待质检
         MesWmArrivalNoticeDO updatedNotice = arrivalNoticeMapper.selectById(noticeId);
         assertEquals(MesWmArrivalNoticeStatusEnum.PENDING_QC.getStatus(), updatedNotice.getStatus());
     }
 
     @Test
-    public void testApproveArrivalNoticeWhenIqcComplete_noticeNotExists() {
+    public void testUpdateArrivalNoticeWhenIqcFinish_noticeNotExists() {
         // 准备参数
         Long noticeId = randomLongId();
         Long lineId = randomLongId();
@@ -123,12 +123,12 @@ public class MesWmArrivalNoticeServiceImplTest extends BaseDbUnitTest {
 
         // 调用，并断言异常
         assertServiceException(
-                () -> arrivalNoticeService.approveArrivalNoticeWhenIqcComplete(noticeId, lineId, iqcId, qualifiedQuantity),
+                () -> arrivalNoticeService.updateArrivalNoticeWhenIqcFinish(noticeId, lineId, iqcId, qualifiedQuantity),
                 WM_ARRIVAL_NOTICE_NOT_EXISTS);
     }
 
     @Test
-    public void testApproveArrivalNoticeWhenIqcComplete_statusNotPendingQc() {
+    public void testUpdateArrivalNoticeWhenIqcFinish_statusNotPendingQc() {
         // mock 数据：插入一条草稿状态的到货通知单（非待质检）
         MesWmArrivalNoticeDO notice = randomPojo(MesWmArrivalNoticeDO.class, o -> {
             o.setStatus(MesWmArrivalNoticeStatusEnum.PREPARE.getStatus());
@@ -142,7 +142,7 @@ public class MesWmArrivalNoticeServiceImplTest extends BaseDbUnitTest {
 
         // 调用，并断言异常
         assertServiceException(
-                () -> arrivalNoticeService.approveArrivalNoticeWhenIqcComplete(noticeId, lineId, iqcId, qualifiedQuantity),
+                () -> arrivalNoticeService.updateArrivalNoticeWhenIqcFinish(noticeId, lineId, iqcId, qualifiedQuantity),
                 WM_ARRIVAL_NOTICE_STATUS_NOT_PENDING_QC);
     }
 

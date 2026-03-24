@@ -36,7 +36,7 @@ public enum MesWmArrivalNoticeStatusEnum implements ArrayValuable<Integer> {
      *
      * 对应方法：
      * 1. 不需要检验时：{@link MesWmArrivalNoticeService#submitArrivalNotice(Long)}
-     * 2. 或检验完成时：{@link MesWmArrivalNoticeService#approveArrivalNoticeWhenIqcComplete(Long, Long, Long, BigDecimal)}
+     * 2. 或检验完成时：{@link MesWmArrivalNoticeService#updateArrivalNoticeWhenIqcFinish(Long, Long, Long, BigDecimal)}
      */
     PENDING_RECEIPT(MesOrderStatusConstants.APPROVED, "待入库"),
     /**

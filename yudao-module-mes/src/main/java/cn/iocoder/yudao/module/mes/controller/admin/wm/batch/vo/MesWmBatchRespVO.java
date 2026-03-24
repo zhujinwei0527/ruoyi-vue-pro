@@ -88,7 +88,7 @@ public class MesWmBatchRespVO {
     private String lotNumber;
 
     @Schema(description = "质量状态", example = "1")
-    private String qualityStatus;
+    private Integer qualityStatus;
 
     @Schema(description = "备注", example = "备注")
     private String remark;

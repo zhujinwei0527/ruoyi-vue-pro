@@ -29,8 +29,8 @@ public class MesQcOqcSaveReqVO {
     @Schema(description = "来源单据 ID", example = "200")
     private Long sourceDocId;
 
-    @Schema(description = "来源单据类型", example = "SALES")
-    private String sourceDocType;
+    @Schema(description = "来源单据类型", example = "118")
+    private Integer sourceDocType;
 
     @Schema(description = "来源单据编号", example = "SO20250101001")
     private String sourceDocCode;
@@ -62,18 +62,18 @@ public class MesQcOqcSaveReqVO {
 
     @Schema(description = "本次检测数量", requiredMode = Schema.RequiredMode.REQUIRED, example = "10")
     @NotNull(message = "本次检测数量不能为空")
-    @Min(value = 1, message = "本次检测数量必须大于 0")
-    private Integer checkQuantity;
+    @DecimalMin(value = "0", message = "本次检测数量不能小于 0")
+    private BigDecimal checkQuantity;
 
     @Schema(description = "合格品数量", requiredMode = Schema.RequiredMode.REQUIRED, example = "9")
     @NotNull(message = "合格品数量不能为空")
-    @Min(value = 0, message = "合格品数量不能小于 0")
-    private Integer qualifiedQuantity;
+    @DecimalMin(value = "0", message = "合格品数量不能小于 0")
+    private BigDecimal qualifiedQuantity;
 
     @Schema(description = "不合格品数量", requiredMode = Schema.RequiredMode.REQUIRED, example = "1")
     @NotNull(message = "不合格品数量不能为空")
-    @Min(value = 0, message = "不合格品数量不能小于 0")
-    private Integer unqualifiedQuantity;
+    @DecimalMin(value = "0", message = "不合格品数量不能小于 0")
+    private BigDecimal unqualifiedQuantity;
 
     // ========== 检验 ==========
 
@@ -101,7 +101,7 @@ public class MesQcOqcSaveReqVO {
         if (ObjUtil.hasNull(checkQuantity, qualifiedQuantity, unqualifiedQuantity)) {
             return true; // @NotNull 会处理 null
         }
-        return checkQuantity.equals(qualifiedQuantity + unqualifiedQuantity);
+        return checkQuantity.compareTo(qualifiedQuantity.add(unqualifiedQuantity)) == 0;
     }
 
 }

@@ -102,8 +102,8 @@ public interface MesProFeedbackService {
      * @param materialScrapQty    料废数量
      * @param otherScrapQty       其他废品数量
      */
-    void completeFeedbackFromIpqc(Long feedbackId, BigDecimal qualifiedQty, BigDecimal unqualifiedQty,
-                                  BigDecimal laborScrapQty, BigDecimal materialScrapQty, BigDecimal otherScrapQty);
+    void updateProFeedbackWhenIpqcFinish(Long feedbackId, BigDecimal qualifiedQty, BigDecimal unqualifiedQty,
+                                         BigDecimal laborScrapQty, BigDecimal materialScrapQty, BigDecimal otherScrapQty);
 
 }
 

@@ -96,24 +96,23 @@ public class MesWmArrivalNoticeServiceImpl implements MesWmArrivalNoticeService 
             throw exception(WM_ARRIVAL_NOTICE_NO_LINE);
         }
 
-        // 2. 检查所有行的 iqcCheckFlag：如果没有需要检验的行，则直接审批通过
+        // 2. 检查所有行的 iqcCheckFlag：如果有需要检验的行，进入待质检状态
         boolean needCheck = CollectionUtils.anyMatch(lines,
                 line -> Boolean.TRUE.equals(line.getIqcCheckFlag()));
-        // TODO @AI：if return；并且不要取反；
-        if (!needCheck) {
-            // 不需要检验，直接进入待入库
-            arrivalNoticeMapper.updateById(new MesWmArrivalNoticeDO()
-                    .setId(id).setStatus(MesWmArrivalNoticeStatusEnum.PENDING_RECEIPT.getStatus()));
-        } else {
+        if (needCheck) {
             // 需要检验，进入待质检
             arrivalNoticeMapper.updateById(new MesWmArrivalNoticeDO()
                     .setId(id).setStatus(MesWmArrivalNoticeStatusEnum.PENDING_QC.getStatus()));
+            return;
         }
+        // 不需要检验，直接进入待入库
+        arrivalNoticeMapper.updateById(new MesWmArrivalNoticeDO()
+                .setId(id).setStatus(MesWmArrivalNoticeStatusEnum.PENDING_RECEIPT.getStatus()));
     }
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public void approveArrivalNoticeWhenIqcComplete(Long id, Long lineId, Long iqcId, BigDecimal qualifiedQuantity) {
+    public void updateArrivalNoticeWhenIqcFinish(Long id, Long lineId, Long iqcId, BigDecimal qualifiedQuantity) {
         // 1.1 校验到货通知单存在
         MesWmArrivalNoticeDO notice = validateArrivalNoticeExists(id);
         // 1.2 校验状态为待质检
@@ -122,14 +121,14 @@ public class MesWmArrivalNoticeServiceImpl implements MesWmArrivalNoticeService 
         }
 
         // 2. 更新到货通知单行：绑定 iqcId + 合格数量
-        arrivalNoticeLineService.updateByIqcComplete(lineId, iqcId, qualifiedQuantity);
+        arrivalNoticeLineService.updateArrivalNoticeLineWhenIqcFinish(lineId, iqcId, qualifiedQuantity);
 
         // 3.1 判断是否所有需检行都已完成
         List<MesWmArrivalNoticeLineDO> lines = arrivalNoticeLineService.getArrivalNoticeLineListByNoticeId(id);
         boolean hasUnchecked = CollectionUtils.anyMatch(lines,
                 line -> Boolean.TRUE.equals(line.getIqcCheckFlag()) && line.getIqcId() == null);
         if (hasUnchecked) {
-            log.info("[updateWhenIqcComplete][到货通知单({}) 还有未完成检验的行，暂不更新状态]", id);
+            log.info("[updateArrivalNoticeWhenIqcFinish][到货通知单({}) 还有未完成检验的行，暂不更新状态]", id);
             return;
         }
         // 3.2 所有行检验完成，更新主表状态 PENDING_QC → PENDING_RECEIPT

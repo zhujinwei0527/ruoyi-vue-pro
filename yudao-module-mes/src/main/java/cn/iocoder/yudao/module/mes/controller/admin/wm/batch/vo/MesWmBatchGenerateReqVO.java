@@ -78,6 +78,6 @@ public class MesWmBatchGenerateReqVO {
     /**
      * 质量状态
      */
-    private String qualityStatus;
+    private Integer qualityStatus;
 
 }

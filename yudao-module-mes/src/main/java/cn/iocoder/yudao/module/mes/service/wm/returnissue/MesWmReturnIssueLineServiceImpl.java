@@ -8,6 +8,7 @@ import cn.iocoder.yudao.module.mes.controller.admin.wm.returnissue.vo.line.MesWm
 import cn.iocoder.yudao.module.mes.dal.dataobject.wm.returnissue.MesWmReturnIssueDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.wm.returnissue.MesWmReturnIssueLineDO;
 import cn.iocoder.yudao.module.mes.dal.mysql.wm.returnissue.MesWmReturnIssueLineMapper;
+import cn.iocoder.yudao.module.mes.enums.qc.MesQcCheckResultEnum;
 import cn.iocoder.yudao.module.mes.enums.wm.MesWmQualityStatusEnum;
 import cn.iocoder.yudao.module.mes.enums.wm.MesWmReturnIssueTypeEnum;
 import cn.iocoder.yudao.module.mes.service.md.item.MesMdItemService;
@@ -17,6 +18,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 
 import java.util.List;
+import java.util.Objects;
 
 import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception;
 import static cn.iocoder.yudao.module.mes.enums.ErrorCodeConstants.WM_RETURN_ISSUE_LINE_NOT_EXISTS;
@@ -132,6 +134,13 @@ public class MesWmReturnIssueLineServiceImpl implements MesWmReturnIssueLineServ
             return MesWmQualityStatusEnum.PASS.getStatus(); // 合格（余料退回直接合格）
         }
         return MesWmQualityStatusEnum.FAIL.getStatus(); // 不合格
+    }
+
+    @Override
+    public void updateReturnIssueLineWhenRqcFinish(Long id, Integer checkResult) {
+        Integer qualityStatus = Objects.equals(checkResult, MesQcCheckResultEnum.PASS.getType())
+                ? MesWmQualityStatusEnum.PASS.getStatus() : MesWmQualityStatusEnum.FAIL.getStatus();
+        issueLineMapper.updateById(new MesWmReturnIssueLineDO().setId(id).setQualityStatus(qualityStatus));
     }
 
 }

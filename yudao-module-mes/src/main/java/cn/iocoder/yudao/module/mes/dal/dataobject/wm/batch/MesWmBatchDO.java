@@ -113,7 +113,7 @@ public class MesWmBatchDO extends BaseDO {
     /**
      * 质量状态
      */
-    private String qualityStatus;
+    private Integer qualityStatus;
     /**
      * 备注
      */

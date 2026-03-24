@@ -124,7 +124,7 @@ public class MesWmReturnSalesServiceImpl implements MesWmReturnSalesService {
 
         // DONE @AI：全部的行设置为待检验状态
         returnSalesLineService.updateQualityStatusByReturnId(id,
-                String.valueOf(MesWmQualityStatusEnum.PENDING.getStatus()));
+                MesWmQualityStatusEnum.PENDING.getStatus());
     }
 
     @Override

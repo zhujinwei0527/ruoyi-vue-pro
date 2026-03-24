@@ -63,7 +63,7 @@ public class MesWmArrivalNoticeLineServiceImpl implements MesWmArrivalNoticeLine
     /**
      * 初始化合格品数量：
      * 1. 如果不需要 IQC 检验，则合格品数量直接 = 接收数量；
-     * 2. 否则，合格品数量由对应的 IQC 检验单负责更新（见 {@link #updateByIqcComplete}）
+     * 2. 否则，合格品数量由对应的 IQC 检验单负责更新（见 {@link #updateArrivalNoticeLineWhenIqcFinish}）
      */
     private void initQualifiedQuantityIfNoIqc(MesWmArrivalNoticeLineDO line) {
         if (BooleanUtil.isFalse(line.getIqcCheckFlag())) {
@@ -100,7 +100,7 @@ public class MesWmArrivalNoticeLineServiceImpl implements MesWmArrivalNoticeLine
     }
 
     @Override
-    public void updateByIqcComplete(Long lineId, Long iqcId, BigDecimal qualifiedQuantity) {
+    public void updateArrivalNoticeLineWhenIqcFinish(Long lineId, Long iqcId, BigDecimal qualifiedQuantity) {
         // 校验行存在
         validateArrivalNoticeLineExists(lineId);
         // 更新

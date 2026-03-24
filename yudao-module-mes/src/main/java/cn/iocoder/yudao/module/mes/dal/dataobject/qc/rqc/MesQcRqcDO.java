@@ -47,7 +47,7 @@ public class MesQcRqcDO extends BaseDO {
      */
     private Long templateId;
 
-    // ========== 来源单据（TODO @芋艿：WM 模块迁移后接入） ==========
+    // ========== 来源单据 ==========
 
     /**
      * 来源单据 ID
@@ -55,8 +55,10 @@ public class MesQcRqcDO extends BaseDO {
     private Long sourceDocId;
     /**
      * 来源单据类型
+     *
+     * 关联 {@link cn.iocoder.yudao.module.mes.enums.MesBizTypeConstants}
      */
-    private String sourceDocType;
+    private Integer sourceDocType;
     /**
      * 来源单据行 ID
      */

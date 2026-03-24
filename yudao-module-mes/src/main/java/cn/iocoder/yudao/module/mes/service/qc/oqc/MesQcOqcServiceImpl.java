@@ -12,10 +12,12 @@ import cn.iocoder.yudao.module.mes.dal.mysql.qc.oqc.MesQcOqcMapper;
 import cn.iocoder.yudao.module.mes.enums.qc.MesQcDefectLevelEnum;
 import cn.iocoder.yudao.module.mes.enums.qc.MesQcStatusEnum;
 import cn.iocoder.yudao.module.mes.enums.qc.MesQcTypeEnum;
+import cn.iocoder.yudao.module.mes.enums.MesBizTypeConstants;
 import cn.iocoder.yudao.module.mes.service.md.client.MesMdClientService;
 import cn.iocoder.yudao.module.mes.service.md.item.MesMdItemService;
 import cn.iocoder.yudao.module.mes.service.qc.defectrecord.MesQcDefectRecordService;
 import cn.iocoder.yudao.module.mes.service.qc.template.MesQcTemplateDetailService;
+import cn.iocoder.yudao.module.mes.service.wm.productsales.MesWmProductSalesLineService;
 import cn.iocoder.yudao.module.system.api.user.AdminUserApi;
 import jakarta.annotation.Resource;
 import org.springframework.context.annotation.Lazy;
@@ -55,6 +57,10 @@ public class MesQcOqcServiceImpl implements MesQcOqcService {
     @Resource
     @Lazy
     private MesMdItemService itemService;
+    @Resource
+    @Lazy
+    private MesWmProductSalesLineService productSalesLineService;
+
     @Resource
     private AdminUserApi adminUserApi;
 
@@ -100,16 +106,47 @@ public class MesQcOqcServiceImpl implements MesQcOqcService {
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public void finishOqc(Long id) {
-        // 1. 校验存在 + 草稿状态
-        validateOqcStatusPrepare(id);
+        // 1.1 校验存在 + 草稿状态
+        MesQcOqcDO oqc = validateOqcStatusPrepare(id);
+        // 1.2 校验检测结论必填
+        if (oqc.getCheckResult() == null) {
+            throw exception(QC_OQC_CHECK_RESULT_EMPTY);
+        }
 
         // 2. 更新状态为已完成
         MesQcOqcDO updateObj = new MesQcOqcDO()
                 .setId(id).setStatus(MesQcStatusEnum.FINISHED.getStatus());
         oqcMapper.updateById(updateObj);
 
-        // TODO @芋艿：WM 模块迁移后，更新销售出库单行的检验结果
+        // 3. 回写来源单据
+        writeBackSourceDoc(oqc);
+    }
+
+    /**
+     * 回写来源单据（OQC 完成后）
+     *
+     * <p>当来源为销售出库单时，回写行的 oqcId 和 qualityStatus
+     *
+     * @param oqc 出货检验单
+     */
+    private void writeBackSourceDoc(MesQcOqcDO oqc) {
+        if (oqc.getSourceDocType() == null) {
+            return;
+        }
+        if (oqc.getSourceLineId() == null) {
+            throw new IllegalArgumentException(
+                    "OQC 单[" + oqc.getId() + "] sourceDocType 非空但 sourceLineId 为空");
+        }
+
+        if (Objects.equals(oqc.getSourceDocType(), MesBizTypeConstants.WM_PRODUCT_SALES)) {
+            // 回写销售出库单行的 oqcId + qualityStatus
+            productSalesLineService.updateProductSalesLineWhenOqcFinish(oqc.getSourceLineId(), oqc.getId(), oqc.getCheckResult());
+        } else {
+            throw new IllegalArgumentException(
+                    "OQC 单[" + oqc.getId() + "] sourceDocType=" + oqc.getSourceDocType() + " 无法识别，无法回写来源单据");
+        }
     }
 
     @Override
@@ -190,8 +227,8 @@ public class MesQcOqcServiceImpl implements MesQcOqcService {
         BigDecimal criticalRate = BigDecimal.ZERO;
         BigDecimal majorRate = BigDecimal.ZERO;
         BigDecimal minorRate = BigDecimal.ZERO;
-        if (oqc.getCheckQuantity() != null && oqc.getCheckQuantity() > 0) {
-            BigDecimal checkQty = BigDecimal.valueOf(oqc.getCheckQuantity());
+        if (oqc.getCheckQuantity() != null && oqc.getCheckQuantity().compareTo(BigDecimal.ZERO) > 0) {
+            BigDecimal checkQty = oqc.getCheckQuantity();
             criticalRate = BigDecimal.valueOf(totalCritical).multiply(BigDecimal.valueOf(100))
                     .divide(checkQty, 2, RoundingMode.HALF_UP);
             majorRate = BigDecimal.valueOf(totalMajor).multiply(BigDecimal.valueOf(100))

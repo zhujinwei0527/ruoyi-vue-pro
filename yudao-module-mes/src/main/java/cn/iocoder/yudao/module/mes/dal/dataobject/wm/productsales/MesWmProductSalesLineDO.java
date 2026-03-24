@@ -68,7 +68,7 @@ public class MesWmProductSalesLineDO extends BaseDO {
      *
      * 枚举 {@link cn.iocoder.yudao.module.mes.enums.wm.MesWmQualityStatusEnum}
      */
-    private String qualityStatus;
+    private Integer qualityStatus;
     /**
      * 备注
      */

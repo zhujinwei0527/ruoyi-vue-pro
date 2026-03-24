@@ -209,8 +209,8 @@ public class MesWmOutsourceReceiptServiceImpl implements MesWmOutsourceReceiptSe
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public void approveOutsourceReceiptWhenIqcComplete(Long receiptId, Long lineId, Long iqcId,
-                                                       BigDecimal qualifiedQuantity, BigDecimal unqualifiedQuantity) {
+    public void updateOutsourceReceiptWhenIqcFinish(Long receiptId, Long lineId, Long iqcId,
+                                                    BigDecimal qualifiedQuantity, BigDecimal unqualifiedQuantity) {
         // 1.1 校验入库单存在
         MesWmOutsourceReceiptDO receipt = validateOutsourceReceiptExists(receiptId);
         // 1.2 校验状态为待检验

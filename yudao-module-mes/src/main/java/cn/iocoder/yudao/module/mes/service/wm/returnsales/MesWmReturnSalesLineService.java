@@ -82,6 +82,14 @@ public interface MesWmReturnSalesLineService {
      * @param returnId 退货单ID
      * @param qualityStatus 质量状态
      */
-    void updateQualityStatusByReturnId(Long returnId, String qualityStatus);
+    void updateQualityStatusByReturnId(Long returnId, Integer qualityStatus);
+
+    /**
+     * RQC 检验完成后，更新销售退货单行的质量状态
+     *
+     * @param id 行 ID
+     * @param checkResult 检验结果
+     */
+    void updateReturnSalesLineWhenRqcFinish(Long id, Integer checkResult);
 
 }

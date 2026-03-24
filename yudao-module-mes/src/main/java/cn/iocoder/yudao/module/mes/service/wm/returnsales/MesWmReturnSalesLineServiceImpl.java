@@ -7,6 +7,8 @@ import cn.iocoder.yudao.module.mes.controller.admin.wm.returnsales.vo.line.MesWm
 import cn.iocoder.yudao.module.mes.dal.dataobject.md.item.MesMdItemDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.wm.returnsales.MesWmReturnSalesLineDO;
 import cn.iocoder.yudao.module.mes.dal.mysql.wm.returnsales.MesWmReturnSalesLineMapper;
+import cn.iocoder.yudao.module.mes.enums.qc.MesQcCheckResultEnum;
+import cn.iocoder.yudao.module.mes.enums.wm.MesWmQualityStatusEnum;
 import cn.iocoder.yudao.module.mes.service.md.item.MesMdItemService;
 import jakarta.annotation.Resource;
 import org.springframework.context.annotation.Lazy;
@@ -14,6 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 
 import java.util.List;
+import java.util.Objects;
 
 import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception;
 import static cn.iocoder.yudao.module.mes.enums.ErrorCodeConstants.MD_ITEM_BATCH_REQUIRED;
@@ -102,7 +105,7 @@ public class MesWmReturnSalesLineServiceImpl implements MesWmReturnSalesLineServ
     }
 
     @Override
-    public void updateQualityStatusByReturnId(Long returnId, String qualityStatus) {
+    public void updateQualityStatusByReturnId(Long returnId, Integer qualityStatus) {
         List<MesWmReturnSalesLineDO> lines = returnSalesLineMapper.selectListByReturnId(returnId);
         for (MesWmReturnSalesLineDO line : lines) {
             returnSalesLineMapper.updateById(new MesWmReturnSalesLineDO()
@@ -123,6 +126,14 @@ public class MesWmReturnSalesLineServiceImpl implements MesWmReturnSalesLineServ
         if (Boolean.TRUE.equals(item.getBatchFlag()) && batchId == null) {
             throw exception(MD_ITEM_BATCH_REQUIRED);
         }
+    }
+
+    @Override
+    public void updateReturnSalesLineWhenRqcFinish(Long id, Integer checkResult) {
+        Integer qualityStatus = Objects.equals(checkResult, MesQcCheckResultEnum.PASS.getType())
+                ? MesWmQualityStatusEnum.PASS.getStatus()
+                : MesWmQualityStatusEnum.FAIL.getStatus();
+        returnSalesLineMapper.updateById(new MesWmReturnSalesLineDO().setId(id).setQualityStatus(qualityStatus));
     }
 
 }

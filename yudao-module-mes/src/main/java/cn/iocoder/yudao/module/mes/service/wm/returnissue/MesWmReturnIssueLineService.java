@@ -82,4 +82,12 @@ public interface MesWmReturnIssueLineService {
      */
     void updateReturnIssueQualityStatusByIssueId(Long issueId, Integer issueType);
 
+    /**
+     * RQC 检验完成后，更新生产退料单行的质量状态
+     *
+     * @param id 行 ID
+     * @param checkResult 检验结果
+     */
+    void updateReturnIssueLineWhenRqcFinish(Long id, Integer checkResult);
+
 }

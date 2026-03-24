@@ -5,15 +5,16 @@ import cn.iocoder.yudao.module.mes.controller.admin.wm.productsales.vo.line.MesW
 import cn.iocoder.yudao.module.mes.controller.admin.wm.productsales.vo.line.MesWmProductSalesLineSaveReqVO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.wm.productsales.MesWmProductSalesLineDO;
 import cn.iocoder.yudao.module.mes.dal.mysql.wm.productsales.MesWmProductSalesLineMapper;
+import cn.iocoder.yudao.module.mes.enums.qc.MesQcCheckResultEnum;
+import cn.iocoder.yudao.module.mes.enums.wm.MesWmQualityStatusEnum;
 import cn.iocoder.yudao.module.mes.service.md.item.MesMdItemService;
 import jakarta.annotation.Resource;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 
-import java.math.BigDecimal;
 import java.util.List;
+import java.util.Objects;
 
 import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception;
 import static cn.iocoder.yudao.module.mes.enums.ErrorCodeConstants.WM_PRODUCT_SALES_LINE_NOT_EXISTS;
@@ -29,14 +30,8 @@ public class MesWmProductSalesLineServiceImpl implements MesWmProductSalesLineSe
 
     @Resource
     private MesWmProductSalesLineMapper productSalesLineMapper;
-
-    @Resource
-    @Lazy
-    private MesWmProductSalesService productSalesService;
-
     @Resource
     private MesWmProductSalesDetailService productSalesDetailService;
-
     @Resource
     private MesMdItemService itemService;
 
@@ -102,6 +97,14 @@ public class MesWmProductSalesLineServiceImpl implements MesWmProductSalesLineSe
             throw exception(WM_PRODUCT_SALES_LINE_NOT_EXISTS);
         }
         return line;
+    }
+
+    @Override
+    public void updateProductSalesLineWhenOqcFinish(Long id, Long oqcId, Integer checkResult) {
+        Integer qualityStatus = Objects.equals(checkResult, MesQcCheckResultEnum.PASS.getType())
+                ? MesWmQualityStatusEnum.PASS.getStatus() : MesWmQualityStatusEnum.FAIL.getStatus();
+        productSalesLineMapper.updateById(new MesWmProductSalesLineDO()
+                .setId(id).setOqcId(oqcId).setQualityStatus(qualityStatus));
     }
 
 }
