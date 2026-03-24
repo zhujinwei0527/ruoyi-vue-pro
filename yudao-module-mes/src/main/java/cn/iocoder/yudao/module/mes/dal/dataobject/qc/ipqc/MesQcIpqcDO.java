@@ -3,6 +3,7 @@ package cn.iocoder.yudao.module.mes.dal.dataobject.qc.ipqc;
 import cn.iocoder.yudao.framework.mybatis.core.dataobject.BaseDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.md.item.MesMdItemDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.md.workstation.MesMdWorkstationDO;
+import cn.iocoder.yudao.module.mes.dal.dataobject.pro.feedback.MesProFeedbackDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.pro.workorder.MesProWorkOrderDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.qc.template.MesQcTemplateDO;
 import cn.iocoder.yudao.module.mes.enums.qc.MesQcSourceDocTypeEnum;
@@ -68,7 +69,7 @@ public class MesQcIpqcDO extends BaseDO {
      * 来源单据 ID
      *
      * 关联：根据 {@link #sourceDocType} 不同：
-     * 1. {@link MesQcSourceDocTypeEnum#FEEDBACK} 时，关联 {@link cn.iocoder.yudao.module.mes.dal.dataobject.pro.feedback.MesProFeedbackDO#getId()}
+     * 1. {@link MesQcSourceDocTypeEnum#FEEDBACK} 时，关联 {@link MesProFeedbackDO#getId()}
      */
     private Long sourceDocId;
     /**

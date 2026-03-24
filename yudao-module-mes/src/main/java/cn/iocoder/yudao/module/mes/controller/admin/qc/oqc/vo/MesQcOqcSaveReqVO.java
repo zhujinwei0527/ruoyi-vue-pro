@@ -32,9 +32,6 @@ public class MesQcOqcSaveReqVO {
     @Schema(description = "来源单据类型", example = "118")
     private Integer sourceDocType;
 
-    @Schema(description = "来源单据编号", example = "SO20250101001")
-    private String sourceDocCode;
-
     @Schema(description = "来源单据行 ID", example = "300")
     private Long sourceLineId;
 

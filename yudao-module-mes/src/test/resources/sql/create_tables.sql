@@ -309,7 +309,6 @@ CREATE TABLE IF NOT EXISTS "mes_qc_oqc" (
     "template_id" bigint NOT NULL,
     "source_doc_id" bigint DEFAULT NULL,
     "source_doc_type" int DEFAULT NULL,
-    "source_doc_code" varchar(64) DEFAULT NULL,
     "source_line_id" bigint DEFAULT NULL,
     "client_id" bigint NOT NULL,
     "batch_code" varchar(64) DEFAULT NULL,

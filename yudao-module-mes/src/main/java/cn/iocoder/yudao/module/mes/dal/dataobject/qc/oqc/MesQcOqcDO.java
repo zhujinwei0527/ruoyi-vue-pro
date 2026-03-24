@@ -60,10 +60,6 @@ public class MesQcOqcDO extends BaseDO {
      */
     private Integer sourceDocType;
     /**
-     * 来源单据编号
-     */
-    private String sourceDocCode;
-    /**
      * 来源单据行 ID
      */
     private Long sourceLineId;
