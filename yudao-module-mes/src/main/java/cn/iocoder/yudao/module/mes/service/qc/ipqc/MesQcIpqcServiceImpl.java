@@ -104,8 +104,12 @@ public class MesQcIpqcServiceImpl implements MesQcIpqcService {
         adminUserApi.validateUser(updateReqVO.getInspectorUserId());
         itemService.validateItemExists(updateReqVO.getItemId());
 
-        // 2. 更新
+        // 2. 更新主表
         MesQcIpqcDO updateObj = BeanUtils.toBean(updateReqVO, MesQcIpqcDO.class);
+        updateObj.setSourceDocType(null).setSourceDocId(null).setSourceLineId(null); // 不允许修改来源单据
+        updateObj.setTemplateId(null); // 不允许修改模板
+        updateObj.setItemId(null); // 不允许修改物料
+        updateObj.setWorkOrderId(null); // 不允许修改工单
         ipqcMapper.updateById(updateObj);
     }
 
@@ -119,9 +123,8 @@ public class MesQcIpqcServiceImpl implements MesQcIpqcService {
         }
 
         // 2. 更新状态为已完成
-        MesQcIpqcDO updateObj = new MesQcIpqcDO();
-        updateObj.setId(id);
-        updateObj.setStatus(MesQcStatusEnum.FINISHED.getStatus());
+        MesQcIpqcDO updateObj = new MesQcIpqcDO()
+                .setId(id).setStatus(MesQcStatusEnum.FINISHED.getStatus());
         ipqcMapper.updateById(updateObj);
 
         // TODO @AI（from codex）：如果检验来源是报工，需要对待检产出按检验结果拆分合格/不合格行、生成产出明细、完成产品产出入库、
@@ -137,7 +140,7 @@ public class MesQcIpqcServiceImpl implements MesQcIpqcService {
         // 2.1 删除主表
         ipqcMapper.deleteById(id);
         // 2.2 级联删除行
-        ipqcLineService.deleteByIpqcId(id);
+        ipqcLineService.deleteListByIpqcId(id);
         // 2.3 级联删除缺陷记录
         defectRecordService.deleteListByQcTypeAndQcId(MesQcTypeEnum.IPQC.getType(), id);
     }

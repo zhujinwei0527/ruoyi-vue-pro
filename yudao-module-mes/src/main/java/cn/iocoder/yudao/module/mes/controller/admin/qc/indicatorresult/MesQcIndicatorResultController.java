@@ -137,7 +137,7 @@ public class MesQcIndicatorResultController {
             indicatorIds = CollUtil.isEmpty(lines) ? Collections.emptyList()
                     : new ArrayList<>(convertSet(lines, MesQcIqcLineDO::getIndicatorId));
         } else if (Objects.equals(qcType, MesQcTypeEnum.IPQC.getType())) {
-            List<MesQcIpqcLineDO> lines = ipqcLineService.selectListByIpqcId(qcId);
+            List<MesQcIpqcLineDO> lines = ipqcLineService.getIpqcLineListByIpqcId(qcId);
             indicatorIds = CollUtil.isEmpty(lines) ? Collections.emptyList()
                     : new ArrayList<>(convertSet(lines, MesQcIpqcLineDO::getIndicatorId));
         } else if (Objects.equals(qcType, MesQcTypeEnum.OQC.getType())) {

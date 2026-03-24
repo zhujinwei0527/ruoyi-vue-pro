@@ -9,11 +9,9 @@ import cn.iocoder.yudao.module.mes.controller.admin.qc.ipqc.vo.line.MesQcIpqcLin
 import cn.iocoder.yudao.module.mes.dal.dataobject.md.unitmeasure.MesMdUnitMeasureDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.qc.indicator.MesQcIndicatorDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.qc.ipqc.MesQcIpqcLineDO;
-import cn.iocoder.yudao.module.mes.dal.dataobject.tm.tool.MesTmToolDO;
 import cn.iocoder.yudao.module.mes.service.md.unitmeasure.MesMdUnitMeasureService;
 import cn.iocoder.yudao.module.mes.service.qc.indicator.MesQcIndicatorService;
 import cn.iocoder.yudao.module.mes.service.qc.ipqc.MesQcIpqcLineService;
-import cn.iocoder.yudao.module.mes.service.tm.tool.MesTmToolService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -46,8 +44,6 @@ public class MesQcIpqcLineController {
     private MesQcIndicatorService indicatorService;
     @Resource
     private MesMdUnitMeasureService unitMeasureService;
-    @Resource
-    private MesTmToolService toolService;
 
     @GetMapping("/get")
     @Operation(summary = "获得过程检验单行")

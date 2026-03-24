@@ -15,6 +15,14 @@ import java.util.List;
 public interface MesQcIpqcLineService {
 
     /**
+     * 校验过程检验行存在
+     *
+     * @param id 编号
+     * @return 过程检验行
+     */
+    MesQcIpqcLineDO validateIpqcLineExists(Long id);
+
+    /**
      * 获得过程检验行
      *
      * @param id 编号
@@ -31,14 +39,6 @@ public interface MesQcIpqcLineService {
     PageResult<MesQcIpqcLineDO> getIpqcLinePage(MesQcIpqcLinePageReqVO pageReqVO);
 
     /**
-     * 根据过程检验单 ID 查询所有行
-     *
-     * @param ipqcId 过程检验单 ID
-     * @return 行列表
-     */
-    List<MesQcIpqcLineDO> selectListByIpqcId(Long ipqcId);
-
-    /**
      * 从模板指标自动生成检验行
      *
      * @param ipqcId 过程检验单 ID
@@ -47,26 +47,26 @@ public interface MesQcIpqcLineService {
     void createLinesFromTemplate(Long ipqcId, Long templateId);
 
     /**
-     * 根据过程检验单 ID 级联删除所有行
-     *
-     * @param ipqcId 过程检验单 ID
-     */
-    void deleteByIpqcId(Long ipqcId);
-
-    /**
-     * 校验过程检验行存在
-     *
-     * @param id 编号
-     * @return 过程检验行
-     */
-    MesQcIpqcLineDO validateIpqcLineExists(Long id);
-
-    /**
      * 根据缺陷记录重新计算行级缺陷统计
      *
      * @param ipqcId  过程检验单 ID
      * @param records 缺陷记录列表
      */
     void recalculateLineDefectStats(Long ipqcId, List<MesQcDefectRecordDO> records);
+
+    /**
+     * 根据过程检验单 ID 获取所有行
+     *
+     * @param ipqcId 过程检验单 ID
+     * @return 行列表
+     */
+    List<MesQcIpqcLineDO> getIpqcLineListByIpqcId(Long ipqcId);
+
+    /**
+     * 根据过程检验单 ID 级联删除所有行
+     *
+     * @param ipqcId 过程检验单 ID
+     */
+    void deleteListByIpqcId(Long ipqcId);
 
 }

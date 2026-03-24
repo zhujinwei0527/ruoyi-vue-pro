@@ -44,6 +44,15 @@ public class MesQcIpqcLineServiceImpl implements MesQcIpqcLineService {
     private MesQcIndicatorService indicatorService;
 
     @Override
+    public MesQcIpqcLineDO validateIpqcLineExists(Long id) {
+        MesQcIpqcLineDO line = ipqcLineMapper.selectById(id);
+        if (line == null) {
+            throw exception(QC_IPQC_LINE_NOT_EXISTS);
+        }
+        return line;
+    }
+
+    @Override
     public MesQcIpqcLineDO getIpqcLine(Long id) {
         return ipqcLineMapper.selectById(id);
     }
@@ -51,11 +60,6 @@ public class MesQcIpqcLineServiceImpl implements MesQcIpqcLineService {
     @Override
     public PageResult<MesQcIpqcLineDO> getIpqcLinePage(MesQcIpqcLinePageReqVO pageReqVO) {
         return ipqcLineMapper.selectPage(pageReqVO);
-    }
-
-    @Override
-    public List<MesQcIpqcLineDO> selectListByIpqcId(Long ipqcId) {
-        return ipqcLineMapper.selectListByIpqcId(ipqcId);
     }
 
     @Override
@@ -80,20 +84,6 @@ public class MesQcIpqcLineServiceImpl implements MesQcIpqcLineService {
     }
 
     @Override
-    public void deleteByIpqcId(Long ipqcId) {
-        ipqcLineMapper.deleteByIpqcId(ipqcId);
-    }
-
-    @Override
-    public MesQcIpqcLineDO validateIpqcLineExists(Long id) {
-        MesQcIpqcLineDO line = ipqcLineMapper.selectById(id);
-        if (line == null) {
-            throw exception(QC_IPQC_LINE_NOT_EXISTS);
-        }
-        return line;
-    }
-
-    @Override
     public void recalculateLineDefectStats(Long ipqcId, List<MesQcDefectRecordDO> records) {
         List<MesQcIpqcLineDO> lines = ipqcLineMapper.selectListByIpqcId(ipqcId);
         if (CollUtil.isEmpty(lines)) {
@@ -101,7 +91,9 @@ public class MesQcIpqcLineServiceImpl implements MesQcIpqcLineService {
         }
         List<MesQcIpqcLineDO> updateLines = new ArrayList<>(lines.size());
         for (MesQcIpqcLineDO line : lines) {
-            int critical = 0, major = 0, minor = 0;
+            int critical = 0;
+            int major = 0;
+            int minor = 0;
             for (MesQcDefectRecordDO record : records) {
                 if (ObjUtil.notEqual(record.getLineId(), line.getId())) {
                     continue;
@@ -123,6 +115,16 @@ public class MesQcIpqcLineServiceImpl implements MesQcIpqcLineService {
         for (MesQcIpqcLineDO updateLine : updateLines) {
             ipqcLineMapper.updateById(updateLine);
         }
+    }
+
+    @Override
+    public List<MesQcIpqcLineDO> getIpqcLineListByIpqcId(Long ipqcId) {
+        return ipqcLineMapper.selectListByIpqcId(ipqcId);
+    }
+
+    @Override
+    public void deleteListByIpqcId(Long ipqcId) {
+        ipqcLineMapper.deleteByIpqcId(ipqcId);
     }
 
 }

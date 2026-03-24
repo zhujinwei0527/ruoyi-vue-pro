@@ -31,9 +31,6 @@ public class MesQcIpqcSaveReqVO {
     @NotNull(message = "检验类型不能为空")
     private Integer type;
 
-    @Schema(description = "检验模板 ID", example = "100")
-    private Long templateId;
-
     // ========== 来源单据 ==========
 
     @Schema(description = "来源单据类型", example = "FEEDBACK")
