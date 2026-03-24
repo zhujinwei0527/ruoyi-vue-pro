@@ -153,6 +153,9 @@ public class MesQcIqcServiceImpl implements MesQcIqcService {
         } else if (Objects.equals(iqc.getSourceDocType(), MesBizTypeConstants.WM_OUTSOURCE_RECPT)) {
             outsourceReceiptService.approveOutsourceReceiptWhenIqcComplete(iqc.getSourceDocId(), iqc.getSourceLineId(),
                     iqc.getId(), iqc.getQualifiedQuantity(), iqc.getUnqualifiedQuantity());
+        } else {
+            throw new IllegalArgumentException(
+                    "IQC 单[" + iqc.getId() + "] sourceDocType=" + iqc.getSourceDocType() + " 无法识别，无法回写来源单据");
         }
     }
 
@@ -220,6 +223,8 @@ public class MesQcIqcServiceImpl implements MesQcIqcService {
         // 根据来源单据类型，校验数据存在且匹配
         if (Objects.equals(sourceDocType, MesBizTypeConstants.WM_ARRIVAL_NOTICE)) {
             arrivalNoticeService.validateArrivalNoticeAndLineExists(sourceDocId, sourceLineId);
+        } else if (Objects.equals(sourceDocType, MesBizTypeConstants.WM_OUTSOURCE_RECPT)) {
+            outsourceReceiptService.validateOutsourceReceiptAndLineExists(sourceDocId, sourceLineId);
         }
     }
 

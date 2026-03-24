@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.iocoder.yudao.module.mes.dal.mysql.qc.pendinginspect.MesQcPendingInspectMapper">
+
+    <!--
+        待检任务查询（UNION ALL 多来源），目前已实现的来源：
+        1. 到货通知单（IQC）：状态=待质检(2)，行的 iqc_check_flag=1 且 iqc_id IS NULL
+        2. 外协入库单（IQC/OIQC）：状态=待检验(1)，行的 iqc_check=1 且 iqc_id IS NULL
+
+        TODO IPQC/OQC/RQC 来源待对应模块就绪后补充
+    -->
+    <select id="selectQcPendingPage" resultType="cn.iocoder.yudao.module.mes.controller.admin.qc.pendinginspect.vo.MesQcPendingInspectRespVO">
+        SELECT * FROM (
+            <!-- 1. IQC 来源：到货通知单 -->
+            SELECT
+                n.id AS sourceDocId,
+                ${@cn.iocoder.yudao.module.mes.enums.MesBizTypeConstants@WM_ARRIVAL_NOTICE} AS sourceDocType,
+                n.code AS sourceDocCode,
+                l.id AS sourceLineId,
+                n.arrival_date AS recordTime,
+                ${@cn.iocoder.yudao.module.mes.enums.qc.MesQcTypeEnum@IQC.type} AS qcType,
+                l.item_id AS itemId,
+                l.arrival_quantity AS quantityToCheck,
+                n.vendor_id AS vendorId
+            FROM mes_wm_arrival_notice n
+                JOIN mes_wm_arrival_notice_line l ON n.id = l.notice_id
+            WHERE n.status = ${@cn.iocoder.yudao.module.mes.enums.wm.MesWmArrivalNoticeStatusEnum@PENDING_QC.status}
+              AND l.iqc_check_flag = 1
+              AND l.iqc_id IS NULL
+              AND n.deleted = 0
+              AND l.deleted = 0
+
+            UNION ALL
+
+            <!-- 2. IQC 来源：外协入库单 -->
+            SELECT
+                r.id AS sourceDocId,
+                ${@cn.iocoder.yudao.module.mes.enums.MesBizTypeConstants@WM_OUTSOURCE_RECPT} AS sourceDocType,
+                r.code AS sourceDocCode,
+                rl.id AS sourceLineId,
+                r.receipt_date AS recordTime,
+                ${@cn.iocoder.yudao.module.mes.enums.qc.MesQcTypeEnum@IQC.type} AS qcType,
+                rl.item_id AS itemId,
+                rl.quantity AS quantityToCheck,
+                r.vendor_id AS vendorId
+            FROM mes_wm_outsource_receipt r
+                JOIN mes_wm_outsource_receipt_line rl ON r.id = rl.receipt_id
+            WHERE r.status = ${@cn.iocoder.yudao.module.mes.enums.wm.MesWmOutsourceReceiptStatusEnum@CONFIRMED.status}
+              AND rl.iqc_check = 1
+              AND rl.iqc_id IS NULL
+              AND r.deleted = 0
+              AND rl.deleted = 0
+        ) t
+        <where>
+            <if test="sourceDocCode != null and sourceDocCode != ''">
+                AND t.sourceDocCode LIKE CONCAT('%', #{sourceDocCode}, '%')
+            </if>
+            <if test="qcType != null">
+                AND t.qcType = #{qcType}
+            </if>
+            <if test="itemId != null">
+                AND t.itemId = #{itemId}
+            </if>
+        </where>
+        ORDER BY t.recordTime DESC
+    </select>
+
+</mapper>

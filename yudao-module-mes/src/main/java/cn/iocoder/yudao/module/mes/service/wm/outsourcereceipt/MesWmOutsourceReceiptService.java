@@ -91,4 +91,12 @@ public interface MesWmOutsourceReceiptService {
     void approveOutsourceReceiptWhenIqcComplete(Long receiptId, Long lineId, Long iqcId,
                                                 BigDecimal qualifiedQuantity, BigDecimal unqualifiedQuantity);
 
+    /**
+     * 校验外协入库单和行存在
+     *
+     * @param receiptId 入库单编号
+     * @param lineId 行编号
+     */
+    void validateOutsourceReceiptAndLineExists(Long receiptId, Long lineId);
+
 }

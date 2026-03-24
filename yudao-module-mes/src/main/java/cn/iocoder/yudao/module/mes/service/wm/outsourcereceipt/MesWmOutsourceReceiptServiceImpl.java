@@ -250,6 +250,20 @@ public class MesWmOutsourceReceiptServiceImpl implements MesWmOutsourceReceiptSe
         return receipt;
     }
 
+    @Override
+    public void validateOutsourceReceiptAndLineExists(Long receiptId, Long lineId) {
+        // 1. 校验入库单存在
+        validateOutsourceReceiptExists(receiptId);
+        // 2. 校验行存在且属于该入库单
+        MesWmOutsourceReceiptLineDO line = outsourceReceiptLineService.getOutsourceReceiptLine(lineId);
+        if (line == null) {
+            throw exception(WM_OUTSOURCE_RECEIPT_LINE_NOT_EXISTS);
+        }
+        if (ObjUtil.notEqual(receiptId, line.getReceiptId())) {
+            throw exception(WM_OUTSOURCE_RECEIPT_LINE_NOT_EXISTS);
+        }
+    }
+
     /**
      * 校验外协入库单存在且为草稿状态
      */
