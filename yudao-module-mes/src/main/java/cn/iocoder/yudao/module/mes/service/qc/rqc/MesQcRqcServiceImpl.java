@@ -134,8 +134,8 @@ public class MesQcRqcServiceImpl implements MesQcRqcService {
      *
      * <p>根据 sourceDocType 分发：
      * <ul>
-     *     <li>WM_RETURN_ISSUE（生产退料单）→ 回写行的 qualityStatus</li>
-     *     <li>WM_RETURN_SALES（销售退货单）→ 回写行的 qualityStatus</li>
+     *     <li>WM_RETURN_ISSUE（生产退料单）→ 根据合格/不合格数量拆分行 + 更新 qualityStatus + 联动主单状态</li>
+     *     <li>WM_RETURN_SALES（销售退货单）→ 同上</li>
      * </ul>
      *
      * @param rqc 退货检验单
@@ -150,11 +150,15 @@ public class MesQcRqcServiceImpl implements MesQcRqcService {
         }
 
         if (Objects.equals(rqc.getSourceDocType(), MesBizTypeConstants.WM_RETURN_ISSUE)) {
-            // 回写生产退料单行的 qualityStatus
-            returnIssueLineService.updateReturnIssueLineWhenRqcFinish(rqc.getSourceLineId(), rqc.getCheckResult());
+            // 回写生产退料单行：拆分行 + 更新质量状态 + 联动主单状态
+            returnIssueLineService.updateReturnIssueLineWhenRqcFinish(
+                    rqc.getSourceLineId(), rqc.getSourceDocId(), rqc.getCheckResult(),
+                    rqc.getQualifiedQuantity(), rqc.getUnqualifiedQuantity());
         } else if (Objects.equals(rqc.getSourceDocType(), MesBizTypeConstants.WM_RETURN_SALES)) {
-            // 回写销售退货单行的 qualityStatus
-            returnSalesLineService.updateReturnSalesLineWhenRqcFinish(rqc.getSourceLineId(), rqc.getCheckResult());
+            // 回写销售退货单行：拆分行 + 更新质量状态 + 联动主单状态
+            returnSalesLineService.updateReturnSalesLineWhenRqcFinish(
+                    rqc.getSourceLineId(), rqc.getSourceDocId(), rqc.getCheckResult(),
+                    rqc.getQualifiedQuantity(), rqc.getUnqualifiedQuantity());
         } else {
             throw new IllegalArgumentException(
                     "RQC 单[" + rqc.getId() + "] sourceDocType=" + rqc.getSourceDocType() + " 无法识别，无法回写来源单据");

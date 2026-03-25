@@ -271,4 +271,10 @@ public class MesWmReturnIssueServiceImpl implements MesWmReturnIssueService {
         return issue;
     }
 
+    @Override
+    public void updateReturnIssueStatus(Long id, Integer status) {
+        validateReturnIssueExists(id);
+        issueMapper.updateById(new MesWmReturnIssueDO().setId(id).setStatus(status));
+    }
+
 }

@@ -6,6 +6,7 @@ import cn.iocoder.yudao.module.mes.controller.admin.wm.returnsales.vo.line.MesWm
 import cn.iocoder.yudao.module.mes.dal.dataobject.wm.returnsales.MesWmReturnSalesLineDO;
 import jakarta.validation.Valid;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 /**
@@ -85,11 +86,23 @@ public interface MesWmReturnSalesLineService {
     void updateQualityStatusByReturnId(Long returnId, Integer qualityStatus);
 
     /**
-     * RQC 检验完成后，更新销售退货单行的质量状态
+     * RQC 检验完成后，根据合格品/不合格品数量更新销售退货单行
      *
-     * @param id 行 ID
-     * @param checkResult 检验结果
+     * <p>拆分逻辑：
+     * <ul>
+     *     <li>全部合格：直接更新行的 qualityStatus 为合格</li>
+     *     <li>全部不合格：直接更新行的 qualityStatus 为不合格</li>
+     *     <li>部分合格部分不合格：拆分原行（原行改为合格+数量=合格数，新增一行不合格+数量=不合格数）</li>
+     * </ul>
+     * 同时检查退货单下所有行是否都已检验完毕，若全检完则将退货单状态设为待上架。
+     *
+     * @param sourceLineId        来源行 ID
+     * @param sourceDocId         来源退货单 ID
+     * @param checkResult         检验结果
+     * @param qualifiedQuantity   合格品数量
+     * @param unqualifiedQuantity 不合格品数量
      */
-    void updateReturnSalesLineWhenRqcFinish(Long id, Integer checkResult);
+    void updateReturnSalesLineWhenRqcFinish(Long sourceLineId, Long sourceDocId, Integer checkResult,
+                                            BigDecimal qualifiedQuantity, BigDecimal unqualifiedQuantity);
 
 }

@@ -20,8 +20,8 @@ public class MesQcRqcPageReqVO extends PageParam {
     @Schema(description = "检验单编号", example = "RQC2025")
     private String code;
 
-    @Schema(description = "来源单据类型", example = "RTISSUE")
-    private String sourceDocType;
+    @Schema(description = "来源单据类型", example = "1")
+    private Integer sourceDocType;
 
     @Schema(description = "产品物料 ID", example = "20")
     private Long itemId;

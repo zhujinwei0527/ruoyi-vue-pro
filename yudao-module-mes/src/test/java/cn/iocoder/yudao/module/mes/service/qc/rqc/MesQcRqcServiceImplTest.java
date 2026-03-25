@@ -16,15 +16,15 @@ import org.junit.jupiter.api.Test;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
+import java.math.BigDecimal;
+
 import static cn.iocoder.yudao.framework.test.core.util.AssertUtils.assertServiceException;
 import static cn.iocoder.yudao.framework.test.core.util.RandomUtils.randomLongId;
 import static cn.iocoder.yudao.framework.test.core.util.RandomUtils.randomPojo;
 import static cn.iocoder.yudao.module.mes.enums.ErrorCodeConstants.QC_RQC_NOT_EXISTS;
 import static cn.iocoder.yudao.module.mes.enums.ErrorCodeConstants.QC_RQC_NOT_PREPARE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 
@@ -61,18 +61,22 @@ public class MesQcRqcServiceImplTest extends BaseDbUnitTest {
     public void testFinishRqc_successWithReturnIssue() {
         // 准备参数
         Long sourceLineId = randomLongId();
+        Long sourceDocId = randomLongId();
         Integer checkResult = 1;
+        BigDecimal qualifiedQty = new BigDecimal("80");
+        BigDecimal unqualifiedQty = new BigDecimal("20");
 
         // mock 数据
         MesQcRqcDO rqc = randomPojo(MesQcRqcDO.class, o -> {
             o.setStatus(MesQcStatusEnum.DRAFT.getStatus());
             o.setSourceDocType(MesBizTypeConstants.WM_RETURN_ISSUE);
+            o.setSourceDocId(sourceDocId);
             o.setSourceLineId(sourceLineId);
             o.setCheckResult(checkResult);
             // 设置数量通过 finishRqc 的数量校验：合格 + 不合格 = 检测数量
-            o.setCheckQuantity(new java.math.BigDecimal("100"));
-            o.setQualifiedQuantity(new java.math.BigDecimal("80"));
-            o.setUnqualifiedQuantity(new java.math.BigDecimal("20"));
+            o.setCheckQuantity(new BigDecimal("100"));
+            o.setQualifiedQuantity(qualifiedQty);
+            o.setUnqualifiedQuantity(unqualifiedQty);
         });
         rqcMapper.insert(rqc);
 
@@ -83,28 +87,36 @@ public class MesQcRqcServiceImplTest extends BaseDbUnitTest {
         MesQcRqcDO updatedRqc = rqcMapper.selectById(rqc.getId());
         assertEquals(MesQcStatusEnum.FINISHED.getStatus(), updatedRqc.getStatus());
 
-        // 断言：验证回写调用生产退料
-        verify(returnIssueLineService).updateReturnIssueLineWhenRqcFinish(eq(sourceLineId), eq(checkResult));
+        // 断言：验证回写调用生产退料（含拆分参数）
+        verify(returnIssueLineService).updateReturnIssueLineWhenRqcFinish(
+                eq(sourceLineId), eq(sourceDocId), eq(checkResult),
+                argThat(v -> v.compareTo(qualifiedQty) == 0),
+                argThat(v -> v.compareTo(unqualifiedQty) == 0));
         // 断言：未调用销售退货
-        verify(returnSalesLineService, never()).updateReturnSalesLineWhenRqcFinish(anyLong(), anyInt());
+        verify(returnSalesLineService, never()).updateReturnSalesLineWhenRqcFinish(
+                anyLong(), anyLong(), anyInt(), any(BigDecimal.class), any(BigDecimal.class));
     }
 
     @Test
     public void testFinishRqc_successWithReturnSales() {
         // 准备参数
         Long sourceLineId = randomLongId();
+        Long sourceDocId = randomLongId();
         Integer checkResult = 1;
+        BigDecimal qualifiedQty = new BigDecimal("90");
+        BigDecimal unqualifiedQty = new BigDecimal("10");
 
         // mock 数据
         MesQcRqcDO rqc = randomPojo(MesQcRqcDO.class, o -> {
             o.setStatus(MesQcStatusEnum.DRAFT.getStatus());
             o.setSourceDocType(MesBizTypeConstants.WM_RETURN_SALES);
+            o.setSourceDocId(sourceDocId);
             o.setSourceLineId(sourceLineId);
             o.setCheckResult(checkResult);
             // 设置数量通过 finishRqc 的数量校验：合格 + 不合格 = 检测数量
-            o.setCheckQuantity(new java.math.BigDecimal("100"));
-            o.setQualifiedQuantity(new java.math.BigDecimal("90"));
-            o.setUnqualifiedQuantity(new java.math.BigDecimal("10"));
+            o.setCheckQuantity(new BigDecimal("100"));
+            o.setQualifiedQuantity(qualifiedQty);
+            o.setUnqualifiedQuantity(unqualifiedQty);
         });
         rqcMapper.insert(rqc);
 
@@ -115,10 +127,14 @@ public class MesQcRqcServiceImplTest extends BaseDbUnitTest {
         MesQcRqcDO updatedRqc = rqcMapper.selectById(rqc.getId());
         assertEquals(MesQcStatusEnum.FINISHED.getStatus(), updatedRqc.getStatus());
 
-        // 断言：验证回写调用销售退货
-        verify(returnSalesLineService).updateReturnSalesLineWhenRqcFinish(eq(sourceLineId), eq(checkResult));
+        // 断言：验证回写调用销售退货（含拆分参数）
+        verify(returnSalesLineService).updateReturnSalesLineWhenRqcFinish(
+                eq(sourceLineId), eq(sourceDocId), eq(checkResult),
+                argThat(v -> v.compareTo(qualifiedQty) == 0),
+                argThat(v -> v.compareTo(unqualifiedQty) == 0));
         // 断言：未调用生产退料
-        verify(returnIssueLineService, never()).updateReturnIssueLineWhenRqcFinish(anyLong(), anyInt());
+        verify(returnIssueLineService, never()).updateReturnIssueLineWhenRqcFinish(
+                anyLong(), anyLong(), anyInt(), any(BigDecimal.class), any(BigDecimal.class));
     }
 
     @Test

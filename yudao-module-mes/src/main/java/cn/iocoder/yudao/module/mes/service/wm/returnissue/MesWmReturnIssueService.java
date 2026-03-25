@@ -85,4 +85,12 @@ public interface MesWmReturnIssueService {
      */
     void cancelReturnIssue(Long id);
 
+    /**
+     * 更新生产退料单状态（供外部模块联动调用，如 RQC 检验完成后）
+     *
+     * @param id 编号
+     * @param status 目标状态
+     */
+    void updateReturnIssueStatus(Long id, Integer status);
+
 }

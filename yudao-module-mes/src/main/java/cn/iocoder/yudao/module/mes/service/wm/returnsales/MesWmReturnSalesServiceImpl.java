@@ -239,4 +239,10 @@ public class MesWmReturnSalesServiceImpl implements MesWmReturnSalesService {
         return returnSales;
     }
 
+    @Override
+    public void updateReturnSalesStatus(Long id, Integer status) {
+        validateReturnSalesExists(id);
+        returnSalesMapper.updateById(new MesWmReturnSalesDO().setId(id).setStatus(status));
+    }
+
 }

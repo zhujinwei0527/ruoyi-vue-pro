@@ -9,11 +9,9 @@ import cn.iocoder.yudao.module.mes.controller.admin.qc.rqc.vo.line.MesQcRqcLineR
 import cn.iocoder.yudao.module.mes.dal.dataobject.md.unitmeasure.MesMdUnitMeasureDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.qc.rqc.MesQcRqcLineDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.qc.indicator.MesQcIndicatorDO;
-import cn.iocoder.yudao.module.mes.dal.dataobject.tm.tool.MesTmToolDO;
 import cn.iocoder.yudao.module.mes.service.md.unitmeasure.MesMdUnitMeasureService;
 import cn.iocoder.yudao.module.mes.service.qc.rqc.MesQcRqcLineService;
 import cn.iocoder.yudao.module.mes.service.qc.indicator.MesQcIndicatorService;
-import cn.iocoder.yudao.module.mes.service.tm.tool.MesTmToolService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -46,8 +44,6 @@ public class MesQcRqcLineController {
     private MesQcIndicatorService indicatorService;
     @Resource
     private MesMdUnitMeasureService unitMeasureService;
-    @Resource
-    private MesTmToolService toolService;
 
     @GetMapping("/get")
     @Operation(summary = "获得退货检验单行")

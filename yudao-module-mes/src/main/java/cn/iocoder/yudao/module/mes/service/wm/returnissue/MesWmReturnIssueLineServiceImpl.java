@@ -1,5 +1,6 @@
 package cn.iocoder.yudao.module.mes.service.wm.returnissue;
 
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.ObjUtil;
 import cn.iocoder.yudao.framework.common.pojo.PageResult;
 import cn.iocoder.yudao.framework.common.util.object.BeanUtils;
@@ -8,8 +9,8 @@ import cn.iocoder.yudao.module.mes.controller.admin.wm.returnissue.vo.line.MesWm
 import cn.iocoder.yudao.module.mes.dal.dataobject.wm.returnissue.MesWmReturnIssueDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.wm.returnissue.MesWmReturnIssueLineDO;
 import cn.iocoder.yudao.module.mes.dal.mysql.wm.returnissue.MesWmReturnIssueLineMapper;
-import cn.iocoder.yudao.module.mes.enums.qc.MesQcCheckResultEnum;
 import cn.iocoder.yudao.module.mes.enums.wm.MesWmQualityStatusEnum;
+import cn.iocoder.yudao.module.mes.enums.wm.MesWmReturnIssueStatusEnum;
 import cn.iocoder.yudao.module.mes.enums.wm.MesWmReturnIssueTypeEnum;
 import cn.iocoder.yudao.module.mes.service.md.item.MesMdItemService;
 import jakarta.annotation.Resource;
@@ -17,6 +18,7 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Objects;
 
@@ -137,10 +139,51 @@ public class MesWmReturnIssueLineServiceImpl implements MesWmReturnIssueLineServ
     }
 
     @Override
-    public void updateReturnIssueLineWhenRqcFinish(Long id, Integer checkResult) {
-        Integer qualityStatus = Objects.equals(checkResult, MesQcCheckResultEnum.PASS.getType())
-                ? MesWmQualityStatusEnum.PASS.getStatus() : MesWmQualityStatusEnum.FAIL.getStatus();
-        issueLineMapper.updateById(new MesWmReturnIssueLineDO().setId(id).setQualityStatus(qualityStatus));
+    public void updateReturnIssueLineWhenRqcFinish(Long sourceLineId, Long sourceDocId, Integer checkResult,
+                                                    BigDecimal qualifiedQuantity, BigDecimal unqualifiedQuantity) {
+        MesWmReturnIssueLineDO sourceLine = validateReturnIssueLineExists(sourceLineId);
+        boolean hasUnqualified = unqualifiedQuantity != null && unqualifiedQuantity.compareTo(BigDecimal.ZERO) > 0;
+        boolean hasQualified = qualifiedQuantity != null && qualifiedQuantity.compareTo(BigDecimal.ZERO) > 0;
+
+        // 1. 根据合格/不合格品数量，更新退料单行的质量状态
+        if (!hasUnqualified) {
+            // 1.A 情况一：全部合格
+            issueLineMapper.updateById(new MesWmReturnIssueLineDO()
+                    .setId(sourceLineId).setQualityStatus(MesWmQualityStatusEnum.PASS.getStatus()));
+        } else if (!hasQualified) {
+            // 1.B 情况二：全部不合格
+            issueLineMapper.updateById(new MesWmReturnIssueLineDO()
+                    .setId(sourceLineId).setQualityStatus(MesWmQualityStatusEnum.FAIL.getStatus()));
+        } else {
+            // 1.C 情况三：部分合格部分不合格 → 拆分行
+            // 1.C.1 新增一行不合格品
+            MesWmReturnIssueLineDO unqualifiedLine = new MesWmReturnIssueLineDO()
+                    .setIssueId(sourceLine.getIssueId())
+                    .setMaterialStockId(sourceLine.getMaterialStockId())
+                    .setItemId(sourceLine.getItemId())
+                    .setQuantity(unqualifiedQuantity)
+                    .setBatchId(sourceLine.getBatchId())
+                    .setIpqcId(sourceLine.getIpqcId())
+                    .setQcFlag(sourceLine.getQcFlag())
+                    .setQualityStatus(MesWmQualityStatusEnum.FAIL.getStatus())
+                    .setRemark(sourceLine.getRemark());
+            issueLineMapper.insert(unqualifiedLine);
+            // 1.C.2 更新原行为合格品（数量调整为合格数量）
+            issueLineMapper.updateById(new MesWmReturnIssueLineDO()
+                    .setId(sourceLineId)
+                    .setQuantity(qualifiedQuantity)
+                    .setQualityStatus(MesWmQualityStatusEnum.PASS.getStatus()));
+        }
+
+        // 2. 检查退料单下是否还有待检验的行，若全检完则将退料单状态设为"待上架"
+        if (sourceDocId != null) {
+            List<MesWmReturnIssueLineDO> allLines = issueLineMapper.selectListByIssueId(sourceDocId);
+            boolean allInspected = !CollUtil.contains(allLines,
+                    line -> Objects.equals(line.getQualityStatus(), MesWmQualityStatusEnum.PENDING.getStatus()));
+            if (allInspected) {
+                issueService.updateReturnIssueStatus(sourceDocId, MesWmReturnIssueStatusEnum.APPROVING.getStatus());
+            }
+        }
     }
 
 }

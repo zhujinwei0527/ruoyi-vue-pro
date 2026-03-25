@@ -88,6 +88,14 @@ public interface MesWmReturnSalesService {
     void cancelReturnSales(Long id);
 
     /**
+     * 更新销售退货单状态（供外部模块联动调用，如 RQC 检验完成后）
+     *
+     * @param id 编号
+     * @param status 目标状态
+     */
+    void updateReturnSalesStatus(Long id, Integer status);
+
+    /**
      * 校验销售退货单的数量：每行明细数量之和是否等于行退货数量
      *
      * @param id 编号

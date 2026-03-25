@@ -17,7 +17,8 @@ public enum MesMdAutoCodeRuleCodeEnum {
     BATCH_CODE("WM_BATCH_CODE", "批次编码"),
     TASK_CODE("PRO_TASK_CODE", "生产任务编码"),
     QC_IQC_CODE("QC_IQC_CODE", "来料检验单编码"),
-    QC_IPQC_CODE("QC_IPQC_CODE", "过程检验单编码");
+    QC_IPQC_CODE("QC_IPQC_CODE", "过程检验单编码"),
+    QC_RQC_CODE("QC_RQC_CODE", "退货检验单编码");
 
     /**
      * 规则代码
