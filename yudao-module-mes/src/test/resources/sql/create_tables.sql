@@ -350,7 +350,6 @@ CREATE TABLE IF NOT EXISTS "mes_qc_rqc" (
     "template_id" bigint NOT NULL,
     "source_doc_id" bigint DEFAULT NULL,
     "source_doc_type" int DEFAULT NULL,
-    "source_doc_code" varchar(64) DEFAULT NULL,
     "source_line_id" bigint DEFAULT NULL,
     "type" int DEFAULT NULL,
     "item_id" bigint NOT NULL,

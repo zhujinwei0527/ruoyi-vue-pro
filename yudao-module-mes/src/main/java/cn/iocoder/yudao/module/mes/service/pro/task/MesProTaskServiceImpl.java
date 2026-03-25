@@ -163,6 +163,9 @@ public class MesProTaskServiceImpl implements MesProTaskService {
 
     @Override
     public List<MesProTaskDO> getTaskList(Collection<Long> ids) {
+        if (CollUtil.isEmpty(ids)) {
+            return Collections.emptyList();
+        }
         return taskMapper.selectByIds(ids);
     }
 

@@ -9,6 +9,7 @@
         3. 生产报工（IPQC）：状态=待检验(3)
         4. 销售出库单（OQC）：行的 oqc_check=1 且 oqc_id IS NULL
         5. 生产退料单（RQC）：状态=待检验(5)，行的 qc_flag=1 且 quality_status=0（待检）
+        6. 销售退货单（RQC）：状态=待执行(10)，行的 quality_status=0（待检）
     -->
     <select id="selectQcPendingPage" resultType="cn.iocoder.yudao.module.mes.controller.admin.qc.pendinginspect.vo.MesQcPendingInspectRespVO">
         SELECT * FROM (
@@ -22,7 +23,11 @@
                 ${@cn.iocoder.yudao.module.mes.enums.qc.MesQcTypeEnum@IQC.type} AS qcType,
                 l.item_id AS itemId,
                 l.arrival_quantity AS quantity,
-                n.vendor_id AS vendorId
+                n.vendor_id AS vendorId,
+                NULL AS workOrderId,
+                NULL AS workstationId,
+                NULL AS taskId,
+                NULL AS clientId
             FROM mes_wm_arrival_notice n
                 JOIN mes_wm_arrival_notice_line l ON n.id = l.notice_id
             WHERE n.status = ${@cn.iocoder.yudao.module.mes.enums.wm.MesWmArrivalNoticeStatusEnum@PENDING_QC.status}
@@ -43,7 +48,11 @@
                 ${@cn.iocoder.yudao.module.mes.enums.qc.MesQcTypeEnum@IQC.type} AS qcType,
                 rl.item_id AS itemId,
                 rl.quantity AS quantity,
-                r.vendor_id AS vendorId
+                r.vendor_id AS vendorId,
+                NULL AS workOrderId,
+                NULL AS workstationId,
+                NULL AS taskId,
+                NULL AS clientId
             FROM mes_wm_outsource_receipt r
                 JOIN mes_wm_outsource_receipt_line rl ON r.id = rl.receipt_id
             WHERE r.status = ${@cn.iocoder.yudao.module.mes.enums.wm.MesWmOutsourceReceiptStatusEnum@CONFIRMED.status}
@@ -64,7 +73,11 @@
                 ${@cn.iocoder.yudao.module.mes.enums.qc.MesQcTypeEnum@IPQC.type} AS qcType,
                 f.item_id AS itemId,
                 f.uncheck_quantity AS quantity,
-                NULL AS vendorId
+                NULL AS vendorId,
+                f.work_order_id AS workOrderId,
+                f.workstation_id AS workstationId,
+                f.task_id AS taskId,
+                NULL AS clientId
             FROM mes_pro_feedback f
             WHERE f.status = ${@cn.iocoder.yudao.module.mes.enums.pro.MesProFeedbackStatusEnum@UNCHECK.status}
               AND f.deleted = 0
@@ -81,7 +94,11 @@
                 ${@cn.iocoder.yudao.module.mes.enums.qc.MesQcTypeEnum@OQC.type} AS qcType,
                 sl.item_id AS itemId,
                 sl.quantity AS quantity,
-                NULL AS vendorId
+                NULL AS vendorId,
+                NULL AS workOrderId,
+                NULL AS workstationId,
+                NULL AS taskId,
+                s.client_id AS clientId
             FROM mes_wm_product_sales s
                 JOIN mes_wm_product_sales_line sl ON s.id = sl.sales_id
             WHERE sl.oqc_check = 1
@@ -101,7 +118,11 @@
                 ${@cn.iocoder.yudao.module.mes.enums.qc.MesQcTypeEnum@RQC.type} AS qcType,
                 ril.item_id AS itemId,
                 ril.quantity AS quantity,
-                NULL AS vendorId
+                NULL AS vendorId,
+                ri.work_order_id AS workOrderId,
+                ri.workstation_id AS workstationId,
+                NULL AS taskId,
+                NULL AS clientId
             FROM mes_wm_return_issue ri
                 JOIN mes_wm_return_issue_line ril ON ri.id = ril.issue_id
             WHERE ri.status = ${@cn.iocoder.yudao.module.mes.enums.wm.MesWmReturnIssueStatusEnum@CONFIRMED.status}
@@ -109,6 +130,30 @@
               AND ril.quality_status = ${@cn.iocoder.yudao.module.mes.enums.wm.MesWmQualityStatusEnum@PENDING.status}
               AND ri.deleted = 0
               AND ril.deleted = 0
+
+            UNION ALL
+
+            <!-- 6. RQC 来源：销售退货单（待执行(APPROVING)，行的 quality_status=0） -->
+            SELECT
+                r.id AS sourceDocId,
+                ${@cn.iocoder.yudao.module.mes.enums.MesBizTypeConstants@WM_RETURN_SALES} AS sourceDocType,
+                r.code AS sourceDocCode,
+                rl.id AS sourceLineId,
+                r.return_date AS recordTime,
+                ${@cn.iocoder.yudao.module.mes.enums.qc.MesQcTypeEnum@RQC.type} AS qcType,
+                rl.item_id AS itemId,
+                rl.quantity AS quantity,
+                NULL AS vendorId,
+                NULL AS workOrderId,
+                NULL AS workstationId,
+                NULL AS taskId,
+                r.client_id AS clientId
+            FROM mes_wm_return_sales r
+                JOIN mes_wm_return_sales_line rl ON r.id = rl.return_id
+            WHERE r.status = ${@cn.iocoder.yudao.module.mes.enums.wm.MesWmReturnSalesStatusEnum@APPROVING.status}
+              AND rl.quality_status = ${@cn.iocoder.yudao.module.mes.enums.wm.MesWmQualityStatusEnum@PENDING.status}
+              AND r.deleted = 0
+              AND rl.deleted = 0
         ) t
         <where>
             <if test="sourceDocCode != null and sourceDocCode != ''">

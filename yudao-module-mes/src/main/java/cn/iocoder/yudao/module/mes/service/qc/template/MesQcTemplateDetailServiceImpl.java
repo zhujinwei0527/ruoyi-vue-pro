@@ -163,7 +163,7 @@ public class MesQcTemplateDetailServiceImpl implements MesQcTemplateDetailServic
         // 1. 查出 itemId 关联的所有 templateId
         List<MesQcTemplateItemDO> templateItems = templateItemMapper.selectListByItemId(itemId);
         if (CollUtil.isEmpty(templateItems)) {
-            throw exception(QC_IQC_NO_TEMPLATE);
+            throw exception(QC_NO_TEMPLATE);
         }
         // 2. 筛选 types 包含 qcType 的模板
         List<MesQcTemplateDO> templates = templateMapper.selectByIds(
@@ -171,7 +171,7 @@ public class MesQcTemplateDetailServiceImpl implements MesQcTemplateDetailServic
         MesQcTemplateDO matchedTemplate = findFirst(templates,
                 t -> CollUtil.contains(t.getTypes(), qcType));
         if (matchedTemplate == null) {
-            throw exception(QC_IQC_NO_TEMPLATE);
+            throw exception(QC_NO_TEMPLATE);
         }
         // 3. 返回对应的 templateItem
         return findFirst(templateItems,

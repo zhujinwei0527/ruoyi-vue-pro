@@ -282,7 +282,7 @@ public interface ErrorCodeConstants {
     ErrorCode QC_IQC_CODE_DUPLICATE = new ErrorCode(1_040_603_001, "来料检验单编号已存在");
     ErrorCode QC_IQC_NOT_PREPARE = new ErrorCode(1_040_603_002, "只有草稿状态的检验单才可操作");
     ErrorCode QC_IQC_QUANTITY_MISMATCH = new ErrorCode(1_040_603_004, "合格品与不合格品数量之和须等于检测数量");
-    ErrorCode QC_IQC_NO_TEMPLATE = new ErrorCode(1_040_603_005, "当前产品未配置 IQC 检测模板");
+    ErrorCode QC_NO_TEMPLATE = new ErrorCode(1_040_603_005, "当前产品未配置检测模板");
     ErrorCode QC_IQC_SOURCE_DOC_PARAMS_MISSING = new ErrorCode(1_040_603_006, "来源单据类型非空时，来源单据 ID 和来源单据行 ID 不能为空");
     ErrorCode QC_IQC_CHECK_RESULT_EMPTY = new ErrorCode(1_040_603_007, "完成检验单前，检测结果必须填写");
     // ========== MES 质量管理-来料检验行（1-040-603-100） ==========

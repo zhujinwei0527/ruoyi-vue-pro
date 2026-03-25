@@ -55,6 +55,31 @@ public class MesQcPendingInspectRespVO {
     @Schema(description = "供应商名称", example = "供应商A")
     private String vendorName;
 
+    // ========== 工单/工作站/任务（IPQC/RQC 场景） ==========
+
+    @Schema(description = "生产工单 ID", example = "10")
+    private Long workOrderId;
+
+    @Schema(description = "工作站 ID", example = "20")
+    private Long workstationId;
+
+    @Schema(description = "工作站名称", example = "工作站A")
+    private String workstationName;
+
+    @Schema(description = "生产任务 ID", example = "30")
+    private Long taskId;
+
+    @Schema(description = "生产任务编码", example = "TASK2025001")
+    private String taskCode;
+
+    // ========== 客户（OQC/RQC 场景） ==========
+
+    @Schema(description = "客户 ID", example = "40")
+    private Long clientId;
+
+    @Schema(description = "客户名称", example = "客户A")
+    private String clientName;
+
     // ========== 时间 ==========
 
     @Schema(description = "记录时间")
