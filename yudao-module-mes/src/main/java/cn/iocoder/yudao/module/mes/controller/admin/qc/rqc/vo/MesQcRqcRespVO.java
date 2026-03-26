@@ -39,6 +39,9 @@ public class MesQcRqcRespVO {
     @Schema(description = "来源单据行 ID", example = "300")
     private Long sourceLineId;
 
+    @Schema(description = "来源单据编码", example = "RT20250101001")
+    private String sourceDocCode;
+
     // ========== 检验类型 ==========
 
     @Schema(description = "检验类型", example = "1")

@@ -69,16 +69,20 @@ public class MesQcIpqcDO extends BaseDO {
      * 来源单据 ID
      *
      * 关联：根据 {@link #sourceDocType} 不同：
-     * 1. {@link MesQcSourceDocTypeEnum#FEEDBACK} 时，关联 {@link MesProFeedbackDO#getId()}
+     * 1. {@link MesQcSourceDocTypeEnum#PRO_FEEDBACK} 时，关联 {@link MesProFeedbackDO#getId()}
      */
     private Long sourceDocId;
     /**
      * 来源单据行 ID
      *
      * 关联：根据 {@link #sourceDocType} 不同：
-     * 1. {@link MesQcSourceDocTypeEnum#FEEDBACK} 时，暂不使用（预留）
+     * 1. {@link MesQcSourceDocTypeEnum#PRO_FEEDBACK} 时，暂不使用（预留）
      */
     private Long sourceLineId;
+    /**
+     * 来源单据编号（冗余）
+     */
+    private String sourceDocCode;
 
     // ========== 生产关联 ==========
 

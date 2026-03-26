@@ -74,6 +74,10 @@ public class MesQcIqcDO extends BaseDO {
      * 1. {@link MesQcSourceDocTypeEnum#ARRIVAL_NOTICE} 时，关联 {@link MesWmArrivalNoticeLineDO#getId()}
      */
     private Long sourceLineId;
+    /**
+     * 来源单据编号（冗余）
+     */
+    private String sourceDocCode;
 
     // ========== 供应商 ==========
 

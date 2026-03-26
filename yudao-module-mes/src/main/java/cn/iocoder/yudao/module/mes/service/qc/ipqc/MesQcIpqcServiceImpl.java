@@ -9,6 +9,7 @@ import cn.iocoder.yudao.module.mes.controller.admin.qc.ipqc.vo.MesQcIpqcSaveReqV
 import cn.iocoder.yudao.module.mes.dal.dataobject.md.workstation.MesMdWorkstationDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.pro.route.MesProRouteProductDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.pro.workorder.MesProWorkOrderDO;
+import cn.iocoder.yudao.module.mes.dal.dataobject.pro.feedback.MesProFeedbackDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.qc.defectrecord.MesQcDefectRecordDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.qc.ipqc.MesQcIpqcDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.qc.template.MesQcTemplateItemDO;
@@ -95,12 +96,16 @@ public class MesQcIpqcServiceImpl implements MesQcIpqcService {
         MesQcTemplateItemDO templateItem = templateDetailService.getRequiredTemplateByItemIdAndType(
                 workOrder.getProductId(), MesQcTypeEnum.IPQC.getType());
         Long templateId = templateItem.getTemplateId();
+        // 1.4 获取来源单据编号
+        String sourceDocCode = validateAndGetSourceDocCode(
+                createReqVO.getSourceDocType(), createReqVO.getSourceDocId());
 
         // 2. 插入主表
         MesQcIpqcDO ipqc = BeanUtils.toBean(createReqVO, MesQcIpqcDO.class)
                 .setItemId(workOrder.getProductId())
                 .setProcessId(getProcessId(workOrder.getProductId(), workstation.getProcessId()))
                 .setTemplateId(templateId)
+                .setSourceDocCode(sourceDocCode)
                 .setStatus(MesQcStatusEnum.DRAFT.getStatus());
         ipqcMapper.insert(ipqc);
 
@@ -222,6 +227,17 @@ public class MesQcIpqcServiceImpl implements MesQcIpqcService {
         if (ObjUtil.notEqual(ipqc.getId(), id)) {
             throw exception(QC_IPQC_CODE_DUPLICATE);
         }
+    }
+
+    private String validateAndGetSourceDocCode(Integer sourceDocType, Long sourceDocId) {
+        if (sourceDocType == null || sourceDocId == null) {
+            return null;
+        }
+        if (Objects.equals(sourceDocType, MesBizTypeConstants.PRO_FEEDBACK)) {
+            MesProFeedbackDO feedback = feedbackService.getFeedback(sourceDocId);
+            return feedback != null ? feedback.getCode() : null;
+        }
+        return null;
     }
 
     /**

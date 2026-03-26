@@ -76,17 +76,19 @@ public class MesQcIqcServiceImpl implements MesQcIqcService {
         itemService.validateItemExists(createReqVO.getItemId());
         adminUserApi.validateUser(createReqVO.getInspectorUserId());
         // 1.3 校验来源单据参数，并验证数据存在
-        validateSourceDoc(createReqVO.getSourceDocType(), createReqVO.getSourceDocId(), createReqVO.getSourceLineId());
+        String sourceDocCode = validateAndGetSourceDocCode(
+                createReqVO.getSourceDocType(), createReqVO.getSourceDocId(), createReqVO.getSourceLineId());
         // 1.4 通过 itemId + IQC 类型自动查找模板
         MesQcTemplateItemDO templateItem = templateDetailService.getRequiredTemplateByItemIdAndType(
                 createReqVO.getItemId(), MesQcTypeEnum.IQC.getType());
         Long templateId = templateItem.getTemplateId();
 
         // 2. 插入主表
-        MesQcIqcDO iqc = BeanUtils.toBean(createReqVO, MesQcIqcDO.class);
-        iqc.setTemplateId(templateId);
-        iqc.setCheckQuantity(createReqVO.getQualifiedQuantity().add(createReqVO.getUnqualifiedQuantity()));
-        iqc.setStatus(MesQcStatusEnum.DRAFT.getStatus());
+        MesQcIqcDO iqc = BeanUtils.toBean(createReqVO, MesQcIqcDO.class)
+                .setTemplateId(templateId)
+                .setCheckQuantity(createReqVO.getQualifiedQuantity().add(createReqVO.getUnqualifiedQuantity()))
+                .setSourceDocCode(sourceDocCode)
+                .setStatus(MesQcStatusEnum.DRAFT.getStatus());
         iqcMapper.insert(iqc);
 
         // 3. 从模板指标自动生成检验行
@@ -213,9 +215,9 @@ public class MesQcIqcServiceImpl implements MesQcIqcService {
      * @param sourceDocId 来源单据 ID
      * @param sourceLineId 来源单据行 ID
      */
-    private void validateSourceDoc(Integer sourceDocType, Long sourceDocId, Long sourceLineId) {
+    private String validateAndGetSourceDocCode(Integer sourceDocType, Long sourceDocId, Long sourceLineId) {
         if (sourceDocType == null) {
-            return;
+            return null;
         }
         if (ObjUtil.hasNull(sourceDocId, sourceLineId)) {
             throw exception(QC_IQC_SOURCE_DOC_PARAMS_MISSING);
@@ -223,9 +225,12 @@ public class MesQcIqcServiceImpl implements MesQcIqcService {
         // 根据来源单据类型，校验数据存在且匹配
         if (Objects.equals(sourceDocType, MesBizTypeConstants.WM_ARRIVAL_NOTICE)) {
             arrivalNoticeService.validateArrivalNoticeAndLineExists(sourceDocId, sourceLineId);
+            return arrivalNoticeService.getArrivalNotice(sourceDocId).getCode();
         } else if (Objects.equals(sourceDocType, MesBizTypeConstants.WM_OUTSOURCE_RECPT)) {
             outsourceReceiptService.validateOutsourceReceiptAndLineExists(sourceDocId, sourceLineId);
+            return outsourceReceiptService.getOutsourceReceipt(sourceDocId).getCode();
         }
+        return null;
     }
 
     @Override

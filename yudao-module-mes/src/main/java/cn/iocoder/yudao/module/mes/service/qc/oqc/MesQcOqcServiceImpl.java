@@ -18,6 +18,9 @@ import cn.iocoder.yudao.module.mes.service.md.item.MesMdItemService;
 import cn.iocoder.yudao.module.mes.service.qc.defectrecord.MesQcDefectRecordService;
 import cn.iocoder.yudao.module.mes.service.qc.template.MesQcTemplateDetailService;
 import cn.iocoder.yudao.module.mes.service.wm.productsales.MesWmProductSalesLineService;
+import cn.iocoder.yudao.module.mes.service.wm.productsales.MesWmProductSalesService;
+import cn.iocoder.yudao.module.mes.dal.dataobject.wm.productsales.MesWmProductSalesDO;
+import cn.iocoder.yudao.module.mes.dal.dataobject.wm.productsales.MesWmProductSalesLineDO;
 import cn.iocoder.yudao.module.system.api.user.AdminUserApi;
 import jakarta.annotation.Resource;
 import org.springframework.context.annotation.Lazy;
@@ -60,6 +63,9 @@ public class MesQcOqcServiceImpl implements MesQcOqcService {
     @Resource
     @Lazy
     private MesWmProductSalesLineService productSalesLineService;
+    @Resource
+    @Lazy
+    private MesWmProductSalesService productSalesService;
 
     @Resource
     private AdminUserApi adminUserApi;
@@ -77,11 +83,15 @@ public class MesQcOqcServiceImpl implements MesQcOqcService {
         MesQcTemplateItemDO templateItem = templateDetailService.getRequiredTemplateByItemIdAndType(
                 createReqVO.getItemId(), MesQcTypeEnum.OQC.getType());
         Long templateId = templateItem.getTemplateId();
+        // 1.4 获取来源单据编号
+        String sourceDocCode = validateAndGetSourceDocCode(
+                createReqVO.getSourceDocType(), createReqVO.getSourceLineId());
 
         // 2. 插入主表
-        MesQcOqcDO oqc = BeanUtils.toBean(createReqVO, MesQcOqcDO.class);
-        oqc.setTemplateId(templateId);
-        oqc.setStatus(MesQcStatusEnum.DRAFT.getStatus());
+        MesQcOqcDO oqc = BeanUtils.toBean(createReqVO, MesQcOqcDO.class)
+                .setTemplateId(templateId)
+                .setSourceDocCode(sourceDocCode)
+                .setStatus(MesQcStatusEnum.DRAFT.getStatus());
         oqcMapper.insert(oqc);
 
         // 3. 从模板指标自动生成检验行
@@ -191,6 +201,20 @@ public class MesQcOqcServiceImpl implements MesQcOqcService {
         if (ObjUtil.notEqual(oqc.getId(), id)) {
             throw exception(QC_OQC_CODE_DUPLICATE);
         }
+    }
+
+    private String validateAndGetSourceDocCode(Integer sourceDocType, Long sourceLineId) {
+        if (sourceDocType == null || sourceLineId == null) {
+            return null;
+        }
+        if (Objects.equals(sourceDocType, MesBizTypeConstants.WM_PRODUCT_SALES)) {
+            MesWmProductSalesLineDO salesLine = productSalesLineService.getProductSalesLine(sourceLineId);
+            if (salesLine != null && salesLine.getSalesId() != null) {
+                MesWmProductSalesDO sales = productSalesService.getProductSales(salesLine.getSalesId());
+                return sales != null ? sales.getCode() : null;
+            }
+        }
+        return null;
     }
 
     @Override

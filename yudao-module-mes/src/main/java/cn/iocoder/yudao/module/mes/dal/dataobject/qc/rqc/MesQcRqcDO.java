@@ -63,6 +63,10 @@ public class MesQcRqcDO extends BaseDO {
      * 来源单据行 ID
      */
     private Long sourceLineId;
+    /**
+     * 来源单据编码（冗余）
+     */
+    private String sourceDocCode;
 
     // ========== 检验类型 ==========
 

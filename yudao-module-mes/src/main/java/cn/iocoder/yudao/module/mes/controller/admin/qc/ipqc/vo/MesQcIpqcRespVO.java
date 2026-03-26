@@ -43,6 +43,9 @@ public class MesQcIpqcRespVO {
     @Schema(description = "来源单据行 ID", example = "300")
     private Long sourceLineId;
 
+    @Schema(description = "来源单据编号", example = "FB20250101001")
+    private String sourceDocCode;
+
     // ========== 生产关联 ==========
 
     @Schema(description = "生产工单 ID", requiredMode = Schema.RequiredMode.REQUIRED, example = "10")

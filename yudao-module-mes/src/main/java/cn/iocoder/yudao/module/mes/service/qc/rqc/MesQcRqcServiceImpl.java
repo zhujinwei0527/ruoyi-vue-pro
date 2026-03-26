@@ -15,6 +15,8 @@ import cn.iocoder.yudao.module.mes.enums.qc.MesQcTypeEnum;
 import cn.iocoder.yudao.module.mes.enums.MesBizTypeConstants;
 import cn.iocoder.yudao.module.mes.service.md.item.MesMdItemService;
 import cn.iocoder.yudao.module.mes.service.qc.defectrecord.MesQcDefectRecordService;
+import cn.iocoder.yudao.module.mes.service.wm.returnissue.MesWmReturnIssueService;
+import cn.iocoder.yudao.module.mes.service.wm.returnsales.MesWmReturnSalesService;
 import cn.iocoder.yudao.module.mes.service.qc.template.MesQcTemplateDetailService;
 import cn.iocoder.yudao.module.mes.service.wm.returnissue.MesWmReturnIssueLineService;
 import cn.iocoder.yudao.module.mes.service.wm.returnsales.MesWmReturnSalesLineService;
@@ -60,6 +62,12 @@ public class MesQcRqcServiceImpl implements MesQcRqcService {
     @Resource
     @Lazy
     private MesWmReturnSalesLineService returnSalesLineService;
+    @Resource
+    @Lazy
+    private MesWmReturnIssueService returnIssueService;
+    @Resource
+    @Lazy
+    private MesWmReturnSalesService returnSalesService;
 
     @Resource
     private AdminUserApi adminUserApi;
@@ -76,10 +84,14 @@ public class MesQcRqcServiceImpl implements MesQcRqcService {
         MesQcTemplateItemDO templateItem = templateDetailService.getRequiredTemplateByItemIdAndType(
                 createReqVO.getItemId(), createReqVO.getType());
         Long templateId = templateItem.getTemplateId();
+        // 1.4 获取来源单据编号
+        String sourceDocCode = validateAndGetSourceDocCode(
+                createReqVO.getSourceDocType(), createReqVO.getSourceDocId());
 
         // 2. 插入主表
         MesQcRqcDO rqc = BeanUtils.toBean(createReqVO, MesQcRqcDO.class)
                 .setTemplateId(templateId)
+                .setSourceDocCode(sourceDocCode)
                 .setStatus(MesQcStatusEnum.DRAFT.getStatus());
         rqcMapper.insert(rqc);
 
@@ -215,6 +227,21 @@ public class MesQcRqcServiceImpl implements MesQcRqcService {
     @Override
     public MesQcRqcDO getRqc(Long id) {
         return rqcMapper.selectById(id);
+    }
+
+    /**
+     * 根据来源单据类型 + 来源单据 ID，推导来源单据编码
+     */
+    private String validateAndGetSourceDocCode(Integer sourceDocType, Long sourceDocId) {
+        if (sourceDocType == null || sourceDocId == null) {
+            return null;
+        }
+        if (Objects.equals(sourceDocType, MesBizTypeConstants.WM_RETURN_ISSUE)) {
+            return returnIssueService.getReturnIssue(sourceDocId).getCode();
+        } else if (Objects.equals(sourceDocType, MesBizTypeConstants.WM_RETURN_SALES)) {
+            return returnSalesService.getReturnSales(sourceDocId).getCode();
+        }
+        return null;
     }
 
     @Override
