@@ -50,6 +50,14 @@ public class MesWmReturnSalesLineDO extends BaseDO {
      */
     private Long batchId;
     /**
+     * 退货检验单 ID
+     */
+    private Long rqcId;
+    /**
+     * 是否需要质检
+     */
+    private Boolean qcFlag;
+    /**
      * 质量状态
      *
      * 枚举 {@link cn.iocoder.yudao.module.mes.enums.wm.MesWmQualityStatusEnum}

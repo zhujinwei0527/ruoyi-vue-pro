@@ -133,7 +133,7 @@
 
             UNION ALL
 
-            <!-- 6. RQC 来源：销售退货单（待执行(APPROVING)，行的 quality_status=0） -->
+            <!-- 6. RQC 来源：销售退货单（待检验(CONFIRMED)，行的 quality_status=0） -->
             SELECT
                 r.id AS sourceDocId,
                 ${@cn.iocoder.yudao.module.mes.enums.MesBizTypeConstants@WM_RETURN_SALES} AS sourceDocType,
@@ -150,7 +150,8 @@
                 r.client_id AS clientId
             FROM mes_wm_return_sales r
                 JOIN mes_wm_return_sales_line rl ON r.id = rl.return_id
-            WHERE r.status = ${@cn.iocoder.yudao.module.mes.enums.wm.MesWmReturnSalesStatusEnum@APPROVING.status}
+            WHERE r.status = ${@cn.iocoder.yudao.module.mes.enums.wm.MesWmReturnSalesStatusEnum@CONFIRMED.status}
+              AND rl.qc_flag = 1
               AND rl.quality_status = ${@cn.iocoder.yudao.module.mes.enums.wm.MesWmQualityStatusEnum@PENDING.status}
               AND r.deleted = 0
               AND rl.deleted = 0

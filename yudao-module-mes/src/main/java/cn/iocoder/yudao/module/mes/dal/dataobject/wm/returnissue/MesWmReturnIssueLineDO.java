@@ -52,9 +52,9 @@ public class MesWmReturnIssueLineDO extends BaseDO {
      */
     private Long batchId;
     /**
-     * 过程检验单 ID
+     * 退货检验单 ID
      */
-    private Long ipqcId;
+    private Long rqcId;
     /**
      * 是否需要质检
      */

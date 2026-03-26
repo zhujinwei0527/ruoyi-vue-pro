@@ -133,21 +133,19 @@ public class MesWmReturnIssueServiceImpl implements MesWmReturnIssueService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void submitReturnIssue(Long id) {
-        // 校验存在 + 草稿状态
+        // 1.1 校验存在 + 草稿状态
         validateReturnIssueExistsAndPrepare(id);
-        // 校验至少有一条行
+        // 1.2 校验至少有一条行
         List<MesWmReturnIssueLineDO> lines = issueLineService.getReturnIssueLineListByIssueId(id);
         if (CollUtil.isEmpty(lines)) {
             throw exception(WM_RETURN_ISSUE_NO_LINE);
         }
 
-        // 2.1.1 检查是否有待检验的物料
+        // 2.1 确定目标状态：1）有待检验物料 → 待检验状态；2）无待检验物料 → 待上架状态
         boolean hasPendingQc = CollUtil.contains(lines,
                 line -> MesWmQualityStatusEnum.PENDING.getStatus().equals(line.getQualityStatus()));
-        // 2.1.2 确定目标状态：1）有待检验物料 → 待检验状态；2）无待检验物料 → 待上架状态
         Integer targetStatus = hasPendingQc ? MesWmReturnIssueStatusEnum.CONFIRMED.getStatus()
                 : MesWmReturnIssueStatusEnum.APPROVING.getStatus();
-
         // 2.2 提交（草稿 → 待检验/待上架）
         issueMapper.updateById(new MesWmReturnIssueDO().setId(id).setStatus(targetStatus));
     }

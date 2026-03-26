@@ -110,21 +110,22 @@ public class MesWmReturnSalesServiceImpl implements MesWmReturnSalesService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void submitReturnSales(Long id) {
-        // 校验存在 + 草稿状态
+        // 1.1 校验存在 + 草稿状态
         validateReturnSalesExistsAndPrepare(id);
-        // 校验至少有一条行
+        // 1.2 校验至少有一条行
         List<MesWmReturnSalesLineDO> lines = returnSalesLineService.getReturnSalesLineListByReturnId(id);
         if (CollUtil.isEmpty(lines)) {
             throw exception(WM_RETURN_SALES_NO_LINE);
         }
 
-        // 提交（草稿 -> 待执行）
+        // 2.1 确定目标状态：1）有待检验物料 → 待检验状态；2）无待检验物料 → 待执行状态
+        boolean hasPendingQc = CollUtil.contains(lines,
+                line -> MesWmQualityStatusEnum.PENDING.getStatus().equals(line.getQualityStatus()));
+        Integer targetStatus = hasPendingQc ? MesWmReturnSalesStatusEnum.CONFIRMED.getStatus()
+                : MesWmReturnSalesStatusEnum.APPROVING.getStatus();
+        // 2.2 提交（草稿 -> 待检验/待执行）
         returnSalesMapper.updateById(new MesWmReturnSalesDO()
-                .setId(id).setStatus(MesWmReturnSalesStatusEnum.APPROVING.getStatus()));
-
-        // DONE @AI：全部的行设置为待检验状态
-        returnSalesLineService.updateQualityStatusByReturnId(id,
-                MesWmQualityStatusEnum.PENDING.getStatus());
+                .setId(id).setStatus(targetStatus));
     }
 
     @Override

@@ -42,6 +42,12 @@ public class MesWmReturnSalesLineRespVO {
     @Schema(description = "批次ID", example = "1")
     private Long batchId;
 
+    @Schema(description = "退货检验单 ID", example = "400")
+    private Long rqcId;
+
+    @Schema(description = "是否需要质检", example = "true")
+    private Boolean qcFlag;
+
     @Schema(description = "批次号", example = "B001")
     private String batchCode;
 

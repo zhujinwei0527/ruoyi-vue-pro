@@ -43,8 +43,8 @@ public class MesWmReturnIssueLineRespVO {
     @Schema(description = "质量状态", example = "0")
     private Integer qualityStatus;
 
-    @Schema(description = "过程检验单 ID", example = "1")
-    private Long ipqcId;
+    @Schema(description = "退货检验单 ID", example = "21601")
+    private Long rqcId;
 
     @Schema(description = "备注", example = "备注")
     private String remark;

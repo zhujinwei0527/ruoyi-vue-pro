@@ -163,7 +163,7 @@ public class MesWmReturnIssueLineServiceImpl implements MesWmReturnIssueLineServ
                     .setItemId(sourceLine.getItemId())
                     .setQuantity(unqualifiedQuantity)
                     .setBatchId(sourceLine.getBatchId())
-                    .setIpqcId(sourceLine.getIpqcId())
+                    .setRqcId(sourceLine.getRqcId())
                     .setQcFlag(sourceLine.getQcFlag())
                     .setQualityStatus(MesWmQualityStatusEnum.FAIL.getStatus())
                     .setRemark(sourceLine.getRemark());

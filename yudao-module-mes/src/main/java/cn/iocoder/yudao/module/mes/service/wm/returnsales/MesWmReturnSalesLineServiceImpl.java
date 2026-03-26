@@ -1,6 +1,7 @@
 package cn.iocoder.yudao.module.mes.service.wm.returnsales;
 
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.util.ObjUtil;
 import cn.iocoder.yudao.framework.common.pojo.PageResult;
 import cn.iocoder.yudao.framework.common.util.object.BeanUtils;
 import cn.iocoder.yudao.module.mes.controller.admin.wm.returnsales.vo.line.MesWmReturnSalesLinePageReqVO;
@@ -51,6 +52,7 @@ public class MesWmReturnSalesLineServiceImpl implements MesWmReturnSalesLineServ
 
         // 插入
         MesWmReturnSalesLineDO line = BeanUtils.toBean(createReqVO, MesWmReturnSalesLineDO.class);
+        line.setQualityStatus(calculateQualityStatus(line.getQcFlag()));
         returnSalesLineMapper.insert(line);
         return line.getId();
     }
@@ -66,6 +68,7 @@ public class MesWmReturnSalesLineServiceImpl implements MesWmReturnSalesLineServ
 
         // 更新
         MesWmReturnSalesLineDO updateObj = BeanUtils.toBean(updateReqVO, MesWmReturnSalesLineDO.class);
+        updateObj.setQualityStatus(calculateQualityStatus(updateObj.getQcFlag()));
         returnSalesLineMapper.updateById(updateObj);
     }
 
@@ -110,10 +113,19 @@ public class MesWmReturnSalesLineServiceImpl implements MesWmReturnSalesLineServ
     public void updateQualityStatusByReturnId(Long returnId, Integer qualityStatus) {
         List<MesWmReturnSalesLineDO> lines = returnSalesLineMapper.selectListByReturnId(returnId);
         for (MesWmReturnSalesLineDO line : lines) {
-            returnSalesLineMapper.updateById(new MesWmReturnSalesLineDO()
-                    .setId(line.getId())
-                    .setQualityStatus(qualityStatus));
+            Integer newStatus = calculateQualityStatus(line.getQcFlag());
+            if (ObjUtil.notEqual(newStatus, line.getQualityStatus())) {
+                returnSalesLineMapper.updateById(new MesWmReturnSalesLineDO()
+                        .setId(line.getId()).setQualityStatus(newStatus));
+            }
         }
+    }
+
+    private Integer calculateQualityStatus(Boolean qcFlag) {
+        if (Boolean.TRUE.equals(qcFlag)) {
+            return MesWmQualityStatusEnum.PENDING.getStatus(); // 待检
+        }
+        return MesWmQualityStatusEnum.PASS.getStatus(); // 不需检验，默认合格
     }
 
     /**
@@ -154,6 +166,8 @@ public class MesWmReturnSalesLineServiceImpl implements MesWmReturnSalesLineServ
                     .setItemId(sourceLine.getItemId())
                     .setQuantity(unqualifiedQuantity)
                     .setBatchId(sourceLine.getBatchId())
+                    .setRqcId(sourceLine.getRqcId())
+                    .setQcFlag(sourceLine.getQcFlag())
                     .setQualityStatus(MesWmQualityStatusEnum.FAIL.getStatus())
                     .setRemark(sourceLine.getRemark());
             returnSalesLineMapper.insert(unqualifiedLine);
@@ -170,7 +184,7 @@ public class MesWmReturnSalesLineServiceImpl implements MesWmReturnSalesLineServ
             boolean allInspected = !CollUtil.contains(allLines,
                     line -> Objects.equals(line.getQualityStatus(), MesWmQualityStatusEnum.PENDING.getStatus()));
             if (allInspected) {
-                returnSalesService.updateReturnSalesStatus(sourceDocId, MesWmReturnSalesStatusEnum.APPROVED.getStatus());
+                returnSalesService.updateReturnSalesStatus(sourceDocId, MesWmReturnSalesStatusEnum.APPROVING.getStatus());
             }
         }
     }

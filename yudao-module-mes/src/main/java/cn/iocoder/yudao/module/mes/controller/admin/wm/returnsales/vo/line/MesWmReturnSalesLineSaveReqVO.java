@@ -32,11 +32,11 @@ public class MesWmReturnSalesLineSaveReqVO {
     @DecimalMin(value = "0", inclusive = false, message = "退货数量必须大于 0")
     private BigDecimal quantity;
 
-    @Schema(description = "批次ID", example = "1")
+    @Schema(description = "批次号", example = "B20250101")
     private Long batchId;
 
-    @Schema(description = "质量状态", example = "合格")
-    private Integer qualityStatus;
+    @Schema(description = "是否需要质检", example = "true")
+    private Boolean qcFlag;
 
     @Schema(description = "备注", example = "备注")
     private String remark;

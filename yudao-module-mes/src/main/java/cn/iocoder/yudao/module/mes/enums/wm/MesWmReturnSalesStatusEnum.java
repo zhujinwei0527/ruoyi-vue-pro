@@ -1,7 +1,9 @@
 package cn.iocoder.yudao.module.mes.enums.wm;
 
 import cn.iocoder.yudao.framework.common.core.ArrayValuable;
+import cn.iocoder.yudao.module.mes.controller.admin.wm.returnsales.vo.MesWmReturnSalesSaveReqVO;
 import cn.iocoder.yudao.module.mes.enums.MesOrderStatusConstants;
+import cn.iocoder.yudao.module.mes.service.wm.returnsales.MesWmReturnSalesService;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -19,31 +21,37 @@ public enum MesWmReturnSalesStatusEnum implements ArrayValuable<Integer> {
     /**
      * 草稿
      *
-     * 对应方法：{@link cn.iocoder.yudao.module.mes.service.wm.returnsales.MesWmReturnSalesService#createReturnSales}
+     * 对应方法：{@link MesWmReturnSalesService#createReturnSales(MesWmReturnSalesSaveReqVO)}
      */
     PREPARE(MesOrderStatusConstants.PREPARE, "草稿"),
     /**
-     * 待执行
+     * 待检验（已确认，等待质检）
      *
-     * 对应方法：{@link cn.iocoder.yudao.module.mes.service.wm.returnsales.MesWmReturnSalesService#submitReturnSales}
+     * 对应方法：{@link MesWmReturnSalesService#submitReturnSales(Long)}
      */
-    APPROVING(MesOrderStatusConstants.APPROVING, "待执行"),
+    CONFIRMED(MesOrderStatusConstants.CONFIRMED, "待检验"), // "UNCHECK"
     /**
-     * 待上架
+     * 待执行（检验完成或免检，等待执行退货）
      *
-     * 对应方法：{@link cn.iocoder.yudao.module.mes.service.wm.returnsales.MesWmReturnSalesService#finishReturnSales}
+     * 对应方法：{@link MesWmReturnSalesService#submitReturnSales(Long)}
      */
-    APPROVED(MesOrderStatusConstants.APPROVED, "待上架"),
+    APPROVING(MesOrderStatusConstants.APPROVING, "待执行"), // "UNEXECUTE"
     /**
-     * 已完成
+     * 待上架（退货执行完成，等待仓库上架）
      *
-     * 对应方法：{@link cn.iocoder.yudao.module.mes.service.wm.returnsales.MesWmReturnSalesService#stockReturnSales}
+     * 对应方法：{@link MesWmReturnSalesService#finishReturnSales(Long)}
+     */
+    APPROVED(MesOrderStatusConstants.APPROVED, "待上架"), // "UNSTOCK"
+    /**
+     * 已完成（上架完成，库存已更新）
+     *
+     * 对应方法：{@link MesWmReturnSalesService#stockReturnSales(Long)}
      */
     FINISHED(MesOrderStatusConstants.FINISHED, "已完成"),
     /**
      * 已取消
      *
-     * 对应方法：{@link cn.iocoder.yudao.module.mes.service.wm.returnsales.MesWmReturnSalesService#cancelReturnSales}
+     * 对应方法：{@link MesWmReturnSalesService#cancelReturnSales(Long)}
      */
     CANCELED(MesOrderStatusConstants.CANCELLED, "已取消");
 
