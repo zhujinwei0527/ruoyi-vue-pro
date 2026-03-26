@@ -155,10 +155,8 @@ public class MesWmReturnIssueController {
                 convertSet(list, MesWmReturnIssueDO::getWorkOrderId));
         // 2. 构建结果
         return BeanUtils.toBean(list, MesWmReturnIssueRespVO.class, vo -> {
-            // 2.1 填充工作站名称
             MapUtils.findAndThen(workstationMap, vo.getWorkstationId(),
                     workstation -> vo.setWorkstationName(workstation.getName()));
-            // 2.2 填充工单编号
             MapUtils.findAndThen(workOrderMap, vo.getWorkOrderId(),
                     workOrder -> vo.setWorkOrderCode(workOrder.getCode()));
         });

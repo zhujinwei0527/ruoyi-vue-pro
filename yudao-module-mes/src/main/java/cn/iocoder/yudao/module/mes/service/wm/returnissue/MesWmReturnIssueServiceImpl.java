@@ -145,7 +145,6 @@ public class MesWmReturnIssueServiceImpl implements MesWmReturnIssueService {
         boolean hasPendingQc = CollUtil.contains(lines,
                 line -> MesWmQualityStatusEnum.PENDING.getStatus().equals(line.getQualityStatus()));
         // 2.1.2 确定目标状态：1）有待检验物料 → 待检验状态；2）无待检验物料 → 待上架状态
-        // TODO @芋艿：RQC 质量检测的接入
         Integer targetStatus = hasPendingQc ? MesWmReturnIssueStatusEnum.CONFIRMED.getStatus()
                 : MesWmReturnIssueStatusEnum.APPROVING.getStatus();
 
