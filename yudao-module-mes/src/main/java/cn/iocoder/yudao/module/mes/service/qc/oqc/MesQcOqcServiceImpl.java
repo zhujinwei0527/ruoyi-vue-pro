@@ -113,6 +113,9 @@ public class MesQcOqcServiceImpl implements MesQcOqcService {
 
         // 2. 更新
         MesQcOqcDO updateObj = BeanUtils.toBean(updateReqVO, MesQcOqcDO.class);
+        updateObj.setSourceDocType(null).setSourceDocId(null).setSourceLineId(null); // 不允许修改来源单据
+        updateObj.setTemplateId(null); // 不允许修改模板
+        updateObj.setItemId(null); // 不允许修改物料
         oqcMapper.updateById(updateObj);
     }
 
