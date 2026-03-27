@@ -117,7 +117,16 @@ public class MesWmProductSalesServiceImpl implements MesWmProductSalesService {
             throw exception(WM_PRODUCT_SALES_LINES_EMPTY);
         }
 
-        // 提交（草稿 → 待拣货）
+        // 检查所有行的 oqcCheckFlag：如果有需要 OQC 检验的行，进入待检测状态
+        boolean needOqc = CollectionUtils.anyMatch(lines,
+                line -> Boolean.TRUE.equals(line.getOqcCheckFlag()));
+        if (needOqc) {
+            // 需要检验，进入待检测
+            productSalesMapper.updateById(new MesWmProductSalesDO()
+                    .setId(id).setStatus(MesWmProductSalesStatusEnum.CONFIRMED.getStatus()));
+            return;
+        }
+        // 不需要检验，直接进入待拣货
         productSalesMapper.updateById(new MesWmProductSalesDO()
                 .setId(id).setStatus(MesWmProductSalesStatusEnum.APPROVING.getStatus()));
     }
@@ -213,6 +222,18 @@ public class MesWmProductSalesServiceImpl implements MesWmProductSalesService {
         // 取消
         productSalesMapper.updateById(new MesWmProductSalesDO()
                 .setId(id).setStatus(MesWmProductSalesStatusEnum.CANCELED.getStatus()));
+    }
+
+    @Override
+    public void confirmProductSales(Long id) {
+        // 校验存在 + 待检测状态
+        MesWmProductSalesDO sales = validateProductSalesExists(id);
+        if (ObjUtil.notEqual(MesWmProductSalesStatusEnum.CONFIRMED.getStatus(), sales.getStatus())) {
+            throw exception(WM_PRODUCT_SALES_CANNOT_CONFIRM);
+        }
+        // OQC 检验完成，流转到待拣货
+        productSalesMapper.updateById(new MesWmProductSalesDO()
+                .setId(id).setStatus(MesWmProductSalesStatusEnum.APPROVING.getStatus()));
     }
 
     private MesWmProductSalesDO validateProductSalesExists(Long id) {

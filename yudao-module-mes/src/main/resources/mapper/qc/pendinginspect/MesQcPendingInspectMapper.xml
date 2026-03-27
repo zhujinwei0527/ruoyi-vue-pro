@@ -4,12 +4,12 @@
 
     <!--
         待检任务查询（UNION ALL 多来源），已实现的来源：
-        1. 到货通知单（IQC）：单据状态=待质检(2)，行的 iqc_check_flag=1 且 iqc_id 为空
-        2. 外协入库单（IQC）：单据状态=待检验(1)，行的 iqc_check_flag=1 且 iqc_id 为空
-        3. 生产报工（IPQC）：单据状态=待检验(3)
-        4. 销售出库单（OQC）：无单据状态要求，行的 oqc_check_flag=1 且 oqc_id 为空
-        5. 生产退料单（RQC）：单据状态=待检验(1)，行的 rqc_check_flag=1 且 rqc_id 为空 且 quality_status=0(待检)
-        6. 销售退货单（RQC）：单据状态=待检验(1)，行的 rqc_check_flag=1 且 rqc_id 为空 且 quality_status=0(待检)
+        1. 到货通知单（IQC）：单据状态=PENDING_QC(2)，行的 iqc_check_flag=1 且 iqc_id 为空
+        2. 外协入库单（IQC）：单据状态=CONFIRMED(1)，行的 iqc_check_flag=1 且 iqc_id 为空
+        3. 生产报工（IPQC）：单据状态=UNCHECK(3)
+        4. 销售出库单（OQC）：单据状态=CONFIRMED(1)，行的 oqc_check_flag=1 且 oqc_id 为空
+        5. 生产退料单（RQC）：单据状态=CONFIRMED(1)，行的 rqc_check_flag=1 且 rqc_id 为空 且 quality_status=0(待检)
+        6. 销售退货单（RQC）：单据状态=CONFIRMED(1)，行的 rqc_check_flag=1 且 rqc_id 为空 且 quality_status=0(待检)
     -->
     <select id="selectQcPendingPage" resultType="cn.iocoder.yudao.module.mes.controller.admin.qc.pendinginspect.vo.MesQcPendingInspectRespVO">
         SELECT * FROM (
@@ -103,6 +103,7 @@
                 JOIN mes_wm_product_sales_line sl ON s.id = sl.sales_id
             WHERE sl.oqc_check_flag = 1
               AND sl.oqc_id IS NULL
+              AND s.status = ${@cn.iocoder.yudao.module.mes.enums.wm.MesWmProductSalesStatusEnum@CONFIRMED.status}
               AND s.deleted = 0
               AND sl.deleted = 0
 

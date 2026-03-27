@@ -28,9 +28,17 @@ public enum MesWmProductSalesStatusEnum implements ArrayValuable<Integer> {
      */
     PREPARE(MesOrderStatusConstants.PREPARE, "草稿"),
     /**
-     * 待拣货
+     * 待检测（需要 OQC 检验时），对接 qc 模块的 MesQcOqcDO 后续流程
      *
      * 对应方法：{@link MesWmProductSalesService#submitProductSales(Long)}
+     */
+    CONFIRMED(MesOrderStatusConstants.CONFIRMED, "待检测"),
+    /**
+     * 待拣货
+     *
+     * 对应方法：
+     * 1. 不需要 OQC 检验时：{@link MesWmProductSalesService#submitProductSales(Long)}
+     * 2. 或 OQC 检验完成时：{@link MesWmProductSalesService#confirmProductSales(Long)}
      */
     APPROVING(MesOrderStatusConstants.APPROVING, "待拣货"),
     /**

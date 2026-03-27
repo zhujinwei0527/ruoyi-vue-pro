@@ -115,19 +115,30 @@ public class MesWmProductSalesLineServiceImpl implements MesWmProductSalesLineSe
         productSalesLineMapper.updateById(new MesWmProductSalesLineDO()
                 .setId(id).setOqcId(oqcId).setQualityStatus(qualityStatus));
 
-        // 2. 检查同一出库单下所有需要 OQC 检验的行的质检状态，联动更新出库单整体状态
+        // 2. 检查同一出库单下所有需要 OQC 检验的行
         MesWmProductSalesLineDO currentLine = productSalesLineMapper.selectById(id);
         if (currentLine == null || currentLine.getSalesId() == null) {
             return;
         }
         Long salesId = currentLine.getSalesId();
         List<MesWmProductSalesLineDO> allLines = productSalesLineMapper.selectListBySalesId(salesId);
+
+        // 2.1 检查是否有不合格行 → 取消出库单
         boolean hasNg = CollectionUtils.anyMatch(allLines,
                 line -> Boolean.TRUE.equals(line.getOqcCheckFlag())
                         && Objects.equals(line.getQualityStatus(), MesWmQualityStatusEnum.FAIL.getStatus()));
         if (hasNg) {
             log.info("[updateProductSalesLineWhenOqcFinish][销售出库单({}) 存在质检不合格行，取消出库单]", salesId);
             productSalesService.cancelProductSales(salesId);
+            return;
+        }
+
+        // 2.2 检查是否所有 OQC 行都已完成，自动流转 CONFIRMED → APPROVING
+        boolean hasUnchecked = CollectionUtils.anyMatch(allLines,
+                line -> Boolean.TRUE.equals(line.getOqcCheckFlag()) && line.getOqcId() == null);
+        if (!hasUnchecked) {
+            log.info("[updateProductSalesLineWhenOqcFinish][销售出库单({}) 所有 OQC 行检验完成，流转到待拣货]", salesId);
+            productSalesService.confirmProductSales(salesId);
         }
     }
 

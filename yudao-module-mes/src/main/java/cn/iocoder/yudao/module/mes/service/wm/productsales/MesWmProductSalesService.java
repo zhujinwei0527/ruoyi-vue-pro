@@ -53,7 +53,11 @@ public interface MesWmProductSalesService {
     PageResult<MesWmProductSalesDO> getProductSalesPage(MesWmProductSalesPageReqVO pageReqVO);
 
     /**
-     * 提交销售出库单（草稿 → 待拣货）
+     * 提交销售出库单
+     * <ul>
+     *     <li>有 OQC 检验行：草稿 → 待检测</li>
+     *     <li>无 OQC 检验行：草稿 → 待拣货</li>
+     * </ul>
      *
      * @param id 编号
      */
@@ -94,5 +98,12 @@ public interface MesWmProductSalesService {
      * @param id 编号
      */
     void cancelProductSales(Long id);
+
+    /**
+     * OQC 检验完成后，自动流转（待检测 → 待拣货）
+     *
+     * @param id 编号
+     */
+    void confirmProductSales(Long id);
 
 }
