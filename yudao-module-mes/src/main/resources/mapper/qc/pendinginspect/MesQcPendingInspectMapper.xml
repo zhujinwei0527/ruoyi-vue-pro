@@ -6,7 +6,7 @@
         待检任务查询（UNION ALL 多来源），已实现的来源：
         1. 到货通知单（IQC）：单据状态=PENDING_QC(2)，行的 iqc_check_flag=1 且 iqc_id 为空
         2. 外协入库单（IQC）：单据状态=CONFIRMED(1)，行的 iqc_check_flag=1 且 iqc_id 为空
-        3. 生产报工（IPQC）：单据状态=UNCHECK(3)
+        3. 产品产出行（IPQC）：产出行的 quality_status=PENDING(0)，通过产出单头→报工关联
         4. 销售出库单（OQC）：单据状态=CONFIRMED(1)，行的 oqc_check_flag=1 且 oqc_id 为空
         5. 生产退料单（RQC）：单据状态=CONFIRMED(1)，行的 rqc_check_flag=1 且 rqc_id 为空 且 quality_status=0(待检)
         6. 销售退货单（RQC）：单据状态=CONFIRMED(1)，行的 rqc_check_flag=1 且 rqc_id 为空 且 quality_status=0(待检)
@@ -63,24 +63,28 @@
 
             UNION ALL
 
-            <!-- 3. IPQC 来源：生产报工（状态=待检验） -->
+            <!-- 3. IPQC 来源：产品产出行（quality_status=PENDING） -->
             SELECT
-                f.id AS sourceDocId,
+                pf.id AS sourceDocId,
                 ${@cn.iocoder.yudao.module.mes.enums.MesBizTypeConstants@PRO_FEEDBACK} AS sourceDocType,
-                f.code AS sourceDocCode,
-                NULL AS sourceLineId,
-                f.feedback_time AS recordTime,
+                pf.code AS sourceDocCode,
+                ppl.id AS sourceLineId,
+                pf.feedback_time AS recordTime,
                 ${@cn.iocoder.yudao.module.mes.enums.qc.MesQcTypeEnum@IPQC.type} AS qcType,
-                f.item_id AS itemId,
-                f.uncheck_quantity AS quantity,
+                ppl.item_id AS itemId,
+                ppl.quantity AS quantity,
                 NULL AS vendorId,
-                f.work_order_id AS workOrderId,
-                f.workstation_id AS workstationId,
-                f.task_id AS taskId,
+                pp.work_order_id AS workOrderId,
+                pp.workstation_id AS workstationId,
+                pp.task_id AS taskId,
                 NULL AS clientId
-            FROM mes_pro_feedback f
-            WHERE f.status = ${@cn.iocoder.yudao.module.mes.enums.pro.MesProFeedbackStatusEnum@UNCHECK.status}
-              AND f.deleted = 0
+            FROM mes_wm_product_produce_line ppl
+                JOIN mes_wm_product_produce pp ON ppl.produce_id = pp.id
+                JOIN mes_pro_feedback pf ON pp.feedback_id = pf.id
+            WHERE ppl.quality_status = ${@cn.iocoder.yudao.module.mes.enums.wm.MesWmQualityStatusEnum@PENDING.status}
+              AND ppl.deleted = 0
+              AND pp.deleted = 0
+              AND pf.deleted = 0
 
             UNION ALL
 
