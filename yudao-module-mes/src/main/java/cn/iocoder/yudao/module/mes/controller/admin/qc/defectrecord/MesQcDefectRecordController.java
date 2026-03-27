@@ -28,7 +28,6 @@ public class MesQcDefectRecordController {
     @Resource
     private MesQcDefectRecordService defectRecordService;
 
-    // TODO @芋艿：说下 mes:qc-record 这个权限标识的情况
     @PostMapping("/create")
     @Operation(summary = "创建质检缺陷记录")
     @PreAuthorize("@ss.hasPermission('mes:qc-defect:create')")

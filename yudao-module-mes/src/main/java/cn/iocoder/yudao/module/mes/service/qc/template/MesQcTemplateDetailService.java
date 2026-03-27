@@ -10,7 +10,7 @@ import cn.iocoder.yudao.module.mes.dal.dataobject.qc.template.MesQcTemplateItemD
 import cn.iocoder.yudao.module.mes.enums.qc.MesQcTypeEnum;
 import jakarta.validation.Valid;
 
-// TODO @AI：还是按照表，拆分。一个 MesQcTemplateIndicatorDO、MesQcTemplateItemDO；
+// TODO @AI：还是按照表，拆分。一个 MesQcTemplateIndicatorDO、MesQcTemplateItemDO；（涉及大规模重构，暂不处理）
 /**
  * MES 质检方案明细 Service 接口
  *

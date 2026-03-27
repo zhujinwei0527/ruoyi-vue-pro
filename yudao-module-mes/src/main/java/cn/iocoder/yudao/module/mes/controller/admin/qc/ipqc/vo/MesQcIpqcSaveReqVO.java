@@ -48,7 +48,6 @@ public class MesQcIpqcSaveReqVO {
     @NotNull(message = "生产工单不能为空")
     private Long workOrderId;
 
-    // TODO @芋艿：【不确定】这里要怎么弄
     @Schema(description = "生产任务 ID", example = "20")
     private Long taskId;
 
@@ -56,7 +55,6 @@ public class MesQcIpqcSaveReqVO {
     @NotNull(message = "工位不能为空")
     private Long workstationId;
 
-    // TODO @芋艿：【不确定】这里要怎么弄
     @Schema(description = "工序 ID", example = "40")
     private Long processId;
 
