@@ -56,7 +56,7 @@ public class MesWmProductSalesLineDO extends BaseDO {
     /**
      * 是否出厂检验
      */
-    private Boolean oqcCheck;
+    private Boolean oqcCheckFlag;
     /**
      * 出厂检验单 ID
      *

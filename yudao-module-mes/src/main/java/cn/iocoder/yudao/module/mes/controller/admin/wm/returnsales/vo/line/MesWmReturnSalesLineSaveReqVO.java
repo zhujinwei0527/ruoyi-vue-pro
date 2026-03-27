@@ -36,7 +36,7 @@ public class MesWmReturnSalesLineSaveReqVO {
     private Long batchId;
 
     @Schema(description = "是否需要质检", example = "true")
-    private Boolean qcFlag;
+    private Boolean rqcCheckFlag;
 
     @Schema(description = "备注", example = "备注")
     private String remark;

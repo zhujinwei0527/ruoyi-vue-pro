@@ -37,12 +37,8 @@ public class MesWmOutsourceReceiptLineServiceImpl implements MesWmOutsourceRecei
 
         // 插入
         MesWmOutsourceReceiptLineDO line = BeanUtils.toBean(createReqVO, MesWmOutsourceReceiptLineDO.class);
-        // 根据 iqcCheck 字段，设置 qualityStatus
-        if (line.getIqcCheck() != null && line.getIqcCheck()) {
-            line.setQualityStatus(MesWmQualityStatusEnum.PENDING.getStatus());
-        } else {
-            line.setQualityStatus(MesWmQualityStatusEnum.PASS.getStatus());
-        }
+        // 质量状态自动赋值
+        line.setQualityStatus(calculateQualityStatus(line.getIqcCheckFlag()));
         lineMapper.insert(line);
         return line.getId();
     }
@@ -56,12 +52,8 @@ public class MesWmOutsourceReceiptLineServiceImpl implements MesWmOutsourceRecei
 
         // 更新
         MesWmOutsourceReceiptLineDO updateObj = BeanUtils.toBean(updateReqVO, MesWmOutsourceReceiptLineDO.class);
-        // 根据 iqcCheck 字段，设置 qualityStatus
-        if (updateObj.getIqcCheck() != null && updateObj.getIqcCheck()) {
-            updateObj.setQualityStatus(MesWmQualityStatusEnum.PENDING.getStatus());
-        } else {
-            updateObj.setQualityStatus(MesWmQualityStatusEnum.PASS.getStatus());
-        }
+        // 质量状态自动赋值
+        updateObj.setQualityStatus(calculateQualityStatus(updateObj.getIqcCheckFlag()));
         lineMapper.updateById(updateObj);
     }
 
@@ -107,6 +99,19 @@ public class MesWmOutsourceReceiptLineServiceImpl implements MesWmOutsourceRecei
     @Override
     public void createOutsourceReceiptLineDO(MesWmOutsourceReceiptLineDO line) {
         lineMapper.insert(line);
+    }
+
+    /**
+     * 根据 iqcCheckFlag，计算质量状态
+     *
+     * @param iqcCheckFlag 是否需要质检
+     * @return 质量状态
+     */
+    private Integer calculateQualityStatus(Boolean iqcCheckFlag) {
+        if (Boolean.TRUE.equals(iqcCheckFlag)) {
+            return MesWmQualityStatusEnum.PENDING.getStatus(); // 待检
+        }
+        return MesWmQualityStatusEnum.PASS.getStatus(); // 不需检验，默认合格
     }
 
 }

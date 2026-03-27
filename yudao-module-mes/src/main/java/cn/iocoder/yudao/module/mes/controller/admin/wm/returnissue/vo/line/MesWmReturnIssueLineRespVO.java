@@ -38,7 +38,7 @@ public class MesWmReturnIssueLineRespVO {
     private Long batchId;
 
     @Schema(description = "是否需要质检", example = "false")
-    private Boolean qcFlag;
+    private Boolean rqcCheckFlag;
 
     @Schema(description = "质量状态", example = "0")
     private Integer qualityStatus;

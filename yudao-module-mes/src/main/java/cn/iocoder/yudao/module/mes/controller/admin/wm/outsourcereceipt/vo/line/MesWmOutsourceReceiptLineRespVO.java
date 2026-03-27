@@ -47,7 +47,7 @@ public class MesWmOutsourceReceiptLineRespVO {
     private String lotNumber;
 
     @Schema(description = "是否需要质检")
-    private Boolean iqcCheck;
+    private Boolean iqcCheckFlag;
 
     @Schema(description = "备注", example = "备注")
     private String remark;

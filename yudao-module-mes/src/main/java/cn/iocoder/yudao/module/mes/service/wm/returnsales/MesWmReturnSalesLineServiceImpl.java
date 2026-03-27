@@ -52,7 +52,8 @@ public class MesWmReturnSalesLineServiceImpl implements MesWmReturnSalesLineServ
 
         // 插入
         MesWmReturnSalesLineDO line = BeanUtils.toBean(createReqVO, MesWmReturnSalesLineDO.class);
-        line.setQualityStatus(calculateQualityStatus(line.getQcFlag()));
+        // 质量状态自动赋值
+        line.setQualityStatus(calculateQualityStatus(line.getRqcCheckFlag()));
         returnSalesLineMapper.insert(line);
         return line.getId();
     }
@@ -68,7 +69,8 @@ public class MesWmReturnSalesLineServiceImpl implements MesWmReturnSalesLineServ
 
         // 更新
         MesWmReturnSalesLineDO updateObj = BeanUtils.toBean(updateReqVO, MesWmReturnSalesLineDO.class);
-        updateObj.setQualityStatus(calculateQualityStatus(updateObj.getQcFlag()));
+        // 质量状态自动赋值
+        updateObj.setQualityStatus(calculateQualityStatus(updateObj.getRqcCheckFlag()));
         returnSalesLineMapper.updateById(updateObj);
     }
 
@@ -113,7 +115,7 @@ public class MesWmReturnSalesLineServiceImpl implements MesWmReturnSalesLineServ
     public void updateQualityStatusByReturnId(Long returnId, Integer qualityStatus) {
         List<MesWmReturnSalesLineDO> lines = returnSalesLineMapper.selectListByReturnId(returnId);
         for (MesWmReturnSalesLineDO line : lines) {
-            Integer newStatus = calculateQualityStatus(line.getQcFlag());
+            Integer newStatus = calculateQualityStatus(line.getRqcCheckFlag());
             if (ObjUtil.notEqual(newStatus, line.getQualityStatus())) {
                 returnSalesLineMapper.updateById(new MesWmReturnSalesLineDO()
                         .setId(line.getId()).setQualityStatus(newStatus));
@@ -121,8 +123,8 @@ public class MesWmReturnSalesLineServiceImpl implements MesWmReturnSalesLineServ
         }
     }
 
-    private Integer calculateQualityStatus(Boolean qcFlag) {
-        if (Boolean.TRUE.equals(qcFlag)) {
+    private Integer calculateQualityStatus(Boolean rqcCheckFlag) {
+        if (Boolean.TRUE.equals(rqcCheckFlag)) {
             return MesWmQualityStatusEnum.PENDING.getStatus(); // 待检
         }
         return MesWmQualityStatusEnum.PASS.getStatus(); // 不需检验，默认合格
@@ -167,7 +169,7 @@ public class MesWmReturnSalesLineServiceImpl implements MesWmReturnSalesLineServ
                     .setQuantity(unqualifiedQuantity)
                     .setBatchId(sourceLine.getBatchId())
                     .setRqcId(sourceLine.getRqcId())
-                    .setQcFlag(sourceLine.getQcFlag())
+                    .setRqcCheckFlag(sourceLine.getRqcCheckFlag())
                     .setQualityStatus(MesWmQualityStatusEnum.FAIL.getStatus())
                     .setRemark(sourceLine.getRemark());
             returnSalesLineMapper.insert(unqualifiedLine);

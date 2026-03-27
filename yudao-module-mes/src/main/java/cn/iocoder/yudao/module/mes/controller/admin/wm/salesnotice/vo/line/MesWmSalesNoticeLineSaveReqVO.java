@@ -35,7 +35,7 @@ public class MesWmSalesNoticeLineSaveReqVO {
 
     @Schema(description = "是否检验", requiredMode = Schema.RequiredMode.REQUIRED, example = "true")
     @NotNull(message = "是否检验不能为空")
-    private Boolean oqcCheck;
+    private Boolean oqcCheckFlag;
 
     @Schema(description = "备注", example = "备注")
     private String remark;

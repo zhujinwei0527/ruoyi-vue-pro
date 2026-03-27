@@ -76,7 +76,7 @@ public class MesWmOutsourceReceiptLineDO extends BaseDO {
     /**
      * 是否需要质检
      */
-    private Boolean iqcCheck;
+    private Boolean iqcCheckFlag;
     /**
      * 质量状态
      *

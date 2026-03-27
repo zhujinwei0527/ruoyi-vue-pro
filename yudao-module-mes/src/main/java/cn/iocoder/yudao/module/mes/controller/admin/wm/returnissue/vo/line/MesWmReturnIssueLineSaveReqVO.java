@@ -32,7 +32,7 @@ public class MesWmReturnIssueLineSaveReqVO {
 
     @Schema(description = "是否需要质检", requiredMode = Schema.RequiredMode.REQUIRED, example = "false")
     @NotNull(message = "是否需要质检不能为空")
-    private Boolean qcFlag;
+    private Boolean rqcCheckFlag;
 
     @Schema(description = "备注", example = "备注")
     private String remark;

@@ -41,7 +41,7 @@ public class MesWmProductSalesLineRespVO {
     private String batchCode;
 
     @Schema(description = "是否出厂检验", example = "true")
-    private Boolean oqcCheck;
+    private Boolean oqcCheckFlag;
 
     @Schema(description = "备注", example = "备注")
     private String remark;

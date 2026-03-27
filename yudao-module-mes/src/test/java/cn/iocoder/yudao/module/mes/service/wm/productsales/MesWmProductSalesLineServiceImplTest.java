@@ -48,7 +48,7 @@ public class MesWmProductSalesLineServiceImplTest extends BaseDbUnitTest {
 
         // mock 数据
         MesWmProductSalesLineDO lineDO = randomPojo(MesWmProductSalesLineDO.class, o -> {
-            o.setOqcCheck(true);         // 需要 OQC 检验
+            o.setOqcCheckFlag(true);         // 需要 OQC 检验
             o.setQualityStatus(null);    // 初始为空
         });
         productSalesLineMapper.insert(lineDO);
@@ -70,7 +70,7 @@ public class MesWmProductSalesLineServiceImplTest extends BaseDbUnitTest {
 
         // mock 数据
         MesWmProductSalesLineDO lineDO = randomPojo(MesWmProductSalesLineDO.class, o -> {
-            o.setOqcCheck(true);
+            o.setOqcCheckFlag(true);
             o.setQualityStatus(null);
         });
         productSalesLineMapper.insert(lineDO);
@@ -90,14 +90,14 @@ public class MesWmProductSalesLineServiceImplTest extends BaseDbUnitTest {
         Long salesId = randomLongId();
         MesWmProductSalesLineDO line1 = randomPojo(MesWmProductSalesLineDO.class, o -> {
             o.setSalesId(salesId);
-            o.setOqcCheck(true);
+            o.setOqcCheckFlag(true);
             o.setQualityStatus(MesWmQualityStatusEnum.PASS.getStatus());
         });
         productSalesLineMapper.insert(line1);
 
         MesWmProductSalesLineDO line2 = randomPojo(MesWmProductSalesLineDO.class, o -> {
             o.setSalesId(salesId);
-            o.setOqcCheck(true);
+            o.setOqcCheckFlag(true);
             o.setQualityStatus(null); // 待检
         });
         productSalesLineMapper.insert(line2);
@@ -116,14 +116,14 @@ public class MesWmProductSalesLineServiceImplTest extends BaseDbUnitTest {
         Long salesId = randomLongId();
         MesWmProductSalesLineDO line1 = randomPojo(MesWmProductSalesLineDO.class, o -> {
             o.setSalesId(salesId);
-            o.setOqcCheck(true);
+            o.setOqcCheckFlag(true);
             o.setQualityStatus(MesWmQualityStatusEnum.PASS.getStatus());
         });
         productSalesLineMapper.insert(line1);
 
         MesWmProductSalesLineDO line2 = randomPojo(MesWmProductSalesLineDO.class, o -> {
             o.setSalesId(salesId);
-            o.setOqcCheck(true);
+            o.setOqcCheckFlag(true);
             o.setQualityStatus(null);
         });
         productSalesLineMapper.insert(line2);
@@ -138,18 +138,18 @@ public class MesWmProductSalesLineServiceImplTest extends BaseDbUnitTest {
 
     @Test
     public void testUpdateProductSalesLineWhenOqcFinish_skipNonOqcCheckLines() {
-        // 准备数据：同一出库单下 2 行，第 1 行不需要 OQC 检验（oqcCheck=false），第 2 行需要检验且不合格
+        // 准备数据：同一出库单下 2 行，第 1 行不需要 OQC 检验（oqcCheckFlag=false），第 2 行需要检验且不合格
         Long salesId = randomLongId();
         MesWmProductSalesLineDO line1 = randomPojo(MesWmProductSalesLineDO.class, o -> {
             o.setSalesId(salesId);
-            o.setOqcCheck(false); // 不需要 OQC 检验
+            o.setOqcCheckFlag(false); // 不需要 OQC 检验
             o.setQualityStatus(null);
         });
         productSalesLineMapper.insert(line1);
 
         MesWmProductSalesLineDO line2 = randomPojo(MesWmProductSalesLineDO.class, o -> {
             o.setSalesId(salesId);
-            o.setOqcCheck(true);
+            o.setOqcCheckFlag(true);
             o.setQualityStatus(null);
         });
         productSalesLineMapper.insert(line2);

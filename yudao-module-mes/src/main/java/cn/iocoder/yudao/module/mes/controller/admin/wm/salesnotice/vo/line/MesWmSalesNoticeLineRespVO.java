@@ -41,7 +41,7 @@ public class MesWmSalesNoticeLineRespVO {
     private BigDecimal quantity;
 
     @Schema(description = "是否检验", requiredMode = Schema.RequiredMode.REQUIRED, example = "true")
-    private Boolean oqcCheck;
+    private Boolean oqcCheckFlag;
 
     @Schema(description = "备注", example = "备注")
     private String remark;

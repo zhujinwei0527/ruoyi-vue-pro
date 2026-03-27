@@ -51,7 +51,7 @@ public class MesWmReturnIssueLineServiceImpl implements MesWmReturnIssueLineServ
         // 插入
         MesWmReturnIssueLineDO line = BeanUtils.toBean(createReqVO, MesWmReturnIssueLineDO.class);
         // 质量状态自动赋值
-        line.setQualityStatus(calculateQualityStatus(line.getQcFlag(), issue.getType()));
+        line.setQualityStatus(calculateQualityStatus(line.getRqcCheckFlag(), issue.getType()));
         issueLineMapper.insert(line);
         return line.getId();
     }
@@ -68,7 +68,7 @@ public class MesWmReturnIssueLineServiceImpl implements MesWmReturnIssueLineServ
         // 更新
         MesWmReturnIssueLineDO updateObj = BeanUtils.toBean(updateReqVO, MesWmReturnIssueLineDO.class);
         // 质量状态自动赋值
-        updateObj.setQualityStatus(calculateQualityStatus(updateObj.getQcFlag(), issue.getType()));
+        updateObj.setQualityStatus(calculateQualityStatus(updateObj.getRqcCheckFlag(), issue.getType()));
         issueLineMapper.updateById(updateObj);
     }
 
@@ -113,7 +113,7 @@ public class MesWmReturnIssueLineServiceImpl implements MesWmReturnIssueLineServ
     public void updateReturnIssueQualityStatusByIssueId(Long issueId, Integer issueType) {
         List<MesWmReturnIssueLineDO> lines = issueLineMapper.selectListByIssueId(issueId);
         for (MesWmReturnIssueLineDO line : lines) {
-            Integer newStatus = calculateQualityStatus(line.getQcFlag(), issueType);
+            Integer newStatus = calculateQualityStatus(line.getRqcCheckFlag(), issueType);
             if (ObjUtil.notEqual(newStatus, line.getQualityStatus())) {
                 issueLineMapper.updateById(new MesWmReturnIssueLineDO()
                         .setId(line.getId()).setQualityStatus(newStatus));
@@ -122,14 +122,14 @@ public class MesWmReturnIssueLineServiceImpl implements MesWmReturnIssueLineServ
     }
 
     /**
-     * 根据 qcFlag 和退料类型，计算质量状态
+     * 根据 rqcCheckFlag 和退料类型，计算质量状态
      *
-     * @param qcFlag 是否需要质检
+     * @param rqcCheckFlag 是否需要质检
      * @param issueType 退料类型
      * @return 质量状态
      */
-    private Integer calculateQualityStatus(Boolean qcFlag, Integer issueType) {
-        if (Boolean.TRUE.equals(qcFlag)) {
+    private Integer calculateQualityStatus(Boolean rqcCheckFlag, Integer issueType) {
+        if (Boolean.TRUE.equals(rqcCheckFlag)) {
             return MesWmQualityStatusEnum.PENDING.getStatus(); // 待检
         }
         if (MesWmReturnIssueTypeEnum.REMAINDER.getType().equals(issueType)) {
@@ -164,7 +164,7 @@ public class MesWmReturnIssueLineServiceImpl implements MesWmReturnIssueLineServ
                     .setQuantity(unqualifiedQuantity)
                     .setBatchId(sourceLine.getBatchId())
                     .setRqcId(sourceLine.getRqcId())
-                    .setQcFlag(sourceLine.getQcFlag())
+                    .setRqcCheckFlag(sourceLine.getRqcCheckFlag())
                     .setQualityStatus(MesWmQualityStatusEnum.FAIL.getStatus())
                     .setRemark(sourceLine.getRemark());
             issueLineMapper.insert(unqualifiedLine);

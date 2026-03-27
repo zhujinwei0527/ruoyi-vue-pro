@@ -56,7 +56,7 @@ public class MesWmReturnSalesLineDO extends BaseDO {
     /**
      * 是否需要质检
      */
-    private Boolean qcFlag;
+    private Boolean rqcCheckFlag;
     /**
      * 质量状态
      *

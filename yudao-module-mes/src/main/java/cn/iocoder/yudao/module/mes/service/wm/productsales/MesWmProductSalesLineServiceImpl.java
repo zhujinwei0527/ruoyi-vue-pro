@@ -123,7 +123,7 @@ public class MesWmProductSalesLineServiceImpl implements MesWmProductSalesLineSe
         Long salesId = currentLine.getSalesId();
         List<MesWmProductSalesLineDO> allLines = productSalesLineMapper.selectListBySalesId(salesId);
         boolean hasNg = CollectionUtils.anyMatch(allLines,
-                line -> Boolean.TRUE.equals(line.getOqcCheck())
+                line -> Boolean.TRUE.equals(line.getOqcCheckFlag())
                         && Objects.equals(line.getQualityStatus(), MesWmQualityStatusEnum.FAIL.getStatus()));
         if (hasNg) {
             log.info("[updateProductSalesLineWhenOqcFinish][销售出库单({}) 存在质检不合格行，取消出库单]", salesId);

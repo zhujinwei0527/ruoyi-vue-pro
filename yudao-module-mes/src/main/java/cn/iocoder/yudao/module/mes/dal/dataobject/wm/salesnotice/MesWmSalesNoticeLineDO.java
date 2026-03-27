@@ -54,7 +54,7 @@ public class MesWmSalesNoticeLineDO extends BaseDO {
     /**
      * 是否检验
      */
-    private Boolean oqcCheck;
+    private Boolean oqcCheckFlag;
     /**
      * 备注
      */

@@ -46,7 +46,7 @@ public class MesWmReturnSalesLineRespVO {
     private Long rqcId;
 
     @Schema(description = "是否需要质检", example = "true")
-    private Boolean qcFlag;
+    private Boolean rqcCheckFlag;
 
     @Schema(description = "批次号", example = "B001")
     private String batchCode;
