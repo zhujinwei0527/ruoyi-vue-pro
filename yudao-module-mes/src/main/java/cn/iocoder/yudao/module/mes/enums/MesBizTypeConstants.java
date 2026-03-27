@@ -22,7 +22,6 @@ public final class MesBizTypeConstants {
     // ========== WM 仓库模块 [100, 200) ==========
 
     public static final int WM_ARRIVAL_NOTICE = 100; // 到货通知单：MesWmArrivalNoticeDO
-    // public static final int WM_OUTSOURCE_RECPT = 101; // TODO 外协入库单：未实现，占位
     public static final int WM_WAREHOUSE = 102; // 仓库：MesWmWarehouseDO
     public static final int WM_LOCATION = 103; // 库位：MesWmLocationDO
     public static final int WM_AREA = 104; // 库位：MesWmStorageAreaDO
