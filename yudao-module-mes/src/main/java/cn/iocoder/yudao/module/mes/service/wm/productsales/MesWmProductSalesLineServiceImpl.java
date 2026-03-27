@@ -1,5 +1,6 @@
 package cn.iocoder.yudao.module.mes.service.wm.productsales;
 
+import cn.iocoder.yudao.framework.common.util.collection.CollectionUtils;
 import cn.iocoder.yudao.framework.common.util.object.BeanUtils;
 import cn.iocoder.yudao.module.mes.controller.admin.wm.productsales.vo.line.MesWmProductSalesLinePageReqVO;
 import cn.iocoder.yudao.module.mes.controller.admin.wm.productsales.vo.line.MesWmProductSalesLineSaveReqVO;
@@ -9,6 +10,8 @@ import cn.iocoder.yudao.module.mes.enums.qc.MesQcCheckResultEnum;
 import cn.iocoder.yudao.module.mes.enums.wm.MesWmQualityStatusEnum;
 import cn.iocoder.yudao.module.mes.service.md.item.MesMdItemService;
 import jakarta.annotation.Resource;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
@@ -26,6 +29,7 @@ import static cn.iocoder.yudao.module.mes.enums.ErrorCodeConstants.WM_PRODUCT_SA
  */
 @Service
 @Validated
+@Slf4j
 public class MesWmProductSalesLineServiceImpl implements MesWmProductSalesLineService {
 
     @Resource
@@ -34,6 +38,9 @@ public class MesWmProductSalesLineServiceImpl implements MesWmProductSalesLineSe
     private MesWmProductSalesDetailService productSalesDetailService;
     @Resource
     private MesMdItemService itemService;
+    @Resource
+    @Lazy
+    private MesWmProductSalesService productSalesService;
 
     @Override
     public Long createProductSalesLine(MesWmProductSalesLineSaveReqVO createReqVO) {
@@ -100,11 +107,29 @@ public class MesWmProductSalesLineServiceImpl implements MesWmProductSalesLineSe
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public void updateProductSalesLineWhenOqcFinish(Long id, Long oqcId, Integer checkResult) {
+        // 1. 更新行的 oqcId + qualityStatus
         Integer qualityStatus = Objects.equals(checkResult, MesQcCheckResultEnum.PASS.getType())
                 ? MesWmQualityStatusEnum.PASS.getStatus() : MesWmQualityStatusEnum.FAIL.getStatus();
         productSalesLineMapper.updateById(new MesWmProductSalesLineDO()
                 .setId(id).setOqcId(oqcId).setQualityStatus(qualityStatus));
+
+        // 2. 检查同一出库单下所有需要 OQC 检验的行的质检状态，联动更新出库单整体状态
+        MesWmProductSalesLineDO currentLine = productSalesLineMapper.selectById(id);
+        if (currentLine == null || currentLine.getSalesId() == null) {
+            return;
+        }
+        Long salesId = currentLine.getSalesId();
+        List<MesWmProductSalesLineDO> allLines = productSalesLineMapper.selectListBySalesId(salesId);
+        boolean hasNg = CollectionUtils.anyMatch(allLines,
+                line -> Boolean.TRUE.equals(line.getOqcCheck())
+                        && Objects.equals(line.getQualityStatus(), MesWmQualityStatusEnum.FAIL.getStatus()));
+        if (hasNg) {
+            log.info("[updateProductSalesLineWhenOqcFinish][销售出库单({}) 存在质检不合格行，取消出库单]", salesId);
+            productSalesService.cancelProductSales(salesId);
+        }
     }
 
 }
+

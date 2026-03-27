@@ -75,17 +75,18 @@ public class MesQcOqcServiceImpl implements MesQcOqcService {
     public Long createOqc(MesQcOqcSaveReqVO createReqVO) {
         // 1.1 校验编号唯一
         validateOqcCodeUnique(null, createReqVO.getCode());
-        // 1.2 校验客户、物料、检测人员存在
-        clientService.validateClientExists(createReqVO.getClientId());
+        // 1.2 校验物料、检测人员存在
         itemService.validateItemExists(createReqVO.getItemId());
         adminUserApi.validateUser(createReqVO.getInspectorUserId());
-        // 1.3 根据产品 + 检验类型自动匹配模板
+        // 1.3 校验来源单据参数，并验证数据存在
+        String sourceDocCode = validateAndGetSourceDocCode(
+                createReqVO.getSourceDocType(), createReqVO.getSourceLineId());
+        // 1.4 校验客户存在
+        clientService.validateClientExists(createReqVO.getClientId());
+        // 1.5 根据产品 + 检验类型自动匹配模板
         MesQcTemplateItemDO templateItem = templateDetailService.getRequiredTemplateByItemIdAndType(
                 createReqVO.getItemId(), MesQcTypeEnum.OQC.getType());
         Long templateId = templateItem.getTemplateId();
-        // 1.4 获取来源单据编号
-        String sourceDocCode = validateAndGetSourceDocCode(
-                createReqVO.getSourceDocType(), createReqVO.getSourceLineId());
 
         // 2. 插入主表
         MesQcOqcDO oqc = BeanUtils.toBean(createReqVO, MesQcOqcDO.class)
@@ -137,7 +138,9 @@ public class MesQcOqcServiceImpl implements MesQcOqcService {
     /**
      * 回写来源单据（OQC 完成后）
      *
-     * <p>当来源为销售出库单时，回写行的 oqcId 和 qualityStatus
+     * <p>当来源为销售出库单时，调用
+     * {@link MesWmProductSalesLineService#updateProductSalesLineWhenOqcFinish}
+     * 回写行的 oqcId、qualityStatus，并由该方法内部联动检查出库单整体状态
      *
      * @param oqc 出货检验单
      */
@@ -151,8 +154,8 @@ public class MesQcOqcServiceImpl implements MesQcOqcService {
         }
 
         if (Objects.equals(oqc.getSourceDocType(), MesBizTypeConstants.WM_PRODUCT_SALES)) {
-            // 回写销售出库单行的 oqcId + qualityStatus
-            productSalesLineService.updateProductSalesLineWhenOqcFinish(oqc.getSourceLineId(), oqc.getId(), oqc.getCheckResult());
+            productSalesLineService.updateProductSalesLineWhenOqcFinish(
+                    oqc.getSourceLineId(), oqc.getId(), oqc.getCheckResult());
         } else {
             throw new IllegalArgumentException(
                     "OQC 单[" + oqc.getId() + "] sourceDocType=" + oqc.getSourceDocType() + " 无法识别，无法回写来源单据");
@@ -203,6 +206,13 @@ public class MesQcOqcServiceImpl implements MesQcOqcService {
         }
     }
 
+    /**
+     * 校验来源单据参数，并验证数据存在
+     *
+     * @param sourceDocType 来源单据类型
+     * @param sourceLineId  来源单据行 ID
+     * @return 来源单据编号
+     */
     private String validateAndGetSourceDocCode(Integer sourceDocType, Long sourceLineId) {
         if (sourceDocType == null || sourceLineId == null) {
             return null;
