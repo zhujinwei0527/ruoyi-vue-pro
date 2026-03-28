@@ -9,11 +9,9 @@ import cn.iocoder.yudao.module.mes.controller.admin.md.workstation.vo.MesMdWorks
 import cn.iocoder.yudao.module.mes.dal.dataobject.md.workstation.MesMdWorkshopDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.md.workstation.MesMdWorkstationDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.wm.warehouse.MesWmWarehouseAreaDO;
+import cn.iocoder.yudao.module.mes.dal.dataobject.wm.warehouse.MesWmWarehouseDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.wm.warehouse.MesWmWarehouseLocationDO;
-import cn.iocoder.yudao.module.mes.dal.mysql.md.workstation.MesMdWorkstationMachineMapper;
 import cn.iocoder.yudao.module.mes.dal.mysql.md.workstation.MesMdWorkstationMapper;
-import cn.iocoder.yudao.module.mes.dal.mysql.md.workstation.MesMdWorkstationToolMapper;
-import cn.iocoder.yudao.module.mes.dal.mysql.md.workstation.MesMdWorkstationWorkerMapper;
 import cn.iocoder.yudao.module.mes.enums.wm.BarcodeBizTypeEnum;
 import cn.iocoder.yudao.module.mes.service.wm.barcode.MesWmBarcodeService;
 import cn.iocoder.yudao.module.mes.service.wm.warehouse.MesWmWarehouseAreaService;
@@ -45,29 +43,22 @@ public class MesMdWorkstationServiceImpl implements MesMdWorkstationService {
     private MesMdWorkstationMapper workstationMapper;
 
     @Resource
-    private MesMdWorkstationMachineMapper workstationMachineMapper;
-
+    private MesMdWorkstationMachineService workstationMachineService;
     @Resource
-    private MesMdWorkstationToolMapper workstationToolMapper;
-
+    private MesMdWorkstationToolService workstationToolService;
     @Resource
-    private MesMdWorkstationWorkerMapper workstationWorkerMapper;
+    private MesMdWorkstationWorkerService workstationWorkerService;
 
     @Resource
     private MesMdWorkshopService workshopService;
-
     @Resource
     private MesWmWarehouseService warehouseService;
-
     @Resource
     private MesWmWarehouseLocationService locationService;
-
     @Resource
     private MesWmWarehouseAreaService areaService;
-
     @Resource
     private MesWmBarcodeService barcodeService;
-
     @Resource
     private MesProProcessService processService;
 
@@ -107,8 +98,8 @@ public class MesMdWorkstationServiceImpl implements MesMdWorkstationService {
         validateWorkshopExists(reqVO.getWorkshopId());
         // 校验工序存在
         processService.validateProcessExists(reqVO.getProcessId());
-        // 校验仓库层级
-        validateWarehouseHierarchy(reqVO);
+        // 处理仓库层级（未指定仓库时自动设置虚拟线边库）
+        handleWarehouseHierarchy(reqVO);
     }
 
     @Override
@@ -118,9 +109,9 @@ public class MesMdWorkstationServiceImpl implements MesMdWorkstationService {
         validateWorkstationExists(id);
 
         // 级联删除子资源
-        workstationMachineMapper.deleteByWorkstationId(id);
-        workstationToolMapper.deleteByWorkstationId(id);
-        workstationWorkerMapper.deleteByWorkstationId(id);
+        workstationMachineService.deleteWorkstationMachineByWorkstationId(id);
+        workstationToolService.deleteWorkstationToolByWorkstationId(id);
+        workstationWorkerService.deleteWorkstationWorkerByWorkstationId(id);
         // 删除工作站
         workstationMapper.deleteById(id);
     }
@@ -142,22 +133,31 @@ public class MesMdWorkstationServiceImpl implements MesMdWorkstationService {
     }
 
     /**
-     * 校验仓库层级关系
+     * 校验并处理仓库层级关系
      *
-     * 仓库层级结构：仓库 -> 库位 -> 库区
-     * 校验规则：
-     * 1. 如果填写了库位，必须填写仓库，且库位必须属于该仓库
-     * 2. 如果填写了库区，必须填写库位，且库区必须属于该库位
+     * 仓库层级结构：仓库 -> 库区 -> 库位
+     * 处理规则：
+     * 1. 如果仓库/库区/库位都未填写，则自动设置虚拟线边库
+     * 2. 如果填写了库区，必须填写仓库，且库区必须属于该仓库
+     * 3. 如果填写了库位，必须填写库区，且库位必须属于该库区
      *
      * @param reqVO 工作站保存请求对象
      */
-    private void validateWarehouseHierarchy(MesMdWorkstationSaveReqVO reqVO) {
-        // 1.1 获取仓库、库位、库区 ID
+    private void handleWarehouseHierarchy(MesMdWorkstationSaveReqVO reqVO) {
+        // 1.1 获取仓库、库区、库位 ID
         Long warehouseId = reqVO.getWarehouseId();
         Long locationId = reqVO.getLocationId();
         Long areaId = reqVO.getAreaId();
-        // 1.2  如果都为空，则无需校验
+        // 1.2 如果都为空，则自动设置虚拟线边库
         if (warehouseId == null && locationId == null && areaId == null) {
+            MesWmWarehouseDO warehouse = warehouseService.getWarehouseByCode(MesWmWarehouseDO.WIP_VIRTUAL_WAREHOUSE);
+            MesWmWarehouseLocationDO location = locationService.getWarehouseLocationByCode(
+                    MesWmWarehouseLocationDO.WIP_VIRTUAL_LOCATION);
+            MesWmWarehouseAreaDO area = areaService.getWarehouseAreaByCode(
+                    MesWmWarehouseAreaDO.WIP_VIRTUAL_AREA);
+            reqVO.setWarehouseId(warehouse.getId());
+            reqVO.setLocationId(location.getId());
+            reqVO.setAreaId(area.getId());
             return;
         }
 
@@ -166,32 +166,32 @@ public class MesMdWorkstationServiceImpl implements MesMdWorkstationService {
             warehouseService.validateWarehouseExists(warehouseId);
         }
 
-        // 3. 校验库位：如果填写了库位，必须填写仓库，且库位必须属于该仓库
+        // 3. 校验库区：如果填写了库区，必须填写仓库，且库区必须属于该仓库
         MesWmWarehouseLocationDO location;
         if (locationId != null) {
-            // 3.1 校验库位是否存在
+            // 3.1 校验库区是否存在
             location = locationService.validateWarehouseLocationExists(locationId);
             // 3.2 校验必须填写仓库
             if (warehouseId == null) {
                 throw exception(WM_WAREHOUSE_REQUIRED);
             }
-            // 3.3 校验库位是否属于该仓库
+            // 3.3 校验库区是否属于该仓库
             if (ObjUtil.notEqual(location.getWarehouseId(), warehouseId)) {
                 throw exception(WM_WAREHOUSE_LOCATION_RELATION_INVALID);
             }
         }
 
-        // 4. 校验库区：如果填写了库区，必须填写库位，且库区必须属于该库位
+        // 4. 校验库位：如果填写了库位，必须填写库区，且库位必须属于该库区
         if (areaId == null) {
             return;
         }
-        // 4.1 校验库区是否存在
+        // 4.1 校验库位是否存在
         MesWmWarehouseAreaDO area = areaService.validateWarehouseAreaExists(areaId);
-        // 4.2 校验必须填写库位
+        // 4.2 校验必须填写库区
         if (locationId == null) {
             throw exception(WM_WAREHOUSE_LOCATION_REQUIRED);
         }
-        // 4.3 校验库区是否属于该库位
+        // 4.3 校验库位是否属于该库区
         if (ObjUtil.notEqual(area.getLocationId(), locationId)) {
             throw exception(WM_WAREHOUSE_AREA_RELATION_INVALID);
         }

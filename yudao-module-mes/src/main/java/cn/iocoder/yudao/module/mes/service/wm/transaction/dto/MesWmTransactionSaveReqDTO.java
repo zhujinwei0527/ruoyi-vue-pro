@@ -96,8 +96,6 @@ public class MesWmTransactionSaveReqDTO {
     private Long vendorId;
     /**
      * 入库时间（为空默认当前时间）
-     *
-     * 对应 KTG 的 recptDate
      */
     private LocalDateTime receiptTime;
 

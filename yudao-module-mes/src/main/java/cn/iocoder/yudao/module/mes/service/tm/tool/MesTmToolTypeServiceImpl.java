@@ -76,7 +76,8 @@ public class MesTmToolTypeServiceImpl implements MesTmToolTypeService {
         toolTypeMapper.deleteById(id);
     }
 
-    private void validateToolTypeExists(Long id) {
+    @Override
+    public void validateToolTypeExists(Long id) {
         if (toolTypeMapper.selectById(id) == null) {
             throw exception(TM_TOOL_TYPE_NOT_EXISTS);
         }

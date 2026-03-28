@@ -237,7 +237,7 @@ public class MesWmOutsourceReceiptServiceImpl implements MesWmOutsourceReceiptSe
             outsourceReceiptLineService.createOutsourceReceiptLineDO(unqualifiedLine);
         }
 
-        // 3. 直接更新主表状态为"待上架"（对齐 KTG：IQC 完成后直接推进状态）
+        // 3. 直接更新主表状态为"待上架"
         outsourceReceiptMapper.updateById(new MesWmOutsourceReceiptDO()
                 .setId(receiptId).setStatus(MesWmOutsourceReceiptStatusEnum.APPROVING.getStatus()));
     }

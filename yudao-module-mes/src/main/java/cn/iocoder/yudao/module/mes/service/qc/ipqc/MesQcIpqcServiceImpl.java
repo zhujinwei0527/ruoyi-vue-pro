@@ -245,7 +245,7 @@ public class MesQcIpqcServiceImpl implements MesQcIpqcService {
     }
 
     /**
-     * 推导工序 ID：对齐 KTG getProcessInfo() 逻辑
+     * 推导工序 ID
      *
      * <p>通过产品 → 工艺路线产品 → 工艺路线 → 校验工位工序是否在该路线中
      * <p>如果工位的工序在路线中，则返回该 processId；否则返回 null

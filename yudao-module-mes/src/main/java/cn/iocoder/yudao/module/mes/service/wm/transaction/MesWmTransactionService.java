@@ -8,7 +8,6 @@ import java.util.List;
 /**
  * MES 库存事务流水 Service 接口
  *
- * 对齐 KTG WmTransactionServiceImpl.processTransaction 实现：
  * 校验 → 库存台账更新 → 事务流水插入。
  */
 public interface MesWmTransactionService {

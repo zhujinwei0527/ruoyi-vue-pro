@@ -65,6 +65,13 @@ public interface MesTmToolTypeService {
     List<MesTmToolTypeDO> getToolTypeList();
 
     /**
+     * 校验工具类型是否存在
+     *
+     * @param id 编号
+     */
+    void validateToolTypeExists(Long id);
+
+    /**
      * 获得工具类型列表
      *
      * @param ids 编号数组

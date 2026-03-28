@@ -2,8 +2,11 @@ package cn.iocoder.yudao.module.mes.service.md.workstation;
 
 import cn.iocoder.yudao.framework.common.util.object.BeanUtils;
 import cn.iocoder.yudao.module.mes.controller.admin.md.workstation.vo.machine.MesMdWorkstationMachineSaveReqVO;
+import cn.iocoder.yudao.module.mes.dal.dataobject.md.workstation.MesMdWorkstationDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.md.workstation.MesMdWorkstationMachineDO;
 import cn.iocoder.yudao.module.mes.dal.mysql.md.workstation.MesMdWorkstationMachineMapper;
+import cn.iocoder.yudao.module.mes.dal.mysql.md.workstation.MesMdWorkstationMapper;
+import cn.iocoder.yudao.module.mes.service.dv.machinery.MesDvMachineryService;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
@@ -25,18 +28,33 @@ public class MesMdWorkstationMachineServiceImpl implements MesMdWorkstationMachi
     @Resource
     private MesMdWorkstationMachineMapper workstationMachineMapper;
 
+    @Resource
+    private MesMdWorkstationMapper workstationMapper;
+
+    @Resource
+    private MesDvMachineryService machineryService;
+
     @Override
     public Long createWorkstationMachine(MesMdWorkstationMachineSaveReqVO createReqVO) {
-        // 校验该设备是否已分配到其他工作站
-        MesMdWorkstationMachineDO existing = workstationMachineMapper.selectByMachineryId(createReqVO.getMachineryId());
-        if (existing != null) {
-            throw exception(MD_WORKSTATION_MACHINE_EXISTS);
-        }
+        // 校验数据
+        validateWorkstationMachineSaveData(createReqVO);
 
         // 插入
         MesMdWorkstationMachineDO machine = BeanUtils.toBean(createReqVO, MesMdWorkstationMachineDO.class);
         workstationMachineMapper.insert(machine);
         return machine.getId();
+    }
+
+    private void validateWorkstationMachineSaveData(MesMdWorkstationMachineSaveReqVO reqVO) {
+        // 校验设备是否存在
+        machineryService.validateMachineryExists(reqVO.getMachineryId());
+        // 校验该设备是否已分配到其他工作站（一台设备只能分配到一个工作站）
+        MesMdWorkstationMachineDO existing = workstationMachineMapper.selectByMachineryId(reqVO.getMachineryId());
+        if (existing != null) {
+            MesMdWorkstationDO workstation = workstationMapper.selectById(existing.getWorkstationId());
+            throw exception(MD_WORKSTATION_MACHINE_EXISTS,
+                    workstation != null ? workstation.getName() : String.valueOf(existing.getWorkstationId()));
+        }
     }
 
     @Override
@@ -50,6 +68,11 @@ public class MesMdWorkstationMachineServiceImpl implements MesMdWorkstationMachi
     @Override
     public List<MesMdWorkstationMachineDO> getWorkstationMachineListByWorkstationId(Long workstationId) {
         return workstationMachineMapper.selectListByWorkstationId(workstationId);
+    }
+
+    @Override
+    public void deleteWorkstationMachineByWorkstationId(Long workstationId) {
+        workstationMachineMapper.deleteByWorkstationId(workstationId);
     }
 
 }

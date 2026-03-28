@@ -43,4 +43,11 @@ public interface MesMdWorkstationToolService {
      */
     List<MesMdWorkstationToolDO> getWorkstationToolListByWorkstationId(Long workstationId);
 
+    /**
+     * 按工作站编号删除工装夹具资源（级联删除）
+     *
+     * @param workstationId 工作站编号
+     */
+    void deleteWorkstationToolByWorkstationId(Long workstationId);
+
 }

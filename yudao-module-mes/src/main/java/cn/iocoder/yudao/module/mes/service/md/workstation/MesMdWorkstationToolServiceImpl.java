@@ -1,9 +1,11 @@
 package cn.iocoder.yudao.module.mes.service.md.workstation;
 
+import cn.hutool.core.util.ObjUtil;
 import cn.iocoder.yudao.framework.common.util.object.BeanUtils;
 import cn.iocoder.yudao.module.mes.controller.admin.md.workstation.vo.tool.MesMdWorkstationToolSaveReqVO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.md.workstation.MesMdWorkstationToolDO;
 import cn.iocoder.yudao.module.mes.dal.mysql.md.workstation.MesMdWorkstationToolMapper;
+import cn.iocoder.yudao.module.mes.service.tm.tool.MesTmToolTypeService;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
@@ -25,14 +27,13 @@ public class MesMdWorkstationToolServiceImpl implements MesMdWorkstationToolServ
     @Resource
     private MesMdWorkstationToolMapper workstationToolMapper;
 
+    @Resource
+    private MesTmToolTypeService toolTypeService;
+
     @Override
     public Long createWorkstationTool(MesMdWorkstationToolSaveReqVO createReqVO) {
-        // 校验同一工作站下工具类型不重复
-        MesMdWorkstationToolDO existing = workstationToolMapper.selectByWorkstationIdAndToolTypeId(
-                createReqVO.getWorkstationId(), createReqVO.getToolTypeId());
-        if (existing != null) {
-            throw exception(MD_WORKSTATION_TOOL_TYPE_EXISTS);
-        }
+        // 校验数据
+        validateWorkstationToolSaveData(null, createReqVO);
 
         // 插入
         MesMdWorkstationToolDO tool = BeanUtils.toBean(createReqVO, MesMdWorkstationToolDO.class);
@@ -44,10 +45,23 @@ public class MesMdWorkstationToolServiceImpl implements MesMdWorkstationToolServ
     public void updateWorkstationTool(MesMdWorkstationToolSaveReqVO updateReqVO) {
         // 校验存在
         validateWorkstationToolExists(updateReqVO.getId());
+        // 校验数据
+        validateWorkstationToolSaveData(updateReqVO.getId(), updateReqVO);
 
         // 更新
         MesMdWorkstationToolDO updateObj = BeanUtils.toBean(updateReqVO, MesMdWorkstationToolDO.class);
         workstationToolMapper.updateById(updateObj);
+    }
+
+    private void validateWorkstationToolSaveData(Long id, MesMdWorkstationToolSaveReqVO reqVO) {
+        // 校验工具类型是否存在
+        toolTypeService.validateToolTypeExists(reqVO.getToolTypeId());
+        // 校验同一工作站下工具类型不重复（排除自身）
+        MesMdWorkstationToolDO existing = workstationToolMapper.selectByWorkstationIdAndToolTypeId(
+                reqVO.getWorkstationId(), reqVO.getToolTypeId());
+        if (existing != null && ObjUtil.notEqual(existing.getId(), id)) {
+            throw exception(MD_WORKSTATION_TOOL_TYPE_EXISTS);
+        }
     }
 
     @Override
@@ -68,6 +82,11 @@ public class MesMdWorkstationToolServiceImpl implements MesMdWorkstationToolServ
     @Override
     public List<MesMdWorkstationToolDO> getWorkstationToolListByWorkstationId(Long workstationId) {
         return workstationToolMapper.selectListByWorkstationId(workstationId);
+    }
+
+    @Override
+    public void deleteWorkstationToolByWorkstationId(Long workstationId) {
+        workstationToolMapper.deleteByWorkstationId(workstationId);
     }
 
 }

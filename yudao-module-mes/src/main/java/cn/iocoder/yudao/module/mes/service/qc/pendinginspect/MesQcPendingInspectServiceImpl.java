@@ -12,8 +12,6 @@ import org.springframework.validation.annotation.Validated;
 
 /**
  * MES 待检任务 Service 实现类
- *
- * 使用 UNION ALL SQL 从多个来源表查询待检行，对齐 KTG 的 QcPendingInspectMapper.xml 实现
  */
 @Service
 @Validated
