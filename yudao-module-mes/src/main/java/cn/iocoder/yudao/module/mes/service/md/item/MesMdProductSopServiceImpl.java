@@ -6,6 +6,7 @@ import cn.iocoder.yudao.module.mes.controller.admin.md.item.vo.sop.MesMdProductS
 import cn.iocoder.yudao.module.mes.controller.admin.md.item.vo.sop.MesMdProductSopSaveReqVO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.md.item.MesMdProductSopDO;
 import cn.iocoder.yudao.module.mes.dal.mysql.md.item.MesMdProductSopMapper;
+import cn.iocoder.yudao.module.mes.service.pro.process.MesProProcessService;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
@@ -27,10 +28,17 @@ public class MesMdProductSopServiceImpl implements MesMdProductSopService {
     @Resource
     private MesMdProductSopMapper productSopMapper;
 
+    @Resource
+    private MesProProcessService processService;
+
     @Override
     public Long createProductSop(MesMdProductSopSaveReqVO createReqVO) {
         // 校验排列顺序的唯一性
         validateSortUnique(createReqVO.getItemId(), createReqVO.getSort(), null);
+        // 校验工序存在
+        if (createReqVO.getProcessId() != null) {
+            processService.validateProcessExists(createReqVO.getProcessId());
+        }
 
         // 插入
         MesMdProductSopDO sop = BeanUtils.toBean(createReqVO, MesMdProductSopDO.class);
@@ -44,6 +52,10 @@ public class MesMdProductSopServiceImpl implements MesMdProductSopService {
         validateProductSopExists(updateReqVO.getId());
         // 校验排列顺序的唯一性
         validateSortUnique(updateReqVO.getItemId(), updateReqVO.getSort(), updateReqVO.getId());
+        // 校验工序存在
+        if (updateReqVO.getProcessId() != null) {
+            processService.validateProcessExists(updateReqVO.getProcessId());
+        }
 
         // 更新
         MesMdProductSopDO updateObj = BeanUtils.toBean(updateReqVO, MesMdProductSopDO.class);
