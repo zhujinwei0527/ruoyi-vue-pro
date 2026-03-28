@@ -1,5 +1,6 @@
 package cn.iocoder.yudao.module.mes.service.wm.itemreceipt;
 
+import cn.hutool.core.collection.CollUtil;
 import cn.iocoder.yudao.framework.common.pojo.PageResult;
 import cn.iocoder.yudao.framework.common.util.object.BeanUtils;
 import cn.iocoder.yudao.module.mes.controller.admin.wm.batch.vo.MesWmBatchGenerateReqVO;
@@ -22,6 +23,7 @@ import org.springframework.validation.annotation.Validated;
 import java.util.List;
 
 import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception;
+import static cn.iocoder.yudao.framework.common.util.collection.CollectionUtils.convertList;
 import static cn.iocoder.yudao.module.mes.enums.ErrorCodeConstants.*;
 
 /**
@@ -107,6 +109,15 @@ public class MesWmItemReceiptLineServiceImpl implements MesWmItemReceiptLineServ
 
     @Override
     public PageResult<MesWmItemReceiptLineDO> getItemReceiptLinePage(MesWmItemReceiptLinePageReqVO pageReqVO) {
+        // 如果传了 vendorId，先查出该供应商的所有入库单 ID，设置到 receiptIds
+        if (pageReqVO.getReceiptId() == null) {
+            List<MesWmItemReceiptDO> receipts = itemReceiptService.getItemReceiptListByVendorId(pageReqVO.getVendorId());
+            if (CollUtil.isEmpty(receipts)) {
+                return PageResult.empty();
+            }
+            pageReqVO.setReceiptIds(convertList(receipts, MesWmItemReceiptDO::getId));
+        }
+        // 查询分页
         return itemReceiptLineMapper.selectPage(pageReqVO);
     }
 

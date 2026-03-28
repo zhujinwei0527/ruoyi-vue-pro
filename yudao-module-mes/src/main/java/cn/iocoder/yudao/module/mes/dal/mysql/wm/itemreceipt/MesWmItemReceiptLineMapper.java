@@ -18,6 +18,7 @@ public interface MesWmItemReceiptLineMapper extends BaseMapperX<MesWmItemReceipt
     default PageResult<MesWmItemReceiptLineDO> selectPage(MesWmItemReceiptLinePageReqVO reqVO) {
         return selectPage(reqVO, new LambdaQueryWrapperX<MesWmItemReceiptLineDO>()
                 .eqIfPresent(MesWmItemReceiptLineDO::getReceiptId, reqVO.getReceiptId())
+                .inIfPresent(MesWmItemReceiptLineDO::getReceiptId, reqVO.getReceiptIds())
                 .orderByDesc(MesWmItemReceiptLineDO::getId));
     }
 
@@ -27,6 +28,10 @@ public interface MesWmItemReceiptLineMapper extends BaseMapperX<MesWmItemReceipt
 
     default void deleteByReceiptId(Long receiptId) {
         delete(MesWmItemReceiptLineDO::getReceiptId, receiptId);
+    }
+
+    default List<MesWmItemReceiptLineDO> selectListByReceiptIds(java.util.Collection<Long> receiptIds) {
+        return selectList(MesWmItemReceiptLineDO::getReceiptId, receiptIds);
     }
 
 }

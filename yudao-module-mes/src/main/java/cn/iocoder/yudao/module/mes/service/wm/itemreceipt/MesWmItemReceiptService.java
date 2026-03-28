@@ -6,6 +6,8 @@ import cn.iocoder.yudao.module.mes.controller.admin.wm.itemreceipt.vo.MesWmItemR
 import cn.iocoder.yudao.module.mes.dal.dataobject.wm.itemreceipt.MesWmItemReceiptDO;
 import jakarta.validation.Valid;
 
+import java.util.List;
+
 /**
  * MES 采购入库单 Service 接口
  */
@@ -92,5 +94,13 @@ public interface MesWmItemReceiptService {
      * @return 数量
      */
     Long getItemReceiptCountByVendorId(Long vendorId);
+
+    /**
+     * 查询指定供应商的采购入库单列表
+     *
+     * @param vendorId 供应商编号
+     * @return 入库单列表
+     */
+    List<MesWmItemReceiptDO> getItemReceiptListByVendorId(Long vendorId);
 
 }

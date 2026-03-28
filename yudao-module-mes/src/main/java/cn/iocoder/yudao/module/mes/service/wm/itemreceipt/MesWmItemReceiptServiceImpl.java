@@ -233,4 +233,9 @@ public class MesWmItemReceiptServiceImpl implements MesWmItemReceiptService {
         return itemReceiptMapper.selectCountByVendorId(vendorId);
     }
 
+    @Override
+    public List<MesWmItemReceiptDO> getItemReceiptListByVendorId(Long vendorId) {
+        return itemReceiptMapper.selectListByVendorId(vendorId);
+    }
+
 }

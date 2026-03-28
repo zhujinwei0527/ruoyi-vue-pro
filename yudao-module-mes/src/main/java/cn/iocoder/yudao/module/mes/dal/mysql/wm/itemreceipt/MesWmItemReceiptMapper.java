@@ -7,6 +7,8 @@ import cn.iocoder.yudao.module.mes.controller.admin.wm.itemreceipt.vo.MesWmItemR
 import cn.iocoder.yudao.module.mes.dal.dataobject.wm.itemreceipt.MesWmItemReceiptDO;
 import org.apache.ibatis.annotations.Mapper;
 
+import java.util.List;
+
 /**
  * MES 采购入库单 Mapper
  */
@@ -28,6 +30,10 @@ public interface MesWmItemReceiptMapper extends BaseMapperX<MesWmItemReceiptDO> 
 
     default Long selectCountByVendorId(Long vendorId) {
         return selectCount(MesWmItemReceiptDO::getVendorId, vendorId);
+    }
+
+    default List<MesWmItemReceiptDO> selectListByVendorId(Long vendorId) {
+        return selectList(MesWmItemReceiptDO::getVendorId, vendorId);
     }
 
 }
