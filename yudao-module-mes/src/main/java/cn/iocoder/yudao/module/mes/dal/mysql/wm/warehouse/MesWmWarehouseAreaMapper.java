@@ -59,21 +59,11 @@ public interface MesWmWarehouseAreaMapper extends BaseMapperX<MesWmWarehouseArea
     }
 
     /**
-     * 批量更新指定库区下所有库位的物料混放规则
+     * 批量更新指定库区下所有库位
      */
-    default void updateAllowItemMixingByLocationId(Long locationId, Boolean allowItemMixing) {
-        update(new MesWmWarehouseAreaDO().setAllowItemMixing(allowItemMixing),
-                new LambdaQueryWrapperX<MesWmWarehouseAreaDO>()
-                        .eq(MesWmWarehouseAreaDO::getLocationId, locationId));
-    }
-
-    /**
-     * 批量更新指定库区下所有库位的批次混放规则
-     */
-    default void updateAllowBatchMixingByLocationId(Long locationId, Boolean allowBatchMixing) {
-        update(new MesWmWarehouseAreaDO().setAllowBatchMixing(allowBatchMixing),
-                new LambdaQueryWrapperX<MesWmWarehouseAreaDO>()
-                        .eq(MesWmWarehouseAreaDO::getLocationId, locationId));
+    default void updateByLocationId(Long locationId, MesWmWarehouseAreaDO updateObj) {
+        update(updateObj, new LambdaQueryWrapperX<MesWmWarehouseAreaDO>()
+                .eq(MesWmWarehouseAreaDO::getLocationId, locationId));
     }
 
 }

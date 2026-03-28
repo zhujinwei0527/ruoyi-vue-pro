@@ -101,20 +101,13 @@ public interface MesWmWarehouseAreaService {
     void validateWarehouseAreaExists(Long warehouseId, Long locationId, Long areaId);
 
     /**
-     * 批量设置指定库区下所有库位的物料混放规则
+     * 批量设置指定库区下所有库位的混放规则
      *
      * @param locationId 库区编号
-     * @param allowItemMixing 是否允许物料混放
+     * @param allowItemMixing 是否允许物料混放（null 表示不修改）
+     * @param allowBatchMixing 是否允许批次混放（null 表示不修改）
      */
-    void updateAllowItemMixingByLocationId(Long locationId, Boolean allowItemMixing);
-
-    /**
-     * 批量设置指定库区下所有库位的批次混放规则
-     *
-     * @param locationId 库区编号
-     * @param allowBatchMixing 是否允许批次混放
-     */
-    void updateAllowBatchMixingByLocationId(Long locationId, Boolean allowBatchMixing);
+    void updateByLocationId(Long locationId, Boolean allowItemMixing, Boolean allowBatchMixing);
 
     /**
      * 按编码获得库位（如果是虚拟线边库位编码且不存在，会自动插入）

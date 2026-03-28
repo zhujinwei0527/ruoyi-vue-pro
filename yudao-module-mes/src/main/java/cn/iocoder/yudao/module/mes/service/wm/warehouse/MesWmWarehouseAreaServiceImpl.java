@@ -196,13 +196,19 @@ public class MesWmWarehouseAreaServiceImpl implements MesWmWarehouseAreaService 
     }
 
     @Override
-    public void updateAllowItemMixingByLocationId(Long locationId, Boolean allowItemMixing) {
-        areaMapper.updateAllowItemMixingByLocationId(locationId, allowItemMixing);
-    }
-
-    @Override
-    public void updateAllowBatchMixingByLocationId(Long locationId, Boolean allowBatchMixing) {
-        areaMapper.updateAllowBatchMixingByLocationId(locationId, allowBatchMixing);
+    public void updateByLocationId(Long locationId, Boolean allowItemMixing, Boolean allowBatchMixing) {
+        // 校验库区存在
+        locationService.validateWarehouseLocationExists(locationId);
+        // 构建更新对象
+        MesWmWarehouseAreaDO updateObj = new MesWmWarehouseAreaDO();
+        if (allowItemMixing != null) {
+            updateObj.setAllowItemMixing(allowItemMixing);
+        }
+        if (allowBatchMixing != null) {
+            updateObj.setAllowBatchMixing(allowBatchMixing);
+        }
+        // 批量更新库位
+        areaMapper.updateByLocationId(locationId, updateObj);
     }
 
     @Override

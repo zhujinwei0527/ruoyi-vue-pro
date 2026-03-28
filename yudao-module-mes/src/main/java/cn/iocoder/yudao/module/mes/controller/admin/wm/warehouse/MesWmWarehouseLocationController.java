@@ -94,20 +94,14 @@ public class MesWmWarehouseLocationController {
         return success(buildWarehouseLocationRespVOList(list));
     }
 
-    // TODO @AI：update-by-location；方法名也改下；
-    @PutMapping("/update-mixing")
+    @PutMapping("/update-by-location-id")
     @Operation(summary = "批量设置库区下所有库位的混放规则")
     @PreAuthorize("@ss.hasPermission('mes:wm-warehouse:update')")
-    public CommonResult<Boolean> updateMixing(@RequestParam("locationId") Long locationId,
-                                              @RequestParam(value = "allowItemMixing", required = false) Boolean allowItemMixing,
-                                              @RequestParam(value = "allowBatchMixing", required = false) Boolean allowBatchMixing) {
-        // TODO @AI：统一放到 service 里；
-        if (allowItemMixing != null) {
-            areaService.updateAllowItemMixingByLocationId(locationId, allowItemMixing);
-        }
-        if (allowBatchMixing != null) {
-            areaService.updateAllowBatchMixingByLocationId(locationId, allowBatchMixing);
-        }
+    public CommonResult<Boolean> updateAreaByLocationId(
+            @RequestParam("locationId") Long locationId,
+            @RequestParam(value = "allowItemMixing", required = false) Boolean allowItemMixing,
+            @RequestParam(value = "allowBatchMixing", required = false) Boolean allowBatchMixing) {
+        areaService.updateByLocationId(locationId, allowItemMixing, allowBatchMixing);
         return success(true);
     }
 
