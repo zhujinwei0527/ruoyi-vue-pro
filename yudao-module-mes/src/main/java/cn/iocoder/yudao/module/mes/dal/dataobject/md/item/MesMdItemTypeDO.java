@@ -42,6 +42,8 @@ public class MesMdItemTypeDO extends BaseDO {
     private Long parentId;
     /**
      * 物料/产品标识
+     *
+     * 枚举 {@link cn.iocoder.yudao.module.mes.enums.md.MesMdItemTypeEnum}
      */
     private String itemOrProduct;
     /**
