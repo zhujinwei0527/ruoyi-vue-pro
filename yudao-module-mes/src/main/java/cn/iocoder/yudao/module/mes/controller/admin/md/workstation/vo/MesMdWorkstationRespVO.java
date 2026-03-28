@@ -38,6 +38,10 @@ public class MesMdWorkstationRespVO {
     @Schema(description = "工序编号", example = "1")
     private Long processId;
 
+    @Schema(description = "工序名称", example = "打磨")
+    @ExcelProperty("工序名称")
+    private String processName;
+
     @Schema(description = "线边库编号", example = "1")
     private Long warehouseId;
 

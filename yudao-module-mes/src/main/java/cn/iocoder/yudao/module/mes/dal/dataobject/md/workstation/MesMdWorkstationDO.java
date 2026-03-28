@@ -1,6 +1,10 @@
 package cn.iocoder.yudao.module.mes.dal.dataobject.md.workstation;
 
 import cn.iocoder.yudao.framework.mybatis.core.dataobject.BaseDO;
+import cn.iocoder.yudao.module.mes.dal.dataobject.pro.process.MesProProcessDO;
+import cn.iocoder.yudao.module.mes.dal.dataobject.wm.warehouse.MesWmWarehouseAreaDO;
+import cn.iocoder.yudao.module.mes.dal.dataobject.wm.warehouse.MesWmWarehouseDO;
+import cn.iocoder.yudao.module.mes.dal.dataobject.wm.warehouse.MesWmWarehouseLocationDO;
 import com.baomidou.mybatisplus.annotation.KeySequence;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
@@ -47,25 +51,25 @@ public class MesMdWorkstationDO extends BaseDO {
     /**
      * 工序编号
      *
-     * TODO @芋艿：等 pro 模块，关联工序表
+     * 关联 {@link MesProProcessDO#getId()}
      */
     private Long processId;
     /**
      * 线边库编号
      *
-     * TODO @芋艿：等 wm 模块，关联仓库表
+     * 关联 {@link MesWmWarehouseDO#getId()}
      */
     private Long warehouseId;
     /**
      * 库区编号
      *
-     * TODO @芋艿：等 wm 模块，关联库区表
+     * 关联 {@link MesWmWarehouseLocationDO#getId()}
      */
     private Long locationId;
     /**
      * 库位编号
      *
-     * TODO @芋艿：等 wm 模块，关联库位表
+     * 关联 {@link MesWmWarehouseAreaDO#getId()}
      */
     private Long areaId;
     /**

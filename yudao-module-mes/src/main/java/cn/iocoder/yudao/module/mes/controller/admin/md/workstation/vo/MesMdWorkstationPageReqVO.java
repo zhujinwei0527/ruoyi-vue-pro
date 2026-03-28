@@ -21,6 +21,9 @@ public class MesMdWorkstationPageReqVO extends PageParam {
     @Schema(description = "所在车间编号", example = "1")
     private Long workshopId;
 
+    @Schema(description = "工序编号", example = "1")
+    private Long processId;
+
     @Schema(description = "状态", example = "0")
     private Integer status;
 

@@ -22,6 +22,7 @@ public interface MesMdWorkstationMapper extends BaseMapperX<MesMdWorkstationDO> 
                 .eqIfPresent(MesMdWorkstationDO::getCode, reqVO.getCode())
                 .likeIfPresent(MesMdWorkstationDO::getName, reqVO.getName())
                 .eqIfPresent(MesMdWorkstationDO::getWorkshopId, reqVO.getWorkshopId())
+                .eqIfPresent(MesMdWorkstationDO::getProcessId, reqVO.getProcessId())
                 .eqIfPresent(MesMdWorkstationDO::getStatus, reqVO.getStatus())
                 .orderByDesc(MesMdWorkstationDO::getId));
     }

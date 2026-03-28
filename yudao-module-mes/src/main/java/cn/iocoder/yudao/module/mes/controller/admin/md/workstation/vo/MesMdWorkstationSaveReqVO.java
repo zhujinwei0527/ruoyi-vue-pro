@@ -27,7 +27,8 @@ public class MesMdWorkstationSaveReqVO {
     @NotNull(message = "所在车间不能为空")
     private Long workshopId;
 
-    @Schema(description = "工序编号", example = "1")
+    @Schema(description = "工序编号", requiredMode = Schema.RequiredMode.REQUIRED, example = "1")
+    @NotNull(message = "所属工序不能为空")
     private Long processId;
 
     @Schema(description = "线边库编号", example = "1")

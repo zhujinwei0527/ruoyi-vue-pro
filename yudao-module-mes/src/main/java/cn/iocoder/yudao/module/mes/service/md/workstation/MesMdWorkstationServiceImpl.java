@@ -19,6 +19,7 @@ import cn.iocoder.yudao.module.mes.service.wm.barcode.MesWmBarcodeService;
 import cn.iocoder.yudao.module.mes.service.wm.warehouse.MesWmWarehouseAreaService;
 import cn.iocoder.yudao.module.mes.service.wm.warehouse.MesWmWarehouseLocationService;
 import cn.iocoder.yudao.module.mes.service.wm.warehouse.MesWmWarehouseService;
+import cn.iocoder.yudao.module.mes.service.pro.process.MesProProcessService;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -67,16 +68,13 @@ public class MesMdWorkstationServiceImpl implements MesMdWorkstationService {
     @Resource
     private MesWmBarcodeService barcodeService;
 
+    @Resource
+    private MesProProcessService processService;
+
     @Override
     public Long createWorkstation(MesMdWorkstationSaveReqVO createReqVO) {
-        // 校验编码唯一
-        validateWorkstationCodeUnique(null, createReqVO.getCode());
-        // 校验名称唯一
-        validateWorkstationNameUnique(null, createReqVO.getName());
-        // 校验车间存在
-        validateWorkshopExists(createReqVO.getWorkshopId());
-        // 校验仓库层级
-        validateWarehouseHierarchy(createReqVO);
+        // 校验数据
+        validateWorkstationSaveData(null, createReqVO);
 
         // 插入
         MesMdWorkstationDO workstation = BeanUtils.toBean(createReqVO, MesMdWorkstationDO.class);
@@ -92,18 +90,25 @@ public class MesMdWorkstationServiceImpl implements MesMdWorkstationService {
     public void updateWorkstation(MesMdWorkstationSaveReqVO updateReqVO) {
         // 校验存在
         validateWorkstationExists(updateReqVO.getId());
-        // 校验编码唯一
-        validateWorkstationCodeUnique(updateReqVO.getId(), updateReqVO.getCode());
-        // 校验名称唯一
-        validateWorkstationNameUnique(updateReqVO.getId(), updateReqVO.getName());
-        // 校验车间存在
-        validateWorkshopExists(updateReqVO.getWorkshopId());
-        // 校验仓库层级
-        validateWarehouseHierarchy(updateReqVO);
+        // 校验数据
+        validateWorkstationSaveData(updateReqVO.getId(), updateReqVO);
 
         // 更新
         MesMdWorkstationDO updateObj = BeanUtils.toBean(updateReqVO, MesMdWorkstationDO.class);
         workstationMapper.updateById(updateObj);
+    }
+
+    private void validateWorkstationSaveData(Long id, MesMdWorkstationSaveReqVO reqVO) {
+        // 校验编码唯一
+        validateWorkstationCodeUnique(id, reqVO.getCode());
+        // 校验名称唯一
+        validateWorkstationNameUnique(id, reqVO.getName());
+        // 校验车间存在
+        validateWorkshopExists(reqVO.getWorkshopId());
+        // 校验工序存在
+        processService.validateProcessExists(reqVO.getProcessId());
+        // 校验仓库层级
+        validateWarehouseHierarchy(reqVO);
     }
 
     @Override

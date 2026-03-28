@@ -14,8 +14,10 @@ import cn.iocoder.yudao.module.mes.controller.admin.md.workstation.vo.MesMdWorks
 import cn.iocoder.yudao.module.mes.controller.admin.md.workstation.vo.MesMdWorkstationSaveReqVO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.md.workstation.MesMdWorkshopDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.md.workstation.MesMdWorkstationDO;
+import cn.iocoder.yudao.module.mes.dal.dataobject.pro.process.MesProProcessDO;
 import cn.iocoder.yudao.module.mes.service.md.workstation.MesMdWorkshopService;
 import cn.iocoder.yudao.module.mes.service.md.workstation.MesMdWorkstationService;
+import cn.iocoder.yudao.module.mes.service.pro.process.MesProProcessService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -44,9 +46,10 @@ public class MesMdWorkstationController {
 
     @Resource
     private MesMdWorkstationService workstationService;
-
     @Resource
     private MesMdWorkshopService workshopService;
+    @Resource
+    private MesProProcessService processService;
 
     @PostMapping("/create")
     @Operation(summary = "创建工作站")
@@ -116,13 +119,17 @@ public class MesMdWorkstationController {
         if (CollUtil.isEmpty(list)) {
             return Collections.emptyList();
         }
-        // 1. 批量获取车间信息
+        // 1. 批量获取车间、工序信息
         Map<Long, MesMdWorkshopDO> workshopMap = workshopService.getWorkshopMap(
                 convertSet(list, MesMdWorkstationDO::getWorkshopId));
+        Map<Long, MesProProcessDO> processMap = processService.getProcessMap(
+                convertSet(list, MesMdWorkstationDO::getProcessId));
         // 2. 拼接 VO
         return BeanUtils.toBean(list, MesMdWorkstationRespVO.class, vo -> {
             MapUtils.findAndThen(workshopMap, vo.getWorkshopId(),
                     workshop -> vo.setWorkshopName(workshop.getName()));
+            MapUtils.findAndThen(processMap, vo.getProcessId(),
+                    process -> vo.setProcessName(process.getName()));
         });
     }
 
