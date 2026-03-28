@@ -46,6 +46,8 @@ public class MesWmWarehouseServiceImpl implements MesWmWarehouseService {
 
     @Override
     public Long createWarehouse(MesWmWarehouseSaveReqVO createReqVO) {
+        // 校验虚拟仓库不允许新增
+        validateNotVirtual(createReqVO.getCode());
         // 校验数据
         validateWarehouseSaveData(createReqVO);
 
@@ -62,7 +64,9 @@ public class MesWmWarehouseServiceImpl implements MesWmWarehouseService {
     @Override
     public void updateWarehouse(MesWmWarehouseSaveReqVO updateReqVO) {
         // 校验存在
-        validateWarehouseExists(updateReqVO.getId());
+        MesWmWarehouseDO warehouse = validateWarehouseExists(updateReqVO.getId());
+        // 校验虚拟仓库不允许修改
+        validateNotVirtual(warehouse.getCode());
         // 校验数据
         validateWarehouseSaveData(updateReqVO);
 
@@ -78,14 +82,18 @@ public class MesWmWarehouseServiceImpl implements MesWmWarehouseService {
         validateWarehouseNameUnique(reqVO.getId(), reqVO.getName());
     }
 
+    private void validateNotVirtual(String code) {
+        if (MesWmWarehouseDO.WIP_VIRTUAL_WAREHOUSE.equals(code)) {
+            throw exception(WM_WAREHOUSE_IS_VIRTUAL);
+        }
+    }
+
     @Override
     public void deleteWarehouse(Long id) {
         // 校验存在
         MesWmWarehouseDO warehouse = validateWarehouseExists(id);
         // 校验虚拟仓库不允许删除
-        if (MesWmWarehouseDO.WIP_VIRTUAL_WAREHOUSE.equals(warehouse.getCode())) {
-            throw exception(WM_WAREHOUSE_IS_VIRTUAL);
-        }
+        validateNotVirtual(warehouse.getCode());
         // 校验是否有库区
         if (locationService.getWarehouseLocationCountByWarehouseId(id) > 0) {
             throw exception(WM_WAREHOUSE_HAS_LOCATION);

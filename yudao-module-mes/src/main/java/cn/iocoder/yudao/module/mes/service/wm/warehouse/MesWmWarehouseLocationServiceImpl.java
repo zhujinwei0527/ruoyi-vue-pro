@@ -50,6 +50,8 @@ public class MesWmWarehouseLocationServiceImpl implements MesWmWarehouseLocation
 
     @Override
     public Long createWarehouseLocation(MesWmWarehouseLocationSaveReqVO createReqVO) {
+        // 校验虚拟库区不允许新增
+        validateNotVirtual(createReqVO.getCode());
         // 校验数据
         validateWarehouseLocationSaveData(createReqVO);
 
@@ -66,7 +68,9 @@ public class MesWmWarehouseLocationServiceImpl implements MesWmWarehouseLocation
     @Override
     public void updateWarehouseLocation(MesWmWarehouseLocationSaveReqVO updateReqVO) {
         // 校验存在
-        validateWarehouseLocationExists(updateReqVO.getId());
+        MesWmWarehouseLocationDO location = validateWarehouseLocationExists(updateReqVO.getId());
+        // 校验虚拟库区不允许修改
+        validateNotVirtual(location.getCode());
         // 校验数据
         validateWarehouseLocationSaveData(updateReqVO);
 
@@ -84,14 +88,18 @@ public class MesWmWarehouseLocationServiceImpl implements MesWmWarehouseLocation
         validateWarehouseLocationNameUnique(reqVO.getId(), reqVO.getWarehouseId(), reqVO.getName());
     }
 
+    private void validateNotVirtual(String code) {
+        if (MesWmWarehouseLocationDO.WIP_VIRTUAL_LOCATION.equals(code)) {
+            throw exception(WM_WAREHOUSE_LOCATION_IS_VIRTUAL);
+        }
+    }
+
     @Override
     public void deleteWarehouseLocation(Long id) {
         // 校验存在
         MesWmWarehouseLocationDO location = validateWarehouseLocationExists(id);
         // 校验虚拟库区不允许删除
-        if (MesWmWarehouseLocationDO.WIP_VIRTUAL_LOCATION.equals(location.getCode())) {
-            throw exception(WM_WAREHOUSE_LOCATION_IS_VIRTUAL);
-        }
+        validateNotVirtual(location.getCode());
         // 校验是否有库位
         if (areaService.getWarehouseAreaCountByLocationId(id) > 0) {
             throw exception(WM_WAREHOUSE_LOCATION_HAS_AREA);
