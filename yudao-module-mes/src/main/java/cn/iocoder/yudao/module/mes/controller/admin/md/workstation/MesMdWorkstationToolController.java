@@ -1,11 +1,15 @@
 package cn.iocoder.yudao.module.mes.controller.admin.md.workstation;
 
+import cn.hutool.core.collection.CollUtil;
 import cn.iocoder.yudao.framework.common.pojo.CommonResult;
+import cn.iocoder.yudao.framework.common.util.collection.MapUtils;
 import cn.iocoder.yudao.framework.common.util.object.BeanUtils;
 import cn.iocoder.yudao.module.mes.controller.admin.md.workstation.vo.tool.MesMdWorkstationToolRespVO;
 import cn.iocoder.yudao.module.mes.controller.admin.md.workstation.vo.tool.MesMdWorkstationToolSaveReqVO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.md.workstation.MesMdWorkstationToolDO;
+import cn.iocoder.yudao.module.mes.dal.dataobject.tm.tool.MesTmToolTypeDO;
 import cn.iocoder.yudao.module.mes.service.md.workstation.MesMdWorkstationToolService;
+import cn.iocoder.yudao.module.mes.service.tm.tool.MesTmToolTypeService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -15,9 +19,12 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 import static cn.iocoder.yudao.framework.common.pojo.CommonResult.success;
+import static cn.iocoder.yudao.framework.common.util.collection.CollectionUtils.convertSet;
 
 @Tag(name = "管理后台 - MES 工装夹具资源")
 @RestController
@@ -27,6 +34,9 @@ public class MesMdWorkstationToolController {
 
     @Resource
     private MesMdWorkstationToolService workstationToolService;
+
+    @Resource
+    private MesTmToolTypeService toolTypeService;
 
     @PostMapping("/create")
     @Operation(summary = "创建工装夹具资源")
@@ -59,8 +69,22 @@ public class MesMdWorkstationToolController {
     public CommonResult<List<MesMdWorkstationToolRespVO>> getWorkstationToolList(
             @RequestParam("workstationId") Long workstationId) {
         List<MesMdWorkstationToolDO> list = workstationToolService.getWorkstationToolListByWorkstationId(workstationId);
-        // TODO @芋艿：拼装工具类型名称，等 TM 工具模块完成后对接
-        return success(BeanUtils.toBean(list, MesMdWorkstationToolRespVO.class));
+        return success(buildWorkstationToolRespVOList(list));
+    }
+
+    // ==================== 拼接 VO ====================
+
+    private List<MesMdWorkstationToolRespVO> buildWorkstationToolRespVOList(List<MesMdWorkstationToolDO> list) {
+        if (CollUtil.isEmpty(list)) {
+            return Collections.emptyList();
+        }
+        // 1. 批量获取工具类型信息
+        Map<Long, MesTmToolTypeDO> toolTypeMap = toolTypeService.getToolTypeMap(
+                convertSet(list, MesMdWorkstationToolDO::getToolTypeId));
+        // 2. 拼接 VO
+        return BeanUtils.toBean(list, MesMdWorkstationToolRespVO.class, vo ->
+                MapUtils.findAndThen(toolTypeMap, vo.getToolTypeId(),
+                        toolType -> vo.setToolTypeName(toolType.getName())));
     }
 
 }
