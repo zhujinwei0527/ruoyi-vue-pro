@@ -23,7 +23,10 @@ public enum MesMdAutoCodeRuleCodeEnum {
     QC_IQC_CODE("QC_IQC_CODE", "来料检验单编码"),
     QC_IPQC_CODE("QC_IPQC_CODE", "过程检验单编码"),
     QC_OQC_CODE("QC_OQC_CODE", "出货检验单编码"),
-    QC_RQC_CODE("QC_RQC_CODE", "退货检验单编码");
+    QC_RQC_CODE("QC_RQC_CODE", "退货检验单编码"),
+    WM_WAREHOUSE_CODE("WM_WAREHOUSE_CODE", "仓库编码"),
+    WM_LOCATION_CODE("WM_LOCATION_CODE", "库区编码"),
+    WM_AREA_CODE("WM_AREA_CODE", "库位编码");
 
     /**
      * 规则代码

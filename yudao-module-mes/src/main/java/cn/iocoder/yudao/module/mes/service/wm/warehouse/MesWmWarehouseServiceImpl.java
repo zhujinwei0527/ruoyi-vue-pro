@@ -46,10 +46,8 @@ public class MesWmWarehouseServiceImpl implements MesWmWarehouseService {
 
     @Override
     public Long createWarehouse(MesWmWarehouseSaveReqVO createReqVO) {
-        // 校验编码唯一
-        validateWarehouseCodeUnique(null, createReqVO.getCode());
-        // 校验名称唯一
-        validateWarehouseNameUnique(null, createReqVO.getName());
+        // 校验数据
+        validateWarehouseSaveData(createReqVO);
 
         // 插入
         MesWmWarehouseDO warehouse = BeanUtils.toBean(createReqVO, MesWmWarehouseDO.class);
@@ -65,14 +63,19 @@ public class MesWmWarehouseServiceImpl implements MesWmWarehouseService {
     public void updateWarehouse(MesWmWarehouseSaveReqVO updateReqVO) {
         // 校验存在
         validateWarehouseExists(updateReqVO.getId());
-        // 校验编码唯一
-        validateWarehouseCodeUnique(updateReqVO.getId(), updateReqVO.getCode());
-        // 校验名称唯一
-        validateWarehouseNameUnique(updateReqVO.getId(), updateReqVO.getName());
+        // 校验数据
+        validateWarehouseSaveData(updateReqVO);
 
         // 更新
         MesWmWarehouseDO updateObj = BeanUtils.toBean(updateReqVO, MesWmWarehouseDO.class);
         warehouseMapper.updateById(updateObj);
+    }
+
+    private void validateWarehouseSaveData(MesWmWarehouseSaveReqVO reqVO) {
+        // 校验编码唯一
+        validateWarehouseCodeUnique(reqVO.getId(), reqVO.getCode());
+        // 校验名称唯一
+        validateWarehouseNameUnique(reqVO.getId(), reqVO.getName());
     }
 
     @Override

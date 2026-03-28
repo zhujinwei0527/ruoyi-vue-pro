@@ -94,22 +94,20 @@ public class MesWmWarehouseLocationController {
         return success(buildWarehouseLocationRespVOList(list));
     }
 
-    // TODO @AI：是不是搞个批量的接口，把 set-item-mixing、set-batch-mixing 融合成一个？
-    @PutMapping("/set-item-mixing")
-    @Operation(summary = "批量设置库区下所有库位的物料混放规则")
+    // TODO @AI：update-by-location；方法名也改下；
+    @PutMapping("/update-mixing")
+    @Operation(summary = "批量设置库区下所有库位的混放规则")
     @PreAuthorize("@ss.hasPermission('mes:wm-warehouse:update')")
-    public CommonResult<Boolean> setItemMixing(@RequestParam("locationId") Long locationId,
-                                               @RequestParam("allow") Boolean allow) {
-        areaService.updateAllowItemMixingByLocationId(locationId, allow);
-        return success(true);
-    }
-
-    @PutMapping("/set-batch-mixing")
-    @Operation(summary = "批量设置库区下所有库位的批次混放规则")
-    @PreAuthorize("@ss.hasPermission('mes:wm-warehouse:update')")
-    public CommonResult<Boolean> setBatchMixing(@RequestParam("locationId") Long locationId,
-                                                @RequestParam("allow") Boolean allow) {
-        areaService.updateAllowBatchMixingByLocationId(locationId, allow);
+    public CommonResult<Boolean> updateMixing(@RequestParam("locationId") Long locationId,
+                                              @RequestParam(value = "allowItemMixing", required = false) Boolean allowItemMixing,
+                                              @RequestParam(value = "allowBatchMixing", required = false) Boolean allowBatchMixing) {
+        // TODO @AI：统一放到 service 里；
+        if (allowItemMixing != null) {
+            areaService.updateAllowItemMixingByLocationId(locationId, allowItemMixing);
+        }
+        if (allowBatchMixing != null) {
+            areaService.updateAllowBatchMixingByLocationId(locationId, allowBatchMixing);
+        }
         return success(true);
     }
 

@@ -51,12 +51,8 @@ public class MesWmWarehouseAreaServiceImpl implements MesWmWarehouseAreaService 
 
     @Override
     public Long createWarehouseArea(MesWmWarehouseAreaSaveReqVO createReqVO) {
-        // 校验库区存在
-        locationService.validateWarehouseLocationExists(createReqVO.getLocationId());
-        // 校验编码唯一
-        validateWarehouseAreaCodeUnique(null, createReqVO.getLocationId(), createReqVO.getCode());
-        // 校验名称唯一
-        validateWarehouseAreaNameUnique(null, createReqVO.getLocationId(), createReqVO.getName());
+        // 校验数据
+        validateWarehouseAreaSaveData(createReqVO);
 
         // 插入
         MesWmWarehouseAreaDO area = BeanUtils.toBean(createReqVO, MesWmWarehouseAreaDO.class);
@@ -72,16 +68,21 @@ public class MesWmWarehouseAreaServiceImpl implements MesWmWarehouseAreaService 
     public void updateWarehouseArea(MesWmWarehouseAreaSaveReqVO updateReqVO) {
         // 校验存在
         validateWarehouseAreaExists(updateReqVO.getId());
-        // 校验库区存在
-        locationService.validateWarehouseLocationExists(updateReqVO.getLocationId());
-        // 校验编码唯一
-        validateWarehouseAreaCodeUnique(updateReqVO.getId(), updateReqVO.getLocationId(), updateReqVO.getCode());
-        // 校验名称唯一
-        validateWarehouseAreaNameUnique(updateReqVO.getId(), updateReqVO.getLocationId(), updateReqVO.getName());
+        // 校验数据
+        validateWarehouseAreaSaveData(updateReqVO);
 
         // 更新
         MesWmWarehouseAreaDO updateObj = BeanUtils.toBean(updateReqVO, MesWmWarehouseAreaDO.class);
         areaMapper.updateById(updateObj);
+    }
+
+    private void validateWarehouseAreaSaveData(MesWmWarehouseAreaSaveReqVO reqVO) {
+        // 校验库区存在
+        locationService.validateWarehouseLocationExists(reqVO.getLocationId());
+        // 校验编码唯一
+        validateWarehouseAreaCodeUnique(reqVO.getId(), reqVO.getLocationId(), reqVO.getCode());
+        // 校验名称唯一
+        validateWarehouseAreaNameUnique(reqVO.getId(), reqVO.getLocationId(), reqVO.getName());
     }
 
     @Override

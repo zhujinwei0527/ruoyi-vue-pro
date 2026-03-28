@@ -50,12 +50,8 @@ public class MesWmWarehouseLocationServiceImpl implements MesWmWarehouseLocation
 
     @Override
     public Long createWarehouseLocation(MesWmWarehouseLocationSaveReqVO createReqVO) {
-        // 校验仓库存在
-        warehouseService.validateWarehouseExists(createReqVO.getWarehouseId());
-        // 校验编码唯一
-        validateWarehouseLocationCodeUnique(null, createReqVO.getWarehouseId(), createReqVO.getCode());
-        // 校验名称唯一
-        validateWarehouseLocationNameUnique(null, createReqVO.getWarehouseId(), createReqVO.getName());
+        // 校验数据
+        validateWarehouseLocationSaveData(createReqVO);
 
         // 插入
         MesWmWarehouseLocationDO location = BeanUtils.toBean(createReqVO, MesWmWarehouseLocationDO.class);
@@ -71,16 +67,21 @@ public class MesWmWarehouseLocationServiceImpl implements MesWmWarehouseLocation
     public void updateWarehouseLocation(MesWmWarehouseLocationSaveReqVO updateReqVO) {
         // 校验存在
         validateWarehouseLocationExists(updateReqVO.getId());
-        // 校验仓库存在
-        warehouseService.validateWarehouseExists(updateReqVO.getWarehouseId());
-        // 校验编码唯一
-        validateWarehouseLocationCodeUnique(updateReqVO.getId(), updateReqVO.getWarehouseId(), updateReqVO.getCode());
-        // 校验名称唯一
-        validateWarehouseLocationNameUnique(updateReqVO.getId(), updateReqVO.getWarehouseId(), updateReqVO.getName());
+        // 校验数据
+        validateWarehouseLocationSaveData(updateReqVO);
 
         // 更新
         MesWmWarehouseLocationDO updateObj = BeanUtils.toBean(updateReqVO, MesWmWarehouseLocationDO.class);
         locationMapper.updateById(updateObj);
+    }
+
+    private void validateWarehouseLocationSaveData(MesWmWarehouseLocationSaveReqVO reqVO) {
+        // 校验仓库存在
+        warehouseService.validateWarehouseExists(reqVO.getWarehouseId());
+        // 校验编码唯一
+        validateWarehouseLocationCodeUnique(reqVO.getId(), reqVO.getWarehouseId(), reqVO.getCode());
+        // 校验名称唯一
+        validateWarehouseLocationNameUnique(reqVO.getId(), reqVO.getWarehouseId(), reqVO.getName());
     }
 
     @Override
