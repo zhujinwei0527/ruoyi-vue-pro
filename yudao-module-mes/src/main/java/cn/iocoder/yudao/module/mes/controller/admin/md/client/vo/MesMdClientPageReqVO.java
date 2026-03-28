@@ -21,6 +21,9 @@ public class MesMdClientPageReqVO extends PageParam {
     @Schema(description = "客户简称", example = "比亚迪")
     private String nickname;
 
+    @Schema(description = "客户英文名称", example = "BYD")
+    private String englishName;
+
     @Schema(description = "客户类型", example = "1")
     private Integer type;
 

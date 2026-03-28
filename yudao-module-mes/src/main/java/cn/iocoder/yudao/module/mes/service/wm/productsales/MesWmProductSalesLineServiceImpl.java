@@ -1,9 +1,11 @@
 package cn.iocoder.yudao.module.mes.service.wm.productsales;
 
 import cn.iocoder.yudao.framework.common.util.collection.CollectionUtils;
+import cn.hutool.core.collection.CollUtil;
 import cn.iocoder.yudao.framework.common.util.object.BeanUtils;
 import cn.iocoder.yudao.module.mes.controller.admin.wm.productsales.vo.line.MesWmProductSalesLinePageReqVO;
 import cn.iocoder.yudao.module.mes.controller.admin.wm.productsales.vo.line.MesWmProductSalesLineSaveReqVO;
+import cn.iocoder.yudao.module.mes.dal.dataobject.wm.productsales.MesWmProductSalesDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.wm.productsales.MesWmProductSalesLineDO;
 import cn.iocoder.yudao.module.mes.dal.mysql.wm.productsales.MesWmProductSalesLineMapper;
 import cn.iocoder.yudao.module.mes.enums.qc.MesQcCheckResultEnum;
@@ -20,6 +22,7 @@ import java.util.List;
 import java.util.Objects;
 
 import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception;
+import static cn.iocoder.yudao.framework.common.util.collection.CollectionUtils.convertList;
 import static cn.iocoder.yudao.module.mes.enums.ErrorCodeConstants.WM_PRODUCT_SALES_LINE_NOT_EXISTS;
 
 /**
@@ -95,6 +98,15 @@ public class MesWmProductSalesLineServiceImpl implements MesWmProductSalesLineSe
     @Override
     public cn.iocoder.yudao.framework.common.pojo.PageResult<MesWmProductSalesLineDO> getProductSalesLinePage(
             MesWmProductSalesLinePageReqVO pageReqVO) {
+        // 如果传了 clientId，先查出该客户的所有出库单 ID，设置到 salesIds
+        if (pageReqVO.getSalesId() == null && pageReqVO.getClientId() != null) {
+            List<MesWmProductSalesDO> salesList = productSalesService.getProductSalesListByClientId(pageReqVO.getClientId());
+            if (CollUtil.isEmpty(salesList)) {
+                return cn.iocoder.yudao.framework.common.pojo.PageResult.empty();
+            }
+            pageReqVO.setSalesIds(convertList(salesList, MesWmProductSalesDO::getId));
+        }
+        // 查询分页
         return productSalesLineMapper.selectPage(pageReqVO);
     }
 

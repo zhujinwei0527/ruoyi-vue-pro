@@ -7,6 +7,8 @@ import cn.iocoder.yudao.module.mes.controller.admin.wm.productsales.vo.MesWmProd
 import cn.iocoder.yudao.module.mes.dal.dataobject.wm.productsales.MesWmProductSalesDO;
 import jakarta.validation.Valid;
 
+import java.util.List;
+
 /**
  * MES 销售出库单 Service 接口
  *
@@ -105,5 +107,13 @@ public interface MesWmProductSalesService {
      * @param id 编号
      */
     void confirmProductSales(Long id);
+
+    /**
+     * 按客户编号获得销售出库单列表
+     *
+     * @param clientId 客户编号
+     * @return 出库单列表
+     */
+    List<MesWmProductSalesDO> getProductSalesListByClientId(Long clientId);
 
 }

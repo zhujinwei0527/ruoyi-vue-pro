@@ -28,6 +28,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
 import java.util.Map;
 
 import static cn.iocoder.yudao.framework.common.pojo.CommonResult.success;
@@ -68,7 +69,7 @@ public class MesQcPendingInspectController {
 
     // ==================== 拼接 VO ====================
 
-    private void buildPendingInspectRespVOList(java.util.List<MesQcPendingInspectRespVO> list) {
+    private void buildPendingInspectRespVOList(List<MesQcPendingInspectRespVO> list) {
         if (CollUtil.isEmpty(list)) {
             return;
         }

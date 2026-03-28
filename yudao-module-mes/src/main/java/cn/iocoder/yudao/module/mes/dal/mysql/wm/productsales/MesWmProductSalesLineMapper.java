@@ -26,6 +26,7 @@ public interface MesWmProductSalesLineMapper extends BaseMapperX<MesWmProductSal
             cn.iocoder.yudao.module.mes.controller.admin.wm.productsales.vo.line.MesWmProductSalesLinePageReqVO reqVO) {
         return selectPage(reqVO, new cn.iocoder.yudao.framework.mybatis.core.query.LambdaQueryWrapperX<MesWmProductSalesLineDO>()
                 .eqIfPresent(MesWmProductSalesLineDO::getSalesId, reqVO.getSalesId())
+                .inIfPresent(MesWmProductSalesLineDO::getSalesId, reqVO.getSalesIds())
                 .orderByDesc(MesWmProductSalesLineDO::getId));
     }
 

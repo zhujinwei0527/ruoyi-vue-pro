@@ -7,6 +7,8 @@ import cn.iocoder.yudao.module.mes.controller.admin.wm.productsales.vo.MesWmProd
 import cn.iocoder.yudao.module.mes.dal.dataobject.wm.productsales.MesWmProductSalesDO;
 import org.apache.ibatis.annotations.Mapper;
 
+import java.util.List;
+
 /**
  * MES 销售出库单 Mapper
  *
@@ -27,6 +29,10 @@ public interface MesWmProductSalesMapper extends BaseMapperX<MesWmProductSalesDO
 
     default MesWmProductSalesDO selectByCode(String code) {
         return selectOne(MesWmProductSalesDO::getCode, code);
+    }
+
+    default List<MesWmProductSalesDO> selectListByClientId(Long clientId) {
+        return selectList(MesWmProductSalesDO::getClientId, clientId);
     }
 
 }

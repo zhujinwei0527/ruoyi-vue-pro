@@ -22,6 +22,7 @@ public interface MesMdClientMapper extends BaseMapperX<MesMdClientDO> {
                 .eqIfPresent(MesMdClientDO::getCode, reqVO.getCode())
                 .likeIfPresent(MesMdClientDO::getName, reqVO.getName())
                 .likeIfPresent(MesMdClientDO::getNickname, reqVO.getNickname())
+                .likeIfPresent(MesMdClientDO::getEnglishName, reqVO.getEnglishName())
                 .eqIfPresent(MesMdClientDO::getType, reqVO.getType())
                 .eqIfPresent(MesMdClientDO::getStatus, reqVO.getStatus())
                 .orderByDesc(MesMdClientDO::getId));

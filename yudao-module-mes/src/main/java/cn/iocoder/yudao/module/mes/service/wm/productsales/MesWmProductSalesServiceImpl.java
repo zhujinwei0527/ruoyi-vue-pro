@@ -236,6 +236,11 @@ public class MesWmProductSalesServiceImpl implements MesWmProductSalesService {
                 .setId(id).setStatus(MesWmProductSalesStatusEnum.APPROVING.getStatus()));
     }
 
+    @Override
+    public List<MesWmProductSalesDO> getProductSalesListByClientId(Long clientId) {
+        return productSalesMapper.selectListByClientId(clientId);
+    }
+
     private MesWmProductSalesDO validateProductSalesExists(Long id) {
         MesWmProductSalesDO sales = productSalesMapper.selectById(id);
         if (sales == null) {
