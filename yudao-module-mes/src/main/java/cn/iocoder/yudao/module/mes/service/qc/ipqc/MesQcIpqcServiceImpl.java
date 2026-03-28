@@ -86,12 +86,10 @@ public class MesQcIpqcServiceImpl implements MesQcIpqcService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Long createIpqc(MesQcIpqcSaveReqVO createReqVO) {
-        // 1.1 校验编号唯一
-        validateIpqcCodeUnique(null, createReqVO.getCode());
-        // 1.2 校验工单、工位、检测人员存在
+        // 1.1 校验数据
+        MesMdWorkstationDO workstation = validateIpqcSaveData(createReqVO);
+        // 1.2 校验工单存在
         MesProWorkOrderDO workOrder = workOrderService.validateWorkOrderExists(createReqVO.getWorkOrderId());
-        MesMdWorkstationDO workstation = workstationService.validateWorkstationExists(createReqVO.getWorkstationId());
-        adminUserApi.validateUser(createReqVO.getInspectorUserId());
         // 1.3 根据产品 + 检验类型自动匹配模板
         MesQcTemplateItemDO templateItem = templateDetailService.getRequiredTemplateByItemIdAndType(
                 workOrder.getProductId(), MesQcTypeEnum.IPQC.getType());
@@ -118,11 +116,8 @@ public class MesQcIpqcServiceImpl implements MesQcIpqcService {
     public void updateIpqc(MesQcIpqcSaveReqVO updateReqVO) {
         // 1.1 校验存在 + 草稿状态
         validateIpqcStatusPrepare(updateReqVO.getId());
-        // 1.2 校验编号唯一
-        validateIpqcCodeUnique(updateReqVO.getId(), updateReqVO.getCode());
-        // 1.3 校验工位、检测人员存在
-        MesMdWorkstationDO workstation = workstationService.validateWorkstationExists(updateReqVO.getWorkstationId());
-        adminUserApi.validateUser(updateReqVO.getInspectorUserId());
+        // 1.2 校验数据
+        MesMdWorkstationDO workstation = validateIpqcSaveData(updateReqVO);
 
         // 2. 更新主表
         MesQcIpqcDO existIpqc = validateIpqcExists(updateReqVO.getId());
@@ -133,6 +128,15 @@ public class MesQcIpqcServiceImpl implements MesQcIpqcService {
         updateObj.setWorkOrderId(null); // 不允许修改工单
         updateObj.setProcessId(getProcessId(existIpqc.getItemId(), workstation.getProcessId()));
         ipqcMapper.updateById(updateObj);
+    }
+
+    private MesMdWorkstationDO validateIpqcSaveData(MesQcIpqcSaveReqVO reqVO) {
+        // 校验编号唯一
+        validateIpqcCodeUnique(reqVO.getId(), reqVO.getCode());
+        // 校验工位、检测人员存在
+        MesMdWorkstationDO workstation = workstationService.validateWorkstationExists(reqVO.getWorkstationId());
+        adminUserApi.validateUser(reqVO.getInspectorUserId());
+        return workstation;
     }
 
     @Override

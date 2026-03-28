@@ -69,16 +69,12 @@ public class MesQcIqcServiceImpl implements MesQcIqcService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Long createIqc(MesQcIqcSaveReqVO createReqVO) {
-        // 1.1 校验编号唯一
-        validateIqcCodeUnique(null, createReqVO.getCode());
-        // 1.2 校验供应商、物料、检测人员存在
-        vendorService.validateVendorExists(createReqVO.getVendorId());
-        itemService.validateItemExists(createReqVO.getItemId());
-        adminUserApi.validateUser(createReqVO.getInspectorUserId());
-        // 1.3 校验来源单据参数，并验证数据存在
+        // 1.1 校验数据
+        validateIqcSaveData(createReqVO);
+        // 1.2 校验来源单据参数，并验证数据存在
         String sourceDocCode = validateAndGetSourceDocCode(
                 createReqVO.getSourceDocType(), createReqVO.getSourceDocId(), createReqVO.getSourceLineId());
-        // 1.4 通过 itemId + IQC 类型自动查找模板
+        // 1.3 通过 itemId + IQC 类型自动查找模板
         MesQcTemplateItemDO templateItem = templateDetailService.getRequiredTemplateByItemIdAndType(
                 createReqVO.getItemId(), MesQcTypeEnum.IQC.getType());
         Long templateId = templateItem.getTemplateId();
@@ -100,12 +96,8 @@ public class MesQcIqcServiceImpl implements MesQcIqcService {
     public void updateIqc(MesQcIqcSaveReqVO updateReqVO) {
         // 1.1 校验存在 + 草稿状态
         validateIqcStatusPrepare(updateReqVO.getId());
-        // 1.2 校验编号唯一
-        validateIqcCodeUnique(updateReqVO.getId(), updateReqVO.getCode());
-        // 1.3 校验供应商、物料、检测人员存在
-        vendorService.validateVendorExists(updateReqVO.getVendorId());
-        itemService.validateItemExists(updateReqVO.getItemId());
-        adminUserApi.validateUser(updateReqVO.getInspectorUserId());
+        // 1.2 校验数据
+        validateIqcSaveData(updateReqVO);
 
         // 2. 更新主表
         MesQcIqcDO updateObj = BeanUtils.toBean(updateReqVO, MesQcIqcDO.class);
@@ -114,6 +106,15 @@ public class MesQcIqcServiceImpl implements MesQcIqcService {
         updateObj.setItemId(null); // 不允许修改物料
         updateObj.setCheckQuantity(updateReqVO.getQualifiedQuantity().add(updateReqVO.getUnqualifiedQuantity()));
         iqcMapper.updateById(updateObj);
+    }
+
+    private void validateIqcSaveData(MesQcIqcSaveReqVO reqVO) {
+        // 校验编号唯一
+        validateIqcCodeUnique(reqVO.getId(), reqVO.getCode());
+        // 校验供应商、物料、检测人员存在
+        vendorService.validateVendorExists(reqVO.getVendorId());
+        itemService.validateItemExists(reqVO.getItemId());
+        adminUserApi.validateUser(reqVO.getInspectorUserId());
     }
 
     @Override

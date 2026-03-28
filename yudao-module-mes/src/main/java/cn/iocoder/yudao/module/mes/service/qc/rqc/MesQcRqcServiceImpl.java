@@ -75,16 +75,13 @@ public class MesQcRqcServiceImpl implements MesQcRqcService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Long createRqc(MesQcRqcSaveReqVO createReqVO) {
-        // 1.1 校验编号唯一
-        validateRqcCodeUnique(null, createReqVO.getCode());
-        // 1.2 校验物料、检测人员存在
-        itemService.validateItemExists(createReqVO.getItemId());
-        adminUserApi.validateUser(createReqVO.getInspectorUserId());
-        // 1.3 根据物料 + 检验类型自动匹配模板
+        // 1.1 校验数据
+        validateRqcSaveData(createReqVO);
+        // 1.2 根据物料 + 检验类型自动匹配模板
         MesQcTemplateItemDO templateItem = templateDetailService.getRequiredTemplateByItemIdAndType(
                 createReqVO.getItemId(), createReqVO.getType());
         Long templateId = templateItem.getTemplateId();
-        // 1.4 获取来源单据编号
+        // 1.3 获取来源单据编号
         String sourceDocCode = validateAndGetSourceDocCode(
                 createReqVO.getSourceDocType(), createReqVO.getSourceDocId());
 
@@ -104,11 +101,8 @@ public class MesQcRqcServiceImpl implements MesQcRqcService {
     public void updateRqc(MesQcRqcSaveReqVO updateReqVO) {
         // 1.1 校验存在 + 草稿状态
         validateRqcStatusPrepare(updateReqVO.getId());
-        // 1.2 校验编号唯一
-        validateRqcCodeUnique(updateReqVO.getId(), updateReqVO.getCode());
-        // 1.3 校验物料、检测人员存在
-        itemService.validateItemExists(updateReqVO.getItemId());
-        adminUserApi.validateUser(updateReqVO.getInspectorUserId());
+        // 1.2 校验数据
+        validateRqcSaveData(updateReqVO);
 
         // 2. 更新
         MesQcRqcDO updateObj = BeanUtils.toBean(updateReqVO, MesQcRqcDO.class);
@@ -116,6 +110,14 @@ public class MesQcRqcServiceImpl implements MesQcRqcService {
         updateObj.setTemplateId(null); // 不允许修改模板
         updateObj.setItemId(null); // 不允许修改物料
         rqcMapper.updateById(updateObj);
+    }
+
+    private void validateRqcSaveData(MesQcRqcSaveReqVO reqVO) {
+        // 校验编号唯一
+        validateRqcCodeUnique(reqVO.getId(), reqVO.getCode());
+        // 校验物料、检测人员存在
+        itemService.validateItemExists(reqVO.getItemId());
+        adminUserApi.validateUser(reqVO.getInspectorUserId());
     }
 
     @Override

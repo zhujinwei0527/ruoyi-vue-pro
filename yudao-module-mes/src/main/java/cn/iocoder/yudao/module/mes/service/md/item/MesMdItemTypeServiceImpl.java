@@ -35,12 +35,8 @@ public class MesMdItemTypeServiceImpl implements MesMdItemTypeService {
 
     @Override
     public Long createItemType(MesMdItemTypeSaveReqVO createReqVO) {
-        // 校验父分类编号的有效性
-        validateParentItemType(null, createReqVO.getParentId());
-        // 校验分类名称的唯一性
-        validateItemTypeNameUnique(null, createReqVO.getParentId(), createReqVO.getName());
-        // 校验分类编码的唯一性
-        validateItemTypeCodeUnique(null, createReqVO.getParentId(), createReqVO.getCode());
+        // 校验数据
+        validateItemTypeSaveData(createReqVO);
 
         // 插入
         MesMdItemTypeDO itemType = BeanUtils.toBean(createReqVO, MesMdItemTypeDO.class);
@@ -52,16 +48,21 @@ public class MesMdItemTypeServiceImpl implements MesMdItemTypeService {
     public void updateItemType(MesMdItemTypeSaveReqVO updateReqVO) {
         // 校验存在
         validateItemTypeExists(updateReqVO.getId());
-        // 校验父分类编号的有效性
-        validateParentItemType(updateReqVO.getId(), updateReqVO.getParentId());
-        // 校验分类名称的唯一性
-        validateItemTypeNameUnique(updateReqVO.getId(), updateReqVO.getParentId(), updateReqVO.getName());
-        // 校验分类编码的唯一性
-        validateItemTypeCodeUnique(updateReqVO.getId(), updateReqVO.getParentId(), updateReqVO.getCode());
+        // 校验数据
+        validateItemTypeSaveData(updateReqVO);
 
         // 更新
         MesMdItemTypeDO updateObj = BeanUtils.toBean(updateReqVO, MesMdItemTypeDO.class);
         itemTypeMapper.updateById(updateObj);
+    }
+
+    private void validateItemTypeSaveData(MesMdItemTypeSaveReqVO reqVO) {
+        // 校验父分类编号的有效性
+        validateParentItemType(reqVO.getId(), reqVO.getParentId());
+        // 校验分类名称的唯一性
+        validateItemTypeNameUnique(reqVO.getId(), reqVO.getParentId(), reqVO.getName());
+        // 校验分类编码的唯一性
+        validateItemTypeCodeUnique(reqVO.getId(), reqVO.getParentId(), reqVO.getCode());
     }
 
     @Override

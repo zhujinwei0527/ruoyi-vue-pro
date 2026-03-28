@@ -62,14 +62,8 @@ public class MesMdItemServiceImpl implements MesMdItemService {
 
     @Override
     public Long createItem(MesMdItemSaveReqVO createReqVO) {
-        // 校验物料编码的唯一性
-        validateItemCodeUnique(null, createReqVO.getCode());
-        // 校验物料名称的唯一性
-        validateItemNameUnique(null, createReqVO.getName());
-        // 校验物料分类存在
-        validateItemTypeExists(createReqVO.getItemTypeId());
-        // 校验计量单位存在
-        validateUnitMeasureExists(createReqVO.getUnitMeasureId());
+        // 校验数据
+        validateItemSaveData(createReqVO);
 
         // 插入
         MesMdItemDO item = BeanUtils.toBean(createReqVO, MesMdItemDO.class);
@@ -87,19 +81,24 @@ public class MesMdItemServiceImpl implements MesMdItemService {
     public void updateItem(MesMdItemSaveReqVO updateReqVO) {
         // 校验存在
         validateItemExists(updateReqVO.getId());
-        // 校验物料编码的唯一性
-        validateItemCodeUnique(updateReqVO.getId(), updateReqVO.getCode());
-        // 校验物料名称的唯一性
-        validateItemNameUnique(updateReqVO.getId(), updateReqVO.getName());
-        // 校验物料分类存在
-        validateItemTypeExists(updateReqVO.getItemTypeId());
-        // 校验计量单位存在
-        validateUnitMeasureExists(updateReqVO.getUnitMeasureId());
+        // 校验数据
+        validateItemSaveData(updateReqVO);
 
         // 更新
         MesMdItemDO updateObj = BeanUtils.toBean(updateReqVO, MesMdItemDO.class);
         clearStockIfNotSafe(updateObj); // 如果未启用安全库存，清零库存上下限
         itemMapper.updateById(updateObj);
+    }
+
+    private void validateItemSaveData(MesMdItemSaveReqVO reqVO) {
+        // 校验物料编码的唯一性
+        validateItemCodeUnique(reqVO.getId(), reqVO.getCode());
+        // 校验物料名称的唯一性
+        validateItemNameUnique(reqVO.getId(), reqVO.getName());
+        // 校验物料分类存在
+        validateItemTypeExists(reqVO.getItemTypeId());
+        // 校验计量单位存在
+        validateUnitMeasureExists(reqVO.getUnitMeasureId());
     }
 
     @Override

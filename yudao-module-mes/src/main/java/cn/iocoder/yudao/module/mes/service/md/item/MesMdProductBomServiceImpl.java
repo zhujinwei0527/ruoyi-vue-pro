@@ -36,15 +36,9 @@ public class MesMdProductBomServiceImpl implements MesMdProductBomService {
 
     @Override
     public Long createProductBom(MesMdProductBomSaveReqVO createReqVO) {
-        // 1.1 校验物料产品存在
-        validateItemExists(createReqVO.getItemId());
-        // 1.2 校验BOM物料存在
-        validateItemExists(createReqVO.getBomItemId());
-        // 1.3 校验不能自引用
-        if (createReqVO.getItemId().equals(createReqVO.getBomItemId())) {
-            throw exception(MD_PRODUCT_BOM_SELF_REFERENCE);
-        }
-        // 1.4 校验不能形成闭环
+        // 1.1 校验数据
+        validateProductBomSaveData(createReqVO);
+        // 1.2 校验不能形成闭环
         if (hasBomCycle(createReqVO.getItemId(), createReqVO.getBomItemId())) {
             throw exception(MD_PRODUCT_BOM_CIRCULAR);
         }
@@ -59,18 +53,23 @@ public class MesMdProductBomServiceImpl implements MesMdProductBomService {
     public void updateProductBom(MesMdProductBomSaveReqVO updateReqVO) {
         // 1.1 校验存在
         validateProductBomExists(updateReqVO.getId());
-        // 1.2 校验物料产品存在
-        validateItemExists(updateReqVO.getItemId());
-        // 1.3 校验BOM物料存在
-        validateItemExists(updateReqVO.getBomItemId());
-        // 1.4 校验不能自引用
-        if (updateReqVO.getItemId().equals(updateReqVO.getBomItemId())) {
-            throw exception(MD_PRODUCT_BOM_SELF_REFERENCE);
-        }
+        // 1.2 校验数据
+        validateProductBomSaveData(updateReqVO);
 
         // 更新
         MesMdProductBomDO updateObj = BeanUtils.toBean(updateReqVO, MesMdProductBomDO.class);
         productBomMapper.updateById(updateObj);
+    }
+
+    private void validateProductBomSaveData(MesMdProductBomSaveReqVO reqVO) {
+        // 校验物料产品存在
+        validateItemExists(reqVO.getItemId());
+        // 校验BOM物料存在
+        validateItemExists(reqVO.getBomItemId());
+        // 校验不能自引用
+        if (reqVO.getItemId().equals(reqVO.getBomItemId())) {
+            throw exception(MD_PRODUCT_BOM_SELF_REFERENCE);
+        }
     }
 
     @Override

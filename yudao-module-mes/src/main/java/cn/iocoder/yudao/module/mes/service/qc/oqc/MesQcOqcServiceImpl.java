@@ -73,17 +73,12 @@ public class MesQcOqcServiceImpl implements MesQcOqcService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Long createOqc(MesQcOqcSaveReqVO createReqVO) {
-        // 1.1 校验编号唯一
-        validateOqcCodeUnique(null, createReqVO.getCode());
-        // 1.2 校验物料、检测人员存在
-        itemService.validateItemExists(createReqVO.getItemId());
-        adminUserApi.validateUser(createReqVO.getInspectorUserId());
-        // 1.3 校验来源单据参数，并验证数据存在
+        // 1.1 校验数据
+        validateOqcSaveData(createReqVO);
+        // 1.2 校验来源单据参数，并验证数据存在
         String sourceDocCode = validateAndGetSourceDocCode(
                 createReqVO.getSourceDocType(), createReqVO.getSourceLineId());
-        // 1.4 校验客户存在
-        clientService.validateClientExists(createReqVO.getClientId());
-        // 1.5 根据产品 + 检验类型自动匹配模板
+        // 1.3 根据产品 + 检验类型自动匹配模板
         MesQcTemplateItemDO templateItem = templateDetailService.getRequiredTemplateByItemIdAndType(
                 createReqVO.getItemId(), MesQcTypeEnum.OQC.getType());
         Long templateId = templateItem.getTemplateId();
@@ -104,12 +99,8 @@ public class MesQcOqcServiceImpl implements MesQcOqcService {
     public void updateOqc(MesQcOqcSaveReqVO updateReqVO) {
         // 1.1 校验存在 + 草稿状态
         validateOqcStatusPrepare(updateReqVO.getId());
-        // 1.2 校验编号唯一
-        validateOqcCodeUnique(updateReqVO.getId(), updateReqVO.getCode());
-        // 1.3 校验客户、物料、检测人员存在
-        clientService.validateClientExists(updateReqVO.getClientId());
-        itemService.validateItemExists(updateReqVO.getItemId());
-        adminUserApi.validateUser(updateReqVO.getInspectorUserId());
+        // 1.2 校验数据
+        validateOqcSaveData(updateReqVO);
 
         // 2. 更新
         MesQcOqcDO updateObj = BeanUtils.toBean(updateReqVO, MesQcOqcDO.class);
@@ -117,6 +108,15 @@ public class MesQcOqcServiceImpl implements MesQcOqcService {
         updateObj.setTemplateId(null); // 不允许修改模板
         updateObj.setItemId(null); // 不允许修改物料
         oqcMapper.updateById(updateObj);
+    }
+
+    private void validateOqcSaveData(MesQcOqcSaveReqVO reqVO) {
+        // 校验编号唯一
+        validateOqcCodeUnique(reqVO.getId(), reqVO.getCode());
+        // 校验客户、物料、检测人员存在
+        clientService.validateClientExists(reqVO.getClientId());
+        itemService.validateItemExists(reqVO.getItemId());
+        adminUserApi.validateUser(reqVO.getInspectorUserId());
     }
 
     @Override

@@ -33,12 +33,8 @@ public class MesMdProductSipServiceImpl implements MesMdProductSipService {
 
     @Override
     public Long createProductSip(MesMdProductSipSaveReqVO createReqVO) {
-        // 校验排列顺序的唯一性
-        validateSortUnique(createReqVO.getItemId(), createReqVO.getSort(), null);
-        // 校验工序存在
-        if (createReqVO.getProcessId() != null) {
-            processService.validateProcessExists(createReqVO.getProcessId());
-        }
+        // 校验数据
+        validateProductSipSaveData(createReqVO, null);
 
         // 插入
         MesMdProductSipDO sip = BeanUtils.toBean(createReqVO, MesMdProductSipDO.class);
@@ -50,16 +46,21 @@ public class MesMdProductSipServiceImpl implements MesMdProductSipService {
     public void updateProductSip(MesMdProductSipSaveReqVO updateReqVO) {
         // 校验存在
         validateProductSipExists(updateReqVO.getId());
-        // 校验排列顺序的唯一性
-        validateSortUnique(updateReqVO.getItemId(), updateReqVO.getSort(), updateReqVO.getId());
-        // 校验工序存在
-        if (updateReqVO.getProcessId() != null) {
-            processService.validateProcessExists(updateReqVO.getProcessId());
-        }
+        // 校验数据
+        validateProductSipSaveData(updateReqVO, updateReqVO.getId());
 
         // 更新
         MesMdProductSipDO updateObj = BeanUtils.toBean(updateReqVO, MesMdProductSipDO.class);
         productSipMapper.updateById(updateObj);
+    }
+
+    private void validateProductSipSaveData(MesMdProductSipSaveReqVO reqVO, Long excludeId) {
+        // 校验排列顺序的唯一性
+        validateSortUnique(reqVO.getItemId(), reqVO.getSort(), excludeId);
+        // 校验工序存在
+        if (reqVO.getProcessId() != null) {
+            processService.validateProcessExists(reqVO.getProcessId());
+        }
     }
 
     @Override
