@@ -86,7 +86,11 @@ public class MesWmWarehouseLocationServiceImpl implements MesWmWarehouseLocation
     @Override
     public void deleteWarehouseLocation(Long id) {
         // 校验存在
-        validateWarehouseLocationExists(id);
+        MesWmWarehouseLocationDO location = validateWarehouseLocationExists(id);
+        // 校验虚拟库区不允许删除
+        if (MesWmWarehouseLocationDO.WIP_VIRTUAL_LOCATION.equals(location.getCode())) {
+            throw exception(WM_WAREHOUSE_LOCATION_IS_VIRTUAL);
+        }
         // 校验是否有库位
         if (areaService.getWarehouseAreaCountByLocationId(id) > 0) {
             throw exception(WM_WAREHOUSE_LOCATION_HAS_AREA);

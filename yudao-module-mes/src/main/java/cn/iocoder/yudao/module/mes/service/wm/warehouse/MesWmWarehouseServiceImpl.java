@@ -78,7 +78,11 @@ public class MesWmWarehouseServiceImpl implements MesWmWarehouseService {
     @Override
     public void deleteWarehouse(Long id) {
         // 校验存在
-        validateWarehouseExists(id);
+        MesWmWarehouseDO warehouse = validateWarehouseExists(id);
+        // 校验虚拟仓库不允许删除
+        if (MesWmWarehouseDO.WIP_VIRTUAL_WAREHOUSE.equals(warehouse.getCode())) {
+            throw exception(WM_WAREHOUSE_IS_VIRTUAL);
+        }
         // 校验是否有库区
         if (locationService.getWarehouseLocationCountByWarehouseId(id) > 0) {
             throw exception(WM_WAREHOUSE_HAS_LOCATION);

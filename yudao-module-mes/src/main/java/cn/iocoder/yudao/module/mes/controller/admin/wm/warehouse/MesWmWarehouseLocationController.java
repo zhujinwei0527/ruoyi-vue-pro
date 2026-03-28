@@ -10,6 +10,7 @@ import cn.iocoder.yudao.module.mes.controller.admin.wm.warehouse.vo.location.Mes
 import cn.iocoder.yudao.module.mes.controller.admin.wm.warehouse.vo.location.MesWmWarehouseLocationSaveReqVO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.wm.warehouse.MesWmWarehouseLocationDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.wm.warehouse.MesWmWarehouseDO;
+import cn.iocoder.yudao.module.mes.service.wm.warehouse.MesWmWarehouseAreaService;
 import cn.iocoder.yudao.module.mes.service.wm.warehouse.MesWmWarehouseLocationService;
 import cn.iocoder.yudao.module.mes.service.wm.warehouse.MesWmWarehouseService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -36,9 +37,10 @@ public class MesWmWarehouseLocationController {
 
     @Resource
     private MesWmWarehouseLocationService locationService;
-
     @Resource
     private MesWmWarehouseService warehouseService;
+    @Resource
+    private MesWmWarehouseAreaService areaService;
 
     @PostMapping("/create")
     @Operation(summary = "创建库区")

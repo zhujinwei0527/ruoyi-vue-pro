@@ -32,6 +32,12 @@ public interface MesWmWarehouseAreaMapper extends BaseMapperX<MesWmWarehouseArea
                 .eq(MesWmWarehouseAreaDO::getCode, code));
     }
 
+    default MesWmWarehouseAreaDO selectByCode(Long locationId, String code) {
+        return selectOne(new LambdaQueryWrapperX<MesWmWarehouseAreaDO>()
+                .eq(MesWmWarehouseAreaDO::getLocationId, locationId)
+                .eq(MesWmWarehouseAreaDO::getCode, code));
+    }
+
     default MesWmWarehouseAreaDO selectByName(Long locationId, String name) {
         return selectOne(new LambdaQueryWrapperX<MesWmWarehouseAreaDO>()
                 .eq(MesWmWarehouseAreaDO::getLocationId, locationId)
@@ -50,6 +56,24 @@ public interface MesWmWarehouseAreaMapper extends BaseMapperX<MesWmWarehouseArea
 
     default Long selectCountByLocationId(Long locationId) {
         return selectCount(MesWmWarehouseAreaDO::getLocationId, locationId);
+    }
+
+    /**
+     * 批量更新指定库区下所有库位的物料混放规则
+     */
+    default void updateAllowItemMixingByLocationId(Long locationId, Boolean allowItemMixing) {
+        update(new MesWmWarehouseAreaDO().setAllowItemMixing(allowItemMixing),
+                new LambdaQueryWrapperX<MesWmWarehouseAreaDO>()
+                        .eq(MesWmWarehouseAreaDO::getLocationId, locationId));
+    }
+
+    /**
+     * 批量更新指定库区下所有库位的批次混放规则
+     */
+    default void updateAllowBatchMixingByLocationId(Long locationId, Boolean allowBatchMixing) {
+        update(new MesWmWarehouseAreaDO().setAllowBatchMixing(allowBatchMixing),
+                new LambdaQueryWrapperX<MesWmWarehouseAreaDO>()
+                        .eq(MesWmWarehouseAreaDO::getLocationId, locationId));
     }
 
 }

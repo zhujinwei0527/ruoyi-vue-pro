@@ -87,7 +87,11 @@ public class MesWmWarehouseAreaServiceImpl implements MesWmWarehouseAreaService 
     @Override
     public void deleteWarehouseArea(Long id) {
         // 校验存在
-        validateWarehouseAreaExists(id);
+        MesWmWarehouseAreaDO area = validateWarehouseAreaExists(id);
+        // 校验虚拟库位不允许删除
+        if (MesWmWarehouseAreaDO.WIP_VIRTUAL_AREA.equals(area.getCode())) {
+            throw exception(WM_WAREHOUSE_AREA_IS_VIRTUAL);
+        }
         // 校验是否被工作站引用
         if (workstationService.getWorkstationCountByAreaId(id) > 0) {
             throw exception(WM_WAREHOUSE_AREA_HAS_WORKSTATION);
@@ -111,7 +115,7 @@ public class MesWmWarehouseAreaServiceImpl implements MesWmWarehouseAreaService 
     }
 
     private void validateWarehouseAreaCodeUnique(Long id, Long locationId, String code) {
-        MesWmWarehouseAreaDO area = areaMapper.selectByCode(code);
+        MesWmWarehouseAreaDO area = areaMapper.selectByCode(locationId, code);
         if (area == null) {
             return;
         }
@@ -180,6 +184,16 @@ public class MesWmWarehouseAreaServiceImpl implements MesWmWarehouseAreaService 
                 throw exception(WM_WAREHOUSE_AREA_WAREHOUSE_MISMATCH);
             }
         }
+    }
+
+    @Override
+    public void updateAllowItemMixingByLocationId(Long locationId, Boolean allowItemMixing) {
+        areaMapper.updateAllowItemMixingByLocationId(locationId, allowItemMixing);
+    }
+
+    @Override
+    public void updateAllowBatchMixingByLocationId(Long locationId, Boolean allowBatchMixing) {
+        areaMapper.updateAllowBatchMixingByLocationId(locationId, allowBatchMixing);
     }
 
     @Override
