@@ -37,6 +37,14 @@ public interface MesMdItemService {
     void updateItem(@Valid MesMdItemSaveReqVO updateReqVO);
 
     /**
+     * 更新物料产品状态
+     *
+     * @param id     编号
+     * @param status 状态
+     */
+    void updateItemStatus(Long id, Integer status);
+
+    /**
      * 删除物料产品
      *
      * @param id 编号

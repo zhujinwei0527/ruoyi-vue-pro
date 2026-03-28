@@ -72,6 +72,19 @@ public class MesMdItemController {
         return success(true);
     }
 
+    @PutMapping("/update-status")
+    @Operation(summary = "更新物料产品状态")
+    @Parameters({
+            @Parameter(name = "id", description = "编号", required = true),
+            @Parameter(name = "status", description = "状态", required = true)
+    })
+    @PreAuthorize("@ss.hasPermission('mes:md-item:update')")
+    public CommonResult<Boolean> updateItemStatus(@RequestParam("id") Long id,
+                                                  @RequestParam("status") Integer status) {
+        itemService.updateItemStatus(id, status);
+        return success(true);
+    }
+
     @DeleteMapping("/delete")
     @Operation(summary = "删除物料产品")
     @Parameter(name = "id", description = "编号", required = true)
@@ -87,7 +100,7 @@ public class MesMdItemController {
     @PreAuthorize("@ss.hasPermission('mes:md-item:query')")
     public CommonResult<MesMdItemRespVO> getItem(@RequestParam("id") Long id) {
         MesMdItemDO item = itemService.getItem(id);
-        return success(BeanUtils.toBean(item, MesMdItemRespVO.class));
+        return success(buildItemVO(item));
     }
 
     @GetMapping("/page")
@@ -166,6 +179,13 @@ public class MesMdItemController {
             MapUtils.findAndThen(unitMeasureMap, item.getUnitMeasureId(),
                     unitMeasure -> item.setUnitMeasureName(unitMeasure.getName()));
         });
+    }
+
+    private MesMdItemRespVO buildItemVO(MesMdItemDO item) {
+       if (item == null) {
+           return null;
+       }
+       return CollUtil.getFirst(buildItemVOList(Collections.singletonList(item)));
     }
 
 }

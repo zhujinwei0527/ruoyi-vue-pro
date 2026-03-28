@@ -33,10 +33,6 @@ public class MesMdItemSaveReqVO {
     @NotNull(message = "物料分类编号不能为空")
     private Long itemTypeId;
 
-    @Schema(description = "状态", requiredMode = Schema.RequiredMode.REQUIRED, example = "0")
-    @NotNull(message = "状态不能为空")
-    private Integer status;
-
     @Schema(description = "是否启用安全库存", example = "false")
     private Boolean safeStockFlag;
 
@@ -55,4 +51,4 @@ public class MesMdItemSaveReqVO {
     @Schema(description = "备注", example = "备注")
     private String remark;
 
-    }
+}

@@ -1,6 +1,7 @@
 package cn.iocoder.yudao.module.mes.service.md.item;
 
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.util.ObjUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.iocoder.yudao.framework.common.exception.ServiceException;
 import cn.iocoder.yudao.framework.common.pojo.PageResult;
@@ -71,6 +72,7 @@ public class MesMdItemServiceImpl implements MesMdItemService {
 
         // 插入
         MesMdItemDO item = BeanUtils.toBean(createReqVO, MesMdItemDO.class);
+        item.setStatus(CommonStatusEnum.DISABLE.getStatus()); // 默认禁用。信息完成后，再启用
         clearStockIfNotSafe(item); // 如果未启用安全库存，清零库存上下限
         itemMapper.insert(item);
 
@@ -93,13 +95,23 @@ public class MesMdItemServiceImpl implements MesMdItemService {
         // 校验计量单位存在
         validateUnitMeasureExists(updateReqVO.getUnitMeasureId());
 
-        // 如果启用了批次管理且状态为开启，校验批次属性配置
-        validateBatchConfigIfNeeded(updateReqVO);
-
         // 更新
         MesMdItemDO updateObj = BeanUtils.toBean(updateReqVO, MesMdItemDO.class);
         clearStockIfNotSafe(updateObj); // 如果未启用安全库存，清零库存上下限
         itemMapper.updateById(updateObj);
+    }
+
+    @Override
+    public void updateItemStatus(Long id, Integer status) {
+        // 校验存在
+        MesMdItemDO item = validateItemExists(id);
+        // 如果启用，校验批次属性配置
+        if (CommonStatusEnum.isEnable(status) && Boolean.TRUE.equals(item.getBatchFlag())) {
+            validateBatchConfigExists(id);
+        }
+
+        // 更新状态
+        itemMapper.updateById(new MesMdItemDO().setId(id).setStatus(status));
     }
 
     @Override
@@ -134,10 +146,7 @@ public class MesMdItemServiceImpl implements MesMdItemService {
         if (item == null) {
             return;
         }
-        if (id == null) {
-            throw exception(MD_ITEM_CODE_DUPLICATE);
-        }
-        if (!Objects.equals(item.getId(), id)) {
+        if (ObjUtil.notEqual(item.getId(), id)) {
             throw exception(MD_ITEM_CODE_DUPLICATE);
         }
     }
@@ -147,10 +156,7 @@ public class MesMdItemServiceImpl implements MesMdItemService {
         if (item == null) {
             return;
         }
-        if (id == null) {
-            throw exception(MD_ITEM_NAME_DUPLICATE);
-        }
-        if (!Objects.equals(item.getId(), id)) {
+        if (ObjUtil.notEqual(item.getId(), id)) {
             throw exception(MD_ITEM_NAME_DUPLICATE);
         }
     }
@@ -180,14 +186,8 @@ public class MesMdItemServiceImpl implements MesMdItemService {
     /**
      * 如果启用了批次管理且状态为开启，校验批次属性配置是否存在且至少一个属性为 true
      */
-    private void validateBatchConfigIfNeeded(MesMdItemSaveReqVO reqVO) {
-        if (!Boolean.TRUE.equals(reqVO.getBatchFlag())) {
-            return;
-        }
-        if (!CommonStatusEnum.ENABLE.getStatus().equals(reqVO.getStatus())) {
-            return;
-        }
-        MesMdItemBatchConfigDO config = itemBatchConfigService.getItemBatchConfigByItemId(reqVO.getId());
+    private void validateBatchConfigExists(Long itemId) {
+        MesMdItemBatchConfigDO config = itemBatchConfigService.getItemBatchConfigByItemId(itemId);
         if (config == null) {
             throw exception(MD_ITEM_BATCH_CONFIG_NOT_EXISTS);
         }
@@ -306,6 +306,7 @@ public class MesMdItemServiceImpl implements MesMdItemService {
                 }
                 MesMdItemDO item = BeanUtils.toBean(importItem, MesMdItemDO.class);
                 item.setUnitMeasureId(unitMeasure.getId());
+                item.setStatus(CommonStatusEnum.DISABLE.getStatus()); // 默认禁用。信息完成后，再启用
                 clearStockIfNotSafe(item);
                 itemMapper.insert(item);
                 // 自动生成条码
