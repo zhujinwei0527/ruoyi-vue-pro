@@ -105,9 +105,18 @@ public class MesMdItemServiceImpl implements MesMdItemService {
     public void updateItemStatus(Long id, Integer status) {
         // 校验存在
         MesMdItemDO item = validateItemExists(id);
-        // 如果启用，校验批次属性配置
-        if (CommonStatusEnum.isEnable(status) && Boolean.TRUE.equals(item.getBatchFlag())) {
-            validateBatchConfigExists(id);
+        if (CommonStatusEnum.isEnable(status)) {
+            // 如果启用了批次管理，校验批次属性配置
+            if (Boolean.TRUE.equals(item.getBatchFlag())) {
+                validateBatchConfigExists(id);
+            }
+            // 如果是产品类型，校验必须配置 BOM
+            MesMdItemTypeDO itemType = itemTypeService.getItemType(item.getItemTypeId());
+            if (itemType != null && "PRODUCT".equals(itemType.getItemOrProduct())) {
+                if (CollUtil.isEmpty(productBomService.getProductBomListByItemId(id))) {
+                    throw exception(MD_ITEM_PRODUCT_BOM_REQUIRED);
+                }
+            }
         }
 
         // 更新状态
