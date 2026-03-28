@@ -183,7 +183,7 @@ public class MesWmBatchServiceImpl implements MesWmBatchService {
         }
 
         // 3.2 情况二：生成新批次
-        String batchCode = autoCodeRecordService.generateAutoCode(MesMdAutoCodeRuleCodeEnum.BATCH_CODE.getCode());
+        String batchCode = autoCodeRecordService.generateAutoCode(MesMdAutoCodeRuleCodeEnum.WM_BATCH_CODE.getCode());
         batch.setCode(batchCode);
         batchMapper.insert(batch);
 

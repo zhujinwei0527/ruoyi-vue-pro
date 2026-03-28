@@ -93,4 +93,12 @@ public interface MesWmReturnVendorService {
      */
     Boolean checkReturnVendorQuantity(Long id);
 
+    /**
+     * 查询指定供应商的退货单数量
+     *
+     * @param vendorId 供应商编号
+     * @return 数量
+     */
+    Long getReturnVendorCountByVendorId(Long vendorId);
+
 }

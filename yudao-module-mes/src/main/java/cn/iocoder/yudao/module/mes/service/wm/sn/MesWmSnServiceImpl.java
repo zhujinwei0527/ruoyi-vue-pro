@@ -41,7 +41,7 @@ public class MesWmSnServiceImpl implements MesWmSnService {
         String uuid = IdUtil.fastSimpleUUID();
         // 批量生成 SN 码
         for (int i = 0; i < reqVO.getCount(); i++) {
-            String snCode = autoCodeRecordService.generateAutoCode(MesMdAutoCodeRuleCodeEnum.SN_CODE.getCode());
+            String snCode = autoCodeRecordService.generateAutoCode(MesMdAutoCodeRuleCodeEnum.WM_SN_CODE.getCode());
             sns.add(new MesWmSnDO().setUuid(uuid).setCode(snCode)
                     .setItemId(reqVO.getItemId()).setBatchCode(reqVO.getBatchCode())
                     .setWorkOrderId(reqVO.getWorkOrderId()));

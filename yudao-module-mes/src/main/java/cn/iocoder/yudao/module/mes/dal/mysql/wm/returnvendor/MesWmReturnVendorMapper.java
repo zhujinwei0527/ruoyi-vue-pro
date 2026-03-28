@@ -22,4 +22,8 @@ public interface MesWmReturnVendorMapper extends BaseMapperX<MesWmReturnVendorDO
                 .orderByDesc(MesWmReturnVendorDO::getId));
     }
 
+    default Long selectCountByVendorId(Long vendorId) {
+        return selectCount(MesWmReturnVendorDO::getVendorId, vendorId);
+    }
+
 }

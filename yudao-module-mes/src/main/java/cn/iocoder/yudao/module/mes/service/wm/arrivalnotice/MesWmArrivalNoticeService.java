@@ -108,4 +108,12 @@ public interface MesWmArrivalNoticeService {
      */
     List<MesWmArrivalNoticeDO> getArrivalNoticeListByStatus(Integer status);
 
+    /**
+     * 查询指定供应商的到货通知单数量
+     *
+     * @param vendorId 供应商编号
+     * @return 数量
+     */
+    Long getArrivalNoticeCountByVendorId(Long vendorId);
+
 }

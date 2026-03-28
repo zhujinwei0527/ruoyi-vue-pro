@@ -22,7 +22,7 @@ public interface MesMdVendorMapper extends BaseMapperX<MesMdVendorDO> {
                 .eqIfPresent(MesMdVendorDO::getCode, reqVO.getCode())
                 .likeIfPresent(MesMdVendorDO::getName, reqVO.getName())
                 .likeIfPresent(MesMdVendorDO::getNickname, reqVO.getNickname())
-                .eqIfPresent(MesMdVendorDO::getLevel, reqVO.getLevel())
+                .likeIfPresent(MesMdVendorDO::getEnglishName, reqVO.getEnglishName())
                 .eqIfPresent(MesMdVendorDO::getStatus, reqVO.getStatus())
                 .orderByDesc(MesMdVendorDO::getId));
     }
@@ -42,5 +42,4 @@ public interface MesMdVendorMapper extends BaseMapperX<MesMdVendorDO> {
     default List<MesMdVendorDO> selectListByStatus(Integer status) {
         return selectList(MesMdVendorDO::getStatus, status);
     }
-
 }

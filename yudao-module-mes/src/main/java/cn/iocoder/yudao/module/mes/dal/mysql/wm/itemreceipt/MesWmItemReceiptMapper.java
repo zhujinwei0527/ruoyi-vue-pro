@@ -26,4 +26,8 @@ public interface MesWmItemReceiptMapper extends BaseMapperX<MesWmItemReceiptDO> 
         return selectOne(MesWmItemReceiptDO::getCode, code);
     }
 
+    default Long selectCountByVendorId(Long vendorId) {
+        return selectCount(MesWmItemReceiptDO::getVendorId, vendorId);
+    }
+
 }

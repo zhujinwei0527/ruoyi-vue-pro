@@ -21,8 +21,8 @@ public class MesMdVendorPageReqVO extends PageParam {
     @Schema(description = "供应商简称", example = "海力德")
     private String nickname;
 
-    @Schema(description = "供应商等级", example = "A")
-    private String level;
+    @Schema(description = "供应商英文名称", example = "HLD")
+    private String englishName;
 
     @Schema(description = "状态", example = "0")
     private Integer status;

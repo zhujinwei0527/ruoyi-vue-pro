@@ -34,4 +34,8 @@ public interface MesWmArrivalNoticeMapper extends BaseMapperX<MesWmArrivalNotice
         return selectList(MesWmArrivalNoticeDO::getStatus, status);
     }
 
+    default Long selectCountByVendorId(Long vendorId) {
+        return selectCount(MesWmArrivalNoticeDO::getVendorId, vendorId);
+    }
+
 }

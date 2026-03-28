@@ -85,4 +85,12 @@ public interface MesWmItemReceiptService {
      */
     MesWmItemReceiptDO validateItemReceiptEditable(Long id);
 
+    /**
+     * 查询指定供应商的采购入库单数量
+     *
+     * @param vendorId 供应商编号
+     * @return 数量
+     */
+    Long getItemReceiptCountByVendorId(Long vendorId);
+
 }

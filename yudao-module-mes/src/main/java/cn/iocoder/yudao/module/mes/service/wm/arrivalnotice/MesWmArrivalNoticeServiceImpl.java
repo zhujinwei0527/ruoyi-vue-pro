@@ -213,4 +213,9 @@ public class MesWmArrivalNoticeServiceImpl implements MesWmArrivalNoticeService 
         }
     }
 
+    @Override
+    public Long getArrivalNoticeCountByVendorId(Long vendorId) {
+        return arrivalNoticeMapper.selectCountByVendorId(vendorId);
+    }
+
 }

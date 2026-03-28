@@ -46,12 +46,8 @@ public class MesMdClientServiceImpl implements MesMdClientService {
 
     @Override
     public Long createClient(MesMdClientSaveReqVO createReqVO) {
-        // 校验编码唯一
-        validateClientCodeUnique(null, createReqVO.getCode());
-        // 校验名称唯一
-        validateClientNameUnique(null, createReqVO.getName());
-        // 校验简称唯一
-        validateClientNicknameUnique(null, createReqVO.getNickname());
+        // 校验数据
+        validateClientSaveData(createReqVO);
 
         // 插入
         MesMdClientDO client = BeanUtils.toBean(createReqVO, MesMdClientDO.class);
@@ -67,16 +63,21 @@ public class MesMdClientServiceImpl implements MesMdClientService {
     public void updateClient(MesMdClientSaveReqVO updateReqVO) {
         // 校验存在
         validateClientExists(updateReqVO.getId());
-        // 校验编码唯一
-        validateClientCodeUnique(updateReqVO.getId(), updateReqVO.getCode());
-        // 校验名称唯一
-        validateClientNameUnique(updateReqVO.getId(), updateReqVO.getName());
-        // 校验简称唯一
-        validateClientNicknameUnique(updateReqVO.getId(), updateReqVO.getNickname());
+        // 校验数据
+        validateClientSaveData(updateReqVO);
 
         // 更新
         MesMdClientDO updateObj = BeanUtils.toBean(updateReqVO, MesMdClientDO.class);
         clientMapper.updateById(updateObj);
+    }
+
+    private void validateClientSaveData(MesMdClientSaveReqVO reqVO) {
+        // 校验编码唯一
+        validateClientCodeUnique(reqVO.getId(), reqVO.getCode());
+        // 校验名称唯一
+        validateClientNameUnique(reqVO.getId(), reqVO.getName());
+        // 校验简称唯一
+        validateClientNicknameUnique(reqVO.getId(), reqVO.getNickname());
     }
 
     @Override

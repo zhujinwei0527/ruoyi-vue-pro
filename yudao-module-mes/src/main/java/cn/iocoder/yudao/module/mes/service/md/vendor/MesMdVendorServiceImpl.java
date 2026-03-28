@@ -13,8 +13,12 @@ import cn.iocoder.yudao.module.mes.controller.admin.md.vendor.vo.MesMdVendorSave
 import cn.iocoder.yudao.module.mes.dal.dataobject.md.vendor.MesMdVendorDO;
 import cn.iocoder.yudao.module.mes.dal.mysql.md.vendor.MesMdVendorMapper;
 import cn.iocoder.yudao.module.mes.enums.wm.BarcodeBizTypeEnum;
+import cn.iocoder.yudao.module.mes.service.wm.arrivalnotice.MesWmArrivalNoticeService;
 import cn.iocoder.yudao.module.mes.service.wm.barcode.MesWmBarcodeService;
+import cn.iocoder.yudao.module.mes.service.wm.itemreceipt.MesWmItemReceiptService;
+import cn.iocoder.yudao.module.mes.service.wm.returnvendor.MesWmReturnVendorService;
 import jakarta.annotation.Resource;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
@@ -43,15 +47,20 @@ public class MesMdVendorServiceImpl implements MesMdVendorService {
 
     @Resource
     private MesWmBarcodeService barcodeService;
+    @Resource
+    @Lazy
+    private MesWmItemReceiptService itemReceiptService;
+    @Resource
+    @Lazy
+    private MesWmArrivalNoticeService arrivalNoticeService;
+    @Resource
+    @Lazy
+    private MesWmReturnVendorService returnVendorService;
 
     @Override
     public Long createVendor(MesMdVendorSaveReqVO createReqVO) {
-        // 校验编码唯一
-        validateVendorCodeUnique(null, createReqVO.getCode());
-        // 校验名称唯一
-        validateVendorNameUnique(null, createReqVO.getName());
-        // 校验简称唯一
-        validateVendorNicknameUnique(null, createReqVO.getNickname());
+        // 校验数据
+        validateVendorSaveData(createReqVO);
 
         // 插入
         MesMdVendorDO vendor = BeanUtils.toBean(createReqVO, MesMdVendorDO.class);
@@ -67,12 +76,8 @@ public class MesMdVendorServiceImpl implements MesMdVendorService {
     public void updateVendor(MesMdVendorSaveReqVO updateReqVO) {
         // 校验存在
         validateVendorExists(updateReqVO.getId());
-        // 校验编码唯一
-        validateVendorCodeUnique(updateReqVO.getId(), updateReqVO.getCode());
-        // 校验名称唯一
-        validateVendorNameUnique(updateReqVO.getId(), updateReqVO.getName());
-        // 校验简称唯一
-        validateVendorNicknameUnique(updateReqVO.getId(), updateReqVO.getNickname());
+        // 校验数据
+        validateVendorSaveData(updateReqVO);
 
         // 更新
         MesMdVendorDO updateObj = BeanUtils.toBean(updateReqVO, MesMdVendorDO.class);
@@ -83,6 +88,8 @@ public class MesMdVendorServiceImpl implements MesMdVendorService {
     public void deleteVendor(Long id) {
         // 校验存在
         validateVendorExists(id);
+        // 校验是否被其他业务引用
+        validateVendorNotReferenced(id);
         // 删除
         vendorMapper.deleteById(id);
     }
@@ -94,6 +101,15 @@ public class MesMdVendorServiceImpl implements MesMdVendorService {
             throw exception(MD_VENDOR_NOT_EXISTS);
         }
         return vendor;
+    }
+
+    private void validateVendorSaveData(MesMdVendorSaveReqVO reqVO) {
+        // 校验编码唯一
+        validateVendorCodeUnique(reqVO.getId(), reqVO.getCode());
+        // 校验名称唯一
+        validateVendorNameUnique(reqVO.getId(), reqVO.getName());
+        // 校验简称唯一
+        validateVendorNicknameUnique(reqVO.getId(), reqVO.getNickname());
     }
 
     private void validateVendorCodeUnique(Long id, String code) {
@@ -126,6 +142,14 @@ public class MesMdVendorServiceImpl implements MesMdVendorService {
         }
         if (ObjUtil.notEqual(vendor.getId(), id)) {
             throw exception(MD_VENDOR_NICKNAME_DUPLICATE);
+        }
+    }
+
+    private void validateVendorNotReferenced(Long id) {
+        if (itemReceiptService.getItemReceiptCountByVendorId(id) > 0
+                || arrivalNoticeService.getArrivalNoticeCountByVendorId(id) > 0
+                || returnVendorService.getReturnVendorCountByVendorId(id) > 0) {
+            throw exception(MD_VENDOR_HAS_REFERENCE);
         }
     }
 

@@ -70,7 +70,7 @@ public class MesProTaskServiceImpl implements MesProTaskService {
         // 2.1 构建任务 DO
         MesProTaskDO task = BeanUtils.toBean(createReqVO, MesProTaskDO.class)
                 .setName(buildTaskName(item.getName(), createReqVO.getQuantity()))
-                .setCode(autoCodeRecordService.generateAutoCode(MesMdAutoCodeRuleCodeEnum.TASK_CODE.getCode()))
+                .setCode(autoCodeRecordService.generateAutoCode(MesMdAutoCodeRuleCodeEnum.PRO_TASK_CODE.getCode()))
                 .setStatus(MesProTaskStatusEnum.PREPARE.getStatus());
         // 2.2 插入
         taskMapper.insert(task);

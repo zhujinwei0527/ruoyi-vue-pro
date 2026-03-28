@@ -208,4 +208,9 @@ public class MesWmReturnVendorServiceImpl implements MesWmReturnVendorService {
         return returnVendor;
     }
 
+    @Override
+    public Long getReturnVendorCountByVendorId(Long vendorId) {
+        return returnVendorMapper.selectCountByVendorId(vendorId);
+    }
+
 }
