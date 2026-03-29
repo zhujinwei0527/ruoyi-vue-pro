@@ -25,6 +25,7 @@ public interface MesWmMaterialStockMapper extends BaseMapperX<MesWmMaterialStock
         return selectPage(reqVO, new LambdaQueryWrapperX<MesWmMaterialStockDO>()
                 .inIfPresent(MesWmMaterialStockDO::getItemTypeId, itemTypeIds)
                 .inIfPresent(MesWmMaterialStockDO::getItemId, itemIds)
+                .likeIfPresent(MesWmMaterialStockDO::getBatchCode, reqVO.getBatchCode())
                 .eqIfPresent(MesWmMaterialStockDO::getWarehouseId, reqVO.getWarehouseId())
                 .eqIfPresent(MesWmMaterialStockDO::getLocationId, reqVO.getLocationId())
                 .eqIfPresent(MesWmMaterialStockDO::getFrozen, reqVO.getFrozen())
