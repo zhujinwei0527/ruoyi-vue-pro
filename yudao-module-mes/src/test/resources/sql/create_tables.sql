@@ -459,6 +459,7 @@ CREATE TABLE IF NOT EXISTS "mes_wm_item_receipt" (
     "iqc_id" bigint DEFAULT NULL,
     "notice_id" bigint DEFAULT NULL,
     "vendor_id" bigint DEFAULT NULL,
+    "purchase_order_code" varchar(64) DEFAULT NULL,
     "receipt_date" timestamp DEFAULT NULL,
     "status" tinyint NOT NULL DEFAULT 0,
     "remark" varchar(500) DEFAULT NULL,

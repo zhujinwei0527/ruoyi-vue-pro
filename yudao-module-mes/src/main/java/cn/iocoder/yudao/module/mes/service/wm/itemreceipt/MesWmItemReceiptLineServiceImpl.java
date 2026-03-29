@@ -6,13 +6,11 @@ import cn.iocoder.yudao.framework.common.util.object.BeanUtils;
 import cn.iocoder.yudao.module.mes.controller.admin.wm.batch.vo.MesWmBatchGenerateReqVO;
 import cn.iocoder.yudao.module.mes.controller.admin.wm.itemreceipt.vo.line.MesWmItemReceiptLinePageReqVO;
 import cn.iocoder.yudao.module.mes.controller.admin.wm.itemreceipt.vo.line.MesWmItemReceiptLineSaveReqVO;
-import cn.iocoder.yudao.module.mes.dal.dataobject.wm.arrivalnotice.MesWmArrivalNoticeDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.wm.batch.MesWmBatchDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.wm.itemreceipt.MesWmItemReceiptDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.wm.itemreceipt.MesWmItemReceiptLineDO;
 import cn.iocoder.yudao.module.mes.dal.mysql.wm.itemreceipt.MesWmItemReceiptLineMapper;
 import cn.iocoder.yudao.module.mes.service.wm.arrivalnotice.MesWmArrivalNoticeLineService;
-import cn.iocoder.yudao.module.mes.service.wm.arrivalnotice.MesWmArrivalNoticeService;
 import cn.iocoder.yudao.module.mes.service.wm.batch.MesWmBatchService;
 import jakarta.annotation.Resource;
 import org.springframework.context.annotation.Lazy;
@@ -44,9 +42,6 @@ public class MesWmItemReceiptLineServiceImpl implements MesWmItemReceiptLineServ
     @Resource
     @Lazy
     private MesWmArrivalNoticeLineService arrivalNoticeLineService;
-    @Resource
-    @Lazy
-    private MesWmArrivalNoticeService arrivalNoticeService;
     @Resource
     private MesWmBatchService batchService;
 
@@ -183,14 +178,8 @@ public class MesWmItemReceiptLineServiceImpl implements MesWmItemReceiptLineServ
         batchReqVO.setItemId(reqVO.getItemId()).setProduceDate(reqVO.getProductionDate())
                 .setExpireDate(reqVO.getExpireDate()).setLotNumber(reqVO.getLotNumber());
         // 从父单据获取
-        batchReqVO.setVendorId(receipt.getVendorId()).setReceiptDate(receipt.getReceiptDate());
-        // 从到货通知单获取采购订单号（如果关联了到货通知单）
-        if (receipt.getNoticeId() != null) {
-            MesWmArrivalNoticeDO notice = arrivalNoticeService.getArrivalNotice(receipt.getNoticeId());
-            if (notice != null) {
-                batchReqVO.setPurchaseOrderCode(notice.getPurchaseOrderCode());
-            }
-        }
+        batchReqVO.setVendorId(receipt.getVendorId()).setReceiptDate(receipt.getReceiptDate())
+                .setPurchaseOrderCode(receipt.getPurchaseOrderCode());
 
         // 生成或获取批次
         return batchService.getOrGenerateBatchCode(batchReqVO);

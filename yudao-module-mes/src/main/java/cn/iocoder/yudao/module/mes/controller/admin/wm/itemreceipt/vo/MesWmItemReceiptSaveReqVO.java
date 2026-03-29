@@ -36,6 +36,9 @@ public class MesWmItemReceiptSaveReqVO {
     @NotNull(message = "入库日期不能为空")
     private LocalDateTime receiptDate;
 
+    @Schema(description = "采购订单号", example = "PO20260201")
+    private String purchaseOrderCode;
+
     @Schema(description = "备注", example = "备注")
     private String remark;
 

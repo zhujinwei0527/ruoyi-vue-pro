@@ -3,11 +3,8 @@ package cn.iocoder.yudao.module.mes.dal.dataobject.wm.itemreceipt;
 import cn.iocoder.yudao.framework.mybatis.core.dataobject.BaseDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.md.vendor.MesMdVendorDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.qc.iqc.MesQcIqcDO;
-import cn.iocoder.yudao.module.mes.enums.wm.MesWmItemReceiptStatusEnum;
 import cn.iocoder.yudao.module.mes.dal.dataobject.wm.arrivalnotice.MesWmArrivalNoticeDO;
-import cn.iocoder.yudao.module.mes.dal.dataobject.wm.warehouse.MesWmWarehouseAreaDO;
-import cn.iocoder.yudao.module.mes.dal.dataobject.wm.warehouse.MesWmWarehouseDO;
-import cn.iocoder.yudao.module.mes.dal.dataobject.wm.warehouse.MesWmWarehouseLocationDO;
+import cn.iocoder.yudao.module.mes.enums.wm.MesWmItemReceiptStatusEnum;
 import com.baomidou.mybatisplus.annotation.KeySequence;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
@@ -53,6 +50,12 @@ public class MesWmItemReceiptDO extends BaseDO {
      * 关联 {@link MesWmArrivalNoticeDO#getId()}
      */
     private Long noticeId;
+    /**
+     * 采购订单号
+     *
+     * 冗余自 {@link MesWmArrivalNoticeDO#getPurchaseOrderCode()}，也可以手动填写
+     */
+    private String purchaseOrderCode;
     /**
      * 供应商编号
      *
