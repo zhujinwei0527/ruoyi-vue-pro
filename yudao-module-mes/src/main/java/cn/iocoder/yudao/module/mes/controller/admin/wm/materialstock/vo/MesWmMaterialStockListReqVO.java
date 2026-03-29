@@ -23,7 +23,9 @@ public class MesWmMaterialStockListReqVO {
 
     @Schema(description = "批次编号")
     private Long batchId;
-    // TODO @芋艿：后面看看，要不要 batchCode
+
+    @Schema(description = "批次号")
+    private String batchCode;
 
     @Schema(description = "开始时间（动态盘点用）")
     private LocalDateTime startTime;

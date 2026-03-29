@@ -77,16 +77,17 @@ public interface MesWmMaterialStockMapper extends BaseMapperX<MesWmMaterialStock
                 .eqIfPresent(MesWmMaterialStockDO::getBatchId, batchId));
     }
 
-    default List<MesWmMaterialStockDO> selectListForStockTaking(MesWmMaterialStockListReqVO reqVO) {
+    default List<MesWmMaterialStockDO> selectList(MesWmMaterialStockListReqVO reqVO) {
         return selectList(new LambdaQueryWrapperX<MesWmMaterialStockDO>()
                 .eqIfPresent(MesWmMaterialStockDO::getWarehouseId, reqVO.getWarehouseId())
                 .eqIfPresent(MesWmMaterialStockDO::getLocationId, reqVO.getLocationId())
                 .eqIfPresent(MesWmMaterialStockDO::getAreaId, reqVO.getAreaId())
                 .eqIfPresent(MesWmMaterialStockDO::getItemId, reqVO.getItemId())
                 .eqIfPresent(MesWmMaterialStockDO::getBatchId, reqVO.getBatchId())
+                .likeIfPresent(MesWmMaterialStockDO::getBatchCode, reqVO.getBatchCode())
                 .geIfPresent(MesWmMaterialStockDO::getUpdateTime, reqVO.getStartTime())
                 .leIfPresent(MesWmMaterialStockDO::getUpdateTime, reqVO.getEndTime())
-                .ne(MesWmMaterialStockDO::getQuantity, BigDecimal.ZERO) // TODO @芋艿：需要在考虑下，要不要支持；
+                .ne(MesWmMaterialStockDO::getQuantity, BigDecimal.ZERO)
                 .orderByAsc(MesWmMaterialStockDO::getReceiptTime));
     }
 

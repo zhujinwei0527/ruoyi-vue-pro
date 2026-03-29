@@ -123,7 +123,7 @@ public class MesWmMaterialStockServiceImpl implements MesWmMaterialStockService 
 
     @Override
     public List<MesWmMaterialStockDO> getMaterialStockList(MesWmMaterialStockListReqVO reqVO) {
-        return materialStockMapper.selectListForStockTaking(reqVO);
+        return materialStockMapper.selectList(reqVO);
     }
 
     @Override
