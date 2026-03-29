@@ -17,6 +17,7 @@ public enum MesMdAutoCodeRuleCodeEnum {
     MD_CLIENT_CODE("MD_CLIENT_CODE", "客户编码"),
     MD_WORKSTATION_CODE("MD_WORKSTATION_CODE", "工作站编码"),
     TM_TOOL_TYPE_CODE("TM_TOOL_TYPE_CODE", "工具类型编码"),
+    WM_ARRIVAL_NOTICE_CODE("WM_ARRIVAL_NOTICE_CODE", "到货通知单编码"),
     WM_ITEM_RECEIPT_CODE("WM_ITEM_RECEIPT_CODE", "采购入库单编码"),
     WM_SN_CODE("WM_SN_CODE", "SN 码"),
     WM_PACKAGE_CODE("WM_PACKAGE_CODE", "装箱单编码"),

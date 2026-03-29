@@ -74,7 +74,10 @@ public class MesWmArrivalNoticeLineServiceImpl implements MesWmArrivalNoticeLine
     @Override
     public void deleteArrivalNoticeLine(Long id) {
         // 校验存在
-        validateArrivalNoticeLineExists(id);
+        MesWmArrivalNoticeLineDO line = validateArrivalNoticeLineExists(id);
+        // 校验父单据存在且为草稿状态
+        validateNoticeStatusDraft(line.getNoticeId());
+
         // 删除
         arrivalNoticeLineMapper.deleteById(id);
     }
