@@ -147,11 +147,14 @@ public class MesWmItemReceiptServiceImpl implements MesWmItemReceiptService {
         }
         // 校验每行明细数量之和是否等于行入库数量
         List<MesWmItemReceiptLineDO> lines = itemReceiptLineService.getItemReceiptLineListByReceiptId(id);
+        if (CollUtil.isEmpty(lines)) {
+            throw exception(WM_ITEM_RECEIPT_NO_LINE);
+        }
         for (MesWmItemReceiptLineDO line : lines) {
             List<MesWmItemReceiptDetailDO> details = itemReceiptDetailService.getItemReceiptDetailListByLineId(line.getId());
             BigDecimal totalDetailQty = CollectionUtils.getSumValue(details,
                     MesWmItemReceiptDetailDO::getQuantity, BigDecimal::add, BigDecimal.ZERO);
-            if (line.getReceivedQuantity() != null && totalDetailQty.compareTo(line.getReceivedQuantity()) != 0) {
+            if (line.getReceivedQuantity() == null || totalDetailQty.compareTo(line.getReceivedQuantity()) != 0) {
                 throw exception(WM_ITEM_RECEIPT_DETAIL_QUANTITY_MISMATCH);
             }
         }

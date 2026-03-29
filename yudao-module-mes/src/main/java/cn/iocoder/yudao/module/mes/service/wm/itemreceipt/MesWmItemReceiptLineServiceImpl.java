@@ -98,12 +98,14 @@ public class MesWmItemReceiptLineServiceImpl implements MesWmItemReceiptLineServ
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void deleteItemReceiptLine(Long id) {
-        // 校验存在
-        validateItemReceiptLineExists(id);
+        // 1.1 校验存在
+        MesWmItemReceiptLineDO line = validateItemReceiptLineExists(id);
+        // 1.2 校验父单据存在且为可编辑状态
+        itemReceiptService.validateItemReceiptEditable(line.getReceiptId());
 
-        // 级联删除明细
+        // 2.1 级联删除明细
         itemReceiptDetailService.deleteItemReceiptDetailByLineId(id);
-        // 删除
+        // 2.2 删除
         itemReceiptLineMapper.deleteById(id);
     }
 

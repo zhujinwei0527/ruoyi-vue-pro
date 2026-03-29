@@ -85,8 +85,11 @@ public class MesWmItemReceiptDetailServiceImpl implements MesWmItemReceiptDetail
 
     @Override
     public void deleteItemReceiptDetail(Long id) {
-        // 校验存在
-        validateItemReceiptDetailExists(id);
+        // 1.1 校验存在
+        MesWmItemReceiptDetailDO detail = validateItemReceiptDetailExists(id);
+        // 1.2 校验父单据存在且为可编辑状态
+        itemReceiptService.validateItemReceiptEditable(detail.getReceiptId());
+
         // 删除
         itemReceiptDetailMapper.deleteById(id);
     }
