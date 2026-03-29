@@ -29,19 +29,6 @@ public interface MesWmMaterialStockService {
     MesWmMaterialStockDO getMaterialStock(Long id);
 
     /**
-     * 按组合键查询库存记录
-     *
-     * @param itemId      物料编号
-     * @param warehouseId 仓库编号
-     * @param locationId  库区编号
-     * @param areaId      库位编号
-     * @param batchId     批次编号
-     * @return 库存记录，不存在返回 null
-     */
-    MesWmMaterialStockDO getMaterialStockByCompositeKey(Long itemId, Long warehouseId, Long locationId,
-                                                        Long areaId, Long batchId);
-
-    /**
      * 查询指定库位的库存记录列表
      *
      * @param areaId 库位编号
@@ -107,6 +94,14 @@ public interface MesWmMaterialStockService {
     default Map<Long, MesWmMaterialStockDO> getMaterialStockMap(Collection<Long> ids) {
         return convertMap(getMaterialStockList(ids), MesWmMaterialStockDO::getId);
     }
+
+    /**
+     * 获得库存精简列表（用于前端下拉选择）
+     *
+     * @param itemId 物料编号（可为 null）
+     * @return 库存记录列表
+     */
+    List<MesWmMaterialStockDO> getMaterialStockList(Long itemId);
 
     /**
      * 获取或创建库存记录（按组合键唯一）

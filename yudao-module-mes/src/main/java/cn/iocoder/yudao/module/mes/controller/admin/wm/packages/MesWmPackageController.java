@@ -129,7 +129,7 @@ public class MesWmPackageController {
     @Operation(summary = "可添加为子箱的装箱单精简列表")
     @PreAuthorize("@ss.hasPermission('mes:wm-package:query')")
     public CommonResult<List<MesWmPackageRespVO>> getChildablePackageSimpleList() {
-        List<MesWmPackageDO> list = packageService.getChildablePackageSimpleList();
+        List<MesWmPackageDO> list = packageService.getChildablePackageList();
         return success(buildRespVOList(list));
     }
 

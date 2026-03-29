@@ -151,7 +151,7 @@ public class MesWmWarehouseServiceImpl implements MesWmWarehouseService {
     }
 
     @Override
-    public List<MesWmWarehouseDO> getWarehouseSimpleList() {
+    public List<MesWmWarehouseDO> getWarehouseList() {
         return warehouseMapper.selectSimpleList();
     }
 

@@ -68,4 +68,11 @@ public interface MesWmBatchService {
      */
     List<MesWmBatchDO> getBackwardBatchList(String code);
 
+    /**
+     * 获取批次列表
+     *
+     * @return 批次列表
+     */
+    List<MesWmBatchDO> getBatchList();
+
 }

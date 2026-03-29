@@ -90,7 +90,7 @@ public class MesWmWarehouseLocationController {
     @Operation(summary = "获得库区精简列表", description = "可按仓库过滤")
     public CommonResult<List<MesWmWarehouseLocationRespVO>> getWarehouseLocationSimpleList(
             @Parameter(name = "warehouseId", description = "仓库编号") @RequestParam(value = "warehouseId", required = false) Long warehouseId) {
-        List<MesWmWarehouseLocationDO> list = locationService.getWarehouseLocationSimpleList(warehouseId);
+        List<MesWmWarehouseLocationDO> list = locationService.getWarehouseLocationList(warehouseId);
         return success(buildWarehouseLocationRespVOList(list));
     }
 

@@ -154,7 +154,7 @@ public class MesWmWarehouseAreaServiceImpl implements MesWmWarehouseAreaService 
     }
 
     @Override
-    public List<MesWmWarehouseAreaDO> getWarehouseAreaSimpleList(Long locationId) {
+    public List<MesWmWarehouseAreaDO> getWarehouseAreaList(Long locationId) {
         return areaMapper.selectSimpleList(locationId);
     }
 

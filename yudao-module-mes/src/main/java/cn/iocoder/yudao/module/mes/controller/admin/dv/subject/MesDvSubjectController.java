@@ -81,7 +81,7 @@ public class MesDvSubjectController {
     @Operation(summary = "获得点检保养项目精简列表", description = "主要用于前端的下拉选项")
     @PreAuthorize("@ss.hasPermission('mes:dv-subject:query')")
     public CommonResult<List<MesDvSubjectRespVO>> getSubjectSimpleList() {
-        List<MesDvSubjectDO> list = subjectService.getSubjectSimpleList();
+        List<MesDvSubjectDO> list = subjectService.getSubjectList();
         return success(BeanUtils.toBean(list, MesDvSubjectRespVO.class));
     }
 

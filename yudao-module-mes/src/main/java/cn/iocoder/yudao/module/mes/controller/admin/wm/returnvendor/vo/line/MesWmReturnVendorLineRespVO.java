@@ -37,6 +37,9 @@ public class MesWmReturnVendorLineRespVO {
     @Schema(description = "批次ID", example = "1")
     private Long batchId;
 
+    @Schema(description = "批次号", example = "BATCH20260101001")
+    private String batchCode;
+
     @Schema(description = "备注", example = "备注")
     private String remark;
 

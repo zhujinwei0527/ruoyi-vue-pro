@@ -3,10 +3,12 @@ package cn.iocoder.yudao.module.mes.service.wm.returnvendor;
 import cn.hutool.core.util.ObjUtil;
 import cn.iocoder.yudao.framework.common.util.object.BeanUtils;
 import cn.iocoder.yudao.module.mes.controller.admin.wm.returnvendor.vo.detail.MesWmReturnVendorDetailSaveReqVO;
+import cn.iocoder.yudao.module.mes.dal.dataobject.wm.materialstock.MesWmMaterialStockDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.wm.returnvendor.MesWmReturnVendorDetailDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.wm.returnvendor.MesWmReturnVendorLineDO;
 import cn.iocoder.yudao.module.mes.dal.mysql.wm.returnvendor.MesWmReturnVendorDetailMapper;
 import cn.iocoder.yudao.module.mes.service.md.item.MesMdItemService;
+import cn.iocoder.yudao.module.mes.service.wm.materialstock.MesWmMaterialStockService;
 import jakarta.annotation.Resource;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
@@ -15,8 +17,7 @@ import org.springframework.validation.annotation.Validated;
 import java.util.List;
 
 import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception;
-import static cn.iocoder.yudao.module.mes.enums.ErrorCodeConstants.WM_RETURN_VENDOR_DETAIL_ITEM_MISMATCH;
-import static cn.iocoder.yudao.module.mes.enums.ErrorCodeConstants.WM_RETURN_VENDOR_DETAIL_NOT_EXISTS;
+import static cn.iocoder.yudao.module.mes.enums.ErrorCodeConstants.*;
 
 /**
  * MES 供应商退货明细 Service 实现类
@@ -35,14 +36,13 @@ public class MesWmReturnVendorDetailServiceImpl implements MesWmReturnVendorDeta
     @Resource
     private MesMdItemService itemService;
 
+    @Resource
+    private MesWmMaterialStockService materialStockService;
+
     @Override
     public Long createReturnVendorDetail(MesWmReturnVendorDetailSaveReqVO createReqVO) {
-        // 校验父数据存在
-        MesWmReturnVendorLineDO line = returnVendorLineService.validateReturnVendorLineExists(createReqVO.getLineId());
-        // 校验物料存在
-        itemService.validateItemExists(createReqVO.getItemId());
-        // 校验物料与行物料一致
-        validateItemConsistency(createReqVO.getItemId(), line);
+        // 校验数据
+        validateDetailSaveData(createReqVO);
 
         // 插入
         MesWmReturnVendorDetailDO detail = BeanUtils.toBean(createReqVO, MesWmReturnVendorDetailDO.class);
@@ -54,16 +54,26 @@ public class MesWmReturnVendorDetailServiceImpl implements MesWmReturnVendorDeta
     public void updateReturnVendorDetail(MesWmReturnVendorDetailSaveReqVO updateReqVO) {
         // 校验存在
         validateReturnVendorDetailExists(updateReqVO.getId());
-        // 校验父数据存在
-        MesWmReturnVendorLineDO line = returnVendorLineService.validateReturnVendorLineExists(updateReqVO.getLineId());
-        // 校验物料存在
-        itemService.validateItemExists(updateReqVO.getItemId());
-        // 校验物料与行物料一致
-        validateItemConsistency(updateReqVO.getItemId(), line);
+        // 校验数据
+        validateDetailSaveData(updateReqVO);
 
         // 更新
         MesWmReturnVendorDetailDO updateObj = BeanUtils.toBean(updateReqVO, MesWmReturnVendorDetailDO.class);
         returnVendorDetailMapper.updateById(updateObj);
+    }
+
+    /**
+     * 校验明细创建/修改的公共数据
+     */
+    private void validateDetailSaveData(MesWmReturnVendorDetailSaveReqVO reqVO) {
+        // 校验父数据（行）存在
+        MesWmReturnVendorLineDO line = returnVendorLineService.validateReturnVendorLineExists(reqVO.getLineId());
+        // 校验物料存在
+        itemService.validateItemExists(reqVO.getItemId());
+        // 校验物料与行物料一致
+        validateItemConsistency(reqVO.getItemId(), line);
+        // 校验库存记录存在且物料一致
+        validateMaterialStock(reqVO.getMaterialStockId(), line);
     }
 
     @Override
@@ -110,6 +120,22 @@ public class MesWmReturnVendorDetailServiceImpl implements MesWmReturnVendorDeta
      */
     private void validateItemConsistency(Long detailItemId, MesWmReturnVendorLineDO line) {
         if (ObjUtil.notEqual(detailItemId, line.getItemId())) {
+            throw exception(WM_RETURN_VENDOR_DETAIL_ITEM_MISMATCH);
+        }
+    }
+
+    /**
+     * 校验库存记录存在且物料与行物料一致
+     */
+    private void validateMaterialStock(Long materialStockId, MesWmReturnVendorLineDO line) {
+        if (materialStockId == null) {
+            return;
+        }
+        MesWmMaterialStockDO stock = materialStockService.getMaterialStock(materialStockId);
+        if (stock == null) {
+            throw exception(WM_MATERIAL_STOCK_NOT_EXISTS);
+        }
+        if (ObjUtil.notEqual(stock.getItemId(), line.getItemId())) {
             throw exception(WM_RETURN_VENDOR_DETAIL_ITEM_MISMATCH);
         }
     }

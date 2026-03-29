@@ -2,6 +2,7 @@ package cn.iocoder.yudao.module.mes.dal.dataobject.wm.returnvendor;
 
 import cn.iocoder.yudao.framework.mybatis.core.dataobject.BaseDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.md.item.MesMdItemDO;
+import cn.iocoder.yudao.module.mes.dal.dataobject.wm.batch.MesWmBatchDO;
 import com.baomidou.mybatisplus.annotation.KeySequence;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
@@ -45,8 +46,16 @@ public class MesWmReturnVendorLineDO extends BaseDO {
     private BigDecimal quantity;
     /**
      * 批次 ID
+     *
+     * 关联 {@link MesWmBatchDO#getId()}
      */
     private Long batchId;
+    /**
+     * 批次号
+     *
+     * 关联 {@link MesWmBatchDO#getCode()}
+     */
+    private String batchCode;
     /**
      * 备注
      */

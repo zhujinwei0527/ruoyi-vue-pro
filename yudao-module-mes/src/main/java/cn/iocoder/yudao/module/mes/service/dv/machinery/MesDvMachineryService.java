@@ -73,11 +73,11 @@ public interface MesDvMachineryService {
     void validateMachineryExists(Long id);
 
     /**
-     * 获得设备精简列表（下拉选项用）
+     * 获得设备列表
      *
      * @return 设备列表
      */
-    List<MesDvMachineryDO> getMachinerySimpleList();
+    List<MesDvMachineryDO> getMachineryList();
 
     /**
      * 获得设备列表

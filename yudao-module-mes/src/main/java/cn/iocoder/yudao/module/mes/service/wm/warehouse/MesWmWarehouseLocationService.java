@@ -64,12 +64,12 @@ public interface MesWmWarehouseLocationService {
     PageResult<MesWmWarehouseLocationDO> getWarehouseLocationPage(MesWmWarehouseLocationPageReqVO pageReqVO);
 
     /**
-     * 按仓库获得库区精简列表
+     * 按仓库获得库区列表
      *
      * @param warehouseId 仓库编号
      * @return 库区列表
      */
-    List<MesWmWarehouseLocationDO> getWarehouseLocationSimpleList(Long warehouseId);
+    List<MesWmWarehouseLocationDO> getWarehouseLocationList(Long warehouseId);
 
     /**
      * 按编号集合获得库区列表

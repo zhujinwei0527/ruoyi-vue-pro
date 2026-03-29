@@ -54,10 +54,10 @@ public interface MesTmToolService {
     PageResult<MesTmToolDO> getToolPage(MesTmToolPageReqVO pageReqVO);
 
     /**
-     * 获得工具精简列表
+     * 获得工具列表
      *
      * @return 工具列表
      */
-    List<MesTmToolDO> getToolSimpleList();
+    List<MesTmToolDO> getToolList();
 
 }

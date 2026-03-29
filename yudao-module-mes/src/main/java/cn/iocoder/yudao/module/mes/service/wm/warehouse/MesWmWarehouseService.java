@@ -64,11 +64,11 @@ public interface MesWmWarehouseService {
     PageResult<MesWmWarehouseDO> getWarehousePage(MesWmWarehousePageReqVO pageReqVO);
 
     /**
-     * 获得仓库精简列表
+     * 获得仓库列表
      *
      * @return 仓库列表
      */
-    List<MesWmWarehouseDO> getWarehouseSimpleList();
+    List<MesWmWarehouseDO> getWarehouseList();
 
     /**
      * 按编号集合获得仓库列表

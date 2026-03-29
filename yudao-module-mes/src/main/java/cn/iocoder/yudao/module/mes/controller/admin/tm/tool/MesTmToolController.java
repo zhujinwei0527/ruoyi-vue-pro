@@ -113,7 +113,7 @@ public class MesTmToolController {
     @Operation(summary = "获得工具精简列表")
     @PreAuthorize("@ss.hasPermission('mes:tm-tool:query')")
     public CommonResult<List<MesTmToolRespVO>> getToolSimpleList() {
-        List<MesTmToolDO> list = toolService.getToolSimpleList();
+        List<MesTmToolDO> list = toolService.getToolList();
         return success(BeanUtils.toBean(list, MesTmToolRespVO.class));
     }
 

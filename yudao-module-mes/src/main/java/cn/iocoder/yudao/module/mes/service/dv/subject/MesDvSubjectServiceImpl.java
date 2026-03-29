@@ -93,7 +93,7 @@ public class MesDvSubjectServiceImpl implements MesDvSubjectService {
     }
 
     @Override
-    public List<MesDvSubjectDO> getSubjectSimpleList() {
+    public List<MesDvSubjectDO> getSubjectList() {
         return subjectMapper.selectList();
     }
 

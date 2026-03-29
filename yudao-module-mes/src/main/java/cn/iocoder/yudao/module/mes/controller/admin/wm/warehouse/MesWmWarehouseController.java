@@ -74,7 +74,7 @@ public class MesWmWarehouseController {
     @GetMapping("/simple-list")
     @Operation(summary = "获得仓库精简列表", description = "主要用于前端下拉")
     public CommonResult<List<MesWmWarehouseRespVO>> getWarehouseSimpleList() {
-        List<MesWmWarehouseDO> list = warehouseService.getWarehouseSimpleList();
+        List<MesWmWarehouseDO> list = warehouseService.getWarehouseList();
         return success(BeanUtils.toBean(list, MesWmWarehouseRespVO.class));
     }
 

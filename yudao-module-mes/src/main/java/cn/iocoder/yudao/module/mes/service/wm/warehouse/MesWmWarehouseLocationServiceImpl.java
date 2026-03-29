@@ -157,7 +157,7 @@ public class MesWmWarehouseLocationServiceImpl implements MesWmWarehouseLocation
     }
 
     @Override
-    public List<MesWmWarehouseLocationDO> getWarehouseLocationSimpleList(Long warehouseId) {
+    public List<MesWmWarehouseLocationDO> getWarehouseLocationList(Long warehouseId) {
         return locationMapper.selectSimpleList(warehouseId);
     }
 

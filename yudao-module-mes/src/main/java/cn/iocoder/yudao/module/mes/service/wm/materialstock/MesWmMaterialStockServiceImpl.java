@@ -50,12 +50,6 @@ public class MesWmMaterialStockServiceImpl implements MesWmMaterialStockService 
     }
 
     @Override
-    public MesWmMaterialStockDO getMaterialStockByCompositeKey(Long itemId, Long warehouseId, Long locationId,
-                                                               Long areaId, Long batchId) {
-        return materialStockMapper.selectByCompositeKey(itemId, warehouseId, locationId, areaId, batchId);
-    }
-
-    @Override
     public List<MesWmMaterialStockDO> getMaterialStockListByAreaId(Long areaId) {
         return materialStockMapper.selectList(MesWmMaterialStockDO::getAreaId, areaId);
     }
@@ -124,6 +118,14 @@ public class MesWmMaterialStockServiceImpl implements MesWmMaterialStockService 
     @Override
     public List<MesWmMaterialStockDO> getMaterialStockList(MesWmMaterialStockListReqVO reqVO) {
         return materialStockMapper.selectList(reqVO);
+    }
+
+    @Override
+    public List<MesWmMaterialStockDO> getMaterialStockList(Long itemId) {
+        if (itemId != null) {
+            return materialStockMapper.selectList(MesWmMaterialStockDO::getItemId, itemId);
+        }
+        return materialStockMapper.selectList();
     }
 
     @Override

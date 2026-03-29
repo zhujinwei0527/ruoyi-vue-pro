@@ -26,6 +26,9 @@ public class MesWmReturnVendorDetailSaveReqVO {
     @NotNull(message = "物料编号不能为空")
     private Long itemId;
 
+    @Schema(description = "库存记录编号", example = "1")
+    private Long materialStockId;
+
     @Schema(description = "退货数量", requiredMode = Schema.RequiredMode.REQUIRED, example = "300.00")
     @NotNull(message = "退货数量不能为空")
     @DecimalMin(value = "0", inclusive = false, message = "退货数量必须大于 0")

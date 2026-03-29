@@ -65,11 +65,11 @@ public interface MesDvSubjectService {
     void validateSubjectExists(Long id);
 
     /**
-     * 获得点检保养项目精简列表（下拉选项用）
+     * 获得点检保养项目列表
      *
      * @return 项目列表
      */
-    List<MesDvSubjectDO> getSubjectSimpleList();
+    List<MesDvSubjectDO> getSubjectList();
 
     /**
      * 获得点检保养项目列表

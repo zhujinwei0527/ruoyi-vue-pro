@@ -137,7 +137,7 @@ public class MesWmPackageServiceImpl implements MesWmPackageService {
     }
 
     @Override
-    public List<MesWmPackageDO> getChildablePackageSimpleList() {
+    public List<MesWmPackageDO> getChildablePackageList() {
         return packageMapper.selectChildableList();
     }
 

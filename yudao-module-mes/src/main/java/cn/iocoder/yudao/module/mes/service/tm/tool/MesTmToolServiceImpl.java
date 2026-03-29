@@ -119,7 +119,7 @@ public class MesTmToolServiceImpl implements MesTmToolService {
     }
 
     @Override
-    public List<MesTmToolDO> getToolSimpleList() {
+    public List<MesTmToolDO> getToolList() {
         return toolMapper.selectList();
     }
 

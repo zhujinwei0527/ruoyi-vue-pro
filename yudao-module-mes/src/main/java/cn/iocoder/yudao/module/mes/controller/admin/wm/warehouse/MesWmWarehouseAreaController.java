@@ -26,7 +26,6 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import static cn.iocoder.yudao.framework.common.pojo.CommonResult.success;
 import static cn.iocoder.yudao.framework.common.util.collection.CollectionUtils.convertSet;
@@ -94,7 +93,7 @@ public class MesWmWarehouseAreaController {
     @Operation(summary = "获得库位精简列表", description = "可按库区过滤")
     public CommonResult<List<MesWmWarehouseAreaRespVO>> getWarehouseAreaSimpleList(
             @Parameter(name = "locationId", description = "库区编号") @RequestParam(value = "locationId", required = false) Long locationId) {
-        List<MesWmWarehouseAreaDO> list = areaService.getWarehouseAreaSimpleList(locationId);
+        List<MesWmWarehouseAreaDO> list = areaService.getWarehouseAreaList(locationId);
         return success(buildWarehouseAreaRespVOList(list));
     }
 

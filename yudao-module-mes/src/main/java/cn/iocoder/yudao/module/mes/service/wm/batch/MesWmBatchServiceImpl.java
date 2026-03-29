@@ -220,4 +220,9 @@ public class MesWmBatchServiceImpl implements MesWmBatchService {
         return results;
     }
 
+    @Override
+    public List<MesWmBatchDO> getBatchList() {
+        return batchMapper.selectList();
+    }
+
 }

@@ -127,7 +127,7 @@ public class MesDvMachineryServiceImpl implements MesDvMachineryService {
     }
 
     @Override
-    public List<MesDvMachineryDO> getMachinerySimpleList() {
+    public List<MesDvMachineryDO> getMachineryList() {
         return machineryMapper.selectList();
     }
 
