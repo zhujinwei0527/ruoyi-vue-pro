@@ -1,6 +1,7 @@
 package cn.iocoder.yudao.module.mes.controller.admin.wm.itemreceipt.vo.line;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
@@ -27,6 +28,7 @@ public class MesWmItemReceiptLineSaveReqVO {
 
     @Schema(description = "入库数量", requiredMode = Schema.RequiredMode.REQUIRED, example = "500.00")
     @NotNull(message = "入库数量不能为空")
+    @DecimalMin(value = "0", inclusive = false, message = "入库数量必须大于 0")
     private BigDecimal receivedQuantity;
 
     // TODO DONE @芋艿：已添加 batchCode 字段，前端可以使用 batchCode 输入批次编码

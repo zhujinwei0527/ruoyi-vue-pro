@@ -38,37 +38,12 @@ public class MesWmItemReceiptRespVO {
     @ExcelProperty("到货通知单")
     private String noticeCode;
 
-    @Schema(description = "采购订单编号", example = "PO20260101")
-    @ExcelProperty("采购订单编号")
-    private String purchaseOrderCode;
-
     @Schema(description = "供应商编号", example = "1")
     private Long vendorId;
 
     @Schema(description = "供应商名称", example = "某供应商")
     @ExcelProperty("供应商")
     private String vendorName;
-
-    @Schema(description = "仓库编号", example = "1")
-    private Long warehouseId;
-
-    @Schema(description = "仓库名称", example = "原料仓")
-    @ExcelProperty("仓库")
-    private String warehouseName;
-
-    @Schema(description = "库区编号", example = "1")
-    private Long locationId;
-
-    @Schema(description = "库区名称", example = "A 区")
-    @ExcelProperty("库区")
-    private String locationName;
-
-    @Schema(description = "库位编号", example = "1")
-    private Long areaId;
-
-    @Schema(description = "库位名称", example = "A-01")
-    @ExcelProperty("库位")
-    private String areaName;
 
     @Schema(description = "入库日期")
     @ExcelProperty("入库日期")

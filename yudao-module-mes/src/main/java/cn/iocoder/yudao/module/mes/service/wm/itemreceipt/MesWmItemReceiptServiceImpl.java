@@ -15,6 +15,8 @@ import cn.iocoder.yudao.module.mes.dal.mysql.wm.itemreceipt.MesWmItemReceiptMapp
 import cn.iocoder.yudao.module.mes.enums.MesBizTypeConstants;
 import cn.iocoder.yudao.module.mes.enums.wm.MesWmItemReceiptStatusEnum;
 import cn.iocoder.yudao.module.mes.enums.wm.MesWmTransactionTypeEnum;
+import cn.iocoder.yudao.module.mes.service.md.vendor.MesMdVendorService;
+import cn.iocoder.yudao.module.mes.service.qc.iqc.MesQcIqcService;
 import cn.iocoder.yudao.module.mes.service.wm.arrivalnotice.MesWmArrivalNoticeService;
 import cn.iocoder.yudao.module.mes.service.wm.transaction.MesWmTransactionService;
 import cn.iocoder.yudao.module.mes.service.wm.transaction.dto.MesWmTransactionSaveReqDTO;
@@ -48,14 +50,19 @@ public class MesWmItemReceiptServiceImpl implements MesWmItemReceiptService {
     @Resource
     @Lazy
     private MesWmArrivalNoticeService arrivalNoticeService;
+    @Resource
+    private MesMdVendorService vendorService;
+    @Resource
+    @Lazy
+    private MesQcIqcService iqcService;
 
     @Resource
     private MesWmTransactionService wmTransactionService;
 
     @Override
     public Long createItemReceipt(MesWmItemReceiptSaveReqVO createReqVO) {
-        // 校验编码唯一
-        validateCodeUnique(null, createReqVO.getCode());
+        // 校验数据
+        validateItemReceiptSaveData(createReqVO);
 
         // 插入
         MesWmItemReceiptDO receipt = BeanUtils.toBean(createReqVO, MesWmItemReceiptDO.class);
@@ -68,12 +75,27 @@ public class MesWmItemReceiptServiceImpl implements MesWmItemReceiptService {
     public void updateItemReceipt(MesWmItemReceiptSaveReqVO updateReqVO) {
         // 校验存在 + 草稿状态
         validateItemReceiptExistsAndDraft(updateReqVO.getId());
-        // 校验编码唯一
-        validateCodeUnique(updateReqVO.getId(), updateReqVO.getCode());
+        // 校验数据
+        validateItemReceiptSaveData(updateReqVO);
 
         // 更新
         MesWmItemReceiptDO updateObj = BeanUtils.toBean(updateReqVO, MesWmItemReceiptDO.class);
         itemReceiptMapper.updateById(updateObj);
+    }
+
+    private void validateItemReceiptSaveData(MesWmItemReceiptSaveReqVO reqVO) {
+        // 校验编码唯一
+        validateCodeUnique(reqVO.getId(), reqVO.getCode());
+        // 校验供应商存在
+        vendorService.validateVendorExists(reqVO.getVendorId());
+        // 校验到货通知单存在
+        if (reqVO.getNoticeId() != null) {
+            arrivalNoticeService.validateArrivalNoticeExists(reqVO.getNoticeId());
+        }
+        // 校验来料检验单存在
+        if (reqVO.getIqcId() != null) {
+            iqcService.validateIqcExists(reqVO.getIqcId());
+        }
     }
 
     @Override

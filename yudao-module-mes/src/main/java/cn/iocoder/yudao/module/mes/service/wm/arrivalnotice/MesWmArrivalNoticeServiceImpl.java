@@ -184,7 +184,8 @@ public class MesWmArrivalNoticeServiceImpl implements MesWmArrivalNoticeService 
         }
     }
 
-    private MesWmArrivalNoticeDO validateArrivalNoticeExists(Long id) {
+    @Override
+    public MesWmArrivalNoticeDO validateArrivalNoticeExists(Long id) {
         MesWmArrivalNoticeDO notice = arrivalNoticeMapper.selectById(id);
         if (notice == null) {
             throw exception(WM_ARRIVAL_NOTICE_NOT_EXISTS);

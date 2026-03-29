@@ -52,20 +52,20 @@ public class MesWmItemReceiptLineServiceImpl implements MesWmItemReceiptLineServ
 
     @Override
     public Long createItemReceiptLine(MesWmItemReceiptLineSaveReqVO createReqVO) {
-        // 1.1 校验父单据存在且为可编辑状态
+        // 1. 校验父单据存在且为可编辑状态
         MesWmItemReceiptDO receipt = itemReceiptService.validateItemReceiptEditable(createReqVO.getReceiptId());
-        // 1.2 校验关联到货通知单行存在
-        validateArrivalNoticeLine(receipt, createReqVO.getArrivalNoticeLineId());
+        // 2. 校验数据
+        validateItemReceiptLineSaveData(receipt, createReqVO);
 
-        // 2.1 创建入库单行
+        // 3.1 创建入库单行
         MesWmItemReceiptLineDO line = BeanUtils.toBean(createReqVO, MesWmItemReceiptLineDO.class);
-        // 2.2 生成或获取批次
+        // 3.2 生成或获取批次
         MesWmBatchDO batch = generateOrGetBatch(receipt, createReqVO);
         if (batch != null) {
             line.setBatchId(batch.getId());
             line.setBatchCode(batch.getCode());
         }
-        // 2.3 插入数据库
+        // 3.3 插入数据库
         itemReceiptLineMapper.insert(line);
         return line.getId();
     }
@@ -76,8 +76,8 @@ public class MesWmItemReceiptLineServiceImpl implements MesWmItemReceiptLineServ
         MesWmItemReceiptLineDO line = validateItemReceiptLineExists(updateReqVO.getId());
         // 1.2 校验父单据存在且为可编辑状态
         MesWmItemReceiptDO receipt = itemReceiptService.validateItemReceiptEditable(line.getReceiptId());
-        // 1.3 校验关联到货通知单行存在
-        validateArrivalNoticeLine(receipt, updateReqVO.getArrivalNoticeLineId());
+        // 1.3 校验数据
+        validateItemReceiptLineSaveData(receipt, updateReqVO);
 
         // 2.1 更新
         MesWmItemReceiptLineDO updateObj = BeanUtils.toBean(updateReqVO, MesWmItemReceiptLineDO.class);
@@ -88,6 +88,11 @@ public class MesWmItemReceiptLineServiceImpl implements MesWmItemReceiptLineServ
         }
         // 2.3 更新数据库
         itemReceiptLineMapper.updateById(updateObj);
+    }
+
+    private void validateItemReceiptLineSaveData(MesWmItemReceiptDO receipt, MesWmItemReceiptLineSaveReqVO reqVO) {
+        // 校验关联到货通知单行
+        validateArrivalNoticeLine(receipt, reqVO.getArrivalNoticeLineId());
     }
 
     @Override
@@ -161,6 +166,8 @@ public class MesWmItemReceiptLineServiceImpl implements MesWmItemReceiptLineServ
         }
         return line;
     }
+
+
 
     /**
      * 生成或获取批次
