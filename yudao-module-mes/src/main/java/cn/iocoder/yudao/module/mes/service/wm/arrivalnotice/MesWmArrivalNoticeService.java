@@ -101,6 +101,14 @@ public interface MesWmArrivalNoticeService {
     MesWmArrivalNoticeDO validateArrivalNoticeExists(Long id);
 
     /**
+     * 校验到货通知单存在且为草稿状态
+     *
+     * @param id 编号
+     * @return 到货通知单
+     */
+    MesWmArrivalNoticeDO validateArrivalNoticeExistsAndDraft(Long id);
+
+    /**
      * 校验到货通知单和行存在，且行属于该通知单
      *
      * @param noticeId 到货通知单 ID

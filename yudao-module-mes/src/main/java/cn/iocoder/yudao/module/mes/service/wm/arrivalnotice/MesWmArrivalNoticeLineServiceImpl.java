@@ -6,10 +6,9 @@ import cn.iocoder.yudao.framework.common.pojo.PageResult;
 import cn.iocoder.yudao.framework.common.util.object.BeanUtils;
 import cn.iocoder.yudao.module.mes.controller.admin.wm.arrivalnotice.vo.line.MesWmArrivalNoticeLinePageReqVO;
 import cn.iocoder.yudao.module.mes.controller.admin.wm.arrivalnotice.vo.line.MesWmArrivalNoticeLineSaveReqVO;
-import cn.iocoder.yudao.module.mes.dal.dataobject.wm.arrivalnotice.MesWmArrivalNoticeDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.wm.arrivalnotice.MesWmArrivalNoticeLineDO;
 import cn.iocoder.yudao.module.mes.dal.mysql.wm.arrivalnotice.MesWmArrivalNoticeLineMapper;
-import cn.iocoder.yudao.module.mes.enums.wm.MesWmArrivalNoticeStatusEnum;
+import cn.iocoder.yudao.module.mes.service.md.item.MesMdItemService;
 import jakarta.annotation.Resource;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
@@ -34,11 +33,13 @@ public class MesWmArrivalNoticeLineServiceImpl implements MesWmArrivalNoticeLine
     @Resource
     @Lazy
     private MesWmArrivalNoticeService arrivalNoticeService;
+    @Resource
+    private MesMdItemService itemService;
 
     @Override
     public Long createArrivalNoticeLine(MesWmArrivalNoticeLineSaveReqVO createReqVO) {
-        // 校验父单据存在且为草稿状态
-        validateNoticeStatusDraft(createReqVO.getNoticeId());
+        // 校验数据
+        validateArrivalNoticeLineSaveData(createReqVO);
 
         // 插入
         MesWmArrivalNoticeLineDO line = BeanUtils.toBean(createReqVO, MesWmArrivalNoticeLineDO.class);
@@ -51,13 +52,21 @@ public class MesWmArrivalNoticeLineServiceImpl implements MesWmArrivalNoticeLine
     public void updateArrivalNoticeLine(MesWmArrivalNoticeLineSaveReqVO updateReqVO) {
         // 校验存在
         MesWmArrivalNoticeLineDO line = validateArrivalNoticeLineExists(updateReqVO.getId());
-        // 校验父单据存在且为草稿状态
-        validateNoticeStatusDraft(line.getNoticeId());
+        // 校验数据
+        updateReqVO.setNoticeId(line.getNoticeId());
+        validateArrivalNoticeLineSaveData(updateReqVO);
 
         // 更新
         MesWmArrivalNoticeLineDO updateObj = BeanUtils.toBean(updateReqVO, MesWmArrivalNoticeLineDO.class);
         initQualifiedQuantityIfNoIqc(updateObj);
         arrivalNoticeLineMapper.updateById(updateObj);
+    }
+
+    private void validateArrivalNoticeLineSaveData(MesWmArrivalNoticeLineSaveReqVO reqVO) {
+        // 校验父单据存在且为草稿状态
+        arrivalNoticeService.validateArrivalNoticeExistsAndDraft(reqVO.getNoticeId());
+        // 校验物料存在
+        itemService.validateItemExists(reqVO.getItemId());
     }
 
     /**
@@ -76,7 +85,7 @@ public class MesWmArrivalNoticeLineServiceImpl implements MesWmArrivalNoticeLine
         // 校验存在
         MesWmArrivalNoticeLineDO line = validateArrivalNoticeLineExists(id);
         // 校验父单据存在且为草稿状态
-        validateNoticeStatusDraft(line.getNoticeId());
+        arrivalNoticeService.validateArrivalNoticeExistsAndDraft(line.getNoticeId());
 
         // 删除
         arrivalNoticeLineMapper.deleteById(id);
@@ -128,19 +137,6 @@ public class MesWmArrivalNoticeLineServiceImpl implements MesWmArrivalNoticeLine
             throw exception(WM_ARRIVAL_NOTICE_LINE_NOT_MATCH);
         }
         return line;
-    }
-
-    /**
-     * 校验父到货通知单存在且为草稿状态
-     */
-    private void validateNoticeStatusDraft(Long noticeId) {
-        MesWmArrivalNoticeDO notice = arrivalNoticeService.getArrivalNotice(noticeId);
-        if (notice == null) {
-            throw exception(WM_ARRIVAL_NOTICE_NOT_EXISTS);
-        }
-        if (ObjUtil.notEqual(MesWmArrivalNoticeStatusEnum.PREPARE.getStatus(), notice.getStatus())) {
-            throw exception(WM_ARRIVAL_NOTICE_STATUS_NOT_PREPARE);
-        }
     }
 
 }

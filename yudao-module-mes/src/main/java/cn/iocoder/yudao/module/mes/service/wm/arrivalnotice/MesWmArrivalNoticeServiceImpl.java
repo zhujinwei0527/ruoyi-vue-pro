@@ -193,10 +193,8 @@ public class MesWmArrivalNoticeServiceImpl implements MesWmArrivalNoticeService 
         return notice;
     }
 
-    /**
-     * 校验到货通知单存在且为草稿状态
-     */
-    private MesWmArrivalNoticeDO validateArrivalNoticeExistsAndDraft(Long id) {
+    @Override
+    public MesWmArrivalNoticeDO validateArrivalNoticeExistsAndDraft(Long id) {
         MesWmArrivalNoticeDO notice = validateArrivalNoticeExists(id);
         if (ObjUtil.notEqual(MesWmArrivalNoticeStatusEnum.PREPARE.getStatus(), notice.getStatus())) {
             throw exception(WM_ARRIVAL_NOTICE_STATUS_NOT_PREPARE);
