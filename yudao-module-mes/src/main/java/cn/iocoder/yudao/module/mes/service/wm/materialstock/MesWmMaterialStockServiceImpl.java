@@ -128,7 +128,7 @@ public class MesWmMaterialStockServiceImpl implements MesWmMaterialStockService 
 
     @Override
     public MesWmMaterialStockDO getOrCreateMaterialStock(Long itemId, Long warehouseId, Long locationId, Long areaId,
-                                                         Long batchId, Long vendorId, LocalDateTime receiptTime) {
+                                                         Long batchId, String batchCode, Long vendorId, LocalDateTime receiptTime) {
         // 1. 查找已有库存记录
         MesWmMaterialStockDO stock = materialStockMapper.selectByCompositeKey(
                 itemId, warehouseId, locationId, areaId, batchId);
@@ -141,7 +141,7 @@ public class MesWmMaterialStockServiceImpl implements MesWmMaterialStockService 
         MesWmMaterialStockDO newStock = MesWmMaterialStockDO.builder()
                 .itemId(itemId).itemTypeId(item.getItemTypeId())
                 .warehouseId(warehouseId).locationId(locationId).areaId(areaId)
-                .batchId(batchId).vendorId(vendorId)
+                .batchId(batchId).batchCode(batchCode).vendorId(vendorId)
                 .quantity(BigDecimal.ZERO) // 初始数量为 0，由 updateMaterialStockQuantity 更新
                 .receiptTime(receiptTime != null ? receiptTime : LocalDateTime.now())
                 .frozen(false)

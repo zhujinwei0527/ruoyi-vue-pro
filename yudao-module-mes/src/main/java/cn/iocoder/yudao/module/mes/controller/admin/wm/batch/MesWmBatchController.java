@@ -61,12 +61,21 @@ public class MesWmBatchController {
     @Resource
     private MesMdWorkstationService workstationService;
 
+    @GetMapping("/get")
+    @Operation(summary = "获得批次详情")
+    @Parameter(name = "id", description = "编号", required = true, example = "1024")
+    @PreAuthorize("@ss.hasPermission('mes:wm-batch:query')")
+    public CommonResult<MesWmBatchRespVO> getBatch(@RequestParam("id") Long id) {
+        MesWmBatchDO batch = batchService.getBatch(id);
+        return success(buildBatchRespVO(batch));
+    }
+
     @GetMapping("/page")
     @Operation(summary = "获得批次分页")
     @PreAuthorize("@ss.hasPermission('mes:wm-batch:query')")
     public CommonResult<PageResult<MesWmBatchRespVO>> getBatchPage(@Valid MesWmBatchPageReqVO pageReqVO) {
         PageResult<MesWmBatchDO> pageResult = batchService.getBatchPage(pageReqVO);
-        return success(new PageResult<>(buildRespVOList(pageResult.getList()), pageResult.getTotal()));
+        return success(new PageResult<>(buildBatchRespVOList(pageResult.getList()), pageResult.getTotal()));
     }
 
     @GetMapping("/forward-list")
@@ -75,7 +84,7 @@ public class MesWmBatchController {
     @PreAuthorize("@ss.hasPermission('mes:wm-batch:query')")
     public CommonResult<List<MesWmBatchRespVO>> getForwardList(@RequestParam("code") @Valid String code) {
         List<MesWmBatchDO> list = batchService.getForwardBatchList(code);
-        return success(buildRespVOList(list));
+        return success(buildBatchRespVOList(list));
     }
 
     @GetMapping("/backward-list")
@@ -84,12 +93,12 @@ public class MesWmBatchController {
     @PreAuthorize("@ss.hasPermission('mes:wm-batch:query')")
     public CommonResult<List<MesWmBatchRespVO>> getBackwardList(@RequestParam("code") @Valid String code) {
         List<MesWmBatchDO> list = batchService.getBackwardBatchList(code);
-        return success(buildRespVOList(list));
+        return success(buildBatchRespVOList(list));
     }
 
     // ==================== 拼接 VO ====================
 
-    private List<MesWmBatchRespVO> buildRespVOList(List<MesWmBatchDO> list) {
+    private List<MesWmBatchRespVO> buildBatchRespVOList(List<MesWmBatchDO> list) {
         if (CollUtil.isEmpty(list)) {
             return Collections.emptyList();
         }
@@ -123,6 +132,13 @@ public class MesWmBatchController {
             MapUtils.findAndThen(workstationMap, vo.getWorkstationId(),
                     workstation -> vo.setWorkstationCode(workstation.getCode()));
         });
+    }
+
+    private MesWmBatchRespVO buildBatchRespVO(MesWmBatchDO batch) {
+        if (batch == null) {
+            return null;
+        }
+        return buildBatchRespVOList(Collections.singletonList(batch)).get(0);
     }
 
 }

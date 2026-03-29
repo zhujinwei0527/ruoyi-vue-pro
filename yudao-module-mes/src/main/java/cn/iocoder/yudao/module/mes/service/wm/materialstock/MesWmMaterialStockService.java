@@ -116,12 +116,13 @@ public interface MesWmMaterialStockService {
      * @param locationId     库区编号
      * @param areaId         库位编号
      * @param batchId        批次编号
+     * @param batchCode      批次号
      * @param vendorId       供应商编号
      * @param receiptTime    入库时间（为空则默认当前时间）
      * @return 库存记录
      */
     MesWmMaterialStockDO getOrCreateMaterialStock(Long itemId, Long warehouseId, Long locationId, Long areaId,
-                                                  Long batchId, Long vendorId, LocalDateTime receiptTime);
+                                                  Long batchId, String batchCode, Long vendorId, LocalDateTime receiptTime);
 
     /**
      * 更新库存数量

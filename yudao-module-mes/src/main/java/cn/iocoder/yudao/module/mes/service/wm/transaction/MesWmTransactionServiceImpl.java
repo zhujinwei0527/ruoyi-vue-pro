@@ -74,7 +74,7 @@ public class MesWmTransactionServiceImpl implements MesWmTransactionService {
         // 2.1 获取或创建库存记录
         MesWmMaterialStockDO materialStock = materialStockService.getOrCreateMaterialStock(
                 reqDTO.getItemId(), reqDTO.getWarehouseId(), reqDTO.getLocationId(), reqDTO.getAreaId(),
-                reqDTO.getBatchId(), reqDTO.getVendorId(), reqDTO.getReceiptTime());
+                reqDTO.getBatchId(), reqDTO.getBatchCode(), reqDTO.getVendorId(), reqDTO.getReceiptTime());
         // 2.2 冻结校验（仓库、库区、库位、库存记录）
         checkFrozen(reqDTO, materialStock);
         // 2.3 更新库存数量
