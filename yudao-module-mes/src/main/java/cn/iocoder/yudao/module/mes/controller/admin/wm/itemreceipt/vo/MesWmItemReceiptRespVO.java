@@ -38,6 +38,10 @@ public class MesWmItemReceiptRespVO {
     @ExcelProperty("到货通知单")
     private String noticeCode;
 
+    @Schema(description = "采购订单号", example = "PO20260201")
+    @ExcelProperty("采购订单号")
+    private String purchaseOrderCode;
+
     @Schema(description = "供应商编号", example = "1")
     private Long vendorId;
 

@@ -168,8 +168,8 @@ public class MesWmItemReceiptController {
                     vendor -> vo.setVendorName(vendor.getName()));
             MapUtils.findAndThen(iqcMap, vo.getIqcId(),
                     iqc -> vo.setIqcCode(iqc.getCode()));
-            MapUtils.findAndThen(noticeMap, vo.getNoticeId(),
-                    notice -> vo.setNoticeCode(notice.getCode()));
+            MapUtils.findAndThen(noticeMap, vo.getNoticeId(), notice ->
+                    vo.setNoticeCode(notice.getCode()).setPurchaseOrderCode(notice.getPurchaseOrderCode()));
         });
     }
 
