@@ -230,7 +230,7 @@ public class MesProWorkOrderServiceImpl implements MesProWorkOrderService {
     }
 
     @Override
-    public List<MesProWorkOrderDO> getWorkOrderSimpleList() {
+    public List<MesProWorkOrderDO> getWorkOrderList() {
         return workOrderMapper.selectList();
     }
 

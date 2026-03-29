@@ -114,11 +114,11 @@ public interface MesProWorkOrderService {
     void cancelWorkOrder(Long id);
 
     /**
-     * 获得工单精简列表（用于下拉选项）
+     * 获得工单列表
      *
      * @return 工单列表
      */
-    List<MesProWorkOrderDO> getWorkOrderSimpleList();
+    List<MesProWorkOrderDO> getWorkOrderList();
 
     /**
      * 累加工单的已生产数量
