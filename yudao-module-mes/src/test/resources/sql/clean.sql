@@ -9,3 +9,6 @@ DELETE FROM "mes_pro_feedback";
 DELETE FROM "mes_wm_product_produce";
 DELETE FROM "mes_wm_product_produce_line";
 DELETE FROM "mes_wm_product_produce_detail";
+DELETE FROM "mes_wm_item_receipt";
+DELETE FROM "mes_wm_item_receipt_line";
+DELETE FROM "mes_wm_item_receipt_detail";
