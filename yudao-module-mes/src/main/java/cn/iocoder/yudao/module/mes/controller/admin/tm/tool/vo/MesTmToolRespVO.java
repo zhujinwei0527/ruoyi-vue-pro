@@ -48,7 +48,7 @@ public class MesTmToolRespVO {
 
     @Schema(description = "可用数量", example = "1")
     @ExcelProperty("可用数量")
-    private Integer quantityAvailable;
+    private Integer availableQuantity;
 
     @Schema(description = "保养维护类型", example = "1")
     @ExcelProperty(value = "保养维护类型", converter = DictConvert.class)

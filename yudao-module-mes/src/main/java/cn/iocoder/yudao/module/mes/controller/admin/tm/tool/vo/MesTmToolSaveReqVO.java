@@ -14,7 +14,8 @@ public class MesTmToolSaveReqVO {
     @Schema(description = "编号", requiredMode = Schema.RequiredMode.REQUIRED, example = "1024")
     private Long id;
 
-    @Schema(description = "工具编码", example = "T-001")
+    @Schema(description = "工具编码", requiredMode = Schema.RequiredMode.REQUIRED, example = "T-001")
+    @NotEmpty(message = "工具编码不能为空")
     private String code;
 
     @Schema(description = "工具名称", requiredMode = Schema.RequiredMode.REQUIRED, example = "5mm 铣刀")
@@ -36,7 +37,7 @@ public class MesTmToolSaveReqVO {
     private Integer quantity;
 
     @Schema(description = "可用数量", example = "1")
-    private Integer quantityAvailable;
+    private Integer availableQuantity;
 
     @Schema(description = "保养维护类型", example = "1")
     private Integer maintenType;

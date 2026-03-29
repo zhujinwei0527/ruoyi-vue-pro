@@ -43,10 +43,8 @@ public class MesTmToolServiceImpl implements MesTmToolService {
 
     @Override
     public Long createTool(MesTmToolSaveReqVO createReqVO) {
-        // 校验工具类型存在
-        toolTypeService.getToolType(createReqVO.getToolTypeId());
-        // 校验编码唯一
-        validateToolCodeUnique(null, createReqVO.getCode());
+        // 校验数据
+        validateToolSaveData(null, createReqVO);
 
         // 插入
         MesTmToolDO tool = BeanUtils.toBean(createReqVO, MesTmToolDO.class);
@@ -60,21 +58,27 @@ public class MesTmToolServiceImpl implements MesTmToolService {
 
     @Override
     public void updateTool(MesTmToolSaveReqVO updateReqVO) {
-        // 校验存在
+        // 1.1 校验存在
         validateToolExists(updateReqVO.getId());
-        // 校验工具类型存在
-        toolTypeService.getToolType(updateReqVO.getToolTypeId());
-        // 校验编码唯一
-        validateToolCodeUnique(updateReqVO.getId(), updateReqVO.getCode());
+        // 1.2 校验数据
+        validateToolSaveData(updateReqVO.getId(), updateReqVO);
 
-        // 更新
+        // 2.1 保养类型互斥清理
         if (Objects.equals(updateReqVO.getMaintenType(), MesTmMaintenTypeEnum.REGULAR.getType())) {
             updateReqVO.setNextMaintenPeriod(null);
         } else if (Objects.equals(updateReqVO.getMaintenType(), MesTmMaintenTypeEnum.USAGE.getType())) {
             updateReqVO.setNextMaintenDate(null);
         }
+        // 2.2 更新
         MesTmToolDO updateObj = BeanUtils.toBean(updateReqVO, MesTmToolDO.class);
         toolMapper.updateById(updateObj);
+    }
+
+    private void validateToolSaveData(Long id, MesTmToolSaveReqVO reqVO) {
+        // 校验工具类型存在
+        toolTypeService.validateToolTypeExists(reqVO.getToolTypeId());
+        // 校验编码唯一
+        validateToolCodeUnique(id, reqVO.getCode());
     }
 
     @Override

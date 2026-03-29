@@ -59,7 +59,7 @@ public class MesTmToolDO extends BaseDO {
     /**
      * 可用数量
      */
-    private Integer quantityAvailable;
+    private Integer availableQuantity;
     /**
      * 保养维护类型
      *
