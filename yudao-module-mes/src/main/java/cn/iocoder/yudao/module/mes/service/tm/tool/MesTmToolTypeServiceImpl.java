@@ -38,10 +38,8 @@ public class MesTmToolTypeServiceImpl implements MesTmToolTypeService {
 
     @Override
     public Long createToolType(MesTmToolTypeSaveReqVO createReqVO) {
-        // 校验编码唯一
-        validateToolTypeCodeUnique(null, createReqVO.getCode());
-        // 校验名称唯一
-        validateToolTypeNameUnique(null, createReqVO.getName());
+        // 校验数据
+        validateToolTypeSaveData(null, createReqVO);
 
         // 插入
         MesTmToolTypeDO toolType = BeanUtils.toBean(createReqVO, MesTmToolTypeDO.class);
@@ -53,14 +51,19 @@ public class MesTmToolTypeServiceImpl implements MesTmToolTypeService {
     public void updateToolType(MesTmToolTypeSaveReqVO updateReqVO) {
         // 校验存在
         validateToolTypeExists(updateReqVO.getId());
-        // 校验编码唯一
-        validateToolTypeCodeUnique(updateReqVO.getId(), updateReqVO.getCode());
-        // 校验名称唯一
-        validateToolTypeNameUnique(updateReqVO.getId(), updateReqVO.getName());
+        // 校验数据
+        validateToolTypeSaveData(updateReqVO.getId(), updateReqVO);
 
         // 更新
         MesTmToolTypeDO updateObj = BeanUtils.toBean(updateReqVO, MesTmToolTypeDO.class);
         toolTypeMapper.updateById(updateObj);
+    }
+
+    private void validateToolTypeSaveData(Long id, MesTmToolTypeSaveReqVO saveReqVO) {
+        // 校验编码唯一
+        validateToolTypeCodeUnique(id, saveReqVO.getCode());
+        // 校验名称唯一
+        validateToolTypeNameUnique(id, saveReqVO.getName());
     }
 
     @Override
