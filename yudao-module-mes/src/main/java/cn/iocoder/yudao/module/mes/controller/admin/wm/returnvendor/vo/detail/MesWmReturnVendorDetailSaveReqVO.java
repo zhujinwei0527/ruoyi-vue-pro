@@ -1,6 +1,7 @@
 package cn.iocoder.yudao.module.mes.controller.admin.wm.returnvendor.vo.detail;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
@@ -27,6 +28,7 @@ public class MesWmReturnVendorDetailSaveReqVO {
 
     @Schema(description = "退货数量", requiredMode = Schema.RequiredMode.REQUIRED, example = "300.00")
     @NotNull(message = "退货数量不能为空")
+    @DecimalMin(value = "0", inclusive = false, message = "退货数量必须大于 0")
     private BigDecimal quantity;
 
     @Schema(description = "批次编号", example = "1")
@@ -48,3 +50,4 @@ public class MesWmReturnVendorDetailSaveReqVO {
     private String remark;
 
 }
+

@@ -24,4 +24,8 @@ public interface MesWmReturnVendorDetailMapper extends BaseMapperX<MesWmReturnVe
         delete(MesWmReturnVendorDetailDO::getReturnId, returnId);
     }
 
+    default void deleteByLineId(Long lineId) {
+        delete(MesWmReturnVendorDetailDO::getLineId, lineId);
+    }
+
 }

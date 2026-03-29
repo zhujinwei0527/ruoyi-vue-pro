@@ -26,4 +26,8 @@ public interface MesWmReturnVendorMapper extends BaseMapperX<MesWmReturnVendorDO
         return selectCount(MesWmReturnVendorDO::getVendorId, vendorId);
     }
 
+    default MesWmReturnVendorDO selectByCode(String code) {
+        return selectOne(MesWmReturnVendorDO::getCode, code);
+    }
+
 }

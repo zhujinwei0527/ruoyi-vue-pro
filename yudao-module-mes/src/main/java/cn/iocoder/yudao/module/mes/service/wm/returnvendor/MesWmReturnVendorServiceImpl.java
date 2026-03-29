@@ -52,8 +52,8 @@ public class MesWmReturnVendorServiceImpl implements MesWmReturnVendorService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Long createReturnVendor(MesWmReturnVendorSaveReqVO createReqVO) {
-        // 1. 校验关联数据
-        vendorService.validateVendorExists(createReqVO.getVendorId());
+        // 1. 校验数据
+        validateReturnVendorSaveData(createReqVO);
 
         // 2. 插入主表
         MesWmReturnVendorDO returnVendor = BeanUtils.toBean(createReqVO, MesWmReturnVendorDO.class);
@@ -65,10 +65,8 @@ public class MesWmReturnVendorServiceImpl implements MesWmReturnVendorService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void updateReturnVendor(MesWmReturnVendorSaveReqVO updateReqVO) {
-        // 1.1 校验存在 + 准备中状态
-        validateReturnVendorExistsAndPrepare(updateReqVO.getId());
-        // 1.2 校验关联数据
-        vendorService.validateVendorExists(updateReqVO.getVendorId());
+        // 1. 校验数据
+        validateReturnVendorSaveData(updateReqVO);
 
         // 2. 更新主表
         MesWmReturnVendorDO updateObj = BeanUtils.toBean(updateReqVO, MesWmReturnVendorDO.class);
@@ -131,22 +129,26 @@ public class MesWmReturnVendorServiceImpl implements MesWmReturnVendorService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void finishReturnVendor(Long id) {
-        // 1. 校验存在
+        // 1.1 校验存在
         MesWmReturnVendorDO returnVendor = validateReturnVendorExists(id);
         if (ObjUtil.notEqual(MesWmReturnVendorStatusEnum.APPROVED.getStatus(), returnVendor.getStatus())) {
             throw exception(WM_RETURN_VENDOR_STATUS_INVALID);
         }
+        // 1.2 校验明细不为空
+        List<MesWmReturnVendorDetailDO> details = returnVendorDetailService.getReturnVendorDetailListByReturnId(id);
+        if (CollUtil.isEmpty(details)) {
+            throw exception(WM_RETURN_VENDOR_NO_DETAIL);
+        }
 
         // 2. 遍历所有明细，创建库存事务（扣减库存 + 记录流水）
-        createTransactionList(returnVendor);
+        createTransactionList(returnVendor, details);
 
         // 3. 更新退货单状态
         returnVendorMapper.updateById(new MesWmReturnVendorDO()
                 .setId(id).setStatus(MesWmReturnVendorStatusEnum.FINISHED.getStatus()));
     }
 
-    private void createTransactionList(MesWmReturnVendorDO returnVendor) {
-        List<MesWmReturnVendorDetailDO> details = returnVendorDetailService.getReturnVendorDetailListByReturnId(returnVendor.getId());
+    private void createTransactionList(MesWmReturnVendorDO returnVendor, List<MesWmReturnVendorDetailDO> details) {
         wmTransactionService.createTransactionList(convertList(details, detail -> new MesWmTransactionSaveReqDTO()
                 .setType(MesWmTransactionTypeEnum.OUT.getType()).setItemId(detail.getItemId())
                 .setQuantity(detail.getQuantity().negate()) // 出库数量为负数
@@ -197,15 +199,40 @@ public class MesWmReturnVendorServiceImpl implements MesWmReturnVendorService {
         return returnVendor;
     }
 
-    /**
-     * 校验供应商退货单存在且为准备中状态
-     */
-    private MesWmReturnVendorDO validateReturnVendorExistsAndPrepare(Long id) {
+    @Override
+    public MesWmReturnVendorDO validateReturnVendorExistsAndPrepare(Long id) {
         MesWmReturnVendorDO returnVendor = validateReturnVendorExists(id);
         if (ObjUtil.notEqual(MesWmReturnVendorStatusEnum.PREPARE.getStatus(), returnVendor.getStatus())) {
             throw exception(WM_RETURN_VENDOR_STATUS_INVALID);
         }
         return returnVendor;
+    }
+
+    /**
+     * 校验退货单创建/修改的公共数据
+     */
+    private void validateReturnVendorSaveData(MesWmReturnVendorSaveReqVO reqVO) {
+        // 校验存在 + 草稿状态（仅修改时）
+        if (reqVO.getId() != null) {
+            validateReturnVendorExistsAndPrepare(reqVO.getId());
+        }
+        // 校验供应商存在
+        vendorService.validateVendorExists(reqVO.getVendorId());
+        // 校验编码唯一
+        validateCodeUnique(reqVO.getId(), reqVO.getCode());
+    }
+
+    /**
+     * 校验退货单编号唯一
+     */
+    private void validateCodeUnique(Long id, String code) {
+        MesWmReturnVendorDO existing = returnVendorMapper.selectByCode(code);
+        if (existing == null) {
+            return;
+        }
+        if (ObjUtil.notEqual(id, existing.getId())) {
+            throw exception(WM_RETURN_VENDOR_CODE_DUPLICATE);
+        }
     }
 
     @Override

@@ -10,6 +10,7 @@ import cn.iocoder.yudao.module.mes.service.md.item.MesMdItemService;
 import jakarta.annotation.Resource;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 
 import java.util.List;
@@ -31,14 +32,15 @@ public class MesWmReturnVendorLineServiceImpl implements MesWmReturnVendorLineSe
     @Lazy
     private MesWmReturnVendorService returnVendorService;
     @Resource
+    @Lazy
+    private MesWmReturnVendorDetailService returnVendorDetailService;
+    @Resource
     private MesMdItemService itemService;
 
     @Override
     public Long createReturnVendorLine(MesWmReturnVendorLineSaveReqVO createReqVO) {
-        // 校验父数据存在
-        returnVendorService.validateReturnVendorExists(createReqVO.getReturnId());
-        // 校验物料存在
-        itemService.validateItemExists(createReqVO.getItemId());
+        // 校验数据
+        validateReturnVendorLineSaveData(createReqVO);
 
         // 插入
         MesWmReturnVendorLineDO line = BeanUtils.toBean(createReqVO, MesWmReturnVendorLineDO.class);
@@ -50,10 +52,8 @@ public class MesWmReturnVendorLineServiceImpl implements MesWmReturnVendorLineSe
     public void updateReturnVendorLine(MesWmReturnVendorLineSaveReqVO updateReqVO) {
         // 校验存在
         validateReturnVendorLineExists(updateReqVO.getId());
-        // 校验父数据存在
-        returnVendorService.validateReturnVendorExists(updateReqVO.getReturnId());
-        // 校验物料存在
-        itemService.validateItemExists(updateReqVO.getItemId());
+        // 校验数据
+        validateReturnVendorLineSaveData(updateReqVO);
 
         // 更新
         MesWmReturnVendorLineDO updateObj = BeanUtils.toBean(updateReqVO, MesWmReturnVendorLineDO.class);
@@ -61,10 +61,16 @@ public class MesWmReturnVendorLineServiceImpl implements MesWmReturnVendorLineSe
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public void deleteReturnVendorLine(Long id) {
-        // 校验存在
-        validateReturnVendorLineExists(id);
-        // 删除
+        // 1.1 校验存在
+        MesWmReturnVendorLineDO line = validateReturnVendorLineExists(id);
+        // 1.2 校验父数据为草稿状态
+        returnVendorService.validateReturnVendorExistsAndPrepare(line.getReturnId());
+
+        // 2.1 级联删除该行下的明细
+        returnVendorDetailService.deleteReturnVendorDetailByLineId(id);
+        // 2.2 删除行
         returnVendorLineMapper.deleteById(id);
     }
 
@@ -95,6 +101,13 @@ public class MesWmReturnVendorLineServiceImpl implements MesWmReturnVendorLineSe
             throw exception(WM_RETURN_VENDOR_LINE_NOT_EXISTS);
         }
         return line;
+    }
+
+    private void validateReturnVendorLineSaveData(MesWmReturnVendorLineSaveReqVO reqVO) {
+        // 校验父数据存在且为草稿状态
+        returnVendorService.validateReturnVendorExistsAndPrepare(reqVO.getReturnId());
+        // 校验物料存在
+        itemService.validateItemExists(reqVO.getItemId());
     }
 
 }

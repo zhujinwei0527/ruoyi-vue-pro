@@ -101,4 +101,12 @@ public interface MesWmReturnVendorService {
      */
     Long getReturnVendorCountByVendorId(Long vendorId);
 
+    /**
+     * 校验供应商退货单存在且为草稿状态
+     *
+     * @param id 编号
+     * @return 供应商退货单
+     */
+    MesWmReturnVendorDO validateReturnVendorExistsAndPrepare(Long id);
+
 }

@@ -1,8 +1,10 @@
 package cn.iocoder.yudao.module.mes.service.wm.returnvendor;
 
+import cn.hutool.core.util.ObjUtil;
 import cn.iocoder.yudao.framework.common.util.object.BeanUtils;
 import cn.iocoder.yudao.module.mes.controller.admin.wm.returnvendor.vo.detail.MesWmReturnVendorDetailSaveReqVO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.wm.returnvendor.MesWmReturnVendorDetailDO;
+import cn.iocoder.yudao.module.mes.dal.dataobject.wm.returnvendor.MesWmReturnVendorLineDO;
 import cn.iocoder.yudao.module.mes.dal.mysql.wm.returnvendor.MesWmReturnVendorDetailMapper;
 import cn.iocoder.yudao.module.mes.service.md.item.MesMdItemService;
 import jakarta.annotation.Resource;
@@ -13,6 +15,7 @@ import org.springframework.validation.annotation.Validated;
 import java.util.List;
 
 import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception;
+import static cn.iocoder.yudao.module.mes.enums.ErrorCodeConstants.WM_RETURN_VENDOR_DETAIL_ITEM_MISMATCH;
 import static cn.iocoder.yudao.module.mes.enums.ErrorCodeConstants.WM_RETURN_VENDOR_DETAIL_NOT_EXISTS;
 
 /**
@@ -35,9 +38,11 @@ public class MesWmReturnVendorDetailServiceImpl implements MesWmReturnVendorDeta
     @Override
     public Long createReturnVendorDetail(MesWmReturnVendorDetailSaveReqVO createReqVO) {
         // 校验父数据存在
-        returnVendorLineService.validateReturnVendorLineExists(createReqVO.getLineId());
+        MesWmReturnVendorLineDO line = returnVendorLineService.validateReturnVendorLineExists(createReqVO.getLineId());
         // 校验物料存在
         itemService.validateItemExists(createReqVO.getItemId());
+        // 校验物料与行物料一致
+        validateItemConsistency(createReqVO.getItemId(), line);
 
         // 插入
         MesWmReturnVendorDetailDO detail = BeanUtils.toBean(createReqVO, MesWmReturnVendorDetailDO.class);
@@ -50,9 +55,11 @@ public class MesWmReturnVendorDetailServiceImpl implements MesWmReturnVendorDeta
         // 校验存在
         validateReturnVendorDetailExists(updateReqVO.getId());
         // 校验父数据存在
-        returnVendorLineService.validateReturnVendorLineExists(updateReqVO.getLineId());
+        MesWmReturnVendorLineDO line = returnVendorLineService.validateReturnVendorLineExists(updateReqVO.getLineId());
         // 校验物料存在
         itemService.validateItemExists(updateReqVO.getItemId());
+        // 校验物料与行物料一致
+        validateItemConsistency(updateReqVO.getItemId(), line);
 
         // 更新
         MesWmReturnVendorDetailDO updateObj = BeanUtils.toBean(updateReqVO, MesWmReturnVendorDetailDO.class);
@@ -87,9 +94,23 @@ public class MesWmReturnVendorDetailServiceImpl implements MesWmReturnVendorDeta
         returnVendorDetailMapper.deleteByReturnId(returnId);
     }
 
+    @Override
+    public void deleteReturnVendorDetailByLineId(Long lineId) {
+        returnVendorDetailMapper.deleteByLineId(lineId);
+    }
+
     private void validateReturnVendorDetailExists(Long id) {
         if (returnVendorDetailMapper.selectById(id) == null) {
             throw exception(WM_RETURN_VENDOR_DETAIL_NOT_EXISTS);
+        }
+    }
+
+    /**
+     * 校验明细物料与行物料一致
+     */
+    private void validateItemConsistency(Long detailItemId, MesWmReturnVendorLineDO line) {
+        if (ObjUtil.notEqual(detailItemId, line.getItemId())) {
+            throw exception(WM_RETURN_VENDOR_DETAIL_ITEM_MISMATCH);
         }
     }
 
