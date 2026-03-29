@@ -107,7 +107,7 @@ public class MesProWorkOrderController {
     @GetMapping("/simple-list")
     @Operation(summary = "获得生产工单精简列表", description = "主要用于前端的下拉选项")
     public CommonResult<List<MesProWorkOrderRespVO>> getWorkOrderSimpleList() {
-        List<MesProWorkOrderDO> list = workOrderService.getWorkOrderSimpleList();
+        List<MesProWorkOrderDO> list = workOrderService.getWorkOrderList();
         return success(convertList(list, wo -> new MesProWorkOrderRespVO()
                 .setId(wo.getId()).setCode(wo.getCode()).setName(wo.getName())
                 .setStatus(wo.getStatus())));
