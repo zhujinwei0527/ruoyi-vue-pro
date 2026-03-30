@@ -2,6 +2,7 @@ package cn.iocoder.yudao.module.mes.dal.mysql.wm.productsales;
 
 import cn.iocoder.yudao.framework.mybatis.core.mapper.BaseMapperX;
 import cn.iocoder.yudao.module.mes.dal.dataobject.wm.productsales.MesWmProductSalesLineDO;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import org.apache.ibatis.annotations.Mapper;
 
 import java.util.List;
@@ -28,6 +29,11 @@ public interface MesWmProductSalesLineMapper extends BaseMapperX<MesWmProductSal
                 .eqIfPresent(MesWmProductSalesLineDO::getSalesId, reqVO.getSalesId())
                 .inIfPresent(MesWmProductSalesLineDO::getSalesId, reqVO.getSalesIds())
                 .orderByDesc(MesWmProductSalesLineDO::getId));
+    }
+
+    default void updateQualityStatusByIds(List<Long> ids, Integer qualityStatus) {
+        update(new MesWmProductSalesLineDO().setQualityStatus(qualityStatus),
+                new LambdaUpdateWrapper<MesWmProductSalesLineDO>().in(MesWmProductSalesLineDO::getId, ids));
     }
 
 }

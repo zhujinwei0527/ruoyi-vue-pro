@@ -69,11 +69,10 @@ public class MesWmProductSalesDO extends BaseDO {
      * 联系电话
      */
     private String contactTelephone;
-    // TODO @AI：改成 contactAddress
     /**
      * 收货地址
      */
-    private String address;
+    private String contactAddress;
 
     /**
      * 承运商

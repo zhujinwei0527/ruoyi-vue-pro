@@ -43,6 +43,9 @@ public class MesWmProductSalesDetailRespVO {
     @Schema(description = "批次ID", example = "1")
     private Long batchId;
 
+    @Schema(description = "批次号", example = "BATCH001")
+    private String batchCode;
+
     @Schema(description = "仓库ID", example = "1")
     private Long warehouseId;
 

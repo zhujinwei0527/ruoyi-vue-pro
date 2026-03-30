@@ -58,11 +58,8 @@ public class MesWmProductSalesServiceImpl implements MesWmProductSalesService {
 
     @Override
     public Long createProductSales(MesWmProductSalesSaveReqVO createReqVO) {
-        // TODO @AI：增加 validateXXXSaveData；
-        // 校验编码唯一
-        validateCodeUnique(null, createReqVO.getCode());
-        // 校验客户存在
-        clientService.validateClientExists(createReqVO.getClientId());
+        // 校验数据
+        validateProductSalesSaveData(null, createReqVO);
 
         // 插入
         MesWmProductSalesDO sales = BeanUtils.toBean(createReqVO, MesWmProductSalesDO.class);
@@ -75,11 +72,8 @@ public class MesWmProductSalesServiceImpl implements MesWmProductSalesService {
     public void updateProductSales(MesWmProductSalesSaveReqVO updateReqVO) {
         // 校验存在 + 草稿状态
         validateProductSalesExistsAndDraft(updateReqVO.getId());
-        // TODO @AI：增加 validateXXXSaveData；（校验数据）
-        // 校验编码唯一
-        validateCodeUnique(updateReqVO.getId(), updateReqVO.getCode());
-        // 校验客户存在
-        clientService.validateClientExists(updateReqVO.getClientId());
+        // 校验数据
+        validateProductSalesSaveData(updateReqVO.getId(), updateReqVO);
 
         // 更新
         MesWmProductSalesDO updateObj = BeanUtils.toBean(updateReqVO, MesWmProductSalesDO.class);
@@ -130,14 +124,11 @@ public class MesWmProductSalesServiceImpl implements MesWmProductSalesService {
         boolean needOqc = CollectionUtils.anyMatch(lines,
                 line -> Boolean.TRUE.equals(line.getOqcCheckFlag()));
         if (needOqc) {
-            // 初始化 OQC 行的质量状态为"待检验"
-            // TODO @AI：改成批量更新接口?productSalesLineService 提供一个？【对齐：这个是否为必须？！】
-            for (MesWmProductSalesLineDO line : lines) {
-                if (Boolean.TRUE.equals(line.getOqcCheckFlag())) {
-                    productSalesLineService.updateProductSalesLineQualityStatus(
-                            line.getId(), MesWmQualityStatusEnum.PENDING.getStatus());
-                }
-            }
+            // 批量初始化 OQC 行的质量状态为"待检验"
+            List<Long> oqcLineIds = convertList(
+                    CollectionUtils.filterList(lines, line -> Boolean.TRUE.equals(line.getOqcCheckFlag())),
+                    MesWmProductSalesLineDO::getId);
+            productSalesLineService.updateProductSalesLineQualityStatus(oqcLineIds, MesWmQualityStatusEnum.PENDING.getStatus());
             // 需要检验，进入待检测
             productSalesMapper.updateById(new MesWmProductSalesDO()
                     .setId(id).setStatus(MesWmProductSalesStatusEnum.CONFIRMED.getStatus()));
@@ -264,6 +255,13 @@ public class MesWmProductSalesServiceImpl implements MesWmProductSalesService {
     @Override
     public List<MesWmProductSalesDO> getProductSalesListByClientId(Long clientId) {
         return productSalesMapper.selectListByClientId(clientId);
+    }
+
+    private void validateProductSalesSaveData(Long id, MesWmProductSalesSaveReqVO reqVO) {
+        // 校验编码唯一
+        validateCodeUnique(id, reqVO.getCode());
+        // 校验客户存在
+        clientService.validateClientExists(reqVO.getClientId());
     }
 
     private MesWmProductSalesDO validateProductSalesExists(Long id) {

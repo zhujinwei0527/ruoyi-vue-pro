@@ -35,6 +35,9 @@ public class MesWmProductSalesDetailSaveReqVO {
     @Schema(description = "批次ID", example = "1")
     private Long batchId;
 
+    @Schema(description = "批次号", example = "BATCH001")
+    private String batchCode;
+
     @Schema(description = "仓库ID", requiredMode = Schema.RequiredMode.REQUIRED, example = "1")
     @NotNull(message = "仓库不能为空")
     private Long warehouseId;

@@ -68,7 +68,12 @@ public class MesWmProductSalesDetailDO extends BaseDO {
      * 关联 {@link MesWmBatchDO#getId()}
      */
     private Long batchId;
-    // TODO @AI：增加 batchCode 字段
+    /**
+     * 批次号
+     *
+     * 关联 {@link MesWmBatchDO#getCode()}
+     */
+    private String batchCode;
     /**
      * 仓库ID
      *

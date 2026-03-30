@@ -60,7 +60,7 @@ public class MesWmProductSalesRespVO {
 
     @Schema(description = "收货地址", example = "北京市朝阳区XX路XX号")
     @ExcelProperty("收货地址")
-    private String address;
+    private String contactAddress;
 
     @Schema(description = "承运商", example = "顺丰快递")
     @ExcelProperty("承运商")

@@ -13,13 +13,9 @@ import cn.iocoder.yudao.module.mes.controller.admin.wm.productsales.vo.MesWmProd
 import cn.iocoder.yudao.module.mes.controller.admin.wm.productsales.vo.MesWmProductSalesSaveReqVO;
 import cn.iocoder.yudao.module.mes.controller.admin.wm.productsales.vo.MesWmProductSalesShippingReqVO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.md.client.MesMdClientDO;
-import cn.iocoder.yudao.module.mes.dal.dataobject.md.item.MesMdItemDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.wm.productsales.MesWmProductSalesDO;
-import cn.iocoder.yudao.module.mes.dal.dataobject.wm.productsales.MesWmProductSalesLineDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.wm.salesnotice.MesWmSalesNoticeDO;
 import cn.iocoder.yudao.module.mes.service.md.client.MesMdClientService;
-import cn.iocoder.yudao.module.mes.service.md.item.MesMdItemService;
-import cn.iocoder.yudao.module.mes.service.wm.productsales.MesWmProductSalesLineService;
 import cn.iocoder.yudao.module.mes.service.wm.productsales.MesWmProductSalesService;
 import cn.iocoder.yudao.module.mes.service.wm.salesnotice.MesWmSalesNoticeService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -37,7 +33,6 @@ import java.util.*;
 
 import static cn.iocoder.yudao.framework.apilog.core.enums.OperateTypeEnum.EXPORT;
 import static cn.iocoder.yudao.framework.common.pojo.CommonResult.success;
-import static cn.iocoder.yudao.framework.common.util.collection.CollectionUtils.convertList;
 import static cn.iocoder.yudao.framework.common.util.collection.CollectionUtils.convertSet;
 
 @Tag(name = "管理后台 - MES 销售出库单")
@@ -51,10 +46,6 @@ public class MesWmProductSalesController {
 
     @Resource
     private MesMdClientService clientService;
-    @Resource
-    private MesMdItemService itemService;
-    @Resource
-    private MesWmProductSalesLineService productSalesLineService;
     @Resource
     private MesWmSalesNoticeService salesNoticeService;
 
@@ -165,35 +156,6 @@ public class MesWmProductSalesController {
     public CommonResult<Boolean> cancelProductSales(@RequestParam("id") Long id) {
         productSalesService.cancelProductSales(id);
         return success(true);
-    }
-
-    // TODO @AI：是不是有需要？有需要在提供；
-    @GetMapping("/get-item")
-    @Operation(summary = "根据客户 ID 获取曾出库的产品清单（去重）")
-    @Parameter(name = "clientId", description = "客户 ID", required = true, example = "1")
-    @PreAuthorize("@ss.hasPermission('mes:wm-product-sales:query')")
-    public CommonResult<List<MesMdItemDO>> getItemByClientId(@RequestParam("clientId") Long clientId) {
-        // 1. 查询该客户的所有出库单
-        List<MesWmProductSalesDO> salesList = productSalesService.getProductSalesListByClientId(clientId);
-        if (CollUtil.isEmpty(salesList)) {
-            return success(Collections.emptyList());
-        }
-        // 2. 查询所有行，提取去重的 itemId
-        List<Long> salesIds = convertList(salesList, MesWmProductSalesDO::getId);
-        Set<Long> itemIds = new LinkedHashSet<>();
-        for (Long salesId : salesIds) {
-            List<MesWmProductSalesLineDO> lines = productSalesLineService.getProductSalesLineListBySalesId(salesId);
-            for (MesWmProductSalesLineDO line : lines) {
-                if (line.getItemId() != null) {
-                    itemIds.add(line.getItemId());
-                }
-            }
-        }
-        if (itemIds.isEmpty()) {
-            return success(Collections.emptyList());
-        }
-        // 3. 返回物料列表
-        return success(new ArrayList<>(itemService.getItemMap(itemIds).values()));
     }
 
     // ==================== 拼接 VO ====================

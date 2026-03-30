@@ -78,11 +78,11 @@ public interface MesWmProductSalesLineService {
     void updateProductSalesLineWhenOqcFinish(Long id, Long oqcId, Integer checkResult);
 
     /**
-     * 更新行的质量状态
+     * 批量更新行的质量状态
      *
-     * @param id 行 ID
+     * @param ids 行 ID 列表
      * @param qualityStatus 质量状态
      */
-    void updateProductSalesLineQualityStatus(Long id, Integer qualityStatus);
+    void updateProductSalesLineQualityStatus(List<Long> ids, Integer qualityStatus);
 
 }
