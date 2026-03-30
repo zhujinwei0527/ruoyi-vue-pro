@@ -43,10 +43,8 @@ public class MesWmSalesNoticeServiceImpl implements MesWmSalesNoticeService {
 
     @Override
     public Long createSalesNotice(MesWmSalesNoticeSaveReqVO createReqVO) {
-        // 校验编码唯一
-        validateNoticeCodeUnique(null, createReqVO.getNoticeCode());
-        // DONE @AI：clientId 存在；
-        clientService.validateClientExists(createReqVO.getClientId());
+        // 校验数据
+        validateSalesNoticeSave(createReqVO);
 
         // 插入
         MesWmSalesNoticeDO notice = BeanUtils.toBean(createReqVO, MesWmSalesNoticeDO.class);
@@ -59,10 +57,8 @@ public class MesWmSalesNoticeServiceImpl implements MesWmSalesNoticeService {
     public void updateSalesNotice(MesWmSalesNoticeSaveReqVO updateReqVO) {
         // 校验存在 + 草稿状态
         validateSalesNoticeExistsAndDraft(updateReqVO.getId());
-        // 校验编码唯一
-        validateNoticeCodeUnique(updateReqVO.getId(), updateReqVO.getNoticeCode());
-        // 校验客户存在
-        clientService.validateClientExists(updateReqVO.getClientId());
+        // 校验数据
+        validateSalesNoticeSave(updateReqVO);
 
         // 更新
         MesWmSalesNoticeDO updateObj = BeanUtils.toBean(updateReqVO, MesWmSalesNoticeDO.class);
@@ -140,6 +136,15 @@ public class MesWmSalesNoticeServiceImpl implements MesWmSalesNoticeService {
             throw exception(WM_SALES_NOTICE_STATUS_NOT_ALLOW_DELETE);
         }
         return notice;
+    }
+
+    private void validateSalesNoticeSave(MesWmSalesNoticeSaveReqVO saveReqVO) {
+        // 校验编码唯一
+        validateNoticeCodeUnique(saveReqVO.getId(), saveReqVO.getNoticeCode());
+        // 校验客户存在
+        if (saveReqVO.getClientId() != null) {
+            clientService.validateClientExists(saveReqVO.getClientId());
+        }
     }
 
     private void validateNoticeCodeUnique(Long id, String noticeCode) {
