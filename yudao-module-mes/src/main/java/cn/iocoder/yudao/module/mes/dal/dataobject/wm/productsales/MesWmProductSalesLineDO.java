@@ -2,6 +2,10 @@ package cn.iocoder.yudao.module.mes.dal.dataobject.wm.productsales;
 
 import cn.iocoder.yudao.framework.mybatis.core.dataobject.BaseDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.md.item.MesMdItemDO;
+import cn.iocoder.yudao.module.mes.dal.dataobject.qc.oqc.MesQcOqcDO;
+import cn.iocoder.yudao.module.mes.dal.dataobject.wm.batch.MesWmBatchDO;
+import cn.iocoder.yudao.module.mes.dal.dataobject.wm.materialstock.MesWmMaterialStockDO;
+import cn.iocoder.yudao.module.mes.enums.wm.MesWmQualityStatusEnum;
 import com.baomidou.mybatisplus.annotation.KeySequence;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
@@ -46,11 +50,21 @@ public class MesWmProductSalesLineDO extends BaseDO {
      */
     private BigDecimal quantity;
     /**
-     * 批次ID
+     * 批次 ID
+     *
+     * 关联 {@link MesWmBatchDO#getId()}
      */
     private Long batchId;
     /**
+     * 批次号
+     *
+     * 关联 {@link MesWmBatchDO#getCode()}
+     */
+    private String batchCode;
+    /**
      * 库存记录ID
+     *
+     * 关联 {@link MesWmMaterialStockDO#getId()}
      */
     private Long materialStockId;
     /**
@@ -60,13 +74,13 @@ public class MesWmProductSalesLineDO extends BaseDO {
     /**
      * 出厂检验单 ID
      *
-     * 关联 {@link cn.iocoder.yudao.module.mes.dal.dataobject.qc.oqc.MesQcOqcDO#getId()}
+     * 关联 {@link MesQcOqcDO#getId()}
      */
     private Long oqcId;
     /**
      * 质量状态
      *
-     * 枚举 {@link cn.iocoder.yudao.module.mes.enums.wm.MesWmQualityStatusEnum}
+     * 枚举 {@link MesWmQualityStatusEnum}
      */
     private Integer qualityStatus;
     /**

@@ -46,14 +46,8 @@ public class MesWmMiscIssueLineServiceImpl implements MesWmMiscIssueLineService 
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Long createMiscIssueLine(MesWmMiscIssueLineSaveReqVO createReqVO) {
-        // TODO @AI：增加 validateXXXSaveData
-        // 1.1 校验父单据存在且为可编辑状态
-        miscIssueService.validateMiscIssueEditable(createReqVO.getIssueId());
-        // 1.2 校验物料存在
-        itemService.validateItemExists(createReqVO.getItemId());
-        // 1.3 校验仓库、库区、库位的父子关系
-        warehouseAreaService.validateWarehouseAreaExists(createReqVO.getWarehouseId(),
-                createReqVO.getLocationId(), createReqVO.getAreaId());
+        // 1. 校验数据
+        validateMiscIssueLineSaveData(createReqVO.getIssueId(), createReqVO);
 
         // 2. 新增行
         MesWmMiscIssueLineDO line = BeanUtils.toBean(createReqVO, MesWmMiscIssueLineDO.class);
@@ -70,14 +64,8 @@ public class MesWmMiscIssueLineServiceImpl implements MesWmMiscIssueLineService 
     public void updateMiscIssueLine(MesWmMiscIssueLineSaveReqVO updateReqVO) {
         // 1.1 校验存在
         MesWmMiscIssueLineDO line = validateAndGetMiscIssueLine(updateReqVO.getId());
-        // TODO @AI：增加 validateXXXSaveData
-        // 1.2 校验父单据存在且为可编辑状态
-        miscIssueService.validateMiscIssueEditable(line.getIssueId());
-        // 1.3 校验物料存在
-        itemService.validateItemExists(updateReqVO.getItemId());
-        // 1.4 校验仓库、库区、库位的父子关系
-        warehouseAreaService.validateWarehouseAreaExists(updateReqVO.getWarehouseId(),
-                updateReqVO.getLocationId(), updateReqVO.getAreaId());
+        // 1.2 校验数据
+        validateMiscIssueLineSaveData(line.getIssueId(), updateReqVO);
 
         // 2. 更新行
         MesWmMiscIssueLineDO updateObj = BeanUtils.toBean(updateReqVO, MesWmMiscIssueLineDO.class);
@@ -138,6 +126,16 @@ public class MesWmMiscIssueLineServiceImpl implements MesWmMiscIssueLineService 
             throw exception(WM_MISC_ISSUE_LINE_NOT_EXISTS);
         }
         return line;
+    }
+
+    private void validateMiscIssueLineSaveData(Long issueId, MesWmMiscIssueLineSaveReqVO reqVO) {
+        // 校验父单据存在且为可编辑状态
+        miscIssueService.validateMiscIssueEditable(issueId);
+        // 校验物料存在
+        itemService.validateItemExists(reqVO.getItemId());
+        // 校验仓库、库区、库位的父子关系
+        warehouseAreaService.validateWarehouseAreaExists(reqVO.getWarehouseId(),
+                reqVO.getLocationId(), reqVO.getAreaId());
     }
 
 }

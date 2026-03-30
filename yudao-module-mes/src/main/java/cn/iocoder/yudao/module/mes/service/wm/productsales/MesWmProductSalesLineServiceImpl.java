@@ -2,6 +2,7 @@ package cn.iocoder.yudao.module.mes.service.wm.productsales;
 
 import cn.iocoder.yudao.framework.common.util.collection.CollectionUtils;
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.util.StrUtil;
 import cn.iocoder.yudao.framework.common.util.object.BeanUtils;
 import cn.iocoder.yudao.module.mes.controller.admin.wm.productsales.vo.line.MesWmProductSalesLinePageReqVO;
 import cn.iocoder.yudao.module.mes.controller.admin.wm.productsales.vo.line.MesWmProductSalesLineSaveReqVO;
@@ -11,6 +12,8 @@ import cn.iocoder.yudao.module.mes.dal.mysql.wm.productsales.MesWmProductSalesLi
 import cn.iocoder.yudao.module.mes.enums.qc.MesQcCheckResultEnum;
 import cn.iocoder.yudao.module.mes.enums.wm.MesWmQualityStatusEnum;
 import cn.iocoder.yudao.module.mes.service.md.item.MesMdItemService;
+import cn.iocoder.yudao.module.mes.service.wm.batch.MesWmBatchService;
+import cn.iocoder.yudao.module.mes.dal.dataobject.wm.batch.MesWmBatchDO;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Lazy;
@@ -42,6 +45,8 @@ public class MesWmProductSalesLineServiceImpl implements MesWmProductSalesLineSe
     @Resource
     private MesMdItemService itemService;
     @Resource
+    private MesWmBatchService batchService;
+    @Resource
     @Lazy
     private MesWmProductSalesService productSalesService;
 
@@ -49,6 +54,8 @@ public class MesWmProductSalesLineServiceImpl implements MesWmProductSalesLineSe
     public Long createProductSalesLine(MesWmProductSalesLineSaveReqVO createReqVO) {
         // 校验物料存在
         itemService.validateItemExists(createReqVO.getItemId());
+        // 根据 batchCode 解析 batchId
+        fillBatchId(createReqVO);
 
         // 新增
         MesWmProductSalesLineDO line = BeanUtils.toBean(createReqVO, MesWmProductSalesLineDO.class);
@@ -62,6 +69,8 @@ public class MesWmProductSalesLineServiceImpl implements MesWmProductSalesLineSe
         validateProductSalesLineExists(updateReqVO.getId());
         // 校验物料存在
         itemService.validateItemExists(updateReqVO.getItemId());
+        // 根据 batchCode 解析 batchId
+        fillBatchId(updateReqVO);
 
         // 更新
         MesWmProductSalesLineDO updateObj = BeanUtils.toBean(updateReqVO, MesWmProductSalesLineDO.class);
@@ -116,6 +125,18 @@ public class MesWmProductSalesLineServiceImpl implements MesWmProductSalesLineSe
             throw exception(WM_PRODUCT_SALES_LINE_NOT_EXISTS);
         }
         return line;
+    }
+
+    /**
+     * 根据 batchCode 解析 batchId
+     */
+    private void fillBatchId(MesWmProductSalesLineSaveReqVO reqVO) {
+        if (StrUtil.isBlank(reqVO.getBatchCode())) {
+            reqVO.setBatchId(null);
+            return;
+        }
+        MesWmBatchDO batch = batchService.getBatchByCode(reqVO.getBatchCode());
+        reqVO.setBatchId(batch != null ? batch.getId() : null);
     }
 
     @Override
