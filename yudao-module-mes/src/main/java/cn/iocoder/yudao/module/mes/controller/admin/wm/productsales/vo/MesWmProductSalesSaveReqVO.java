@@ -42,6 +42,9 @@ public class MesWmProductSalesSaveReqVO {
     @Schema(description = "联系方式", example = "13800138000")
     private String contactTelephone;
 
+    @Schema(description = "收货地址", example = "北京市朝阳区XX路XX号")
+    private String address;
+
     @Schema(description = "承运商", example = "顺丰快递")
     private String carrier;
 

@@ -2,6 +2,7 @@ package cn.iocoder.yudao.module.mes.dal.dataobject.wm.productsales;
 
 import cn.iocoder.yudao.framework.mybatis.core.dataobject.BaseDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.md.client.MesMdClientDO;
+import cn.iocoder.yudao.module.mes.dal.dataobject.wm.salesnotice.MesWmSalesNoticeDO;
 import cn.iocoder.yudao.module.mes.enums.wm.MesWmProductSalesStatusEnum;
 import com.baomidou.mybatisplus.annotation.KeySequence;
 import com.baomidou.mybatisplus.annotation.TableId;
@@ -56,7 +57,7 @@ public class MesWmProductSalesDO extends BaseDO {
     /**
      * 发货通知单 ID
      *
-     * 关联 {@link cn.iocoder.yudao.module.mes.dal.dataobject.wm.salesnotice.MesWmSalesNoticeDO#getId()}
+     * 关联 {@link MesWmSalesNoticeDO#getId()}
      */
     private Long noticeId;
 
@@ -68,6 +69,11 @@ public class MesWmProductSalesDO extends BaseDO {
      * 联系电话
      */
     private String contactTelephone;
+    // TODO @AI：改成 contactAddress
+    /**
+     * 收货地址
+     */
+    private String address;
 
     /**
      * 承运商

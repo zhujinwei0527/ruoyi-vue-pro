@@ -15,6 +15,7 @@ import cn.iocoder.yudao.module.mes.dal.dataobject.wm.productsales.MesWmProductSa
 import cn.iocoder.yudao.module.mes.dal.mysql.wm.productsales.MesWmProductSalesMapper;
 import cn.iocoder.yudao.module.mes.enums.MesBizTypeConstants;
 import cn.iocoder.yudao.module.mes.enums.wm.MesWmProductSalesStatusEnum;
+import cn.iocoder.yudao.module.mes.enums.wm.MesWmQualityStatusEnum;
 import cn.iocoder.yudao.module.mes.enums.wm.MesWmTransactionTypeEnum;
 import cn.iocoder.yudao.module.mes.service.md.client.MesMdClientService;
 import cn.iocoder.yudao.module.mes.service.wm.transaction.MesWmTransactionService;
@@ -57,6 +58,7 @@ public class MesWmProductSalesServiceImpl implements MesWmProductSalesService {
 
     @Override
     public Long createProductSales(MesWmProductSalesSaveReqVO createReqVO) {
+        // TODO @AI：增加 validateXXXSaveData；
         // 校验编码唯一
         validateCodeUnique(null, createReqVO.getCode());
         // 校验客户存在
@@ -73,6 +75,7 @@ public class MesWmProductSalesServiceImpl implements MesWmProductSalesService {
     public void updateProductSales(MesWmProductSalesSaveReqVO updateReqVO) {
         // 校验存在 + 草稿状态
         validateProductSalesExistsAndDraft(updateReqVO.getId());
+        // TODO @AI：增加 validateXXXSaveData；（校验数据）
         // 校验编码唯一
         validateCodeUnique(updateReqVO.getId(), updateReqVO.getCode());
         // 校验客户存在
@@ -116,11 +119,25 @@ public class MesWmProductSalesServiceImpl implements MesWmProductSalesService {
         if (CollUtil.isEmpty(lines)) {
             throw exception(WM_PRODUCT_SALES_LINES_EMPTY);
         }
+        // 校验每行出库数量 > 0
+        for (MesWmProductSalesLineDO line : lines) {
+            if (line.getQuantity() == null || BigDecimal.ZERO.compareTo(line.getQuantity()) >= 0) {
+                throw exception(WM_PRODUCT_SALES_LINE_QUANTITY_INVALID);
+            }
+        }
 
         // 检查所有行的 oqcCheckFlag：如果有需要 OQC 检验的行，进入待检测状态
         boolean needOqc = CollectionUtils.anyMatch(lines,
                 line -> Boolean.TRUE.equals(line.getOqcCheckFlag()));
         if (needOqc) {
+            // 初始化 OQC 行的质量状态为"待检验"
+            // TODO @AI：改成批量更新接口?productSalesLineService 提供一个？【对齐：这个是否为必须？！】
+            for (MesWmProductSalesLineDO line : lines) {
+                if (Boolean.TRUE.equals(line.getOqcCheckFlag())) {
+                    productSalesLineService.updateProductSalesLineQualityStatus(
+                            line.getId(), MesWmQualityStatusEnum.PENDING.getStatus());
+                }
+            }
             // 需要检验，进入待检测
             productSalesMapper.updateById(new MesWmProductSalesDO()
                     .setId(id).setStatus(MesWmProductSalesStatusEnum.CONFIRMED.getStatus()));
@@ -156,6 +173,14 @@ public class MesWmProductSalesServiceImpl implements MesWmProductSalesService {
         MesWmProductSalesDO sales = validateProductSalesExists(id);
         if (ObjUtil.notEqual(MesWmProductSalesStatusEnum.APPROVING.getStatus(), sales.getStatus())) {
             throw exception(WM_PRODUCT_SALES_CANNOT_PICK);
+        }
+        // 校验每行至少有拣货明细
+        List<MesWmProductSalesLineDO> lines = productSalesLineService.getProductSalesLineListBySalesId(id);
+        for (MesWmProductSalesLineDO line : lines) {
+            List<MesWmProductSalesDetailDO> details = productSalesDetailService.getProductSalesDetailListByLineId(line.getId());
+            if (CollUtil.isEmpty(details)) {
+                throw exception(WM_PRODUCT_SALES_DETAILS_EMPTY);
+            }
         }
 
         // 执行拣货（待拣货 → 待填写运单）

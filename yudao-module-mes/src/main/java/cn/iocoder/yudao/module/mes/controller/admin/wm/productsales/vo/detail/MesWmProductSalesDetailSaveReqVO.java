@@ -29,6 +29,9 @@ public class MesWmProductSalesDetailSaveReqVO {
     @NotNull(message = "拣货数量不能为空")
     private BigDecimal quantity;
 
+    @Schema(description = "库存记录ID", example = "1")
+    private Long materialStockId;
+
     @Schema(description = "批次ID", example = "1")
     private Long batchId;
 

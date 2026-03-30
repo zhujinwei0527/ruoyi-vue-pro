@@ -2,6 +2,8 @@ package cn.iocoder.yudao.module.mes.dal.dataobject.wm.productsales;
 
 import cn.iocoder.yudao.framework.mybatis.core.dataobject.BaseDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.md.item.MesMdItemDO;
+import cn.iocoder.yudao.module.mes.dal.dataobject.wm.batch.MesWmBatchDO;
+import cn.iocoder.yudao.module.mes.dal.dataobject.wm.materialstock.MesWmMaterialStockDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.wm.warehouse.MesWmWarehouseAreaDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.wm.warehouse.MesWmWarehouseDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.wm.warehouse.MesWmWarehouseLocationDO;
@@ -55,9 +57,18 @@ public class MesWmProductSalesDetailDO extends BaseDO {
      */
     private BigDecimal quantity;
     /**
-     * 批次ID
+     * 库存记录ID
+     *
+     * 关联 {@link MesWmMaterialStockDO#getId()}
+     */
+    private Long materialStockId;
+    /**
+     * 批次 ID
+     *
+     * 关联 {@link MesWmBatchDO#getId()}
      */
     private Long batchId;
+    // TODO @AI：增加 batchCode 字段
     /**
      * 仓库ID
      *

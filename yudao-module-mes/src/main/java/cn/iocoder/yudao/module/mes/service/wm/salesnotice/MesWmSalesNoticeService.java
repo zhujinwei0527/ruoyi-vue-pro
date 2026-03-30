@@ -8,6 +8,9 @@ import jakarta.validation.Valid;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
+
+import static cn.iocoder.yudao.framework.common.util.collection.CollectionUtils.convertMap;
 
 /**
  * MES 发货通知单 Service 接口
@@ -66,6 +69,16 @@ public interface MesWmSalesNoticeService {
      * @return 发货通知单列表
      */
     List<MesWmSalesNoticeDO> getSalesNoticeList(Collection<Long> ids);
+
+    /**
+     * 获得发货通知单 Map
+     *
+     * @param ids 编号列表
+     * @return 发货通知单 Map
+     */
+    default Map<Long, MesWmSalesNoticeDO> getSalesNoticeMap(Collection<Long> ids) {
+        return convertMap(getSalesNoticeList(ids), MesWmSalesNoticeDO::getId);
+    }
 
     /**
      * 按状态获得发货通知单列表

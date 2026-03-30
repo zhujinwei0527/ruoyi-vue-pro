@@ -154,5 +154,11 @@ public class MesWmProductSalesLineServiceImpl implements MesWmProductSalesLineSe
         }
     }
 
+    @Override
+    public void updateProductSalesLineQualityStatus(Long id, Integer qualityStatus) {
+        productSalesLineMapper.updateById(new MesWmProductSalesLineDO()
+                .setId(id).setQualityStatus(qualityStatus));
+    }
+
 }
 
