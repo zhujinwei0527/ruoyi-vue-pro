@@ -29,12 +29,8 @@ public enum MesWmSalesNoticeStatusEnum implements ArrayValuable<Integer> {
      *
      * 对应方法：{@link MesWmSalesNoticeService#submitSalesNotice(Long)}
      */
-    APPROVED(MesOrderStatusConstants.APPROVED, "待出库"),
-    /**
-     * 已完成
-     */
-    // TODO @芋艿：这个待实现；
-    FINISHED(MesOrderStatusConstants.FINISHED, "已完成");
+    APPROVED(MesOrderStatusConstants.APPROVED, "待出库");
+    // TODO @芋艿：【对齐】暂时无后续流程，看看后续要怎么支持下。
 
     public static final Integer[] ARRAYS = Arrays.stream(values()).map(MesWmSalesNoticeStatusEnum::getStatus).toArray(Integer[]::new);
 

@@ -22,9 +22,6 @@ public class MesWmSalesNoticeLineSaveReqVO {
     @NotNull(message = "物料编号不能为空")
     private Long itemId;
 
-    @Schema(description = "库存物资记录编号", example = "1")
-    private Long materialStockId;
-
     @Schema(description = "批次编号", example = "1")
     private Long batchId;
 
