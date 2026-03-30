@@ -24,4 +24,8 @@ public interface MesWmProductIssueMapper extends BaseMapperX<MesWmProductIssueDO
                 .orderByDesc(MesWmProductIssueDO::getId));
     }
 
+    default MesWmProductIssueDO selectByCode(String code) {
+        return selectOne(MesWmProductIssueDO::getCode, code);
+    }
+
 }

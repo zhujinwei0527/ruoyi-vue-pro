@@ -58,6 +58,14 @@ public interface MesWmProductIssueService {
     MesWmProductIssueDO validateProductIssueExists(Long id);
 
     /**
+     * 校验领料出库单存在且为准备中状态
+     *
+     * @param id 编号
+     * @return 领料出库单
+     */
+    MesWmProductIssueDO validateProductIssueExistsAndPrepare(Long id);
+
+    /**
      * 提交领料出库单（草稿 → 待拣货）
      *
      * @param id 编号

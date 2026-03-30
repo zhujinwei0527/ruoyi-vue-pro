@@ -30,11 +30,14 @@ public class MesWmProductIssueRespVO {
     @Schema(description = "工作站名称", example = "装配工作站")
     private String workstationName;
 
+    @Schema(description = "客户编号", example = "C001")
+    private String clientCode;
+
+    @Schema(description = "客户名称", example = "某某客户")
+    private String clientName;
+
     @Schema(description = "生产任务 ID", example = "1")
     private Long taskId;
-
-    @Schema(description = "客户 ID", example = "1")
-    private Long clientId;
 
     @Schema(description = "领料日期")
     private LocalDateTime issueDate;

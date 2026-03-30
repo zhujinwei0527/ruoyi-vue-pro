@@ -11,9 +11,11 @@ import cn.iocoder.yudao.framework.excel.core.util.ExcelUtils;
 import cn.iocoder.yudao.module.mes.controller.admin.wm.productissue.vo.MesWmProductIssuePageReqVO;
 import cn.iocoder.yudao.module.mes.controller.admin.wm.productissue.vo.MesWmProductIssueRespVO;
 import cn.iocoder.yudao.module.mes.controller.admin.wm.productissue.vo.MesWmProductIssueSaveReqVO;
+import cn.iocoder.yudao.module.mes.dal.dataobject.md.client.MesMdClientDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.md.workstation.MesMdWorkstationDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.pro.workorder.MesProWorkOrderDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.wm.productissue.MesWmProductIssueDO;
+import cn.iocoder.yudao.module.mes.service.md.client.MesMdClientService;
 import cn.iocoder.yudao.module.mes.service.md.workstation.MesMdWorkstationService;
 import cn.iocoder.yudao.module.mes.service.pro.workorder.MesProWorkOrderService;
 import cn.iocoder.yudao.module.mes.service.wm.productissue.MesWmProductIssueService;
@@ -48,6 +50,8 @@ public class MesWmProductIssueController {
     private MesMdWorkstationService workstationService;
     @Resource
     private MesProWorkOrderService workOrderService;
+    @Resource
+    private MesMdClientService clientService;
 
     @PostMapping("/create")
     @Operation(summary = "创建领料出库单")
@@ -161,14 +165,17 @@ public class MesWmProductIssueController {
                 convertSet(list, MesWmProductIssueDO::getWorkstationId));
         Map<Long, MesProWorkOrderDO> workOrderMap = workOrderService.getWorkOrderMap(
                 convertSet(list, MesWmProductIssueDO::getWorkOrderId));
+        Map<Long, MesMdClientDO> clientMap = clientService.getClientMap(
+                convertSet(workOrderMap.values(), MesProWorkOrderDO::getClientId));
         // 2. 构建结果
         return BeanUtils.toBean(list, MesWmProductIssueRespVO.class, vo -> {
-            // 2.1 填充工作站名称
             MapUtils.findAndThen(workstationMap, vo.getWorkstationId(),
                     workstation -> vo.setWorkstationName(workstation.getName()));
-            // 2.2 填充工单编号
-            MapUtils.findAndThen(workOrderMap, vo.getWorkOrderId(),
-                    workOrder -> vo.setWorkOrderCode(workOrder.getCode()));
+            MapUtils.findAndThen(workOrderMap, vo.getWorkOrderId(), workOrder -> {
+                vo.setWorkOrderCode(workOrder.getCode());
+                MapUtils.findAndThen(clientMap, workOrder.getClientId(), client ->
+                        vo.setClientCode(client.getCode()).setClientName(client.getName()));
+            });
         });
     }
 

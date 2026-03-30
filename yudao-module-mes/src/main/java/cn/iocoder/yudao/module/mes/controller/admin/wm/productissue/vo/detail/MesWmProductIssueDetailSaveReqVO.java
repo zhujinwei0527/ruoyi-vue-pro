@@ -1,6 +1,7 @@
 package cn.iocoder.yudao.module.mes.controller.admin.wm.productissue.vo.detail;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
@@ -27,6 +28,7 @@ public class MesWmProductIssueDetailSaveReqVO {
 
     @Schema(description = "领料数量", requiredMode = Schema.RequiredMode.REQUIRED, example = "300.00")
     @NotNull(message = "领料数量不能为空")
+    @DecimalMin(value = "0", inclusive = false, message = "领料数量必须大于 0")
     private BigDecimal quantity;
 
     @Schema(description = "批次编号", example = "1")
