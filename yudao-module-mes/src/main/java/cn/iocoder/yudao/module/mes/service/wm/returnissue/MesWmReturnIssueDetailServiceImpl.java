@@ -38,13 +38,7 @@ public class MesWmReturnIssueDetailServiceImpl implements MesWmReturnIssueDetail
 
     @Override
     public Long createReturnIssueDetail(MesWmReturnIssueDetailSaveReqVO createReqVO) {
-        // 校验父数据存在
-        MesWmReturnIssueLineDO line = issueLineService.validateReturnIssueLineExists(createReqVO.getLineId());
-        // 校验仓库、库区、库位的关联关系
-        warehouseAreaService.validateWarehouseAreaExists(
-                createReqVO.getWarehouseId(), createReqVO.getLocationId(), createReqVO.getAreaId());
-        // 校验明细总数量不超过行数量
-        validateDetailQuantityNotExceed(createReqVO.getLineId(), createReqVO.getQuantity(), null, line);
+        validateReturnIssueDetailSaveData(createReqVO);
         // TODO @芋艿：【后续搞】不允许物资混放
 
         // 插入
@@ -57,13 +51,7 @@ public class MesWmReturnIssueDetailServiceImpl implements MesWmReturnIssueDetail
     public void updateReturnIssueDetail(MesWmReturnIssueDetailSaveReqVO updateReqVO) {
         // 校验存在
         validateReturnIssueDetailExists(updateReqVO.getId());
-        // 校验父数据存在
-        MesWmReturnIssueLineDO line = issueLineService.validateReturnIssueLineExists(updateReqVO.getLineId());
-        // 校验仓库、库区、库位的关联关系
-        warehouseAreaService.validateWarehouseAreaExists(
-                updateReqVO.getWarehouseId(), updateReqVO.getLocationId(), updateReqVO.getAreaId());
-        // 校验明细总数量不超过行数量（排除自身）
-        validateDetailQuantityNotExceed(updateReqVO.getLineId(), updateReqVO.getQuantity(), updateReqVO.getId(), line);
+        validateReturnIssueDetailSaveData(updateReqVO);
         // TODO @芋艿：【后续搞】不允许物资混放
 
         // 更新
@@ -103,6 +91,19 @@ public class MesWmReturnIssueDetailServiceImpl implements MesWmReturnIssueDetail
         if (issueDetailMapper.selectById(id) == null) {
             throw exception(WM_RETURN_ISSUE_DETAIL_NOT_EXISTS);
         }
+    }
+
+    /**
+     * 校验保存时的关联数据
+     */
+    private void validateReturnIssueDetailSaveData(MesWmReturnIssueDetailSaveReqVO reqVO) {
+        // 校验父数据存在
+        MesWmReturnIssueLineDO line = issueLineService.validateReturnIssueLineExists(reqVO.getLineId());
+        // 校验仓库、库区、库位的关联关系
+        warehouseAreaService.validateWarehouseAreaExists(
+                reqVO.getWarehouseId(), reqVO.getLocationId(), reqVO.getAreaId());
+        // 校验明细总数量不超过行数量（排除自身）
+        validateDetailQuantityNotExceed(reqVO.getLineId(), reqVO.getQuantity(), reqVO.getId(), line);
     }
 
     /**

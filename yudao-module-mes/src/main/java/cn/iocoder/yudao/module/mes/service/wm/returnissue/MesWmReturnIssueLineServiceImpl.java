@@ -43,15 +43,12 @@ public class MesWmReturnIssueLineServiceImpl implements MesWmReturnIssueLineServ
 
     @Override
     public Long createReturnIssueLine(MesWmReturnIssueLineSaveReqVO createReqVO) {
-        // 校验父数据存在
-        MesWmReturnIssueDO issue = issueService.validateReturnIssueExists(createReqVO.getIssueId());
-        // 校验物料存在
-        itemService.validateItemExists(createReqVO.getItemId());
+        // 校验数据
+        MesWmReturnIssueDO issue = validateReturnIssueLineSaveData(createReqVO);
 
         // 插入
         MesWmReturnIssueLineDO line = BeanUtils.toBean(createReqVO, MesWmReturnIssueLineDO.class);
-        // 质量状态自动赋值
-        line.setQualityStatus(calculateQualityStatus(line.getRqcCheckFlag(), issue.getType()));
+        line.setQualityStatus(calculateQualityStatus(line.getRqcCheckFlag(), issue.getType())); // 质量状态自动赋值
         issueLineMapper.insert(line);
         return line.getId();
     }
@@ -60,15 +57,12 @@ public class MesWmReturnIssueLineServiceImpl implements MesWmReturnIssueLineServ
     public void updateReturnIssueLine(MesWmReturnIssueLineSaveReqVO updateReqVO) {
         // 校验存在
         validateReturnIssueLineExists(updateReqVO.getId());
-        // 校验父数据存在
-        MesWmReturnIssueDO issue = issueService.validateReturnIssueExists(updateReqVO.getIssueId());
-        // 校验物料存在
-        itemService.validateItemExists(updateReqVO.getItemId());
+        // 校验数据
+        MesWmReturnIssueDO issue = validateReturnIssueLineSaveData(updateReqVO);
 
         // 更新
         MesWmReturnIssueLineDO updateObj = BeanUtils.toBean(updateReqVO, MesWmReturnIssueLineDO.class);
-        // 质量状态自动赋值
-        updateObj.setQualityStatus(calculateQualityStatus(updateObj.getRqcCheckFlag(), issue.getType()));
+        updateObj.setQualityStatus(calculateQualityStatus(updateObj.getRqcCheckFlag(), issue.getType())); // 质量状态自动赋值
         issueLineMapper.updateById(updateObj);
     }
 
@@ -107,6 +101,17 @@ public class MesWmReturnIssueLineServiceImpl implements MesWmReturnIssueLineServ
             throw exception(WM_RETURN_ISSUE_LINE_NOT_EXISTS);
         }
         return line;
+    }
+
+    /**
+     * 校验保存时的关联数据
+     */
+    private MesWmReturnIssueDO validateReturnIssueLineSaveData(MesWmReturnIssueLineSaveReqVO reqVO) {
+        // 校验父数据存在
+        MesWmReturnIssueDO issue = issueService.validateReturnIssueExists(reqVO.getIssueId());
+        // 校验物料存在
+        itemService.validateItemExists(reqVO.getItemId());
+        return issue;
     }
 
     @Override
