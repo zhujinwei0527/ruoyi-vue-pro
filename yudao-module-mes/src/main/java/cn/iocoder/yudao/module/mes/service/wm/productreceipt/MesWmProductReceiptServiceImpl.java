@@ -12,15 +12,14 @@ import cn.iocoder.yudao.module.mes.dal.dataobject.pro.workorder.MesProWorkOrderD
 import cn.iocoder.yudao.module.mes.dal.dataobject.wm.productreceipt.MesWmProductReceiptDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.wm.productreceipt.MesWmProductReceiptDetailDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.wm.productreceipt.MesWmProductReceiptLineDO;
-import cn.iocoder.yudao.module.mes.dal.mysql.wm.productreceipt.MesWmProductReceiptMapper;
 import cn.iocoder.yudao.module.mes.dal.dataobject.wm.warehouse.MesWmWarehouseAreaDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.wm.warehouse.MesWmWarehouseDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.wm.warehouse.MesWmWarehouseLocationDO;
-import cn.iocoder.yudao.module.mes.enums.wm.MesWmProductReceiptStatusEnum;
+import cn.iocoder.yudao.module.mes.dal.mysql.wm.productreceipt.MesWmProductReceiptMapper;
 import cn.iocoder.yudao.module.mes.enums.MesBizTypeConstants;
+import cn.iocoder.yudao.module.mes.enums.wm.MesWmProductReceiptStatusEnum;
 import cn.iocoder.yudao.module.mes.enums.wm.MesWmTransactionTypeEnum;
 import cn.iocoder.yudao.module.mes.service.pro.workorder.MesProWorkOrderService;
-import cn.iocoder.yudao.module.mes.service.wm.materialstock.MesWmMaterialStockService;
 import cn.iocoder.yudao.module.mes.service.wm.transaction.MesWmTransactionService;
 import cn.iocoder.yudao.module.mes.service.wm.transaction.dto.MesWmTransactionSaveReqDTO;
 import cn.iocoder.yudao.module.mes.service.wm.warehouse.MesWmWarehouseAreaService;
@@ -54,9 +53,6 @@ public class MesWmProductReceiptServiceImpl implements MesWmProductReceiptServic
     private MesWmProductReceiptDetailService productReceiptDetailService;
 
     @Resource
-    private MesWmMaterialStockService materialStockService;
-
-    @Resource
     private MesWmTransactionService wmTransactionService;
 
     @Resource
@@ -70,13 +66,10 @@ public class MesWmProductReceiptServiceImpl implements MesWmProductReceiptServic
 
     @Override
     public Long createProductReceipt(MesWmProductReceiptSaveReqVO createReqVO) {
-        // 校验编码唯一
-        validateCodeUnique(null, createReqVO.getCode());
-        // 校验工单存在并设置 itemId
-        MesProWorkOrderDO workOrder = createReqVO.getWorkOrderId() != null ?
-                workOrderService.validateWorkOrderExists(createReqVO.getWorkOrderId()) : null;
+        // 1. 校验关联数据
+        MesProWorkOrderDO workOrder = validateProductReceiptSaveData(createReqVO);
 
-        // 插入
+        // 2. 插入
         MesWmProductReceiptDO receipt = BeanUtils.toBean(createReqVO, MesWmProductReceiptDO.class);
         if (workOrder != null) {
             receipt.setItemId(workOrder.getProductId());
@@ -88,15 +81,12 @@ public class MesWmProductReceiptServiceImpl implements MesWmProductReceiptServic
 
     @Override
     public void updateProductReceipt(MesWmProductReceiptSaveReqVO updateReqVO) {
-        // 校验存在 + 草稿状态
+        // 1.1 校验存在 + 草稿状态
         validateProductReceiptExistsAndDraft(updateReqVO.getId());
-        // 校验编码唯一
-        validateCodeUnique(updateReqVO.getId(), updateReqVO.getCode());
-        // 校验工单存在
-        MesProWorkOrderDO workOrder = updateReqVO.getWorkOrderId() != null ?
-                workOrderService.validateWorkOrderExists(updateReqVO.getWorkOrderId()) : null;
+        // 1.2 校验关联数据
+        MesProWorkOrderDO workOrder = validateProductReceiptSaveData(updateReqVO);
 
-        // 更新
+        // 2. 更新
         MesWmProductReceiptDO updateObj = BeanUtils.toBean(updateReqVO, MesWmProductReceiptDO.class);
         if (workOrder != null) {
             updateObj.setItemId(workOrder.getProductId());
@@ -179,23 +169,27 @@ public class MesWmProductReceiptServiceImpl implements MesWmProductReceiptServic
         if (ObjUtil.notEqual(MesWmProductReceiptStatusEnum.APPROVED.getStatus(), receipt.getStatus())) {
             throw exception(WM_PRODUCT_RECPT_STATUS_ERROR);
         }
+        // 校验明细非空
+        List<MesWmProductReceiptDetailDO> details = productReceiptDetailService.getProductReceiptDetailListByRecptId(id);
+        if (CollUtil.isEmpty(details)) {
+            throw exception(WM_PRODUCT_RECPT_NO_DETAIL);
+        }
 
         // 创建库存事务
-        createTransactionList(receipt);
+        createTransactionList(receipt, details);
 
         // 更新收货单状态
         productReceiptMapper.updateById(new MesWmProductReceiptDO()
                 .setId(id).setStatus(MesWmProductReceiptStatusEnum.FINISHED.getStatus()));
     }
 
-    private void createTransactionList(MesWmProductReceiptDO receipt) {
+    private void createTransactionList(MesWmProductReceiptDO receipt, List<MesWmProductReceiptDetailDO> details) {
         // 1. 查询虚拟线边库
         MesWmWarehouseDO virtualWarehouse = warehouseService.getWarehouseByCode(MesWmWarehouseDO.WIP_VIRTUAL_WAREHOUSE);
         MesWmWarehouseLocationDO virtualLocation = locationService.getWarehouseLocationByCode(MesWmWarehouseLocationDO.WIP_VIRTUAL_LOCATION);
         MesWmWarehouseAreaDO virtualArea = areaService.getWarehouseAreaByCode(MesWmWarehouseAreaDO.WIP_VIRTUAL_AREA);
 
         // 2. 遍历明细，每条明细产生 OUT（虚拟线边库扣减）+ IN（实际仓库增加）
-        List<MesWmProductReceiptDetailDO> details = productReceiptDetailService.getProductReceiptDetailListByRecptId(receipt.getId());
         for (MesWmProductReceiptDetailDO detail : details) {
             // 2.1 先从虚拟线边库出库（库存减少）
             Long outTransactionId = wmTransactionService.createTransaction(new MesWmTransactionSaveReqDTO()
@@ -262,6 +256,18 @@ public class MesWmProductReceiptServiceImpl implements MesWmProductReceiptServic
             throw exception(WM_PRODUCT_RECPT_STATUS_NOT_PREPARE);
         }
         return receipt;
+    }
+    /**
+     * 校验保存时的关联数据
+     *
+     * @return 工单对象（可能为 null）
+     */
+    private MesProWorkOrderDO validateProductReceiptSaveData(MesWmProductReceiptSaveReqVO reqVO) {
+        // 校验编码唯一
+        validateCodeUnique(reqVO.getId(), reqVO.getCode());
+        // 校验工单存在
+        return reqVO.getWorkOrderId() != null ?
+                workOrderService.validateWorkOrderExists(reqVO.getWorkOrderId()) : null;
     }
 
     private void validateCodeUnique(Long id, String code) {

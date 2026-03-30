@@ -6,6 +6,7 @@ import cn.iocoder.yudao.module.mes.controller.admin.wm.productreceipt.vo.line.Me
 import cn.iocoder.yudao.module.mes.controller.admin.wm.productreceipt.vo.line.MesWmProductReceiptLineSaveReqVO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.wm.productreceipt.MesWmProductReceiptLineDO;
 import cn.iocoder.yudao.module.mes.dal.mysql.wm.productreceipt.MesWmProductReceiptLineMapper;
+import cn.iocoder.yudao.module.mes.service.md.item.MesMdItemService;
 import jakarta.annotation.Resource;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
@@ -34,12 +35,15 @@ public class MesWmProductReceiptLineServiceImpl implements MesWmProductReceiptLi
     @Resource
     private MesWmProductReceiptDetailService productReceiptDetailService;
 
+    @Resource
+    private MesMdItemService itemService;
+
     @Override
     public Long createProductReceiptLine(MesWmProductReceiptLineSaveReqVO createReqVO) {
-        // 校验父单据存在且为可编辑状态
-        productReceiptService.validateProductReceiptEditable(createReqVO.getReceiptId());
+        // 1. 校验关联数据
+        validateProductReceiptLineSaveData(createReqVO);
 
-        // 新增
+        // 2. 新增
         MesWmProductReceiptLineDO line = BeanUtils.toBean(createReqVO, MesWmProductReceiptLineDO.class);
         productReceiptLineMapper.insert(line);
         return line.getId();
@@ -47,12 +51,13 @@ public class MesWmProductReceiptLineServiceImpl implements MesWmProductReceiptLi
 
     @Override
     public void updateProductReceiptLine(MesWmProductReceiptLineSaveReqVO updateReqVO) {
-        // 校验存在
+        // 1.1 校验存在
         MesWmProductReceiptLineDO line = validateProductReceiptLineExists(updateReqVO.getId());
-        // 校验父单据存在且为可编辑状态
-        productReceiptService.validateProductReceiptEditable(line.getReceiptId());
+        // 1.2 校验关联数据
+        updateReqVO.setReceiptId(line.getReceiptId());
+        validateProductReceiptLineSaveData(updateReqVO);
 
-        // 更新
+        // 2. 更新
         MesWmProductReceiptLineDO updateObj = BeanUtils.toBean(updateReqVO, MesWmProductReceiptLineDO.class);
         productReceiptLineMapper.updateById(updateObj);
     }
@@ -61,7 +66,9 @@ public class MesWmProductReceiptLineServiceImpl implements MesWmProductReceiptLi
     @Transactional(rollbackFor = Exception.class)
     public void deleteProductReceiptLine(Long id) {
         // 校验存在
-        validateProductReceiptLineExists(id);
+        MesWmProductReceiptLineDO line = validateProductReceiptLineExists(id);
+        // 校验父单据存在且为可编辑状态
+        productReceiptService.validateProductReceiptEditable(line.getReceiptId());
 
         // 级联删除明细
         productReceiptDetailService.deleteProductReceiptDetailByLineId(id);
@@ -95,6 +102,16 @@ public class MesWmProductReceiptLineServiceImpl implements MesWmProductReceiptLi
             throw exception(WM_PRODUCT_RECPT_LINE_NOT_EXISTS);
         }
         return line;
+    }
+
+    /**
+     * 校验行保存时的关联数据
+     */
+    private void validateProductReceiptLineSaveData(MesWmProductReceiptLineSaveReqVO reqVO) {
+        // 校验父单据存在且为可编辑状态
+        productReceiptService.validateProductReceiptEditable(reqVO.getReceiptId());
+        // 校验物料存在
+        itemService.validateItemExists(reqVO.getItemId());
     }
 
 }

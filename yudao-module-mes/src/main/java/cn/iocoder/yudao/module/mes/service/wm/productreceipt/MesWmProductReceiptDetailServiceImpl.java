@@ -34,12 +34,10 @@ public class MesWmProductReceiptDetailServiceImpl implements MesWmProductReceipt
 
     @Override
     public Long createProductReceiptDetail(MesWmProductReceiptDetailSaveReqVO createReqVO) {
-        // 校验父单据存在且为可编辑状态
-        productReceiptService.validateProductReceiptEditable(createReqVO.getReceiptId());
-        // 校验库区关系
-        warehouseAreaService.validateWarehouseAreaExists(
-                createReqVO.getWarehouseId(), createReqVO.getLocationId(), createReqVO.getAreaId());
+        // 1. 校验关联数据
+        validateProductReceiptDetailSaveData(createReqVO);
 
+        // 2. 新增
         MesWmProductReceiptDetailDO detail = BeanUtils.toBean(createReqVO, MesWmProductReceiptDetailDO.class);
         productReceiptDetailMapper.insert(detail);
         return detail.getId();
@@ -47,15 +45,13 @@ public class MesWmProductReceiptDetailServiceImpl implements MesWmProductReceipt
 
     @Override
     public void updateProductReceiptDetail(MesWmProductReceiptDetailSaveReqVO updateReqVO) {
-        // 校验存在
+        // 1.1 校验存在
         MesWmProductReceiptDetailDO detail = validateProductReceiptDetailExists(updateReqVO.getId());
-        // 校验父单据存在且为可编辑状态
-        productReceiptService.validateProductReceiptEditable(detail.getReceiptId());
-        // 校验库区关系
-        warehouseAreaService.validateWarehouseAreaExists(
-                updateReqVO.getWarehouseId(), updateReqVO.getLocationId(), updateReqVO.getAreaId());
+        // 1.2 校验关联数据
+        updateReqVO.setReceiptId(detail.getReceiptId());
+        validateProductReceiptDetailSaveData(updateReqVO);
 
-        // 更新
+        // 2. 更新
         MesWmProductReceiptDetailDO updateObj = BeanUtils.toBean(updateReqVO, MesWmProductReceiptDetailDO.class);
         productReceiptDetailMapper.updateById(updateObj);
     }
@@ -63,7 +59,10 @@ public class MesWmProductReceiptDetailServiceImpl implements MesWmProductReceipt
     @Override
     public void deleteProductReceiptDetail(Long id) {
         // 校验存在
-        validateProductReceiptDetailExists(id);
+        MesWmProductReceiptDetailDO detail = validateProductReceiptDetailExists(id);
+        // 校验父单据存在且为可编辑状态
+        productReceiptService.validateProductReceiptEditable(detail.getReceiptId());
+
         // 删除
         productReceiptDetailMapper.deleteById(id);
     }
@@ -99,6 +98,17 @@ public class MesWmProductReceiptDetailServiceImpl implements MesWmProductReceipt
             throw exception(WM_PRODUCT_RECPT_DETAIL_NOT_EXISTS);
         }
         return detail;
+    }
+
+    /**
+     * 校验明细保存时的关联数据
+     */
+    private void validateProductReceiptDetailSaveData(MesWmProductReceiptDetailSaveReqVO reqVO) {
+        // 校验父单据存在且为可编辑状态
+        productReceiptService.validateProductReceiptEditable(reqVO.getReceiptId());
+        // 校验仓库层级关系
+        warehouseAreaService.validateWarehouseAreaExists(
+                reqVO.getWarehouseId(), reqVO.getLocationId(), reqVO.getAreaId());
     }
 
 }
