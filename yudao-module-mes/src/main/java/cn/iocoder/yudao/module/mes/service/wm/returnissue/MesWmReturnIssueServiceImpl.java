@@ -73,10 +73,7 @@ public class MesWmReturnIssueServiceImpl implements MesWmReturnIssueService {
     @Transactional(rollbackFor = Exception.class)
     public Long createReturnIssue(MesWmReturnIssueSaveReqVO createReqVO) {
         // 1. 校验关联数据
-        workOrderService.validateWorkOrderExists(createReqVO.getWorkOrderId());
-        if (createReqVO.getWorkstationId() != null) {
-            workstationService.validateWorkstationExists(createReqVO.getWorkstationId());
-        }
+        validateReturnIssueSaveData(createReqVO);
 
         // 2. 插入主表
         MesWmReturnIssueDO issue = BeanUtils.toBean(createReqVO, MesWmReturnIssueDO.class);
@@ -91,10 +88,7 @@ public class MesWmReturnIssueServiceImpl implements MesWmReturnIssueService {
         // 1.1 校验存在 + 准备中状态
         MesWmReturnIssueDO oldIssue = validateReturnIssueExistsAndPrepare(updateReqVO.getId());
         // 1.2 校验关联数据
-        workOrderService.validateWorkOrderExists(updateReqVO.getWorkOrderId());
-        if (updateReqVO.getWorkstationId() != null) {
-            workstationService.validateWorkstationExists(updateReqVO.getWorkstationId());
-        }
+        validateReturnIssueSaveData(updateReqVO);
 
         // 2. 更新主表
         MesWmReturnIssueDO updateObj = BeanUtils.toBean(updateReqVO, MesWmReturnIssueDO.class);
@@ -272,6 +266,16 @@ public class MesWmReturnIssueServiceImpl implements MesWmReturnIssueService {
     public void updateReturnIssueStatus(Long id, Integer status) {
         validateReturnIssueExists(id);
         issueMapper.updateById(new MesWmReturnIssueDO().setId(id).setStatus(status));
+    }
+
+    /**
+     * 校验保存时的关联数据
+     */
+    private void validateReturnIssueSaveData(MesWmReturnIssueSaveReqVO reqVO) {
+        workOrderService.validateWorkOrderExists(reqVO.getWorkOrderId());
+        if (reqVO.getWorkstationId() != null) {
+            workstationService.validateWorkstationExists(reqVO.getWorkstationId());
+        }
     }
 
 }

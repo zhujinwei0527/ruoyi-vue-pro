@@ -31,6 +31,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception;
@@ -67,10 +68,7 @@ public class MesWmProductIssueServiceImpl implements MesWmProductIssueService {
     @Transactional(rollbackFor = Exception.class)
     public Long createProductIssue(MesWmProductIssueSaveReqVO createReqVO) {
         // 1. 校验关联数据
-        workOrderService.validateWorkOrderExists(createReqVO.getWorkOrderId());
-        if (createReqVO.getWorkstationId() != null) {
-            workstationService.validateWorkstationExists(createReqVO.getWorkstationId());
-        }
+        validateProductIssueSaveData(createReqVO);
 
         // 2. 插入主表
         MesWmProductIssueDO issue = BeanUtils.toBean(createReqVO, MesWmProductIssueDO.class);
@@ -85,10 +83,7 @@ public class MesWmProductIssueServiceImpl implements MesWmProductIssueService {
         // 1.1 校验存在 + 准备中状态
         validateProductIssueExistsAndPrepare(updateReqVO.getId());
         // 1.2 校验关联数据
-        workOrderService.validateWorkOrderExists(updateReqVO.getWorkOrderId());
-        if (updateReqVO.getWorkstationId() != null) {
-            workstationService.validateWorkstationExists(updateReqVO.getWorkstationId());
-        }
+        validateProductIssueSaveData(updateReqVO);
 
         // 2. 更新主表
         MesWmProductIssueDO updateObj = BeanUtils.toBean(updateReqVO, MesWmProductIssueDO.class);
@@ -160,9 +155,10 @@ public class MesWmProductIssueServiceImpl implements MesWmProductIssueService {
         // 2. 遍历所有明细，创建库存事务（扣减库存 + 记录流水）
         createTransactionList(issue);
 
-        // 3. 更新出库单状态
+        // 3. 更新出库单状态 + 领料日期
         issueMapper.updateById(new MesWmProductIssueDO()
-                .setId(id).setStatus(MesWmProductIssueStatusEnum.FINISHED.getStatus()));
+                .setId(id).setStatus(MesWmProductIssueStatusEnum.FINISHED.getStatus())
+                .setIssueDate(LocalDateTime.now()));
     }
 
     private void createTransactionList(MesWmProductIssueDO issue) {
@@ -237,12 +233,37 @@ public class MesWmProductIssueServiceImpl implements MesWmProductIssueService {
     /**
      * 校验领料出库单存在且为准备中状态
      */
-    private MesWmProductIssueDO validateProductIssueExistsAndPrepare(Long id) {
+    @Override
+    public MesWmProductIssueDO validateProductIssueExistsAndPrepare(Long id) {
         MesWmProductIssueDO issue = validateProductIssueExists(id);
         if (ObjUtil.notEqual(MesWmProductIssueStatusEnum.PREPARE.getStatus(), issue.getStatus())) {
             throw exception(WM_PRODUCT_ISSUE_STATUS_INVALID);
         }
         return issue;
+    }
+
+    /**
+     * 校验编码唯一性
+     */
+    private void validateCodeUnique(Long id, String code) {
+        MesWmProductIssueDO issue = issueMapper.selectByCode(code);
+        if (issue == null) {
+            return;
+        }
+        if (ObjUtil.notEqual(id, issue.getId())) {
+            throw exception(WM_PRODUCT_ISSUE_CODE_DUPLICATE);
+        }
+    }
+
+    /**
+     * 校验保存时的关联数据
+     */
+    private void validateProductIssueSaveData(MesWmProductIssueSaveReqVO reqVO) {
+        validateCodeUnique(reqVO.getId(), reqVO.getCode());
+        workOrderService.validateWorkOrderExists(reqVO.getWorkOrderId());
+        if (reqVO.getWorkstationId() != null) {
+            workstationService.validateWorkstationExists(reqVO.getWorkstationId());
+        }
     }
 
 }

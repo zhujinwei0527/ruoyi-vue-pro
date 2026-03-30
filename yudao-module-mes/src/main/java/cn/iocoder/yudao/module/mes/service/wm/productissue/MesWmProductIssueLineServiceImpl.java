@@ -39,13 +39,13 @@ public class MesWmProductIssueLineServiceImpl implements MesWmProductIssueLineSe
     private MesMdItemService itemService;
     @Resource
     private MesProWorkOrderBomService workOrderBomService;
+    @Resource
+    @Lazy
+    private MesWmProductIssueDetailService issueDetailService;
 
     @Override
     public Long createProductIssueLine(MesWmProductIssueLineSaveReqVO createReqVO) {
-        // 校验父数据存在 + 校验物料在工单 BOM 中
-        validateItemInWorkOrderBom(createReqVO.getIssueId(), createReqVO.getItemId());
-        // 校验物料存在
-        itemService.validateItemExists(createReqVO.getItemId());
+        validateProductIssueLineSaveData(createReqVO);
 
         // 插入
         MesWmProductIssueLineDO line = BeanUtils.toBean(createReqVO, MesWmProductIssueLineDO.class);
@@ -57,10 +57,7 @@ public class MesWmProductIssueLineServiceImpl implements MesWmProductIssueLineSe
     public void updateProductIssueLine(MesWmProductIssueLineSaveReqVO updateReqVO) {
         // 校验存在
         validateProductIssueLineExists(updateReqVO.getId());
-        // 校验父数据存在 + 校验物料在工单 BOM 中
-        validateItemInWorkOrderBom(updateReqVO.getIssueId(), updateReqVO.getItemId());
-        // 校验物料存在
-        itemService.validateItemExists(updateReqVO.getItemId());
+        validateProductIssueLineSaveData(updateReqVO);
 
         // 更新
         MesWmProductIssueLineDO updateObj = BeanUtils.toBean(updateReqVO, MesWmProductIssueLineDO.class);
@@ -70,8 +67,12 @@ public class MesWmProductIssueLineServiceImpl implements MesWmProductIssueLineSe
     @Override
     public void deleteProductIssueLine(Long id) {
         // 校验存在
-        validateProductIssueLineExists(id);
-        // 删除
+        MesWmProductIssueLineDO line = validateProductIssueLineExists(id);
+        // 校验主单为草稿状态才允许删除行
+        issueService.validateProductIssueExistsAndPrepare(line.getIssueId());
+        // 级联删除该行的明细
+        issueDetailService.deleteProductIssueDetailByLineId(id);
+        // 删除行
         issueLineMapper.deleteById(id);
     }
 
@@ -102,6 +103,16 @@ public class MesWmProductIssueLineServiceImpl implements MesWmProductIssueLineSe
             throw exception(WM_PRODUCT_ISSUE_LINE_NOT_EXISTS);
         }
         return line;
+    }
+
+    /**
+     * 校验保存时的关联数据
+     */
+    private void validateProductIssueLineSaveData(MesWmProductIssueLineSaveReqVO reqVO) {
+        // 校验父数据存在 + 校验物料在工单 BOM 中
+        validateItemInWorkOrderBom(reqVO.getIssueId(), reqVO.getItemId());
+        // 校验物料存在
+        itemService.validateItemExists(reqVO.getItemId());
     }
 
     private void validateItemInWorkOrderBom(Long issueId, Long itemId) {

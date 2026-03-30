@@ -64,4 +64,11 @@ public interface MesWmProductIssueDetailService {
      */
     void deleteProductIssueDetailByIssueId(Long issueId);
 
+    /**
+     * 根据行ID删除明细
+     *
+     * @param lineId 行ID
+     */
+    void deleteProductIssueDetailByLineId(Long lineId);
+
 }
