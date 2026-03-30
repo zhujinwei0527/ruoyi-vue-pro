@@ -60,6 +60,14 @@ public interface MesWmReturnSalesService {
     MesWmReturnSalesDO validateReturnSalesExists(Long id);
 
     /**
+     * 校验销售退货单存在且为草稿状态
+     *
+     * @param id 编号
+     * @return 销售退货单
+     */
+    MesWmReturnSalesDO validateReturnSalesExistsAndPrepare(Long id);
+
+    /**
      * 提交销售退货单（草稿 -> 待执行）
      *
      * @param id 编号

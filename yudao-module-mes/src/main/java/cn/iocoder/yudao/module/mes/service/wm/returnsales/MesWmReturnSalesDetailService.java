@@ -66,4 +66,11 @@ public interface MesWmReturnSalesDetailService {
      */
     void deleteReturnSalesDetailByReturnId(Long returnId);
 
+    /**
+     * 根据行ID删除明细（行删除时级联）
+     *
+     * @param lineId 行ID
+     */
+    void deleteReturnSalesDetailByLineId(Long lineId);
+
 }

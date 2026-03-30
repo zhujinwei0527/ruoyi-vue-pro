@@ -61,7 +61,7 @@ public class MesWmReturnSalesServiceImpl implements MesWmReturnSalesService {
     @Transactional(rollbackFor = Exception.class)
     public Long createReturnSales(MesWmReturnSalesSaveReqVO createReqVO) {
         // 1. 校验关联数据
-        clientService.validateClientExists(createReqVO.getClientId());
+        validateSaveData(createReqVO);
 
         // 2. 插入主表
         MesWmReturnSalesDO returnSales = BeanUtils.toBean(createReqVO, MesWmReturnSalesDO.class);
@@ -76,7 +76,7 @@ public class MesWmReturnSalesServiceImpl implements MesWmReturnSalesService {
         // 1.1 校验存在 + 准备中状态
         validateReturnSalesExistsAndPrepare(updateReqVO.getId());
         // 1.2 校验关联数据
-        clientService.validateClientExists(updateReqVO.getClientId());
+        validateSaveData(updateReqVO);
 
         // 2. 更新主表
         MesWmReturnSalesDO updateObj = BeanUtils.toBean(updateReqVO, MesWmReturnSalesDO.class);
@@ -131,12 +131,17 @@ public class MesWmReturnSalesServiceImpl implements MesWmReturnSalesService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void finishReturnSales(Long id) {
-        // 校验存在
+        // 1.1 校验存在 + 待执行状态
         MesWmReturnSalesDO returnSales = validateReturnSalesExists(id);
         if (ObjUtil.notEqual(MesWmReturnSalesStatusEnum.APPROVING.getStatus(), returnSales.getStatus())) {
             throw exception(WM_RETURN_SALES_STATUS_NOT_APPROVING);
         }
-        // 执行退货（待执行 -> 待上架）
+        // 1.2 校验至少有一条行
+        List<MesWmReturnSalesLineDO> lines = returnSalesLineService.getReturnSalesLineListByReturnId(id);
+        if (CollUtil.isEmpty(lines)) {
+            throw exception(WM_RETURN_SALES_NO_LINE);
+        }
+        // 2. 执行退货（待执行 -> 待上架）
         returnSalesMapper.updateById(new MesWmReturnSalesDO()
                 .setId(id).setStatus(MesWmReturnSalesStatusEnum.APPROVED.getStatus()));
     }
@@ -232,7 +237,8 @@ public class MesWmReturnSalesServiceImpl implements MesWmReturnSalesService {
     /**
      * 校验销售退货单存在且为准备中状态
      */
-    private MesWmReturnSalesDO validateReturnSalesExistsAndPrepare(Long id) {
+    @Override
+    public MesWmReturnSalesDO validateReturnSalesExistsAndPrepare(Long id) {
         MesWmReturnSalesDO returnSales = validateReturnSalesExists(id);
         if (ObjUtil.notEqual(MesWmReturnSalesStatusEnum.PREPARE.getStatus(), returnSales.getStatus())) {
             throw exception(WM_RETURN_SALES_STATUS_NOT_PREPARE);
@@ -244,6 +250,27 @@ public class MesWmReturnSalesServiceImpl implements MesWmReturnSalesService {
     public void updateReturnSalesStatus(Long id, Integer status) {
         validateReturnSalesExists(id);
         returnSalesMapper.updateById(new MesWmReturnSalesDO().setId(id).setStatus(status));
+    }
+
+    /**
+     * 校验编码唯一性
+     */
+    private void validateCodeUnique(Long id, String code) {
+        MesWmReturnSalesDO returnSales = returnSalesMapper.selectByCode(code);
+        if (returnSales == null) {
+            return;
+        }
+        if (ObjUtil.notEqual(id, returnSales.getId())) {
+            throw exception(WM_RETURN_SALES_CODE_DUPLICATE);
+        }
+    }
+
+    /**
+     * 校验保存时的关联数据
+     */
+    private void validateSaveData(MesWmReturnSalesSaveReqVO reqVO) {
+        validateCodeUnique(reqVO.getId(), reqVO.getCode());
+        clientService.validateClientExists(reqVO.getClientId());
     }
 
 }

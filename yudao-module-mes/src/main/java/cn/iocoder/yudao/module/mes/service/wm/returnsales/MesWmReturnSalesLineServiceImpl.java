@@ -42,6 +42,9 @@ public class MesWmReturnSalesLineServiceImpl implements MesWmReturnSalesLineServ
     private MesWmReturnSalesService returnSalesService;
     @Resource
     private MesMdItemService itemService;
+    @Resource
+    @Lazy
+    private MesWmReturnSalesDetailService returnSalesDetailService;
 
     @Override
     public Long createReturnSalesLine(MesWmReturnSalesLineSaveReqVO createReqVO) {
@@ -72,8 +75,8 @@ public class MesWmReturnSalesLineServiceImpl implements MesWmReturnSalesLineServ
      * 校验保存时的关联数据
      */
     private void validateLineSaveData(MesWmReturnSalesLineSaveReqVO reqVO) {
-        // 校验退货单存在
-        returnSalesService.validateReturnSalesExists(reqVO.getReturnId());
+        // 校验退货单存在 + 草稿状态
+        returnSalesService.validateReturnSalesExistsAndPrepare(reqVO.getReturnId());
         // 校验物料存在 + 批次管理
         validateItemBatchManagement(reqVO.getItemId(), reqVO.getBatchId());
     }
@@ -81,8 +84,12 @@ public class MesWmReturnSalesLineServiceImpl implements MesWmReturnSalesLineServ
     @Override
     public void deleteReturnSalesLine(Long id) {
         // 校验存在
-        validateReturnSalesLineExists(id);
-        // 删除
+        MesWmReturnSalesLineDO line = validateReturnSalesLineExists(id);
+        // 校验主单为草稿状态才允许删除行
+        returnSalesService.validateReturnSalesExistsAndPrepare(line.getReturnId());
+        // 级联删除该行的明细
+        returnSalesDetailService.deleteReturnSalesDetailByLineId(id);
+        // 删除行
         returnSalesLineMapper.deleteById(id);
     }
 

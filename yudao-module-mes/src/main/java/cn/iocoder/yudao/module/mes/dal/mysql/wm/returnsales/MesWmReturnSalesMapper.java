@@ -26,4 +26,9 @@ public interface MesWmReturnSalesMapper extends BaseMapperX<MesWmReturnSalesDO> 
                 .orderByDesc(MesWmReturnSalesDO::getId));
     }
 
+    default MesWmReturnSalesDO selectByCode(String code) {
+        return selectOne(new LambdaQueryWrapperX<MesWmReturnSalesDO>()
+                .eq(MesWmReturnSalesDO::getCode, code));
+    }
+
 }
