@@ -2,6 +2,7 @@ package cn.iocoder.yudao.module.mes.dal.dataobject.wm.miscissue;
 
 import cn.iocoder.yudao.framework.mybatis.core.dataobject.BaseDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.md.item.MesMdItemDO;
+import cn.iocoder.yudao.module.mes.dal.dataobject.wm.batch.MesWmBatchDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.wm.warehouse.MesWmWarehouseAreaDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.wm.warehouse.MesWmWarehouseDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.wm.warehouse.MesWmWarehouseLocationDO;
@@ -56,8 +57,16 @@ public class MesWmMiscIssueLineDO extends BaseDO {
     private BigDecimal quantity;
     /**
      * 批次编号
+     *
+     * 关联 {@link MesWmBatchDO#getId()}
      */
     private Long batchId;
+    /**
+     * 批次号
+     *
+     * 挂你兰 {@link MesWmBatchDO#getCode()}
+     */
+    private String batchCode;
     /**
      * 仓库编号
      *

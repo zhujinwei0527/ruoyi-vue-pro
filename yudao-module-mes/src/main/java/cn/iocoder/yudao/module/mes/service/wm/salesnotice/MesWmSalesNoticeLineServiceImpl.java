@@ -10,6 +10,7 @@ import cn.iocoder.yudao.module.mes.dal.dataobject.wm.batch.MesWmBatchDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.wm.salesnotice.MesWmSalesNoticeDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.wm.salesnotice.MesWmSalesNoticeLineDO;
 import cn.iocoder.yudao.module.mes.dal.mysql.wm.salesnotice.MesWmSalesNoticeLineMapper;
+import cn.iocoder.yudao.module.mes.service.md.item.MesMdItemService;
 import cn.iocoder.yudao.module.mes.service.wm.batch.MesWmBatchService;
 import jakarta.annotation.Resource;
 import org.springframework.context.annotation.Lazy;
@@ -39,10 +40,16 @@ public class MesWmSalesNoticeLineServiceImpl implements MesWmSalesNoticeLineServ
     @Resource
     private MesWmBatchService batchService;
 
+    @Resource
+    private MesMdItemService itemService;
+
     @Override
     public Long createSalesNoticeLine(MesWmSalesNoticeLineSaveReqVO createReqVO) {
+        // TODO @AI：增加 validateXXXSaveData 方法
         // 校验父单据存在且为草稿状态
         validateNoticeStatusDraft(createReqVO.getNoticeId());
+        // 校验物料存在
+        itemService.validateItemExists(createReqVO.getItemId());
 
         // 插入
         MesWmSalesNoticeLineDO line = BeanUtils.toBean(createReqVO, MesWmSalesNoticeLineDO.class);
@@ -55,8 +62,13 @@ public class MesWmSalesNoticeLineServiceImpl implements MesWmSalesNoticeLineServ
     public void updateSalesNoticeLine(MesWmSalesNoticeLineSaveReqVO updateReqVO) {
         // 校验存在
         MesWmSalesNoticeLineDO line = validateSalesNoticeLineExists(updateReqVO.getId());
+        // TODO @AI：增加 validateXXXSaveData 方法
         // 校验父单据存在且为草稿状态
         validateNoticeStatusDraft(line.getNoticeId());
+        // 校验物料存在
+        if (updateReqVO.getItemId() != null) {
+            itemService.validateItemExists(updateReqVO.getItemId());
+        }
 
         // 更新
         MesWmSalesNoticeLineDO updateObj = BeanUtils.toBean(updateReqVO, MesWmSalesNoticeLineDO.class);

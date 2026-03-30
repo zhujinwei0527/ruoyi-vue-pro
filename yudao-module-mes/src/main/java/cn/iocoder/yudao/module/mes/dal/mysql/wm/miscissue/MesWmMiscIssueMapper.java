@@ -20,6 +20,8 @@ public interface MesWmMiscIssueMapper extends BaseMapperX<MesWmMiscIssueDO> {
                 .likeIfPresent(MesWmMiscIssueDO::getCode, reqVO.getCode())
                 .likeIfPresent(MesWmMiscIssueDO::getName, reqVO.getName())
                 .eqIfPresent(MesWmMiscIssueDO::getType, reqVO.getType())
+                .likeIfPresent(MesWmMiscIssueDO::getSourceDocCode, reqVO.getSourceDocCode())
+                .eqIfPresent(MesWmMiscIssueDO::getSourceDocType, reqVO.getSourceDocType())
                 .eqIfPresent(MesWmMiscIssueDO::getStatus, reqVO.getStatus())
                 .betweenIfPresent(MesWmMiscIssueDO::getIssueDate, reqVO.getIssueDate())
                 .orderByDesc(MesWmMiscIssueDO::getId));

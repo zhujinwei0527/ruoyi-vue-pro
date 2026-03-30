@@ -108,10 +108,15 @@ public class MesWmMiscIssueServiceImpl implements MesWmMiscIssueService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void finishMiscIssue(Long id) {
-        // 校验存在
+        // 1.1 校验存在
         MesWmMiscIssueDO issue = validateMiscIssueExists(id);
         if (ObjUtil.notEqual(MesWmMiscIssueStatusEnum.APPROVED.getStatus(), issue.getStatus())) {
             throw exception(WM_MISC_ISSUE_STATUS_INVALID);
+        }
+        // 1.2 校验至少有一条行
+        List<MesWmMiscIssueLineDO> lines = miscIssueLineService.getMiscIssueLineListByIssueId(id);
+        if (CollUtil.isEmpty(lines)) {
+            throw exception(WM_MISC_ISSUE_NO_LINE);
         }
 
         // 2. 遍历所有行，创建库存事务（扣减库存 + 记录流水）

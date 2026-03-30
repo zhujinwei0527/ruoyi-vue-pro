@@ -24,6 +24,12 @@ public class MesWmMiscIssuePageReqVO extends PageParam {
     @Schema(description = "杂项类型", example = "1")
     private Integer type;
 
+    @Schema(description = "来源单据编号", example = "DOC20260302001")
+    private String sourceDocCode;
+
+    @Schema(description = "来源单据类型", example = "PURCHASE_ORDER")
+    private String sourceDocType;
+
     @Schema(description = "状态", example = "0")
     private Integer status;
 
