@@ -17,6 +17,7 @@ import java.util.List;
 
 import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception;
 import static cn.iocoder.yudao.module.mes.enums.ErrorCodeConstants.*;
+import static cn.iocoder.yudao.module.mes.enums.wm.MesWmSalesNoticeStatusEnum.PREPARE;
 
 /**
  * MES 发货通知单行 Service 实现类
@@ -102,7 +103,7 @@ public class MesWmSalesNoticeLineServiceImpl implements MesWmSalesNoticeLineServ
         if (notice == null) {
             throw exception(WM_SALES_NOTICE_NOT_EXISTS);
         }
-        if (ObjUtil.notEqual(0, notice.getStatus())) {
+        if (ObjUtil.notEqual(PREPARE.getStatus(), notice.getStatus())) {
             throw exception(WM_SALES_NOTICE_STATUS_NOT_ALLOW_UPDATE);
         }
     }

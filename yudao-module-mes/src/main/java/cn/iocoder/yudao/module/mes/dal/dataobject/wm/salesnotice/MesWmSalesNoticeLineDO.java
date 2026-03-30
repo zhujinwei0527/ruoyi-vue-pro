@@ -40,6 +40,12 @@ public class MesWmSalesNoticeLineDO extends BaseDO {
      */
     private Long itemId;
     /**
+     * 库存物资记录编号
+     *
+     * 关联 {@link cn.iocoder.yudao.module.mes.dal.dataobject.wm.materialstock.MesWmMaterialStockDO#getId()}
+     */
+    private Long materialStockId;
+    /**
      * 批次编号
      */
     private Long batchId;
