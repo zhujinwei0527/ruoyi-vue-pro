@@ -58,7 +58,10 @@ public class MesWmSalesNoticeLineServiceImpl implements MesWmSalesNoticeLineServ
     @Override
     public void deleteSalesNoticeLine(Long id) {
         // 校验存在
-        validateSalesNoticeLineExists(id);
+        MesWmSalesNoticeLineDO line = validateSalesNoticeLineExists(id);
+        // 校验父单据存在且为草稿状态
+        validateNoticeStatusDraft(line.getNoticeId());
+
         // 删除
         salesNoticeLineMapper.deleteById(id);
     }
