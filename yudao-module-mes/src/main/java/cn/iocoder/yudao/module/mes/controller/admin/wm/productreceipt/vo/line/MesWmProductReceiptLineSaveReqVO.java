@@ -22,6 +22,9 @@ public class MesWmProductReceiptLineSaveReqVO {
     @NotNull(message = "物料编号不能为空")
     private Long itemId;
 
+    @Schema(description = "库存物资记录编号", example = "1")
+    private Long materialStockId;
+
     @Schema(description = "收货数量", requiredMode = Schema.RequiredMode.REQUIRED, example = "100.00")
     @NotNull(message = "收货数量不能为空")
     @Positive(message = "收货数量必须大于 0")

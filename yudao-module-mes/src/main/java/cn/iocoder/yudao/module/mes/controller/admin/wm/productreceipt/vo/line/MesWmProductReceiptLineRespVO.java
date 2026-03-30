@@ -19,6 +19,9 @@ public class MesWmProductReceiptLineRespVO {
     @Schema(description = "物料编号", requiredMode = Schema.RequiredMode.REQUIRED, example = "1")
     private Long itemId;
 
+    @Schema(description = "库存物资记录编号", example = "1")
+    private Long materialStockId;
+
     @Schema(description = "物料编码", example = "P001")
     private String itemCode;
 

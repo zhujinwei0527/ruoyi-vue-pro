@@ -2,6 +2,7 @@ package cn.iocoder.yudao.module.mes.dal.dataobject.wm.productreceipt;
 
 import cn.iocoder.yudao.framework.mybatis.core.dataobject.BaseDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.md.item.MesMdItemDO;
+import cn.iocoder.yudao.module.mes.dal.dataobject.wm.batch.MesWmBatchDO;
 import com.baomidou.mybatisplus.annotation.KeySequence;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
@@ -40,17 +41,25 @@ public class MesWmProductReceiptLineDO extends BaseDO {
      */
     private Long itemId;
     /**
+     * 库存物资记录编号
+     *
+     * 关联 {@link cn.iocoder.yudao.module.mes.dal.dataobject.wm.materialstock.MesWmMaterialStockDO#getId()}
+     */
+    private Long materialStockId;
+    /**
      * 收货数量
      */
     private BigDecimal quantity;
     /**
      * 批次编号
      *
-     * TODO DONE @芋艿：保留。待 mes_wm_batch 模块迁移后补充 @link 关联
+     * 关联 {@link MesWmBatchDO#getId()}
      */
     private Long batchId;
     /**
      * 批次号
+     *
+     * 关联 {@link MesWmBatchDO#getCode()}
      */
     private String batchCode;
     /**
