@@ -43,7 +43,6 @@ public class MesWmReturnIssueDO extends BaseDO {
      * 关联 {@link MesProWorkOrderDO#getId()}
      */
     private Long workOrderId;
-    // TODO @芋艿：可能不需要这个字段。界面上没有；
     /**
      * 工作站 ID
      *

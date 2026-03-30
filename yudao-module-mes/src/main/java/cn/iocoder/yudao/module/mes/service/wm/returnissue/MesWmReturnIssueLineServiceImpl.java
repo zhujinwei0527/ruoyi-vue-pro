@@ -40,6 +40,9 @@ public class MesWmReturnIssueLineServiceImpl implements MesWmReturnIssueLineServ
     private MesWmReturnIssueService issueService;
     @Resource
     private MesMdItemService itemService;
+    @Resource
+    @Lazy
+    private MesWmReturnIssueDetailService issueDetailService;
 
     @Override
     public Long createReturnIssueLine(MesWmReturnIssueLineSaveReqVO createReqVO) {
@@ -69,8 +72,12 @@ public class MesWmReturnIssueLineServiceImpl implements MesWmReturnIssueLineServ
     @Override
     public void deleteReturnIssueLine(Long id) {
         // 校验存在
-        validateReturnIssueLineExists(id);
-        // 删除
+        MesWmReturnIssueLineDO line = validateReturnIssueLineExists(id);
+        // 校验主单为草稿状态才允许删除行
+        issueService.validateReturnIssueExistsAndPrepare(line.getIssueId());
+        // 级联删除该行的明细
+        issueDetailService.deleteReturnIssueDetailByLineId(id);
+        // 删除行
         issueLineMapper.deleteById(id);
     }
 
@@ -107,8 +114,8 @@ public class MesWmReturnIssueLineServiceImpl implements MesWmReturnIssueLineServ
      * 校验保存时的关联数据
      */
     private MesWmReturnIssueDO validateReturnIssueLineSaveData(MesWmReturnIssueLineSaveReqVO reqVO) {
-        // 校验父数据存在
-        MesWmReturnIssueDO issue = issueService.validateReturnIssueExists(reqVO.getIssueId());
+        // 校验父数据存在 + 草稿状态
+        MesWmReturnIssueDO issue = issueService.validateReturnIssueExistsAndPrepare(reqVO.getIssueId());
         // 校验物料存在
         itemService.validateItemExists(reqVO.getItemId());
         return issue;

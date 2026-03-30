@@ -24,4 +24,8 @@ public interface MesWmReturnIssueDetailMapper extends BaseMapperX<MesWmReturnIss
         delete(MesWmReturnIssueDetailDO::getIssueId, issueId);
     }
 
+    default void deleteByLineId(Long lineId) {
+        delete(MesWmReturnIssueDetailDO::getLineId, lineId);
+    }
+
 }

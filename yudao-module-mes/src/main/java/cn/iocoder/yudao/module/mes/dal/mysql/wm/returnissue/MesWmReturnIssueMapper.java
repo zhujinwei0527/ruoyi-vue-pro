@@ -23,4 +23,8 @@ public interface MesWmReturnIssueMapper extends BaseMapperX<MesWmReturnIssueDO> 
                 .orderByDesc(MesWmReturnIssueDO::getId));
     }
 
+    default MesWmReturnIssueDO selectByCode(String code) {
+        return selectOne(MesWmReturnIssueDO::getCode, code);
+    }
+
 }

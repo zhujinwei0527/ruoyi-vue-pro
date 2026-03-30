@@ -2,6 +2,9 @@ package cn.iocoder.yudao.module.mes.dal.dataobject.wm.returnissue;
 
 import cn.iocoder.yudao.framework.mybatis.core.dataobject.BaseDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.md.item.MesMdItemDO;
+import cn.iocoder.yudao.module.mes.dal.dataobject.qc.rqc.MesQcRqcDO;
+import cn.iocoder.yudao.module.mes.dal.dataobject.wm.batch.MesWmBatchDO;
+import cn.iocoder.yudao.module.mes.dal.dataobject.wm.materialstock.MesWmMaterialStockDO;
 import com.baomidou.mybatisplus.annotation.KeySequence;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
@@ -35,6 +38,8 @@ public class MesWmReturnIssueLineDO extends BaseDO {
     private Long issueId;
     /**
      * 库存记录 ID
+     *
+     * 关联 {@link MesWmMaterialStockDO#getId()}
      */
     private Long materialStockId;
     /**
@@ -49,10 +54,20 @@ public class MesWmReturnIssueLineDO extends BaseDO {
     private BigDecimal quantity;
     /**
      * 批次 ID
+     *
+     * 关联 {@link MesWmBatchDO#getId()}
      */
     private Long batchId;
     /**
+     * 批次编码
+     *
+     * 关联 {@link MesWmBatchDO#getCode()}
+     */
+    private String batchCode;
+    /**
      * 退货检验单 ID
+     *
+     * 关联 {@link MesQcRqcDO#getId()}
      */
     private Long rqcId;
     /**

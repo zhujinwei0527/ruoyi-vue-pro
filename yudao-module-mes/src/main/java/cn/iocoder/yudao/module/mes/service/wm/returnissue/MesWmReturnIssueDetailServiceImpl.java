@@ -87,6 +87,11 @@ public class MesWmReturnIssueDetailServiceImpl implements MesWmReturnIssueDetail
         issueDetailMapper.deleteByIssueId(issueId);
     }
 
+    @Override
+    public void deleteReturnIssueDetailByLineId(Long lineId) {
+        issueDetailMapper.deleteByLineId(lineId);
+    }
+
     private void validateReturnIssueDetailExists(Long id) {
         if (issueDetailMapper.selectById(id) == null) {
             throw exception(WM_RETURN_ISSUE_DETAIL_NOT_EXISTS);

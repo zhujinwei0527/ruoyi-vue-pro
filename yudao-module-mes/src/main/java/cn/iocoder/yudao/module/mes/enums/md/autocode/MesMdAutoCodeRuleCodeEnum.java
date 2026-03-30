@@ -20,6 +20,7 @@ public enum MesMdAutoCodeRuleCodeEnum {
     WM_ARRIVAL_NOTICE_CODE("WM_ARRIVAL_NOTICE_CODE", "到货通知单编码"),
     WM_ITEM_RECEIPT_CODE("WM_ITEM_RECEIPT_CODE", "采购入库单编码"),
     WM_RETURN_VENDOR_CODE("WM_RETURN_VENDOR_CODE", "采购退货单编码"),
+    WM_RETURN_ISSUE_CODE("WM_RETURN_ISSUE_CODE", "生产退料单编码"),
     WM_SN_CODE("WM_SN_CODE", "SN 码"),
     WM_PACKAGE_CODE("WM_PACKAGE_CODE", "装箱单编码"),
     WM_BATCH_CODE("WM_BATCH_CODE", "批次编码"),

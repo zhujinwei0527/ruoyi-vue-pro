@@ -27,8 +27,14 @@ public class MesWmReturnIssueLineSaveReqVO {
     @DecimalMin(value = "0", inclusive = false, message = "退料数量必须大于 0")
     private BigDecimal quantity;
 
+    @Schema(description = "库存记录 ID", example = "1")
+    private Long materialStockId;
+
     @Schema(description = "批次 ID", example = "1")
     private Long batchId;
+
+    @Schema(description = "批次编码", example = "BCH20260330001")
+    private String batchCode;
 
     @Schema(description = "是否需要质检", requiredMode = Schema.RequiredMode.REQUIRED, example = "false")
     @NotNull(message = "是否需要质检不能为空")

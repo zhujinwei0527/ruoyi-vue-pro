@@ -31,11 +31,17 @@ public class MesWmReturnIssueLineRespVO {
     @Schema(description = "计量单位名称", example = "千克")
     private String unitMeasureName;
 
+    @Schema(description = "库存记录 ID", example = "1")
+    private Long materialStockId;
+
     @Schema(description = "退料数量", example = "100.00")
     private BigDecimal quantity;
 
     @Schema(description = "批次 ID", example = "1")
     private Long batchId;
+
+    @Schema(description = "批次编码", example = "BAT202601001")
+    private String batchCode;
 
     @Schema(description = "是否需要质检", example = "false")
     private Boolean rqcCheckFlag;

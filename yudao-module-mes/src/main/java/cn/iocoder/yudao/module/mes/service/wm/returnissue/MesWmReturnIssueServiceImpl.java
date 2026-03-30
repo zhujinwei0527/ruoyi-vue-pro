@@ -254,7 +254,8 @@ public class MesWmReturnIssueServiceImpl implements MesWmReturnIssueService {
     /**
      * 校验生产退料单存在且为准备中状态
      */
-    private MesWmReturnIssueDO validateReturnIssueExistsAndPrepare(Long id) {
+    @Override
+    public MesWmReturnIssueDO validateReturnIssueExistsAndPrepare(Long id) {
         MesWmReturnIssueDO issue = validateReturnIssueExists(id);
         if (ObjUtil.notEqual(MesWmReturnIssueStatusEnum.PREPARE.getStatus(), issue.getStatus())) {
             throw exception(WM_RETURN_ISSUE_NOT_PREPARE);
@@ -269,9 +270,23 @@ public class MesWmReturnIssueServiceImpl implements MesWmReturnIssueService {
     }
 
     /**
+     * 校验编码唯一性
+     */
+    private void validateCodeUnique(Long id, String code) {
+        MesWmReturnIssueDO issue = issueMapper.selectByCode(code);
+        if (issue == null) {
+            return;
+        }
+        if (ObjUtil.notEqual(id, issue.getId())) {
+            throw exception(WM_RETURN_ISSUE_CODE_DUPLICATE);
+        }
+    }
+
+    /**
      * 校验保存时的关联数据
      */
     private void validateReturnIssueSaveData(MesWmReturnIssueSaveReqVO reqVO) {
+        validateCodeUnique(reqVO.getId(), reqVO.getCode());
         workOrderService.validateWorkOrderExists(reqVO.getWorkOrderId());
         if (reqVO.getWorkstationId() != null) {
             workstationService.validateWorkstationExists(reqVO.getWorkstationId());
