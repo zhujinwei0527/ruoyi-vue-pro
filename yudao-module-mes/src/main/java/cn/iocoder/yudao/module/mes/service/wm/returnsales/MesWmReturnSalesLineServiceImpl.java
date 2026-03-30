@@ -45,10 +45,7 @@ public class MesWmReturnSalesLineServiceImpl implements MesWmReturnSalesLineServ
 
     @Override
     public Long createReturnSalesLine(MesWmReturnSalesLineSaveReqVO createReqVO) {
-        // 校验父数据存在
-        returnSalesService.validateReturnSalesExists(createReqVO.getReturnId());
-        // 校验物料存在
-        validateItemBatchManagement(createReqVO.getItemId(), createReqVO.getBatchId());
+        validateLineSaveData(createReqVO);
 
         // 插入
         MesWmReturnSalesLineDO line = BeanUtils.toBean(createReqVO, MesWmReturnSalesLineDO.class);
@@ -62,16 +59,23 @@ public class MesWmReturnSalesLineServiceImpl implements MesWmReturnSalesLineServ
     public void updateReturnSalesLine(MesWmReturnSalesLineSaveReqVO updateReqVO) {
         // 校验存在
         validateReturnSalesLineExists(updateReqVO.getId());
-        // 校验父数据存在
-        returnSalesService.validateReturnSalesExists(updateReqVO.getReturnId());
-        // 校验物料存在
-        validateItemBatchManagement(updateReqVO.getItemId(), updateReqVO.getBatchId());
+        validateLineSaveData(updateReqVO);
 
         // 更新
         MesWmReturnSalesLineDO updateObj = BeanUtils.toBean(updateReqVO, MesWmReturnSalesLineDO.class);
         // 质量状态自动赋值
         updateObj.setQualityStatus(calculateQualityStatus(updateObj.getRqcCheckFlag()));
         returnSalesLineMapper.updateById(updateObj);
+    }
+
+    /**
+     * 校验保存时的关联数据
+     */
+    private void validateLineSaveData(MesWmReturnSalesLineSaveReqVO reqVO) {
+        // 校验退货单存在
+        returnSalesService.validateReturnSalesExists(reqVO.getReturnId());
+        // 校验物料存在 + 批次管理
+        validateItemBatchManagement(reqVO.getItemId(), reqVO.getBatchId());
     }
 
     @Override
