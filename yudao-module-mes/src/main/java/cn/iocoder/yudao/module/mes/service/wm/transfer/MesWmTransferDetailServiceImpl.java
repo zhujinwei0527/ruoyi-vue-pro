@@ -95,15 +95,12 @@ public class MesWmTransferDetailServiceImpl implements MesWmTransferDetailServic
 
     @Override
     public void deleteTransferDetailByTransferId(Long transferId) {
-        getTransferDetailListByTransferId(transferId)
-                .forEach(detail -> transferDetailMapper.deleteById(detail.getId()));
+        transferDetailMapper.deleteByTransferId(transferId);
     }
 
     @Override
     public void deleteTransferDetailByLineId(Long lineId) {
-        // TODO @AI：不要 get；直接去 deletebylineId；
-        getTransferDetailListByLineId(lineId)
-                .forEach(detail -> transferDetailMapper.deleteById(detail.getId()));
+        transferDetailMapper.deleteByLineId(lineId);
     }
 
     private void validateTransferDetailExists(Long id) {

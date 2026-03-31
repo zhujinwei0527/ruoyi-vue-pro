@@ -4,6 +4,7 @@ import cn.iocoder.yudao.framework.common.util.object.BeanUtils;
 import cn.iocoder.yudao.module.mes.controller.admin.wm.transfer.vo.line.MesWmTransferLineSaveReqVO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.wm.transfer.MesWmTransferLineDO;
 import cn.iocoder.yudao.module.mes.dal.mysql.wm.transfer.MesWmTransferLineMapper;
+import cn.iocoder.yudao.module.mes.dal.dataobject.wm.materialstock.MesWmMaterialStockDO;
 import cn.iocoder.yudao.module.mes.service.md.item.MesMdItemService;
 import cn.iocoder.yudao.module.mes.service.wm.materialstock.MesWmMaterialStockService;
 import cn.iocoder.yudao.module.mes.service.wm.warehouse.MesWmWarehouseAreaService;
@@ -18,6 +19,7 @@ import java.util.List;
 import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception;
 import static cn.iocoder.yudao.module.mes.enums.ErrorCodeConstants.WM_MATERIAL_STOCK_NOT_EXISTS;
 import static cn.iocoder.yudao.module.mes.enums.ErrorCodeConstants.WM_TRANSFER_LINE_NOT_EXISTS;
+import static cn.iocoder.yudao.module.mes.enums.ErrorCodeConstants.WM_TRANSFER_LINE_QUANTITY_EXCEED_STOCK;
 
 /**
  * MES 转移单行 Service 实现类
@@ -91,8 +93,7 @@ public class MesWmTransferLineServiceImpl implements MesWmTransferLineService {
 
     @Override
     public void deleteTransferLineByTransferId(Long transferId) {
-        getTransferLineListByTransferId(transferId)
-                .forEach(line -> transferLineMapper.deleteById(line.getId()));
+        transferLineMapper.deleteByTransferId(transferId);
     }
 
     @Override
@@ -112,10 +113,15 @@ public class MesWmTransferLineServiceImpl implements MesWmTransferLineService {
         // 校验来源仓库、库区、库位的关联关系
         warehouseAreaService.validateWarehouseAreaExists(reqVO.getFromWarehouseId(),
                 reqVO.getFromLocationId(), reqVO.getFromAreaId());
-        // 校验库存记录存在
-        if (reqVO.getMaterialStockId() != null
-                && materialStockService.getMaterialStock(reqVO.getMaterialStockId()) == null) {
-            throw exception(WM_MATERIAL_STOCK_NOT_EXISTS);
+        // 校验库存记录存在，且转移数量不超过库存数量
+        if (reqVO.getMaterialStockId() != null) {
+            MesWmMaterialStockDO stock = materialStockService.getMaterialStock(reqVO.getMaterialStockId());
+            if (stock == null) {
+                throw exception(WM_MATERIAL_STOCK_NOT_EXISTS);
+            }
+            if (stock.getQuantity() != null && reqVO.getQuantity().compareTo(stock.getQuantity()) > 0) {
+                throw exception(WM_TRANSFER_LINE_QUANTITY_EXCEED_STOCK);
+            }
         }
     }
 

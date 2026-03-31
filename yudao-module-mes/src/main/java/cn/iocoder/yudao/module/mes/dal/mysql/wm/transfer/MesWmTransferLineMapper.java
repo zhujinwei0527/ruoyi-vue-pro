@@ -19,4 +19,8 @@ public interface MesWmTransferLineMapper extends BaseMapperX<MesWmTransferLineDO
                 .orderByAsc(MesWmTransferLineDO::getId));
     }
 
+    default void deleteByTransferId(Long transferId) {
+        delete(MesWmTransferLineDO::getTransferId, transferId);
+    }
+
 }
