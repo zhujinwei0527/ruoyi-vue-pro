@@ -8,6 +8,7 @@ import cn.iocoder.yudao.module.mes.controller.admin.wm.barcode.vo.config.MesWmBa
 import cn.iocoder.yudao.module.mes.dal.dataobject.wm.barcode.MesWmBarcodeConfigDO;
 import cn.iocoder.yudao.module.mes.dal.mysql.wm.barcode.MesWmBarcodeConfigMapper;
 import jakarta.annotation.Resource;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 
@@ -25,6 +26,10 @@ public class MesWmBarcodeConfigServiceImpl implements MesWmBarcodeConfigService 
 
     @Resource
     private MesWmBarcodeConfigMapper barcodeConfigMapper;
+
+    @Resource
+    @Lazy
+    private MesWmBarcodeService barcodeService;
 
     @Override
     public Long createBarcodeConfig(MesWmBarcodeConfigSaveReqVO createReqVO) {
@@ -53,6 +58,11 @@ public class MesWmBarcodeConfigServiceImpl implements MesWmBarcodeConfigService 
     public void deleteBarcodeConfig(Long id) {
         // 校验存在
         validateBarcodeConfigExists(id);
+        // 校验是否有关联的条码记录
+        if (barcodeService.getBarcodeCountByConfigId(id) > 0) {
+            throw exception(WM_BARCODE_CONFIG_HAS_BARCODE);
+        }
+
         // 删除
         barcodeConfigMapper.deleteById(id);
     }

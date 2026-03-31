@@ -133,6 +133,13 @@ public class MesWmPackageController {
         return success(buildRespVOList(list));
     }
 
+    @GetMapping("/simple-list")
+    @Operation(summary = "获得装箱单精简列表", description = "主要用于前端的下拉选项")
+    public CommonResult<List<MesWmPackageRespVO>> getPackageSimpleList() {
+        List<MesWmPackageDO> list = packageService.getPackageSimpleList();
+        return success(buildRespVOList(list));
+    }
+
     // ========== 私有方法 ==========
 
     private List<MesWmPackageRespVO> buildRespVOList(List<MesWmPackageDO> list) {

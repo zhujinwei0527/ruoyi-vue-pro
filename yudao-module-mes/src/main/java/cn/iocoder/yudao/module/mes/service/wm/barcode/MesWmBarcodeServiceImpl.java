@@ -170,4 +170,9 @@ public class MesWmBarcodeServiceImpl implements MesWmBarcodeService {
         createBarcode(createReqVO);
     }
 
+    @Override
+    public long getBarcodeCountByConfigId(Long configId) {
+        return barcodeMapper.selectCountByConfigId(configId);
+    }
+
 }

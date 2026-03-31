@@ -6,6 +6,8 @@ import cn.iocoder.yudao.module.mes.controller.admin.pro.card.vo.MesProCardSaveRe
 import cn.iocoder.yudao.module.mes.dal.dataobject.pro.card.MesProCardDO;
 import jakarta.validation.Valid;
 
+import java.util.List;
+
 /**
  * MES 生产流转卡 Service 接口
  *
@@ -57,5 +59,12 @@ public interface MesProCardService {
      * @return 生产流转卡分页
      */
     PageResult<MesProCardDO> getCardPage(MesProCardPageReqVO pageReqVO);
+
+    /**
+     * 获得生产流转卡精简列表
+     *
+     * @return 流转卡列表
+     */
+    List<MesProCardDO> getCardSimpleList();
 
 }

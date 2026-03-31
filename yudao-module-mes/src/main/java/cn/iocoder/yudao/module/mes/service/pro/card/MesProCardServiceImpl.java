@@ -3,6 +3,8 @@ package cn.iocoder.yudao.module.mes.service.pro.card;
 import cn.hutool.core.util.ObjUtil;
 import cn.iocoder.yudao.framework.common.pojo.PageResult;
 import cn.iocoder.yudao.framework.common.util.object.BeanUtils;
+
+import java.util.List;
 import cn.iocoder.yudao.module.mes.controller.admin.pro.card.vo.MesProCardPageReqVO;
 import cn.iocoder.yudao.module.mes.controller.admin.pro.card.vo.MesProCardSaveReqVO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.pro.card.MesProCardDO;
@@ -90,6 +92,11 @@ public class MesProCardServiceImpl implements MesProCardService {
     @Override
     public PageResult<MesProCardDO> getCardPage(MesProCardPageReqVO pageReqVO) {
         return cardMapper.selectPage(pageReqVO);
+    }
+
+    @Override
+    public List<MesProCardDO> getCardSimpleList() {
+        return cardMapper.selectList();
     }
 
     // ==================== 校验方法 ====================

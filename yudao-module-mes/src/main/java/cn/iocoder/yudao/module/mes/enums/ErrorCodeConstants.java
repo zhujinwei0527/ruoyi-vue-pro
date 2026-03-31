@@ -592,6 +592,7 @@ public interface ErrorCodeConstants {
     // ========== MES 仓库管理-条码配置（1-040-730-000） ==========
     ErrorCode WM_BARCODE_CONFIG_NOT_EXISTS = new ErrorCode(1_040_730_000, "条码配置不存在");
     ErrorCode WM_BARCODE_CONFIG_BIZ_TYPE_DUPLICATE = new ErrorCode(1_040_730_001, "该业务类型的条码配置已存在");
+    ErrorCode WM_BARCODE_CONFIG_HAS_BARCODE = new ErrorCode(1_040_730_002, "该条码配置已被条码记录关联，无法删除");
 
     // ========== MES 仓库管理-条码清单（1-040-731-000） ==========
     ErrorCode WM_BARCODE_NOT_EXISTS = new ErrorCode(1_040_731_000, "条码不存在");

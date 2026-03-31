@@ -39,4 +39,8 @@ public interface MesWmBarcodeMapper extends BaseMapperX<MesWmBarcodeDO> {
         return selectOne(MesWmBarcodeDO::getContent, content);
     }
 
+    default Long selectCountByConfigId(Long configId) {
+        return selectCount(MesWmBarcodeDO::getConfigId, configId);
+    }
+
 }

@@ -79,4 +79,12 @@ public interface MesWmBarcodeService {
      */
     String generateBarcodeContent(Integer bizType, String bizCode);
 
+    /**
+     * 根据条码配置编号获取相关联的条码数量
+     *
+     * @param configId 条码配置编号
+     * @return 条码数量
+     */
+    long getBarcodeCountByConfigId(Long configId);
+
 }
