@@ -2,6 +2,7 @@ package cn.iocoder.yudao.module.mes.dal.dataobject.wm.outsourceissue;
 
 import cn.iocoder.yudao.framework.mybatis.core.dataobject.BaseDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.md.item.MesMdItemDO;
+import cn.iocoder.yudao.module.mes.dal.dataobject.wm.materialstock.MesWmMaterialStockDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.wm.warehouse.MesWmWarehouseDO;
 import com.baomidou.mybatisplus.annotation.KeySequence;
 import com.baomidou.mybatisplus.annotation.TableId;
@@ -44,6 +45,8 @@ public class MesWmOutsourceIssueDetailDO extends BaseDO {
     private Long issueId;
     /**
      * 库存ID
+     *
+     * 关联 {@link MesWmMaterialStockDO#getId()}
      */
     private Long materialStockId;
     /**

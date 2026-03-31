@@ -26,6 +26,9 @@ public class MesWmOutsourceIssueDetailSaveReqVO {
     @NotNull(message = "物料ID不能为空")
     private Long itemId;
 
+    @Schema(description = "库存ID", example = "1")
+    private Long materialStockId;
+
     @Schema(description = "数量", requiredMode = Schema.RequiredMode.REQUIRED, example = "300.00")
     @NotNull(message = "数量不能为空")
     @DecimalMin(value = "0.01", message = "数量必须大于 0")

@@ -6,6 +6,7 @@ import cn.iocoder.yudao.framework.common.pojo.PageResult;
 import cn.iocoder.yudao.framework.common.util.object.BeanUtils;
 import cn.iocoder.yudao.module.mes.controller.admin.pro.workorder.vo.MesProWorkOrderPageReqVO;
 import cn.iocoder.yudao.module.mes.controller.admin.pro.workorder.vo.MesProWorkOrderSaveReqVO;
+import cn.iocoder.yudao.framework.mybatis.core.query.LambdaQueryWrapperX;
 import cn.iocoder.yudao.module.mes.dal.dataobject.md.item.MesMdItemBatchConfigDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.pro.workorder.MesProWorkOrderDO;
 import cn.iocoder.yudao.module.mes.dal.mysql.pro.workorder.MesProWorkOrderMapper;
@@ -230,8 +231,10 @@ public class MesProWorkOrderServiceImpl implements MesProWorkOrderService {
     }
 
     @Override
-    public List<MesProWorkOrderDO> getWorkOrderList() {
-        return workOrderMapper.selectList();
+    public List<MesProWorkOrderDO> getWorkOrderList(Integer type) {
+        return workOrderMapper.selectList(new LambdaQueryWrapperX<MesProWorkOrderDO>()
+                .eqIfPresent(MesProWorkOrderDO::getType, type)
+                .orderByDesc(MesProWorkOrderDO::getId));
     }
 
     @Override
