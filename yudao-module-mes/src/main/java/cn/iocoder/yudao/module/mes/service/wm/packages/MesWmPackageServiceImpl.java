@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.Objects;
 
 import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception;
+import static cn.iocoder.yudao.framework.common.util.collection.CollectionUtils.convertList;
 import static cn.iocoder.yudao.module.mes.enums.ErrorCodeConstants.*;
 
 /**
@@ -139,6 +140,22 @@ public class MesWmPackageServiceImpl implements MesWmPackageService {
     @Override
     public List<MesWmPackageDO> getChildablePackageList() {
         return packageMapper.selectChildableList();
+    }
+
+    @Override
+    public List<Long> getPackageAndDescendantIds(Long packageId) {
+        List<Long> result = CollUtil.newArrayList(packageId);
+        // 使用广度优先搜索 (BFS) 按层批量查询所有子孙箱 ID
+        List<Long> currentLevelIds = CollUtil.newArrayList(packageId);
+        for (int i = 0; i < Short.MAX_VALUE && CollUtil.isNotEmpty(currentLevelIds); i++) {
+            List<MesWmPackageDO> children = packageMapper.selectListByParentIds(currentLevelIds);
+            if (CollUtil.isEmpty(children)) {
+                break;
+            }
+            currentLevelIds = convertList(children, MesWmPackageDO::getId);
+            result.addAll(currentLevelIds);
+        }
+        return result;
     }
 
     // ========== 校验方法 ==========

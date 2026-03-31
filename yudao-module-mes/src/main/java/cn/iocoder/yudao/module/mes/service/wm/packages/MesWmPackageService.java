@@ -89,4 +89,12 @@ public interface MesWmPackageService {
      */
     List<MesWmPackageDO> getChildablePackageList();
 
+    /**
+     * 获取指定装箱单及其所有子孙箱的 ID 列表
+     *
+     * @param packageId 装箱单 ID
+     * @return 装箱单及其所有子孙箱的 ID 集合
+     */
+    List<Long> getPackageAndDescendantIds(Long packageId);
+
 }

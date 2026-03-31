@@ -8,6 +8,7 @@ import cn.iocoder.yudao.module.mes.dal.dataobject.wm.packages.MesWmPackageDO;
 import cn.iocoder.yudao.module.mes.enums.wm.MesWmPackageStatusEnum;
 import org.apache.ibatis.annotations.Mapper;
 
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -34,6 +35,11 @@ public interface MesWmPackageMapper extends BaseMapperX<MesWmPackageDO> {
 
     default List<MesWmPackageDO> selectListByParentId(Long parentId) {
         return selectList(MesWmPackageDO::getParentId, parentId);
+    }
+
+    default List<MesWmPackageDO> selectListByParentIds(Collection<Long> parentIds) {
+        return selectList(new LambdaQueryWrapperX<MesWmPackageDO>()
+                .in(MesWmPackageDO::getParentId, parentIds));
     }
 
     default List<MesWmPackageDO> selectChildableList() {

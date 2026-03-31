@@ -15,11 +15,9 @@ import org.apache.ibatis.annotations.Mapper;
 @Mapper
 public interface MesWmPackageLineMapper extends BaseMapperX<MesWmPackageLineDO> {
 
-    default PageResult<MesWmPackageLineDO> selectPage(MesWmPackageLinePageReqVO reqVO) {
-        // TODO @芋艿：需确认“父箱详情 -> 装箱清单”是否需要汇总当前箱及其所有子孙箱的明细；
-        // TODO @芋艿：对齐，当前通过 SQL + ancestors 实现聚合查询，这里现在仅按 packageId 精确查询。
+    default PageResult<MesWmPackageLineDO> selectPage(MesWmPackageLinePageReqVO reqVO, java.util.Collection<Long> packageIds) {
         return selectPage(reqVO, new LambdaQueryWrapperX<MesWmPackageLineDO>()
-                .eqIfPresent(MesWmPackageLineDO::getPackageId, reqVO.getPackageId())
+                .inIfPresent(MesWmPackageLineDO::getPackageId, packageIds)
                 .orderByDesc(MesWmPackageLineDO::getId));
     }
 
