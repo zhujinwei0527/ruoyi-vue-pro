@@ -13,8 +13,10 @@ import cn.iocoder.yudao.module.mes.dal.dataobject.wm.outsourceissue.MesWmOutsour
 import cn.iocoder.yudao.module.mes.dal.dataobject.wm.outsourceissue.MesWmOutsourceIssueDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.wm.outsourceissue.MesWmOutsourceIssueLineDO;
 import cn.iocoder.yudao.module.mes.dal.mysql.wm.outsourceissue.MesWmOutsourceIssueMapper;
+import cn.iocoder.yudao.module.mes.dal.dataobject.pro.workorder.MesProWorkOrderDO;
 import cn.iocoder.yudao.module.mes.enums.MesBizTypeConstants;
 import cn.iocoder.yudao.module.mes.enums.md.autocode.MesMdAutoCodeRuleCodeEnum;
+import cn.iocoder.yudao.module.mes.enums.pro.MesProWorkOrderTypeEnum;
 import cn.iocoder.yudao.module.mes.enums.wm.MesWmOutsourceIssueStatusEnum;
 import cn.iocoder.yudao.module.mes.enums.wm.MesWmTransactionTypeEnum;
 import cn.iocoder.yudao.module.mes.service.md.autocode.MesMdAutoCodeRecordService;
@@ -257,8 +259,11 @@ public class MesWmOutsourceIssueServiceImpl implements MesWmOutsourceIssueServic
         if (saveReqVO.getVendorId() != null) {
             vendorService.validateVendorExists(saveReqVO.getVendorId());
         }
-        // 校验工单存在
-        workOrderService.validateWorkOrderExists(saveReqVO.getWorkOrderId());
+        // 校验工单存在且类型为外协（代工）
+        MesProWorkOrderDO workOrder = workOrderService.validateWorkOrderExists(saveReqVO.getWorkOrderId());
+        if (ObjUtil.notEqual(workOrder.getType(), MesProWorkOrderTypeEnum.OUTSOURCE.getType())) {
+            throw exception(WM_OUTSOURCE_ISSUE_WORK_ORDER_TYPE_INVALID);
+        }
     }
 
     /**

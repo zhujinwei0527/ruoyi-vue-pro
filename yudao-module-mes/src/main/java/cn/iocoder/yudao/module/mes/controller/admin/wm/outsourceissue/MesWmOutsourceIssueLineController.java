@@ -10,9 +10,11 @@ import cn.iocoder.yudao.module.mes.controller.admin.wm.outsourceissue.vo.line.Me
 import cn.iocoder.yudao.module.mes.controller.admin.wm.outsourceissue.vo.line.MesWmOutsourceIssueLineSaveReqVO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.md.item.MesMdItemDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.md.unitmeasure.MesMdUnitMeasureDO;
+import cn.iocoder.yudao.module.mes.dal.dataobject.wm.batch.MesWmBatchDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.wm.outsourceissue.MesWmOutsourceIssueLineDO;
 import cn.iocoder.yudao.module.mes.service.md.item.MesMdItemService;
 import cn.iocoder.yudao.module.mes.service.md.unitmeasure.MesMdUnitMeasureService;
+import cn.iocoder.yudao.module.mes.service.wm.batch.MesWmBatchService;
 import cn.iocoder.yudao.module.mes.service.wm.outsourceissue.MesWmOutsourceIssueLineService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -26,8 +28,10 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import static cn.iocoder.yudao.framework.common.pojo.CommonResult.success;
+import static cn.iocoder.yudao.framework.common.util.collection.CollectionUtils.convertMap;
 import static cn.iocoder.yudao.framework.common.util.collection.CollectionUtils.convertSet;
 
 /**
@@ -49,6 +53,9 @@ public class MesWmOutsourceIssueLineController {
 
     @Resource
     private MesMdUnitMeasureService unitMeasureService;
+
+    @Resource
+    private MesWmBatchService batchService;
 
     @PostMapping("/create")
     @Operation(summary = "创建外协发料单行")
@@ -116,6 +123,11 @@ public class MesWmOutsourceIssueLineController {
                 convertSet(list, MesWmOutsourceIssueLineDO::getItemId));
         Map<Long, MesMdUnitMeasureDO> unitMeasureMap = unitMeasureService.getUnitMeasureMap(
                 convertSet(itemMap.values(), MesMdItemDO::getUnitMeasureId));
+        // 1.2 获得批次数据
+        Set<Long> batchIds = convertSet(list, MesWmOutsourceIssueLineDO::getBatchId);
+        batchIds.remove(null);
+        Map<Long, MesWmBatchDO> batchMap = CollUtil.isEmpty(batchIds) ? Collections.emptyMap()
+                : convertMap(batchIds, id -> id, id -> batchService.getBatch(id));
         // 2. 构建结果
         return BeanUtils.toBean(list, MesWmOutsourceIssueLineRespVO.class, vo -> {
             MapUtils.findAndThen(itemMap, vo.getItemId(), item -> {
@@ -123,6 +135,7 @@ public class MesWmOutsourceIssueLineController {
                 MapUtils.findAndThen(unitMeasureMap, item.getUnitMeasureId(),
                         unitMeasure -> vo.setUnitMeasureName(unitMeasure.getName()));
             });
+            MapUtils.findAndThen(batchMap, vo.getBatchId(), batch -> vo.setBatchCode(batch.getCode()));
         });
     }
 

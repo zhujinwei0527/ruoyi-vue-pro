@@ -106,10 +106,13 @@ public class MesProWorkOrderController {
 
     @GetMapping("/simple-list")
     @Operation(summary = "获得生产工单精简列表", description = "主要用于前端的下拉选项")
-    public CommonResult<List<MesProWorkOrderRespVO>> getWorkOrderSimpleList() {
-        List<MesProWorkOrderDO> list = workOrderService.getWorkOrderList();
+    @Parameter(name = "type", description = "工单类型", example = "2")
+    public CommonResult<List<MesProWorkOrderRespVO>> getWorkOrderSimpleList(
+            @RequestParam(value = "type", required = false) Integer type) {
+        List<MesProWorkOrderDO> list = workOrderService.getWorkOrderList(type);
         return success(convertList(list, wo -> new MesProWorkOrderRespVO()
                 .setId(wo.getId()).setCode(wo.getCode()).setName(wo.getName())
+                .setType(wo.getType()).setVendorId(wo.getVendorId())
                 .setStatus(wo.getStatus())));
     }
 

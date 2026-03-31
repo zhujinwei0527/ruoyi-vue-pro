@@ -1,12 +1,15 @@
 package cn.iocoder.yudao.module.mes.service.wm.outsourceissue;
 
+import cn.hutool.core.util.StrUtil;
 import cn.iocoder.yudao.framework.common.pojo.PageResult;
 import cn.iocoder.yudao.framework.common.util.object.BeanUtils;
 import cn.iocoder.yudao.module.mes.controller.admin.wm.outsourceissue.vo.line.MesWmOutsourceIssueLinePageReqVO;
 import cn.iocoder.yudao.module.mes.controller.admin.wm.outsourceissue.vo.line.MesWmOutsourceIssueLineSaveReqVO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.wm.outsourceissue.MesWmOutsourceIssueLineDO;
 import cn.iocoder.yudao.module.mes.dal.mysql.wm.outsourceissue.MesWmOutsourceIssueLineMapper;
+import cn.iocoder.yudao.module.mes.dal.dataobject.wm.batch.MesWmBatchDO;
 import cn.iocoder.yudao.module.mes.service.md.item.MesMdItemService;
+import cn.iocoder.yudao.module.mes.service.wm.batch.MesWmBatchService;
 import jakarta.annotation.Resource;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
@@ -36,11 +39,15 @@ public class MesWmOutsourceIssueLineServiceImpl implements MesWmOutsourceIssueLi
     private MesWmOutsourceIssueService outsourceIssueService;
     @Resource
     private MesMdItemService itemService;
+    @Resource
+    private MesWmBatchService batchService;
 
     @Override
     public Long createOutsourceIssueLine(MesWmOutsourceIssueLineSaveReqVO createReqVO) {
         // 校验数据
         validateOutsourceIssueLineSaveData(createReqVO);
+        // 根据 batchCode 解析 batchId
+        fillBatchId(createReqVO);
 
         // 插入
         MesWmOutsourceIssueLineDO line = BeanUtils.toBean(createReqVO, MesWmOutsourceIssueLineDO.class);
@@ -54,6 +61,8 @@ public class MesWmOutsourceIssueLineServiceImpl implements MesWmOutsourceIssueLi
         validateOutsourceIssueLineExists(updateReqVO.getId());
         // 校验数据
         validateOutsourceIssueLineSaveData(updateReqVO);
+        // 根据 batchCode 解析 batchId
+        fillBatchId(updateReqVO);
 
         // 更新
         MesWmOutsourceIssueLineDO updateObj = BeanUtils.toBean(updateReqVO, MesWmOutsourceIssueLineDO.class);
@@ -102,6 +111,18 @@ public class MesWmOutsourceIssueLineServiceImpl implements MesWmOutsourceIssueLi
         outsourceIssueService.getOutsourceIssue(saveReqVO.getIssueId());
         // 校验关联的物料存在
         itemService.validateItemExists(saveReqVO.getItemId());
+    }
+
+    /**
+     * 根据 batchCode 解析 batchId
+     */
+    private void fillBatchId(MesWmOutsourceIssueLineSaveReqVO reqVO) {
+        if (StrUtil.isBlank(reqVO.getBatchCode())) {
+            reqVO.setBatchId(null);
+            return;
+        }
+        MesWmBatchDO batch = batchService.getBatchByCode(reqVO.getBatchCode());
+        reqVO.setBatchId(batch != null ? batch.getId() : null);
     }
 
 }

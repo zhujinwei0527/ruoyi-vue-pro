@@ -36,4 +36,7 @@ public class MesWmOutsourceIssueLineSaveReqVO {
     @Schema(description = "备注", example = "备注")
     private String remark;
 
+    @Schema(description = "批次编码", example = "BATCH001")
+    private String batchCode;
+
 }
