@@ -10,6 +10,7 @@ import cn.iocoder.yudao.module.mes.controller.admin.wm.stocktaking.plan.vo.MesWm
 import cn.iocoder.yudao.module.mes.dal.dataobject.wm.stocktaking.plan.MesWmStockTakingPlanDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.wm.stocktaking.plan.MesWmStockTakingPlanParamDO;
 import cn.iocoder.yudao.module.mes.dal.mysql.wm.stocktaking.plan.MesWmStockTakingPlanMapper;
+import cn.iocoder.yudao.module.mes.enums.wm.MesWmStockTakingTypeEnum;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -38,8 +39,8 @@ public class MesWmStockTakingPlanServiceImpl implements MesWmStockTakingPlanServ
 
     @Override
     public Long createStockTakingPlan(MesWmStockTakingPlanSaveReqVO createReqVO) {
-        // 校验 code 的唯一性
-        validatePlanCodeUnique(null, createReqVO.getCode());
+        // 校验并处理保存数据
+        validatePlanSaveData(createReqVO);
 
         // 插入数据
         MesWmStockTakingPlanDO plan = BeanUtils.toBean(createReqVO, MesWmStockTakingPlanDO.class);
@@ -52,8 +53,8 @@ public class MesWmStockTakingPlanServiceImpl implements MesWmStockTakingPlanServ
     public void updateStockTakingPlan(MesWmStockTakingPlanSaveReqVO updateReqVO) {
         // 校验盘点方案存在，并且是可编辑状态
         validatePlanEditable(updateReqVO.getId());
-        // 校验 code 的唯一性
-        validatePlanCodeUnique(updateReqVO.getId(), updateReqVO.getCode());
+        // 校验并处理保存数据
+        validatePlanSaveData(updateReqVO);
 
         // 更新数据
         MesWmStockTakingPlanDO updateObj = BeanUtils.toBean(updateReqVO, MesWmStockTakingPlanDO.class);
@@ -150,6 +151,23 @@ public class MesWmStockTakingPlanServiceImpl implements MesWmStockTakingPlanServ
             throw exception(WM_STOCK_TAKING_PLAN_NOT_DISABLED);
         }
         return plan;
+    }
+
+    private void validatePlanSaveData(MesWmStockTakingPlanSaveReqVO saveReqVO) {
+        // 校验 code 的唯一性
+        validatePlanCodeUnique(saveReqVO.getId(), saveReqVO.getCode());
+
+        // 校验/处理动态盘点时间
+        if (ObjUtil.notEqual(MesWmStockTakingTypeEnum.DYNAMIC.getType(), saveReqVO.getType())) {
+            // 非动态盘点类型清空时间字段
+            saveReqVO.setStartTime(null);
+            saveReqVO.setEndTime(null);
+        } else {
+            if (saveReqVO.getStartTime() == null || saveReqVO.getEndTime() == null
+                    || saveReqVO.getStartTime().compareTo(saveReqVO.getEndTime()) >= 0) {
+                throw exception(WM_STOCK_TAKING_PLAN_DYNAMIC_TIME_INVALID);
+            }
+        }
     }
 
 }
