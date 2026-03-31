@@ -64,4 +64,11 @@ public interface MesWmTransferDetailService {
      */
     void deleteTransferDetailByTransferId(Long transferId);
 
+    /**
+     * 根据行 ID 删除明细
+     *
+     * @param lineId 行 ID
+     */
+    void deleteTransferDetailByLineId(Long lineId);
+
 }

@@ -11,9 +11,6 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
-
-import static cn.iocoder.yudao.framework.common.util.collection.CollectionUtils.convertMap;
 
 /**
  * MES 库存台账 Service 接口
@@ -50,6 +47,14 @@ public interface MesWmMaterialStockService {
      * @param updateReqVO 更新信息
      */
     void updateMaterialStockFrozen(@Valid MesWmMaterialStockFreezeReqVO updateReqVO);
+
+    /**
+     * 批量更新库存冻结状态
+     *
+     * @param ids 库存记录编号列表
+     * @param frozen 是否冻结
+     */
+    void updateMaterialStockFrozen(Collection<Long> ids, boolean frozen);
 
     /**
      * 获得仓库下库存记录数量
@@ -91,10 +96,6 @@ public interface MesWmMaterialStockService {
      */
     List<MesWmMaterialStockDO> getMaterialStockList(MesWmMaterialStockListReqVO reqVO);
 
-    default Map<Long, MesWmMaterialStockDO> getMaterialStockMap(Collection<Long> ids) {
-        return convertMap(getMaterialStockList(ids), MesWmMaterialStockDO::getId);
-    }
-
     /**
      * 获得库存精简列表（用于前端下拉选择）
      *
@@ -122,11 +123,11 @@ public interface MesWmMaterialStockService {
     /**
      * 更新库存数量
      *
-     * @param materialStockId 库存记录编号
+     * @param id 库存记录编号
      * @param quantity        变动数量（正数=增加，负数=扣减）
      * @param checkFlag       是否校验库存充足（为 true 且扣减后为负则报错）
      */
-    void updateMaterialStockQuantity(Long materialStockId, BigDecimal quantity, boolean checkFlag);
+    void updateMaterialStockQuantity(Long id, BigDecimal quantity, boolean checkFlag);
 
     /**
      * 库位混放规则校验

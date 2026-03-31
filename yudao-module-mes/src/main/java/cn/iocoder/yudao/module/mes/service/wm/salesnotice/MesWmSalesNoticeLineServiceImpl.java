@@ -45,11 +45,8 @@ public class MesWmSalesNoticeLineServiceImpl implements MesWmSalesNoticeLineServ
 
     @Override
     public Long createSalesNoticeLine(MesWmSalesNoticeLineSaveReqVO createReqVO) {
-        // TODO @AI：增加 validateXXXSaveData 方法
-        // 校验父单据存在且为草稿状态
-        validateNoticeStatusDraft(createReqVO.getNoticeId());
-        // 校验物料存在
-        itemService.validateItemExists(createReqVO.getItemId());
+        // 校验数据
+        validateLineSaveData(createReqVO);
 
         // 插入
         MesWmSalesNoticeLineDO line = BeanUtils.toBean(createReqVO, MesWmSalesNoticeLineDO.class);
@@ -62,13 +59,9 @@ public class MesWmSalesNoticeLineServiceImpl implements MesWmSalesNoticeLineServ
     public void updateSalesNoticeLine(MesWmSalesNoticeLineSaveReqVO updateReqVO) {
         // 校验存在
         MesWmSalesNoticeLineDO line = validateSalesNoticeLineExists(updateReqVO.getId());
-        // TODO @AI：增加 validateXXXSaveData 方法
-        // 校验父单据存在且为草稿状态
-        validateNoticeStatusDraft(line.getNoticeId());
-        // 校验物料存在
-        if (updateReqVO.getItemId() != null) {
-            itemService.validateItemExists(updateReqVO.getItemId());
-        }
+        // 校验数据
+        updateReqVO.setNoticeId(line.getNoticeId());
+        validateLineSaveData(updateReqVO);
 
         // 更新
         MesWmSalesNoticeLineDO updateObj = BeanUtils.toBean(updateReqVO, MesWmSalesNoticeLineDO.class);
@@ -113,6 +106,15 @@ public class MesWmSalesNoticeLineServiceImpl implements MesWmSalesNoticeLineServ
             throw exception(WM_SALES_NOTICE_LINE_NOT_EXISTS);
         }
         return line;
+    }
+
+    private void validateLineSaveData(MesWmSalesNoticeLineSaveReqVO reqVO) {
+        // 校验父单据存在且为草稿状态
+        validateNoticeStatusDraft(reqVO.getNoticeId());
+        // 校验物料存在
+        if (reqVO.getItemId() != null) {
+            itemService.validateItemExists(reqVO.getItemId());
+        }
     }
 
     /**

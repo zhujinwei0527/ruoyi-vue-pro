@@ -4,7 +4,6 @@ import cn.hutool.core.collection.CollUtil;
 import cn.iocoder.yudao.framework.common.pojo.PageResult;
 import cn.iocoder.yudao.framework.common.util.collection.CollectionUtils;
 import cn.iocoder.yudao.framework.common.util.object.BeanUtils;
-import cn.iocoder.yudao.module.mes.controller.admin.wm.materialstock.vo.MesWmMaterialStockFreezeReqVO;
 import cn.iocoder.yudao.module.mes.controller.admin.wm.transfer.vo.MesWmTransferPageReqVO;
 import cn.iocoder.yudao.module.mes.controller.admin.wm.transfer.vo.MesWmTransferSaveReqVO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.wm.transfer.MesWmTransferDO;
@@ -27,6 +26,7 @@ import java.util.List;
 import java.util.Map;
 
 import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception;
+import static cn.iocoder.yudao.framework.common.util.collection.CollectionUtils.convertList;
 import static cn.iocoder.yudao.module.mes.enums.ErrorCodeConstants.*;
 
 /**
@@ -109,7 +109,7 @@ public class MesWmTransferServiceImpl implements MesWmTransferService {
         if (Boolean.TRUE.equals(transfer.getDeliveryFlag()) && !Boolean.TRUE.equals(transfer.getConfirmFlag())) {
             transfer.setStatus(MesWmTransferStatusEnum.UNCONFIRMED.getStatus()).setConfirmFlag(false);
             // DONE @AI：冻结库存属于主单状态流转的一部分，保留在主单 service 统一处理
-            freezeTransferLineStocks(lines, true);
+            freezeTransferLineStocks(id, true);
         } else {
             transfer.setStatus(MesWmTransferStatusEnum.APPROVING.getStatus());
         }
@@ -171,7 +171,7 @@ public class MesWmTransferServiceImpl implements MesWmTransferService {
 
         // 4. 配送模式下，执行完成后解除来源库存冻结
         if (Boolean.TRUE.equals(transfer.getDeliveryFlag())) {
-            freezeTransferLineStocks(lines, false);
+            freezeTransferLineStocks(id, false);
         }
     }
 
@@ -214,6 +214,11 @@ public class MesWmTransferServiceImpl implements MesWmTransferService {
     public void cancelTransfer(Long id) {
         // 校验存在 + 非已完成/已取消状态
         MesWmTransferDO transfer = validateTransferExistsAndNotFinished(id);
+
+        // 配送模式下，取消时需解除冻结
+        if (Boolean.TRUE.equals(transfer.getDeliveryFlag())) {
+            freezeTransferLineStocks(id, false);
+        }
 
         // 更新状态 -> 已取消
         transfer.setStatus(MesWmTransferStatusEnum.CANCELED.getStatus());
@@ -305,20 +310,14 @@ public class MesWmTransferServiceImpl implements MesWmTransferService {
         return transfer;
     }
 
-    // TODO @芋艿：【后续弄】materialStockService 封装一个方法，传入 transferId + frozen 统一处理了；不用判断 line 的 getMaterialStockId
-    private void freezeTransferLineStocks(List<MesWmTransferLineDO> lines, boolean frozen) {
+    private void freezeTransferLineStocks(Long transferId, boolean frozen) {
+        List<MesWmTransferLineDO> lines = transferLineService.getTransferLineListByTransferId(transferId);
         if (CollUtil.isEmpty(lines)) {
             return;
         }
-        for (MesWmTransferLineDO line : lines) {
-            if (line.getMaterialStockId() == null) {
-                continue;
-            }
-            MesWmMaterialStockFreezeReqVO freezeReqVO = new MesWmMaterialStockFreezeReqVO();
-            freezeReqVO.setId(line.getMaterialStockId());
-            freezeReqVO.setFrozen(frozen);
-            materialStockService.updateMaterialStockFrozen(freezeReqVO);
-        }
+        List<Long> materialStockIds = convertList(lines,
+                MesWmTransferLineDO::getMaterialStockId, line -> line.getMaterialStockId() != null);
+        materialStockService.updateMaterialStockFrozen(materialStockIds, frozen);
     }
 
 }

@@ -5,15 +5,18 @@ import cn.iocoder.yudao.module.mes.controller.admin.wm.transfer.vo.line.MesWmTra
 import cn.iocoder.yudao.module.mes.dal.dataobject.wm.transfer.MesWmTransferLineDO;
 import cn.iocoder.yudao.module.mes.dal.mysql.wm.transfer.MesWmTransferLineMapper;
 import cn.iocoder.yudao.module.mes.service.md.item.MesMdItemService;
+import cn.iocoder.yudao.module.mes.service.wm.materialstock.MesWmMaterialStockService;
 import cn.iocoder.yudao.module.mes.service.wm.warehouse.MesWmWarehouseAreaService;
 import jakarta.annotation.Resource;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 
 import java.util.List;
 
 import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception;
+import static cn.iocoder.yudao.module.mes.enums.ErrorCodeConstants.WM_MATERIAL_STOCK_NOT_EXISTS;
 import static cn.iocoder.yudao.module.mes.enums.ErrorCodeConstants.WM_TRANSFER_LINE_NOT_EXISTS;
 
 /**
@@ -30,19 +33,19 @@ public class MesWmTransferLineServiceImpl implements MesWmTransferLineService {
     @Lazy
     private MesWmTransferService transferService;
     @Resource
+    @Lazy
+    private MesWmTransferDetailService transferDetailService;
+    @Resource
     private MesMdItemService itemService;
     @Resource
     private MesWmWarehouseAreaService warehouseAreaService;
+    @Resource
+    private MesWmMaterialStockService materialStockService;
 
     @Override
     public Long createTransferLine(MesWmTransferLineSaveReqVO createReqVO) {
-        // 校验父数据可编辑
-        transferService.validateTransferEditable(createReqVO.getTransferId());
-        // 校验产品存在
-        itemService.validateItemExists(createReqVO.getItemId());
-        // 校验来源仓库、库区、库位的关联关系
-        warehouseAreaService.validateWarehouseAreaExists(createReqVO.getFromWarehouseId(),
-                createReqVO.getFromLocationId(), createReqVO.getFromAreaId());
+        // 校验
+        validateLineSaveData(createReqVO);
 
         // 插入
         MesWmTransferLineDO line = BeanUtils.toBean(createReqVO, MesWmTransferLineDO.class);
@@ -54,13 +57,8 @@ public class MesWmTransferLineServiceImpl implements MesWmTransferLineService {
     public void updateTransferLine(MesWmTransferLineSaveReqVO updateReqVO) {
         // 校验存在
         validateTransferLineExists(updateReqVO.getId());
-        // 校验父数据可编辑
-        transferService.validateTransferEditable(updateReqVO.getTransferId());
-        // 校验产品存在
-        itemService.validateItemExists(updateReqVO.getItemId());
-        // 校验来源仓库、库区、库位的关联关系
-        warehouseAreaService.validateWarehouseAreaExists(updateReqVO.getFromWarehouseId(),
-                updateReqVO.getFromLocationId(), updateReqVO.getFromAreaId());
+        // 校验
+        validateLineSaveData(updateReqVO);
 
         // 更新
         MesWmTransferLineDO updateObj = BeanUtils.toBean(updateReqVO, MesWmTransferLineDO.class);
@@ -68,10 +66,16 @@ public class MesWmTransferLineServiceImpl implements MesWmTransferLineService {
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public void deleteTransferLine(Long id) {
         // 校验存在
-        validateTransferLineExists(id);
-        // 删除
+        MesWmTransferLineDO line = validateTransferLineExists(id);
+        // 校验父数据可编辑
+        transferService.validateTransferEditable(line.getTransferId());
+
+        // 级联删除该行下所有明细
+        transferDetailService.deleteTransferDetailByLineId(id);
+        // 删除行
         transferLineMapper.deleteById(id);
     }
 
@@ -98,6 +102,21 @@ public class MesWmTransferLineServiceImpl implements MesWmTransferLineService {
             throw exception(WM_TRANSFER_LINE_NOT_EXISTS);
         }
         return line;
+    }
+
+    private void validateLineSaveData(MesWmTransferLineSaveReqVO reqVO) {
+        // 校验父数据可编辑
+        transferService.validateTransferEditable(reqVO.getTransferId());
+        // 校验产品存在
+        itemService.validateItemExists(reqVO.getItemId());
+        // 校验来源仓库、库区、库位的关联关系
+        warehouseAreaService.validateWarehouseAreaExists(reqVO.getFromWarehouseId(),
+                reqVO.getFromLocationId(), reqVO.getFromAreaId());
+        // 校验库存记录存在
+        if (reqVO.getMaterialStockId() != null
+                && materialStockService.getMaterialStock(reqVO.getMaterialStockId()) == null) {
+            throw exception(WM_MATERIAL_STOCK_NOT_EXISTS);
+        }
     }
 
 }

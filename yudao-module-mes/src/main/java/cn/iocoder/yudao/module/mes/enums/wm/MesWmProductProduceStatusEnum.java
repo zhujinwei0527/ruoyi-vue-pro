@@ -2,6 +2,7 @@ package cn.iocoder.yudao.module.mes.enums.wm;
 
 import cn.iocoder.yudao.framework.common.core.ArrayValuable;
 import cn.iocoder.yudao.module.mes.enums.MesOrderStatusConstants;
+import cn.iocoder.yudao.module.mes.service.wm.productproduce.MesWmProductProduceService;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -16,13 +17,16 @@ import java.util.Arrays;
 @AllArgsConstructor
 public enum MesWmProductProduceStatusEnum implements ArrayValuable<Integer> {
 
-    // TODO @AI：对应的方法；参考别的 MesWmProductIssueStatusEnum
     /**
      * 草稿
+     *
+     * 对应方法：{@link MesWmProductProduceService#generateProductProduce}
      */
     PREPARE(MesOrderStatusConstants.PREPARE, "草稿"),
     /**
      * 已完成
+     *
+     * 对应方法：{@link MesWmProductProduceService#finishProductProduce(Long)}
      */
     FINISHED(MesOrderStatusConstants.FINISHED, "已完成"),
     /**

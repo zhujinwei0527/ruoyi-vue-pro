@@ -6,7 +6,6 @@ import lombok.Getter;
 
 import java.util.Arrays;
 
-// TODO @AI：没有 IntArrayValuable，你检查下；应该是另外个
 /**
  * MES 转移单类型枚举
  *

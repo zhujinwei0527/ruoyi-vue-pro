@@ -5,11 +5,6 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
-import org.springframework.format.annotation.DateTimeFormat;
-
-import java.time.LocalDateTime;
-
-import static cn.iocoder.yudao.framework.common.util.date.DateUtils.FORMAT_YEAR_MONTH_DAY_HOUR_MINUTE_SECOND;
 
 @Schema(description = "管理后台 - MES 转移单分页 Request VO")
 @Data
@@ -26,5 +21,7 @@ public class MesWmTransferPageReqVO extends PageParam {
     @Schema(description = "转移单类型", example = "1")
     private Integer type;
 
+    @Schema(description = "单据状态", example = "0")
+    private Integer status;
 
 }

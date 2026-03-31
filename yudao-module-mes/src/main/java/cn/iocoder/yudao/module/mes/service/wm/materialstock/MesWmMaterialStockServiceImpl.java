@@ -93,6 +93,14 @@ public class MesWmMaterialStockServiceImpl implements MesWmMaterialStockService 
     }
 
     @Override
+    public void updateMaterialStockFrozen(Collection<Long> ids, boolean frozen) {
+        if (CollUtil.isEmpty(ids)) {
+            return;
+        }
+        materialStockMapper.updateByIds(ids, new MesWmMaterialStockDO().setFrozen(frozen));
+    }
+
+    @Override
     public Long getMaterialStockCountByWarehouseId(Long warehouseId) {
         return materialStockMapper.selectCountByWarehouseId(warehouseId);
     }
@@ -153,9 +161,9 @@ public class MesWmMaterialStockServiceImpl implements MesWmMaterialStockService 
     }
 
     @Override
-    public void updateMaterialStockQuantity(Long materialStockId, BigDecimal quantity, boolean checkFlag) {
+    public void updateMaterialStockQuantity(Long id, BigDecimal quantity, boolean checkFlag) {
         // 更新库存数量（Mapper 层 CAS 防负库存；checkFlag=false 时允许负数）
-        int updatedRows = materialStockMapper.updateQuantity(materialStockId, quantity, checkFlag);
+        int updatedRows = materialStockMapper.updateQuantity(id, quantity, checkFlag);
         if (updatedRows == 0) {
             throw exception(WM_MATERIAL_STOCK_INSUFFICIENT);
         }

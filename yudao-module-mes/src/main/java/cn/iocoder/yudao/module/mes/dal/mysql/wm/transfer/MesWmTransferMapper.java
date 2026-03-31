@@ -18,6 +18,7 @@ public interface MesWmTransferMapper extends BaseMapperX<MesWmTransferDO> {
                 .likeIfPresent(MesWmTransferDO::getCode, reqVO.getCode())
                 .likeIfPresent(MesWmTransferDO::getName, reqVO.getName())
                 .eqIfPresent(MesWmTransferDO::getType, reqVO.getType())
+                .eqIfPresent(MesWmTransferDO::getStatus, reqVO.getStatus())
                 .orderByDesc(MesWmTransferDO::getId));
     }
 
