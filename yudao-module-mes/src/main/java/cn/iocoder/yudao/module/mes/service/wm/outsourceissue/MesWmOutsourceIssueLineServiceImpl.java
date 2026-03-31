@@ -1,14 +1,18 @@
 package cn.iocoder.yudao.module.mes.service.wm.outsourceissue;
 
 import cn.hutool.core.util.StrUtil;
+import cn.hutool.core.collection.CollUtil;
 import cn.iocoder.yudao.framework.common.pojo.PageResult;
 import cn.iocoder.yudao.framework.common.util.object.BeanUtils;
 import cn.iocoder.yudao.module.mes.controller.admin.wm.outsourceissue.vo.line.MesWmOutsourceIssueLinePageReqVO;
 import cn.iocoder.yudao.module.mes.controller.admin.wm.outsourceissue.vo.line.MesWmOutsourceIssueLineSaveReqVO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.wm.outsourceissue.MesWmOutsourceIssueLineDO;
+import cn.iocoder.yudao.module.mes.dal.dataobject.wm.outsourceissue.MesWmOutsourceIssueDO;
 import cn.iocoder.yudao.module.mes.dal.mysql.wm.outsourceissue.MesWmOutsourceIssueLineMapper;
 import cn.iocoder.yudao.module.mes.dal.dataobject.wm.batch.MesWmBatchDO;
+import cn.iocoder.yudao.module.mes.dal.dataobject.pro.workorder.MesProWorkOrderBomDO;
 import cn.iocoder.yudao.module.mes.service.md.item.MesMdItemService;
+import cn.iocoder.yudao.module.mes.service.pro.workorder.MesProWorkOrderBomService;
 import cn.iocoder.yudao.module.mes.service.wm.batch.MesWmBatchService;
 import jakarta.annotation.Resource;
 import org.springframework.context.annotation.Lazy;
@@ -19,6 +23,8 @@ import java.util.List;
 
 import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception;
 import static cn.iocoder.yudao.module.mes.enums.ErrorCodeConstants.WM_OUTSOURCE_ISSUE_LINE_NOT_EXISTS;
+import static cn.iocoder.yudao.module.mes.enums.ErrorCodeConstants.WM_OUTSOURCE_ISSUE_LINE_ITEM_NOT_IN_BOM;
+import static cn.iocoder.yudao.module.mes.enums.ErrorCodeConstants.WM_OUTSOURCE_ISSUE_NOT_EXISTS;
 
 /**
  * MES 外协发料单行 Service 实现类
@@ -41,6 +47,8 @@ public class MesWmOutsourceIssueLineServiceImpl implements MesWmOutsourceIssueLi
     private MesMdItemService itemService;
     @Resource
     private MesWmBatchService batchService;
+    @Resource
+    private MesProWorkOrderBomService workOrderBomService;
 
     @Override
     public Long createOutsourceIssueLine(MesWmOutsourceIssueLineSaveReqVO createReqVO) {
@@ -108,9 +116,31 @@ public class MesWmOutsourceIssueLineServiceImpl implements MesWmOutsourceIssueLi
 
     private void validateOutsourceIssueLineSaveData(MesWmOutsourceIssueLineSaveReqVO saveReqVO) {
         // 校验关联的发料单存在
-        outsourceIssueService.getOutsourceIssue(saveReqVO.getIssueId());
+        MesWmOutsourceIssueDO issue = outsourceIssueService.getOutsourceIssue(saveReqVO.getIssueId());
+        if (issue == null) {
+            throw exception(WM_OUTSOURCE_ISSUE_NOT_EXISTS);
+        }
         // 校验关联的物料存在
         itemService.validateItemExists(saveReqVO.getItemId());
+        // 校验物料是否在工单 BOM 中
+        validateItemInWorkOrderBom(issue.getWorkOrderId(), saveReqVO.getItemId());
+    }
+
+    private void validateItemInWorkOrderBom(Long workOrderId, Long itemId) {
+        if (workOrderId == null) {
+            return;
+        }
+        // 获取当前外协工单的 BOM 列表
+        List<MesProWorkOrderBomDO> workOrderBoms = workOrderBomService.getWorkOrderBomListByWorkOrderId(workOrderId);
+        if (CollUtil.isEmpty(workOrderBoms)) {
+            return;
+        }
+        // 检查发料的物料是否在 BOM 列表中
+        MesProWorkOrderBomDO workOrderBom = CollUtil.findOne(workOrderBoms,
+                bom -> bom.getItemId().equals(itemId));
+        if (workOrderBom == null) {
+            throw exception(WM_OUTSOURCE_ISSUE_LINE_ITEM_NOT_IN_BOM);
+        }
     }
 
     /**
