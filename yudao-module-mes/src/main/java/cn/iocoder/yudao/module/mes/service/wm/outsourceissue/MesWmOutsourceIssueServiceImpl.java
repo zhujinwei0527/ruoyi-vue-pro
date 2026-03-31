@@ -1,6 +1,7 @@
 package cn.iocoder.yudao.module.mes.service.wm.outsourceissue;
 
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.util.StrUtil;
 import cn.hutool.core.util.ObjUtil;
 import cn.iocoder.yudao.framework.common.pojo.PageResult;
 import cn.iocoder.yudao.framework.common.util.collection.CollectionUtils;
@@ -13,8 +14,12 @@ import cn.iocoder.yudao.module.mes.dal.dataobject.wm.outsourceissue.MesWmOutsour
 import cn.iocoder.yudao.module.mes.dal.dataobject.wm.outsourceissue.MesWmOutsourceIssueLineDO;
 import cn.iocoder.yudao.module.mes.dal.mysql.wm.outsourceissue.MesWmOutsourceIssueMapper;
 import cn.iocoder.yudao.module.mes.enums.MesBizTypeConstants;
+import cn.iocoder.yudao.module.mes.enums.md.autocode.MesMdAutoCodeRuleCodeEnum;
 import cn.iocoder.yudao.module.mes.enums.wm.MesWmOutsourceIssueStatusEnum;
 import cn.iocoder.yudao.module.mes.enums.wm.MesWmTransactionTypeEnum;
+import cn.iocoder.yudao.module.mes.service.md.autocode.MesMdAutoCodeRecordService;
+import cn.iocoder.yudao.module.mes.service.md.vendor.MesMdVendorService;
+import cn.iocoder.yudao.module.mes.service.pro.workorder.MesProWorkOrderService;
 import cn.iocoder.yudao.module.mes.service.wm.transaction.MesWmTransactionService;
 import cn.iocoder.yudao.module.mes.service.wm.transaction.dto.MesWmTransactionSaveReqDTO;
 import jakarta.annotation.Resource;
@@ -47,14 +52,22 @@ public class MesWmOutsourceIssueServiceImpl implements MesWmOutsourceIssueServic
     @Resource
     private MesWmOutsourceIssueDetailService outsourceIssueDetailService;
     @Resource
+    private MesMdVendorService vendorService;
+    @Resource
+    private MesProWorkOrderService workOrderService;
+    @Resource
     private MesWmTransactionService wmTransactionService;
+    @Resource
+    private MesMdAutoCodeRecordService autoCodeRecordService;
 
     @Override
     public Long createOutsourceIssue(MesWmOutsourceIssueSaveReqVO createReqVO) {
-        // 校验编码唯一
-        validateCodeUnique(null, createReqVO.getCode());
-        // TODO @AI：vendorId 非空时，校验供应商存在；
-        // TODO @AI：workorderId 无需判断空，需要校验工单存在；
+        // 自动生成编码
+        if (StrUtil.isEmpty(createReqVO.getCode())) {
+            createReqVO.setCode(autoCodeRecordService.generateAutoCode(MesMdAutoCodeRuleCodeEnum.WM_OUTSOURCE_ISSUE_CODE.getCode()));
+        }
+        // 校验数据
+        validateOutsourceIssueSaveData(createReqVO);
 
         // 插入
         MesWmOutsourceIssueDO issue = BeanUtils.toBean(createReqVO, MesWmOutsourceIssueDO.class);
@@ -67,10 +80,8 @@ public class MesWmOutsourceIssueServiceImpl implements MesWmOutsourceIssueServic
     public void updateOutsourceIssue(MesWmOutsourceIssueSaveReqVO updateReqVO) {
         // 校验存在 + 草稿状态
         validateOutsourceIssueExistsAndDraft(updateReqVO.getId());
-        // 校验编码唯一
-        validateCodeUnique(updateReqVO.getId(), updateReqVO.getCode());
-        // TODO @AI：vendorId 非空时，校验供应商存在；
-        // TODO @AI：workorderId 无需判断空，需要校验工单存在；
+        // 校验数据
+        validateOutsourceIssueSaveData(updateReqVO);
 
         // 更新
         MesWmOutsourceIssueDO updateObj = BeanUtils.toBean(updateReqVO, MesWmOutsourceIssueDO.class);
@@ -237,6 +248,17 @@ public class MesWmOutsourceIssueServiceImpl implements MesWmOutsourceIssueServic
             throw exception(WM_OUTSOURCE_ISSUE_STATUS_NOT_PREPARE);
         }
         return issue;
+    }
+
+    private void validateOutsourceIssueSaveData(MesWmOutsourceIssueSaveReqVO saveReqVO) {
+        // 校验编码唯一
+        validateCodeUnique(saveReqVO.getId(), saveReqVO.getCode());
+        // 校验供应商存在
+        if (saveReqVO.getVendorId() != null) {
+            vendorService.validateVendorExists(saveReqVO.getVendorId());
+        }
+        // 校验工单存在
+        workOrderService.validateWorkOrderExists(saveReqVO.getWorkOrderId());
     }
 
     /**

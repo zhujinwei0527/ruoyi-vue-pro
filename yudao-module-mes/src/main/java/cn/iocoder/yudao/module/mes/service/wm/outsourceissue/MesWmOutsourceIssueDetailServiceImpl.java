@@ -4,7 +4,9 @@ import cn.iocoder.yudao.framework.common.util.object.BeanUtils;
 import cn.iocoder.yudao.module.mes.controller.admin.wm.outsourceissue.vo.detail.MesWmOutsourceIssueDetailSaveReqVO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.wm.outsourceissue.MesWmOutsourceIssueDetailDO;
 import cn.iocoder.yudao.module.mes.dal.mysql.wm.outsourceissue.MesWmOutsourceIssueDetailMapper;
+import cn.iocoder.yudao.module.mes.service.md.item.MesMdItemService;
 import jakarta.annotation.Resource;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 
@@ -24,11 +26,16 @@ public class MesWmOutsourceIssueDetailServiceImpl implements MesWmOutsourceIssue
 
     @Resource
     private MesWmOutsourceIssueDetailMapper outsourceIssueDetailMapper;
+    @Resource
+    @Lazy
+    private MesWmOutsourceIssueService outsourceIssueService;
+    @Resource
+    private MesMdItemService itemService;
 
     @Override
     public Long createOutsourceIssueDetail(MesWmOutsourceIssueDetailSaveReqVO createReqVO) {
-        // TODO @AI：校验关联的 issueId；
-        // TODO AI校验关联的 itemId；
+        // 校验数据
+        validateOutsourceIssueDetailSaveData(createReqVO);
 
         // 插入
         MesWmOutsourceIssueDetailDO detail = BeanUtils.toBean(createReqVO, MesWmOutsourceIssueDetailDO.class);
@@ -40,8 +47,8 @@ public class MesWmOutsourceIssueDetailServiceImpl implements MesWmOutsourceIssue
     public void updateOutsourceIssueDetail(MesWmOutsourceIssueDetailSaveReqVO updateReqVO) {
         // 校验存在
         validateOutsourceIssueDetailExists(updateReqVO.getId());
-        // TODO @AI：校验关联的 issueId；
-        // TODO AI校验关联的 itemId；
+        // 校验数据
+        validateOutsourceIssueDetailSaveData(updateReqVO);
 
         // 更新
         MesWmOutsourceIssueDetailDO updateObj = BeanUtils.toBean(updateReqVO, MesWmOutsourceIssueDetailDO.class);
@@ -85,6 +92,13 @@ public class MesWmOutsourceIssueDetailServiceImpl implements MesWmOutsourceIssue
         if (outsourceIssueDetailMapper.selectById(id) == null) {
             throw exception(WM_OUTSOURCE_ISSUE_DETAIL_NOT_EXISTS);
         }
+    }
+
+    private void validateOutsourceIssueDetailSaveData(MesWmOutsourceIssueDetailSaveReqVO saveReqVO) {
+        // 校验关联的发料单存在
+        outsourceIssueService.getOutsourceIssue(saveReqVO.getIssueId());
+        // 校验关联的物料存在
+        itemService.validateItemExists(saveReqVO.getItemId());
     }
 
 }

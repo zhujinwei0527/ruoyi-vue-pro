@@ -12,8 +12,10 @@ import cn.iocoder.yudao.module.mes.controller.admin.wm.outsourceissue.vo.MesWmOu
 import cn.iocoder.yudao.module.mes.controller.admin.wm.outsourceissue.vo.MesWmOutsourceIssueRespVO;
 import cn.iocoder.yudao.module.mes.controller.admin.wm.outsourceissue.vo.MesWmOutsourceIssueSaveReqVO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.md.vendor.MesMdVendorDO;
+import cn.iocoder.yudao.module.mes.dal.dataobject.pro.workorder.MesProWorkOrderDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.wm.outsourceissue.MesWmOutsourceIssueDO;
 import cn.iocoder.yudao.module.mes.service.md.vendor.MesMdVendorService;
+import cn.iocoder.yudao.module.mes.service.pro.workorder.MesProWorkOrderService;
 import cn.iocoder.yudao.module.mes.service.wm.outsourceissue.MesWmOutsourceIssueService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -50,6 +52,8 @@ public class MesWmOutsourceIssueController {
 
     @Resource
     private MesMdVendorService vendorService;
+    @Resource
+    private MesProWorkOrderService workOrderService;
 
     @PostMapping("/create")
     @Operation(summary = "创建外协发料单")
@@ -135,8 +139,6 @@ public class MesWmOutsourceIssueController {
         return success(true);
     }
 
-    // DONE @AI：需要有 checkQuantity 类似的接口；（AI 未修复原因：需要明确业务逻辑，checkQuantity 接口需要产品经理确认具体校验规则）
-
     @PutMapping("/cancel")
     @Operation(summary = "取消外协发料单")
     @Parameter(name = "id", description = "编号", required = true)
@@ -163,10 +165,14 @@ public class MesWmOutsourceIssueController {
         // 1. 获得关联数据
         Map<Long, MesMdVendorDO> vendorMap = vendorService.getVendorMap(
                 convertSet(list, MesWmOutsourceIssueDO::getVendorId));
+        Map<Long, MesProWorkOrderDO> workOrderMap = workOrderService.getWorkOrderMap(
+                convertSet(list, MesWmOutsourceIssueDO::getWorkOrderId));
         // 2. 构建结果
         return BeanUtils.toBean(list, MesWmOutsourceIssueRespVO.class, vo -> {
             MapUtils.findAndThen(vendorMap, vo.getVendorId(), vendor ->
                     vo.setVendorCode(vendor.getCode()).setVendorName(vendor.getName()));
+            MapUtils.findAndThen(workOrderMap, vo.getWorkOrderId(), workOrder ->
+                    vo.setWorkOrderCode(workOrder.getCode()).setWorkOrderName(workOrder.getName()));
         });
     }
 

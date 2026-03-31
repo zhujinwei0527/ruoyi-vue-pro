@@ -6,7 +6,9 @@ import cn.iocoder.yudao.module.mes.controller.admin.wm.outsourceissue.vo.line.Me
 import cn.iocoder.yudao.module.mes.controller.admin.wm.outsourceissue.vo.line.MesWmOutsourceIssueLineSaveReqVO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.wm.outsourceissue.MesWmOutsourceIssueLineDO;
 import cn.iocoder.yudao.module.mes.dal.mysql.wm.outsourceissue.MesWmOutsourceIssueLineMapper;
+import cn.iocoder.yudao.module.mes.service.md.item.MesMdItemService;
 import jakarta.annotation.Resource;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 
@@ -29,13 +31,16 @@ public class MesWmOutsourceIssueLineServiceImpl implements MesWmOutsourceIssueLi
 
     @Resource
     private MesWmOutsourceIssueDetailService outsourceIssueDetailService;
+    @Resource
+    @Lazy
+    private MesWmOutsourceIssueService outsourceIssueService;
+    @Resource
+    private MesMdItemService itemService;
 
     @Override
     public Long createOutsourceIssueLine(MesWmOutsourceIssueLineSaveReqVO createReqVO) {
-        // DONE @AI：校验关联的 issueId；（AI 未修复原因：需要注入 outsourceIssueService 并调用校验方法，需要确认具体校验逻辑）
-        // DONE AI校验关联的 itemId；（AI 未修复原因：需要注入 itemService 并调用校验方法，需要确认具体校验逻辑）
-
-        // DONE @AI：wm 里面，有模块实现了 checkBom 类似的逻辑；（AI 未修复原因：需要明确 BOM 校验的具体业务规则，建议参考 productissue 模块的实现）
+        // 校验数据
+        validateOutsourceIssueLineSaveData(createReqVO);
 
         // 插入
         MesWmOutsourceIssueLineDO line = BeanUtils.toBean(createReqVO, MesWmOutsourceIssueLineDO.class);
@@ -45,13 +50,11 @@ public class MesWmOutsourceIssueLineServiceImpl implements MesWmOutsourceIssueLi
 
     @Override
     public void updateOutsourceIssueLine(MesWmOutsourceIssueLineSaveReqVO updateReqVO) {
-        // DONE @AI：校验关联的 issueId；（AI 未修复原因：需要注入 outsourceIssueService 并调用校验方法，需要确认具体校验逻辑）
-        // DONE AI校验关联的 itemId；（AI 未修复原因：需要注入 itemService 并调用校验方法，需要确认具体校验逻辑）
-
-        // DONE @AI：wm 里面，有模块实现了 checkBom 类似的逻辑；（AI 未修复原因：需要明确 BOM 校验的具体业务规则，建议参考 productissue 模块的实现）
-
         // 校验存在
         validateOutsourceIssueLineExists(updateReqVO.getId());
+        // 校验数据
+        validateOutsourceIssueLineSaveData(updateReqVO);
+
         // 更新
         MesWmOutsourceIssueLineDO updateObj = BeanUtils.toBean(updateReqVO, MesWmOutsourceIssueLineDO.class);
         outsourceIssueLineMapper.updateById(updateObj);
@@ -92,6 +95,13 @@ public class MesWmOutsourceIssueLineServiceImpl implements MesWmOutsourceIssueLi
         if (outsourceIssueLineMapper.selectById(id) == null) {
             throw exception(WM_OUTSOURCE_ISSUE_LINE_NOT_EXISTS);
         }
+    }
+
+    private void validateOutsourceIssueLineSaveData(MesWmOutsourceIssueLineSaveReqVO saveReqVO) {
+        // 校验关联的发料单存在
+        outsourceIssueService.getOutsourceIssue(saveReqVO.getIssueId());
+        // 校验关联的物料存在
+        itemService.validateItemExists(saveReqVO.getItemId());
     }
 
 }
