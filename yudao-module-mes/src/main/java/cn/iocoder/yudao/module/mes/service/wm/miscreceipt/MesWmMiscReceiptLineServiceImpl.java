@@ -43,13 +43,9 @@ public class MesWmMiscReceiptLineServiceImpl implements MesWmMiscReceiptLineServ
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Long createMiscReceiptLine(MesWmMiscReceiptLineSaveReqVO createReqVO) {
-        // 1.1 校验父单据存在且为可编辑状态
+        // 1. 校验
         miscReceiptService.validateMiscReceiptEditable(createReqVO.getReceiptId());
-        // 1.2 校验物料存在
-        itemService.validateItemExists(createReqVO.getItemId());
-        // 1.3 校验仓库、库区、库位的父子关系
-        warehouseAreaService.validateWarehouseAreaExists(createReqVO.getWarehouseId(),
-                createReqVO.getLocationId(), createReqVO.getAreaId());
+        validateLineSaveData(createReqVO);
 
         // 2. 新增行
         MesWmMiscReceiptLineDO line = BeanUtils.toBean(createReqVO, MesWmMiscReceiptLineDO.class);
@@ -64,15 +60,10 @@ public class MesWmMiscReceiptLineServiceImpl implements MesWmMiscReceiptLineServ
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void updateMiscReceiptLine(MesWmMiscReceiptLineSaveReqVO updateReqVO) {
-        // 1.1 校验存在
+        // 1. 校验
         MesWmMiscReceiptLineDO line = validateMiscReceiptLineExists(updateReqVO.getId());
-        // 1.2 校验父单据存在且为可编辑状态
         miscReceiptService.validateMiscReceiptEditable(line.getReceiptId());
-        // 1.3 校验物料存在
-        itemService.validateItemExists(updateReqVO.getItemId());
-        // 1.4 校验仓库、库区、库位的父子关系
-        warehouseAreaService.validateWarehouseAreaExists(updateReqVO.getWarehouseId(),
-                updateReqVO.getLocationId(), updateReqVO.getAreaId());
+        validateLineSaveData(updateReqVO);
 
         // 2. 更新行
         MesWmMiscReceiptLineDO updateObj = BeanUtils.toBean(updateReqVO, MesWmMiscReceiptLineDO.class);
@@ -110,12 +101,30 @@ public class MesWmMiscReceiptLineServiceImpl implements MesWmMiscReceiptLineServ
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void deleteByReceiptId(Long receiptId) {
+        // 先删除明细
+        miscReceiptDetailService.deleteMiscReceiptDetailByReceiptId(receiptId);
+        // 再删除行
+        miscReceiptLineMapper.deleteByReceiptId(receiptId);
+    }
+
+    @Override
     public MesWmMiscReceiptLineDO validateMiscReceiptLineExists(Long id) {
         MesWmMiscReceiptLineDO line = miscReceiptLineMapper.selectById(id);
         if (line == null) {
             throw exception(WM_MISC_RECEIPT_LINE_NOT_EXISTS);
         }
         return line;
+    }
+
+    /**
+     * 校验行保存数据（物料存在、仓库层级关系）
+     */
+    private void validateLineSaveData(MesWmMiscReceiptLineSaveReqVO reqVO) {
+        itemService.validateItemExists(reqVO.getItemId());
+        warehouseAreaService.validateWarehouseAreaExists(reqVO.getWarehouseId(),
+                reqVO.getLocationId(), reqVO.getAreaId());
     }
 
 }

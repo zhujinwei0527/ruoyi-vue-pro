@@ -8,7 +8,6 @@ import cn.iocoder.yudao.module.mes.controller.admin.wm.miscreceipt.vo.MesWmMiscR
 import cn.iocoder.yudao.module.mes.controller.admin.wm.miscreceipt.vo.MesWmMiscReceiptSaveReqVO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.wm.miscreceipt.MesWmMiscReceiptDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.wm.miscreceipt.MesWmMiscReceiptLineDO;
-import cn.iocoder.yudao.module.mes.dal.mysql.wm.miscreceipt.MesWmMiscReceiptLineMapper;
 import cn.iocoder.yudao.module.mes.dal.mysql.wm.miscreceipt.MesWmMiscReceiptMapper;
 import cn.iocoder.yudao.module.mes.enums.wm.MesWmMiscReceiptStatusEnum;
 import cn.iocoder.yudao.module.mes.enums.MesBizTypeConstants;
@@ -17,6 +16,7 @@ import cn.iocoder.yudao.module.mes.service.wm.transaction.MesWmTransactionServic
 import cn.iocoder.yudao.module.mes.service.wm.transaction.dto.MesWmTransactionSaveReqDTO;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
@@ -37,11 +37,10 @@ public class MesWmMiscReceiptServiceImpl implements MesWmMiscReceiptService {
 
     @Resource
     private MesWmMiscReceiptMapper miscReceiptMapper;
-    @Resource
-    private MesWmMiscReceiptLineMapper miscReceiptLineMapper;
 
     @Resource
-    private MesWmMiscReceiptDetailService miscReceiptDetailService;
+    @Lazy
+    private MesWmMiscReceiptLineService miscReceiptLineService;
     @Resource
     private MesWmTransactionService wmTransactionService;
 
@@ -75,10 +74,8 @@ public class MesWmMiscReceiptServiceImpl implements MesWmMiscReceiptService {
         // 校验存在 + 草稿状态
         validateMiscReceiptExistsAndPrepare(id);
 
-        // 级联删除明细
-        miscReceiptDetailService.deleteMiscReceiptDetailByReceiptId(id);
-        // 级联删除行
-        miscReceiptLineMapper.deleteByReceiptId(id);
+        // 级联删除行和明细
+        miscReceiptLineService.deleteByReceiptId(id);
         // 删除主表
         miscReceiptMapper.deleteById(id);
     }
@@ -99,7 +96,7 @@ public class MesWmMiscReceiptServiceImpl implements MesWmMiscReceiptService {
         // 校验存在 + 草稿状态
         validateMiscReceiptExistsAndPrepare(id);
         // 校验至少有一条行
-        List<MesWmMiscReceiptLineDO> lines = miscReceiptLineMapper.selectListByReceiptId(id);
+        List<MesWmMiscReceiptLineDO> lines = miscReceiptLineService.getMiscReceiptLineListByReceiptId(id);
         if (CollUtil.isEmpty(lines)) {
             throw exception(WM_MISC_RECEIPT_NO_LINE);
         }
@@ -127,7 +124,7 @@ public class MesWmMiscReceiptServiceImpl implements MesWmMiscReceiptService {
     }
 
     private void createTransactionList(MesWmMiscReceiptDO receipt) {
-        List<MesWmMiscReceiptLineDO> lines = miscReceiptLineMapper.selectListByReceiptId(receipt.getId());
+        List<MesWmMiscReceiptLineDO> lines = miscReceiptLineService.getMiscReceiptLineListByReceiptId(receipt.getId());
         wmTransactionService.createTransactionList(convertList(lines, line -> new MesWmTransactionSaveReqDTO()
                 .setType(MesWmTransactionTypeEnum.IN.getType()).setItemId(line.getItemId())
                 .setQuantity(line.getQuantity()) // 入库数量为正数

@@ -60,6 +60,13 @@ public interface MesWmMiscReceiptLineService {
     PageResult<MesWmMiscReceiptLineDO> getMiscReceiptLinePage(MesWmMiscReceiptLinePageReqVO pageReqVO);
 
     /**
+     * 删除指定入库单的所有行（级联删除）
+     *
+     * @param receiptId 入库单编号
+     */
+    void deleteByReceiptId(Long receiptId);
+
+    /**
      * 校验杂项入库单行存在
      *
      * @param id 编号
