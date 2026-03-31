@@ -33,4 +33,7 @@ public class MesWmOutsourceReceiptPageReqVO extends PageParam {
     @Schema(description = "状态", example = "0")
     private Integer status;
 
+    @Schema(description = "外协工单编码", example = "WO2026030001")
+    private String workOrderCode;
+
 }

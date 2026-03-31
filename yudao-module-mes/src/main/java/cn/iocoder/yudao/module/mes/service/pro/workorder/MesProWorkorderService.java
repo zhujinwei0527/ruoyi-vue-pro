@@ -59,6 +59,14 @@ public interface MesProWorkOrderService {
     MesProWorkOrderDO getWorkOrder(Long id);
 
     /**
+     * 根据编码获得生产工单
+     *
+     * @param code 编码
+     * @return 生产工单
+     */
+    MesProWorkOrderDO getWorkOrder(String code);
+
+    /**
      * 获得生产工单分页
      *
      * @param pageReqVO 分页查询

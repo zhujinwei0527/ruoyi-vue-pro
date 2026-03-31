@@ -13,12 +13,13 @@ import org.apache.ibatis.annotations.Mapper;
 @Mapper
 public interface MesWmOutsourceReceiptMapper extends BaseMapperX<MesWmOutsourceReceiptDO> {
 
-    default PageResult<MesWmOutsourceReceiptDO> selectPage(MesWmOutsourceReceiptPageReqVO reqVO) {
+    default PageResult<MesWmOutsourceReceiptDO> selectPage(MesWmOutsourceReceiptPageReqVO reqVO, java.util.Collection<Long> workOrderIds) {
         return selectPage(reqVO, new LambdaQueryWrapperX<MesWmOutsourceReceiptDO>()
                 .likeIfPresent(MesWmOutsourceReceiptDO::getCode, reqVO.getCode())
                 .likeIfPresent(MesWmOutsourceReceiptDO::getName, reqVO.getName())
                 .eqIfPresent(MesWmOutsourceReceiptDO::getVendorId, reqVO.getVendorId())
                 .eqIfPresent(MesWmOutsourceReceiptDO::getStatus, reqVO.getStatus())
+                .inIfPresent(MesWmOutsourceReceiptDO::getWorkOrderId, workOrderIds)
                 .betweenIfPresent(MesWmOutsourceReceiptDO::getReceiptDate, reqVO.getReceiptDate())
                 .orderByDesc(MesWmOutsourceReceiptDO::getId));
     }

@@ -135,6 +135,11 @@ public class MesProWorkOrderServiceImpl implements MesProWorkOrderService {
     }
 
     @Override
+    public MesProWorkOrderDO getWorkOrder(String code) {
+        return workOrderMapper.selectByCode(code);
+    }
+
+    @Override
     public PageResult<MesProWorkOrderDO> getWorkOrderPage(MesProWorkOrderPageReqVO pageReqVO) {
         return workOrderMapper.selectPage(pageReqVO);
     }
