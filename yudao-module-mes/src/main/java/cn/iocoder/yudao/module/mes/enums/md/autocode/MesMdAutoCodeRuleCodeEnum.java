@@ -34,7 +34,7 @@ public enum MesMdAutoCodeRuleCodeEnum {
     WM_AREA_CODE("WM_AREA_CODE", "库位编码"),
     WM_PRODUCT_SALES_CODE("WM_PRODUCT_SALES_CODE", "销售出库单编码"),
     WM_MISC_RECEIPT_CODE("WM_MISC_RECEIPT_CODE", "杂项入库单编码"),
-    WM_TRANSFER_CODE("WM_TRANSFER_CODE", "转移调拨单编码");
+    TRANSFER_CODE("TRANSFER_CODE", "转移调拨单编码");
 
     /**
      * 规则代码
