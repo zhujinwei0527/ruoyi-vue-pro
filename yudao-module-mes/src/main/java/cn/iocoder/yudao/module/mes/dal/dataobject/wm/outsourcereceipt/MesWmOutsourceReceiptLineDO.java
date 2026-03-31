@@ -3,6 +3,7 @@ package cn.iocoder.yudao.module.mes.dal.dataobject.wm.outsourcereceipt;
 import cn.iocoder.yudao.framework.mybatis.core.dataobject.BaseDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.md.item.MesMdItemDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.qc.iqc.MesQcIqcDO;
+import cn.iocoder.yudao.module.mes.dal.dataobject.wm.batch.MesWmBatchDO;
 import com.baomidou.mybatisplus.annotation.KeySequence;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
@@ -48,9 +49,15 @@ public class MesWmOutsourceReceiptLineDO extends BaseDO {
     /**
      * 批次编号
      *
-     * DONE @芋艿：保留。待 mes_wm_batch 模块迁移后补充 @link 关联（AI 未修复原因：标注为后续处理，需人工介入）
+     * 关联 {@link MesWmBatchDO#getId()}
      */
     private Long batchId;
+    /**
+     * 批次号
+     *
+     * 关联 {@link MesWmBatchDO#getCode()}
+     */
+    private String batchCode;
     /**
      * 生产日期
      */

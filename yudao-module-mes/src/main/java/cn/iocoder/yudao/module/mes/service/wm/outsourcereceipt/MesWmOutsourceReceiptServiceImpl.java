@@ -2,6 +2,7 @@ package cn.iocoder.yudao.module.mes.service.wm.outsourcereceipt;
 
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.ObjUtil;
+import cn.hutool.core.util.StrUtil;
 import cn.iocoder.yudao.framework.common.pojo.PageResult;
 import cn.iocoder.yudao.framework.common.util.collection.CollectionUtils;
 import cn.iocoder.yudao.framework.common.util.object.BeanUtils;
@@ -9,10 +10,10 @@ import cn.iocoder.yudao.framework.common.util.object.ObjectUtils;
 import cn.iocoder.yudao.module.mes.controller.admin.wm.outsourcereceipt.vo.MesWmOutsourceReceiptPageReqVO;
 import cn.iocoder.yudao.module.mes.controller.admin.wm.outsourcereceipt.vo.MesWmOutsourceReceiptSaveReqVO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.md.item.MesMdItemDO;
+import cn.iocoder.yudao.module.mes.dal.dataobject.pro.workorder.MesProWorkOrderDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.wm.outsourcereceipt.MesWmOutsourceReceiptDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.wm.outsourcereceipt.MesWmOutsourceReceiptDetailDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.wm.outsourcereceipt.MesWmOutsourceReceiptLineDO;
-
 import cn.iocoder.yudao.module.mes.dal.mysql.wm.outsourcereceipt.MesWmOutsourceReceiptMapper;
 import cn.iocoder.yudao.module.mes.enums.MesBizTypeConstants;
 import cn.iocoder.yudao.module.mes.enums.wm.MesWmOutsourceReceiptStatusEnum;
@@ -20,6 +21,7 @@ import cn.iocoder.yudao.module.mes.enums.wm.MesWmQualityStatusEnum;
 import cn.iocoder.yudao.module.mes.enums.wm.MesWmTransactionTypeEnum;
 import cn.iocoder.yudao.module.mes.service.md.item.MesMdItemService;
 import cn.iocoder.yudao.module.mes.service.md.vendor.MesMdVendorService;
+import cn.iocoder.yudao.module.mes.service.pro.workorder.MesProWorkOrderService;
 import cn.iocoder.yudao.module.mes.service.wm.transaction.MesWmTransactionService;
 import cn.iocoder.yudao.module.mes.service.wm.transaction.dto.MesWmTransactionSaveReqDTO;
 import jakarta.annotation.Resource;
@@ -55,6 +57,8 @@ public class MesWmOutsourceReceiptServiceImpl implements MesWmOutsourceReceiptSe
     private MesMdVendorService vendorService;
     @Resource
     private MesMdItemService itemService;
+    @Resource
+    private MesProWorkOrderService workOrderService;
 
     @Override
     public Long createOutsourceReceipt(MesWmOutsourceReceiptSaveReqVO createReqVO) {
@@ -62,6 +66,10 @@ public class MesWmOutsourceReceiptServiceImpl implements MesWmOutsourceReceiptSe
         validateCodeUnique(null, createReqVO.getCode());
         // 校验供应商存在
         vendorService.validateVendorExists(createReqVO.getVendorId());
+        // 校验外协工单存在
+        if (createReqVO.getWorkOrderId() != null) {
+            workOrderService.validateWorkOrderExists(createReqVO.getWorkOrderId());
+        }
 
         // 插入
         MesWmOutsourceReceiptDO receipt = BeanUtils.toBean(createReqVO, MesWmOutsourceReceiptDO.class);
@@ -78,6 +86,10 @@ public class MesWmOutsourceReceiptServiceImpl implements MesWmOutsourceReceiptSe
         validateCodeUnique(updateReqVO.getId(), updateReqVO.getCode());
         // 校验供应商存在
         vendorService.validateVendorExists(updateReqVO.getVendorId());
+        // 校验外协工单存在
+        if (updateReqVO.getWorkOrderId() != null) {
+            workOrderService.validateWorkOrderExists(updateReqVO.getWorkOrderId());
+        }
 
         // 更新
         MesWmOutsourceReceiptDO updateObj = BeanUtils.toBean(updateReqVO, MesWmOutsourceReceiptDO.class);
@@ -104,7 +116,15 @@ public class MesWmOutsourceReceiptServiceImpl implements MesWmOutsourceReceiptSe
 
     @Override
     public PageResult<MesWmOutsourceReceiptDO> getOutsourceReceiptPage(MesWmOutsourceReceiptPageReqVO pageReqVO) {
-        return outsourceReceiptMapper.selectPage(pageReqVO);
+        List<Long> workOrderIds = null;
+        if (StrUtil.isNotBlank(pageReqVO.getWorkOrderCode())) {
+            MesProWorkOrderDO workOrder = workOrderService.getWorkOrder(pageReqVO.getWorkOrderCode());
+            if (workOrder == null) {
+                return PageResult.empty();
+            }
+            workOrderIds = java.util.Collections.singletonList(workOrder.getId());
+        }
+        return outsourceReceiptMapper.selectPage(pageReqVO, workOrderIds);
     }
 
     @Override
@@ -165,16 +185,36 @@ public class MesWmOutsourceReceiptServiceImpl implements MesWmOutsourceReceiptSe
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void finishOutsourceReceipt(Long id) {
-        // 1. 校验存在
+        // 1.1 校验存在
         MesWmOutsourceReceiptDO receipt = validateOutsourceReceiptExists(id);
         if (ObjUtil.notEqual(MesWmOutsourceReceiptStatusEnum.APPROVED.getStatus(), receipt.getStatus())) {
             throw exception(WM_OUTSOURCE_RECEIPT_STATUS_ERROR);
         }
+        // 1.2 校验至少有一条行
+        List<MesWmOutsourceReceiptLineDO> lines = outsourceReceiptLineService.getOutsourceReceiptLineListByReceiptId(id);
+        if (CollUtil.isEmpty(lines)) {
+            throw exception(WM_OUTSOURCE_RECEIPT_NO_LINE);
+        }
 
-        // 2. 遍历所有明细，创建库存事务（增加库存 + 记录流水）
+        // 3. 遍历所有明细，创建库存事务（增加库存 + 记录流水）
         createTransactionList(receipt);
 
-        // 3. 更新入库单状态
+        // 4. 更新外协工单的已生产数量（只统计合格的目标产品）
+        if (receipt.getWorkOrderId() != null) {
+            MesProWorkOrderDO workOrder = workOrderService.getWorkOrder(receipt.getWorkOrderId());
+            if (workOrder != null) {
+                BigDecimal totalQuantity = lines.stream()
+                        .filter(line -> ObjUtil.equal(line.getItemId(), workOrder.getProductId())) // 只统计目标产品
+                        .filter(line -> ObjUtil.notEqual(line.getQualityStatus(), MesWmQualityStatusEnum.FAIL.getStatus())) // 排除不合格品
+                        .map(MesWmOutsourceReceiptLineDO::getQuantity)
+                        .reduce(BigDecimal.ZERO, BigDecimal::add);
+                if (totalQuantity.compareTo(BigDecimal.ZERO) > 0) {
+                    workOrderService.updateProducedQuantity(receipt.getWorkOrderId(), totalQuantity);
+                }
+            }
+        }
+
+        // 5. 更新入库单状态
         outsourceReceiptMapper.updateById(new MesWmOutsourceReceiptDO()
                 .setId(id).setStatus(MesWmOutsourceReceiptStatusEnum.FINISHED.getStatus()));
     }
