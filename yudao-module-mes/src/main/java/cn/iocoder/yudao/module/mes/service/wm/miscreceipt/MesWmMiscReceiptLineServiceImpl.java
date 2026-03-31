@@ -44,7 +44,6 @@ public class MesWmMiscReceiptLineServiceImpl implements MesWmMiscReceiptLineServ
     @Transactional(rollbackFor = Exception.class)
     public Long createMiscReceiptLine(MesWmMiscReceiptLineSaveReqVO createReqVO) {
         // 1. 校验
-        miscReceiptService.validateMiscReceiptEditable(createReqVO.getReceiptId());
         validateLineSaveData(createReqVO);
 
         // 2. 新增行
@@ -62,8 +61,7 @@ public class MesWmMiscReceiptLineServiceImpl implements MesWmMiscReceiptLineServ
     public void updateMiscReceiptLine(MesWmMiscReceiptLineSaveReqVO updateReqVO) {
         // 1. 校验
         MesWmMiscReceiptLineDO line = validateMiscReceiptLineExists(updateReqVO.getId());
-        miscReceiptService.validateMiscReceiptEditable(line.getReceiptId());
-        validateLineSaveData(updateReqVO);
+        updateReqVO.setReceiptId(line.getReceiptId());
 
         // 2. 更新行
         MesWmMiscReceiptLineDO updateObj = BeanUtils.toBean(updateReqVO, MesWmMiscReceiptLineDO.class);
@@ -77,7 +75,9 @@ public class MesWmMiscReceiptLineServiceImpl implements MesWmMiscReceiptLineServ
     @Transactional(rollbackFor = Exception.class)
     public void deleteMiscReceiptLine(Long id) {
         // 校验存在
-        validateMiscReceiptLineExists(id);
+        MesWmMiscReceiptLineDO line = validateMiscReceiptLineExists(id);
+        // 校验父单据存在且为可编辑状态
+        miscReceiptService.validateMiscReceiptEditable(line.getReceiptId());
 
         // 删除行
         miscReceiptLineMapper.deleteById(id);
@@ -122,7 +122,11 @@ public class MesWmMiscReceiptLineServiceImpl implements MesWmMiscReceiptLineServ
      * 校验行保存数据（物料存在、仓库层级关系）
      */
     private void validateLineSaveData(MesWmMiscReceiptLineSaveReqVO reqVO) {
+        // 校验父单据存在且为可编辑状态
+        miscReceiptService.validateMiscReceiptEditable(reqVO.getReceiptId());
+        // 校验物料存在
         itemService.validateItemExists(reqVO.getItemId());
+        // 校验仓库层级关系（仓库 - 库位 - 库区）
         warehouseAreaService.validateWarehouseAreaExists(reqVO.getWarehouseId(),
                 reqVO.getLocationId(), reqVO.getAreaId());
     }

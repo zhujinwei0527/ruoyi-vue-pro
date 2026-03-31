@@ -34,10 +34,12 @@ public class MesWmMiscReceiptLineSaveReqVO {
     @NotNull(message = "仓库不能为空")
     private Long warehouseId;
 
-    @Schema(description = "库区编号", example = "1")
+    @Schema(description = "库区编号", requiredMode = Schema.RequiredMode.REQUIRED, example = "1")
+    @NotNull(message = "库区不能为空")
     private Long locationId;
 
-    @Schema(description = "库位编号", example = "1")
+    @Schema(description = "库位编号", requiredMode = Schema.RequiredMode.REQUIRED, example = "1")
+    @NotNull(message = "库位不能为空")
     private Long areaId;
 
     @Schema(description = "备注", example = "备注")

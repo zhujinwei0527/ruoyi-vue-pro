@@ -7,7 +7,6 @@ import lombok.Data;
 
 import java.time.LocalDateTime;
 
-// TODO @AI：字段的必传，需要对齐下前端；
 @Schema(description = "管理后台 - MES 杂项入库单新增/修改 Request VO")
 @Data
 public class MesWmMiscReceiptSaveReqVO {

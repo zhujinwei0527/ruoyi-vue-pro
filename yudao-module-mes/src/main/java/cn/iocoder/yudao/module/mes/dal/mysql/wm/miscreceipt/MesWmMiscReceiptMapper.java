@@ -20,6 +20,8 @@ public interface MesWmMiscReceiptMapper extends BaseMapperX<MesWmMiscReceiptDO> 
                 .likeIfPresent(MesWmMiscReceiptDO::getCode, reqVO.getCode())
                 .likeIfPresent(MesWmMiscReceiptDO::getName, reqVO.getName())
                 .eqIfPresent(MesWmMiscReceiptDO::getType, reqVO.getType())
+                .likeIfPresent(MesWmMiscReceiptDO::getSourceDocCode, reqVO.getSourceDocCode())
+                .eqIfPresent(MesWmMiscReceiptDO::getSourceDocType, reqVO.getSourceDocType())
                 .eqIfPresent(MesWmMiscReceiptDO::getStatus, reqVO.getStatus())
                 .betweenIfPresent(MesWmMiscReceiptDO::getReceiptDate, reqVO.getReceiptDate())
                 .orderByDesc(MesWmMiscReceiptDO::getId));
