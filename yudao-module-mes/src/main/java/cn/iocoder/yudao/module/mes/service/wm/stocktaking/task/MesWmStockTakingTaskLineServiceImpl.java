@@ -12,12 +12,12 @@ import cn.iocoder.yudao.module.mes.dal.dataobject.wm.materialstock.MesWmMaterial
 import cn.iocoder.yudao.module.mes.dal.dataobject.wm.stocktaking.plan.MesWmStockTakingPlanParamDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.wm.stocktaking.task.MesWmStockTakingTaskDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.wm.stocktaking.task.MesWmStockTakingTaskLineDO;
-import cn.iocoder.yudao.module.mes.dal.mysql.wm.stocktaking.plan.MesWmStockTakingPlanParamMapper;
 import cn.iocoder.yudao.module.mes.dal.mysql.wm.stocktaking.task.MesWmStockTakingTaskLineMapper;
 import cn.iocoder.yudao.module.mes.enums.wm.MesWmStockTakingPlanParamTypeEnum;
 import cn.iocoder.yudao.module.mes.enums.wm.MesWmStockTakingTaskLineStatusEnum;
 import cn.iocoder.yudao.module.mes.enums.wm.MesWmStockTakingTypeEnum;
 import cn.iocoder.yudao.module.mes.service.wm.materialstock.MesWmMaterialStockService;
+import cn.iocoder.yudao.module.mes.service.wm.stocktaking.plan.MesWmStockTakingPlanParamService;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -44,7 +44,7 @@ public class MesWmStockTakingTaskLineServiceImpl implements MesWmStockTakingTask
     @Resource
     private MesWmStockTakingTaskLineMapper stockTakingTaskLineMapper;
     @Resource
-    private MesWmStockTakingPlanParamMapper stockTakingPlanParamMapper;
+    private MesWmStockTakingPlanParamService stockTakingPlanParamService;
     @Resource
     private MesWmMaterialStockService materialStockService;
     @Resource
@@ -139,7 +139,7 @@ public class MesWmStockTakingTaskLineServiceImpl implements MesWmStockTakingTask
      */
     private MesWmMaterialStockListReqVO buildStockQueryReqVO(MesWmStockTakingTaskDO task) {
         // 1. 从方案参数中提取过滤条件
-        List<MesWmStockTakingPlanParamDO> params = stockTakingPlanParamMapper.selectListByPlanId(task.getPlanId());
+        List<MesWmStockTakingPlanParamDO> params = stockTakingPlanParamService.getStockTakingPlanParamListByPlanId(task.getPlanId());
         Assert.notEmpty(params, "盘点方案参数不能为空");
 
         // 2.1 拼接通用参数

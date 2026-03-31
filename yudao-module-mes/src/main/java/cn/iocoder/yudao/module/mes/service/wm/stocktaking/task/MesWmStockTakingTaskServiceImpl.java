@@ -4,7 +4,6 @@ import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.ObjUtil;
 import cn.iocoder.yudao.framework.common.pojo.PageResult;
 import cn.iocoder.yudao.framework.common.util.object.BeanUtils;
-import cn.iocoder.yudao.module.mes.controller.admin.wm.materialstock.vo.MesWmMaterialStockFreezeReqVO;
 import cn.iocoder.yudao.module.mes.controller.admin.wm.stocktaking.task.vo.MesWmStockTakingTaskPageReqVO;
 import cn.iocoder.yudao.module.mes.controller.admin.wm.stocktaking.task.vo.MesWmStockTakingTaskSaveReqVO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.wm.stocktaking.task.MesWmStockTakingTaskDO;
@@ -20,10 +19,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 
-import java.math.BigDecimal;
 import java.util.List;
 
 import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception;
+import static cn.iocoder.yudao.framework.common.util.collection.CollectionUtils.convertList;
 import static cn.iocoder.yudao.module.mes.enums.ErrorCodeConstants.*;
 
 /**
@@ -128,13 +127,8 @@ public class MesWmStockTakingTaskServiceImpl implements MesWmStockTakingTaskServ
                 .setStatus(MesWmStockTakingTaskStatusEnum.APPROVING.getStatus()));
 
         // 3. 根据冻结标识，对物资进行冻结
-        // TODO @芋艿：后续跟进下！
         if (Boolean.TRUE.equals(task.getFrozen())) {
-            for (MesWmStockTakingTaskLineDO line : lines) {
-                if (line.getMaterialStockId() != null) {
-                    updateMaterialStockFrozen(line.getMaterialStockId(), true);
-                }
-            }
+            updateMaterialStockFrozen(lines, true);
         }
     }
 
@@ -149,10 +143,9 @@ public class MesWmStockTakingTaskServiceImpl implements MesWmStockTakingTaskServ
                 .setStatus(MesWmStockTakingTaskStatusEnum.FINISHED.getStatus()));
 
         // 3. 解冻库存
-        // TODO @芋艿：后续跟进下！
         if (Boolean.TRUE.equals(task.getFrozen())) {
             List<MesWmStockTakingTaskLineDO> lines = stockTakingTaskLineService.getStockTakingTaskLineListByTaskId(id);
-            unfreezeStockTakingTaskStocks(lines);
+            updateMaterialStockFrozen(lines, false);
         }
     }
 
@@ -167,7 +160,7 @@ public class MesWmStockTakingTaskServiceImpl implements MesWmStockTakingTaskServ
         task.setStatus(MesWmStockTakingTaskStatusEnum.CANCELED.getStatus());
         stockTakingTaskMapper.updateById(task);
         if (Boolean.TRUE.equals(task.getFrozen())) {
-            unfreezeStockTakingTaskStocks(stockTakingTaskLineService.getStockTakingTaskLineListByTaskId(id));
+            updateMaterialStockFrozen(stockTakingTaskLineService.getStockTakingTaskLineListByTaskId(id), false);
         }
     }
 
@@ -208,30 +201,13 @@ public class MesWmStockTakingTaskServiceImpl implements MesWmStockTakingTaskServ
         return stockTakingTaskMapper.selectPage(pageReqVO);
     }
 
-    private void updateMaterialStockFrozen(Long materialStockId, boolean frozen) {
-        MesWmMaterialStockFreezeReqVO reqVO = new MesWmMaterialStockFreezeReqVO();
-        reqVO.setId(materialStockId);
-        reqVO.setFrozen(frozen);
-        materialStockService.updateMaterialStockFrozen(reqVO);
-    }
-
-    private void unfreezeStockTakingTaskStocks(List<MesWmStockTakingTaskLineDO> lines) {
+    private void updateMaterialStockFrozen(List<MesWmStockTakingTaskLineDO> lines, boolean frozen) {
         if (CollUtil.isEmpty(lines)) {
             return;
         }
-        for (MesWmStockTakingTaskLineDO line : lines) {
-            if (line.getMaterialStockId() != null) {
-                updateMaterialStockFrozen(line.getMaterialStockId(), false);
-            }
-        }
-    }
-
-    private BigDecimal calculateStockTakingDifferenceQuantity(MesWmStockTakingTaskLineDO line) {
-        return getDefaultQuantity(line.getTakingQuantity()).subtract(getDefaultQuantity(line.getQuantity()));
-    }
-
-    private BigDecimal getDefaultQuantity(BigDecimal quantity) {
-        return quantity == null ? BigDecimal.ZERO : quantity;
+        List<Long> materialStockIds = convertList(lines,
+                MesWmStockTakingTaskLineDO::getMaterialStockId, line -> line.getMaterialStockId() != null);
+        materialStockService.updateMaterialStockFrozen(materialStockIds, frozen);
     }
 
     private void validateStockTakingTaskCodeUnique(Long id, String code) {
