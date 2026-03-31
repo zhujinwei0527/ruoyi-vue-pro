@@ -12,8 +12,10 @@ import cn.iocoder.yudao.module.mes.controller.admin.wm.outsourcereceipt.vo.MesWm
 import cn.iocoder.yudao.module.mes.controller.admin.wm.outsourcereceipt.vo.MesWmOutsourceReceiptRespVO;
 import cn.iocoder.yudao.module.mes.controller.admin.wm.outsourcereceipt.vo.MesWmOutsourceReceiptSaveReqVO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.md.vendor.MesMdVendorDO;
+import cn.iocoder.yudao.module.mes.dal.dataobject.pro.workorder.MesProWorkOrderDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.wm.outsourcereceipt.MesWmOutsourceReceiptDO;
 import cn.iocoder.yudao.module.mes.service.md.vendor.MesMdVendorService;
+import cn.iocoder.yudao.module.mes.service.pro.workorder.MesProWorkOrderService;
 import cn.iocoder.yudao.module.mes.service.wm.outsourcereceipt.MesWmOutsourceReceiptService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -45,6 +47,9 @@ public class MesWmOutsourceReceiptController {
 
     @Resource
     private MesMdVendorService vendorService;
+
+    @Resource
+    private MesProWorkOrderService workOrderService;
 
     @PostMapping("/create")
     @Operation(summary = "创建外协入库单")
@@ -148,10 +153,14 @@ public class MesWmOutsourceReceiptController {
         // 1. 获得关联数据
         Map<Long, MesMdVendorDO> vendorMap = vendorService.getVendorMap(
                 convertSet(list, MesWmOutsourceReceiptDO::getVendorId));
+        Map<Long, MesProWorkOrderDO> workOrderMap = workOrderService.getWorkOrderMap(
+                convertSet(list, MesWmOutsourceReceiptDO::getWorkOrderId));
         // 2. 构建结果
         return BeanUtils.toBean(list, MesWmOutsourceReceiptRespVO.class, vo -> {
             MapUtils.findAndThen(vendorMap, vo.getVendorId(),
                     vendor -> vo.setVendorName(vendor.getName()));
+            MapUtils.findAndThen(workOrderMap, vo.getWorkOrderId(),
+                    workOrder -> vo.setWorkOrderCode(workOrder.getCode()));
         });
     }
 

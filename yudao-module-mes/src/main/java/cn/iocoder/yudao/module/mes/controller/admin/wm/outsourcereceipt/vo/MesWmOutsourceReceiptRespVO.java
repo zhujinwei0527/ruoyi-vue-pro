@@ -25,11 +25,11 @@ public class MesWmOutsourceReceiptRespVO {
     private String name;
 
     @Schema(description = "外协工单编号", example = "1")
-    private Long workorderId;
+    private Long workOrderId;
 
     @Schema(description = "外协工单编码", example = "WO20260301")
     @ExcelProperty("外协工单")
-    private String workorderCode;
+    private String workOrderCode;
 
     @Schema(description = "供应商编号", example = "1")
     private Long vendorId;

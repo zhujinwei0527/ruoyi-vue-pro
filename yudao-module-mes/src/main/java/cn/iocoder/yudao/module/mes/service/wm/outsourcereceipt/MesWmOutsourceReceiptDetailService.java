@@ -63,4 +63,11 @@ public interface MesWmOutsourceReceiptDetailService {
      */
     void deleteOutsourceReceiptDetailByReceiptId(Long receiptId);
 
+    /**
+     * 删除委外收货明细（根据行编号）
+     *
+     * @param lineId 行编号
+     */
+    void deleteOutsourceReceiptDetailByLineId(Long lineId);
+
 }

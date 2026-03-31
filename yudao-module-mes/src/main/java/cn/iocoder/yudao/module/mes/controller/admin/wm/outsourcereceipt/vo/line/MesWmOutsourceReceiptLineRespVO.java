@@ -37,6 +37,9 @@ public class MesWmOutsourceReceiptLineRespVO {
     @Schema(description = "批次编号", example = "1")
     private Long batchId;
 
+    @Schema(description = "批次编码", example = "BATCH20260301001")
+    private String batchCode;
+
     @Schema(description = "生产日期")
     private LocalDateTime productionDate;
 

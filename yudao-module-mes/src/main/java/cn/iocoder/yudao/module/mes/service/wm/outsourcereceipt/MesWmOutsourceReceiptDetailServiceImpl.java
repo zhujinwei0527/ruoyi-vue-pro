@@ -110,6 +110,11 @@ public class MesWmOutsourceReceiptDetailServiceImpl implements MesWmOutsourceRec
         detailMapper.deleteByReceiptId(receiptId);
     }
 
+    @Override
+    public void deleteOutsourceReceiptDetailByLineId(Long lineId) {
+        detailMapper.deleteByLineId(lineId);
+    }
+
     private void validateOutsourceReceiptDetailExists(Long id) {
         if (detailMapper.selectById(id) == null) {
             throw exception(WM_OUTSOURCE_RECEIPT_DETAIL_NOT_EXISTS);
