@@ -34,10 +34,10 @@ public class MesCalPlanPageReqVO extends PageParam {
 
     @Schema(description = "开始日期")
     @DateTimeFormat(pattern = FORMAT_YEAR_MONTH_DAY_HOUR_MINUTE_SECOND)
-    private LocalDateTime startDate;
+    private LocalDateTime[] startDate;
 
     @Schema(description = "结束日期")
     @DateTimeFormat(pattern = FORMAT_YEAR_MONTH_DAY_HOUR_MINUTE_SECOND)
-    private LocalDateTime endDate;
+    private LocalDateTime[] endDate;
 
 }
