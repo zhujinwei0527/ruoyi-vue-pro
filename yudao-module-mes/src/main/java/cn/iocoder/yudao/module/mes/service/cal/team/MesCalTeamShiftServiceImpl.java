@@ -83,9 +83,7 @@ public class MesCalTeamShiftServiceImpl implements MesCalTeamShiftService {
             buildRecordsForDay(allRecords, planId, currentDay, shiftIndex, plan.getShiftType(), teams, shifts);
         }
 
-        // 3. 先删除该计划的旧排班记录，再批量插入新记录
-        // TODO @AI：能不能过有个 diff 的做法，insert、update、delete 这样？
-        teamShiftMapper.deleteByPlanId(planId);
+        // 3. 批量插入排班记录
         teamShiftMapper.insertBatch(allRecords);
     }
 

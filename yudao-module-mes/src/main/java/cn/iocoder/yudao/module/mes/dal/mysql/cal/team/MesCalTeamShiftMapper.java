@@ -6,7 +6,6 @@ import cn.iocoder.yudao.module.mes.controller.admin.cal.team.vo.shift.MesCalTeam
 import cn.iocoder.yudao.module.mes.dal.dataobject.cal.team.MesCalTeamShiftDO;
 import org.apache.ibatis.annotations.Mapper;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 /**
@@ -27,10 +26,8 @@ public interface MesCalTeamShiftMapper extends BaseMapperX<MesCalTeamShiftDO> {
                 .orderByAsc(MesCalTeamShiftDO::getSort));
     }
 
-    default MesCalTeamShiftDO selectByDayAndTeamId(LocalDateTime day, Long teamId) {
-        return selectOne(new LambdaQueryWrapperX<MesCalTeamShiftDO>()
-                .eq(MesCalTeamShiftDO::getDay, day)
-                .eq(MesCalTeamShiftDO::getTeamId, teamId));
+    default List<MesCalTeamShiftDO> selectListByPlanId(Long planId) {
+        return selectList(MesCalTeamShiftDO::getPlanId, planId);
     }
 
     default void deleteByPlanId(Long planId) {

@@ -1,7 +1,6 @@
 package cn.iocoder.yudao.module.mes.dal.dataobject.cal.team;
 
 import cn.iocoder.yudao.framework.mybatis.core.dataobject.BaseDO;
-import cn.iocoder.yudao.module.mes.enums.cal.MesCalCalendarTypeEnum;
 import com.baomidou.mybatisplus.annotation.KeySequence;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
@@ -37,8 +36,6 @@ public class MesCalTeamDO extends BaseDO {
     private String name;
     /**
      * 班组类型
-     *
-     * 枚举 {@link MesCalCalendarTypeEnum}
      */
     private Integer calendarType;
     /**
