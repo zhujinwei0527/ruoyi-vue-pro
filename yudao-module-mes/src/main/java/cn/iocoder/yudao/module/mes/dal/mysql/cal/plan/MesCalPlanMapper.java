@@ -21,6 +21,9 @@ public interface MesCalPlanMapper extends BaseMapperX<MesCalPlanDO> {
                 .likeIfPresent(MesCalPlanDO::getName, reqVO.getName())
                 .eqIfPresent(MesCalPlanDO::getShiftType, reqVO.getShiftType())
                 .eqIfPresent(MesCalPlanDO::getStatus, reqVO.getStatus())
+                .eqIfPresent(MesCalPlanDO::getCalendarType, reqVO.getCalendarType())
+                .geIfPresent(MesCalPlanDO::getStartDate, reqVO.getStartDate())
+                .leIfPresent(MesCalPlanDO::getEndDate, reqVO.getEndDate())
                 .orderByDesc(MesCalPlanDO::getId));
     }
 

@@ -5,6 +5,11 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
+import org.springframework.format.annotation.DateTimeFormat;
+
+import java.time.LocalDateTime;
+
+import static cn.iocoder.yudao.framework.common.util.date.DateUtils.FORMAT_YEAR_MONTH_DAY_HOUR_MINUTE_SECOND;
 
 @Schema(description = "管理后台 - MES 排班计划分页 Request VO")
 @Data
@@ -23,5 +28,16 @@ public class MesCalPlanPageReqVO extends PageParam {
 
     @Schema(description = "状态", example = "0")
     private Integer status;
+
+    @Schema(description = "班组类型", example = "1")
+    private Integer calendarType;
+
+    @Schema(description = "开始日期")
+    @DateTimeFormat(pattern = FORMAT_YEAR_MONTH_DAY_HOUR_MINUTE_SECOND)
+    private LocalDateTime startDate;
+
+    @Schema(description = "结束日期")
+    @DateTimeFormat(pattern = FORMAT_YEAR_MONTH_DAY_HOUR_MINUTE_SECOND)
+    private LocalDateTime endDate;
 
 }

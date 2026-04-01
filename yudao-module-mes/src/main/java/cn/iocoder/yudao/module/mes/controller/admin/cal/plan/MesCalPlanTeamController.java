@@ -2,7 +2,6 @@ package cn.iocoder.yudao.module.mes.controller.admin.cal.plan;
 
 import cn.hutool.core.collection.CollUtil;
 import cn.iocoder.yudao.framework.common.pojo.CommonResult;
-import cn.iocoder.yudao.framework.common.util.collection.CollectionUtils;
 import cn.iocoder.yudao.framework.common.util.object.BeanUtils;
 import cn.iocoder.yudao.module.mes.controller.admin.cal.plan.vo.team.MesCalPlanTeamRespVO;
 import cn.iocoder.yudao.module.mes.controller.admin.cal.plan.vo.team.MesCalPlanTeamSaveReqVO;
@@ -23,6 +22,7 @@ import java.util.List;
 import java.util.Map;
 
 import static cn.iocoder.yudao.framework.common.pojo.CommonResult.success;
+import static cn.iocoder.yudao.framework.common.util.collection.CollectionUtils.convertList;
 
 @Tag(name = "管理后台 - MES 计划班组关联")
 @RestController
@@ -59,16 +59,15 @@ public class MesCalPlanTeamController {
         List<MesCalPlanTeamDO> list = planTeamService.getPlanTeamListByPlanId(planId);
         List<MesCalPlanTeamRespVO> respList = BeanUtils.toBean(list, MesCalPlanTeamRespVO.class);
         // 拼装班组编码/名称
+        // TODO @AI：if return
         if (CollUtil.isNotEmpty(respList)) {
-            // TODO @AI：teamService.getTeamMap(ids)，里面调用 teamService.getTeamList(ids)
-            List<Long> teamIds = CollectionUtils.convertList(respList, MesCalPlanTeamRespVO::getTeamId);
-            Map<Long, MesCalTeamDO> teamMap = CollectionUtils.convertMap(
-                    teamService.getTeamList(), MesCalTeamDO::getId);
+            Map<Long, MesCalTeamDO> teamMap = teamService.getTeamMap(
+                    convertList(respList, MesCalPlanTeamRespVO::getTeamId));
             respList.forEach(resp -> {
+                // TODO @AI：findand then
                 MesCalTeamDO team = teamMap.get(resp.getTeamId());
                 if (team != null) {
-                    resp.setTeamCode(team.getCode());
-                    resp.setTeamName(team.getName());
+                    resp.setTeamCode(team.getCode()).setTeamName(team.getName());
                 }
             });
         }

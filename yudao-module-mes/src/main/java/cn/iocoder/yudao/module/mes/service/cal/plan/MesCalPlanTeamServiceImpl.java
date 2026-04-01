@@ -4,6 +4,7 @@ import cn.iocoder.yudao.framework.common.util.object.BeanUtils;
 import cn.iocoder.yudao.module.mes.controller.admin.cal.plan.vo.team.MesCalPlanTeamSaveReqVO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.cal.plan.MesCalPlanTeamDO;
 import cn.iocoder.yudao.module.mes.dal.mysql.cal.plan.MesCalPlanTeamMapper;
+import cn.iocoder.yudao.module.mes.service.cal.team.MesCalTeamService;
 import jakarta.annotation.Resource;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
@@ -28,11 +29,16 @@ public class MesCalPlanTeamServiceImpl implements MesCalPlanTeamService {
     @Resource
     @Lazy
     private MesCalPlanService planService;
+    @Resource
+    @Lazy
+    private MesCalTeamService teamService;
 
     @Override
     public Long createPlanTeam(MesCalPlanTeamSaveReqVO createReqVO) {
         // 校验计划未确认
         planService.validatePlanPrepare(createReqVO.getPlanId());
+        // 校验班组存在
+        teamService.validateTeamExists(createReqVO.getTeamId());
         // 校验班组不重复
         validatePlanTeamDuplicate(createReqVO.getPlanId(), createReqVO.getTeamId());
 

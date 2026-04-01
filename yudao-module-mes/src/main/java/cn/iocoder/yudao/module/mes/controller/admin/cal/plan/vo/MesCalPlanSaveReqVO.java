@@ -22,7 +22,8 @@ public class MesCalPlanSaveReqVO {
     @NotEmpty(message = "计划名称不能为空")
     private String name;
 
-    @Schema(description = "班组类型", example = "1")
+    @Schema(description = "班组类型", requiredMode = Schema.RequiredMode.REQUIRED, example = "1")
+    @NotNull(message = "班组类型不能为空")
     private Integer calendarType;
 
     @Schema(description = "开始日期", requiredMode = Schema.RequiredMode.REQUIRED)
@@ -33,7 +34,8 @@ public class MesCalPlanSaveReqVO {
     @NotNull(message = "结束日期不能为空")
     private LocalDateTime endDate;
 
-    @Schema(description = "轮班方式", example = "1")
+    @Schema(description = "轮班方式", requiredMode = Schema.RequiredMode.REQUIRED, example = "1")
+    @NotNull(message = "轮班方式不能为空")
     private Integer shiftType;
 
     @Schema(description = "倒班方式", example = "1")

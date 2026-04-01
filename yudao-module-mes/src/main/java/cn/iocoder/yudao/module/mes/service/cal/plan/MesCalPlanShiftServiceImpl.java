@@ -7,7 +7,6 @@ import cn.iocoder.yudao.module.mes.controller.admin.cal.plan.vo.shift.MesCalPlan
 import cn.iocoder.yudao.module.mes.controller.admin.cal.plan.vo.shift.MesCalPlanShiftSaveReqVO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.cal.plan.MesCalPlanDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.cal.plan.MesCalPlanShiftDO;
-import cn.iocoder.yudao.module.mes.dal.mysql.cal.plan.MesCalPlanMapper;
 import cn.iocoder.yudao.module.mes.dal.mysql.cal.plan.MesCalPlanShiftMapper;
 import cn.iocoder.yudao.module.mes.enums.cal.MesCalShiftTypeEnum;
 import jakarta.annotation.Resource;
@@ -35,8 +34,6 @@ public class MesCalPlanShiftServiceImpl implements MesCalPlanShiftService {
 
     @Resource
     private MesCalPlanShiftMapper planShiftMapper;
-    @Resource
-    private MesCalPlanMapper planMapper;
     @Resource
     @Lazy
     private MesCalPlanService planService;
@@ -89,7 +86,7 @@ public class MesCalPlanShiftServiceImpl implements MesCalPlanShiftService {
      * 通过 planId 查询已有班次数量，根据排班计划的轮班方式校验
      */
     private void validatePlanShiftCount(Long planId) {
-        MesCalPlanDO plan = planMapper.selectById(planId);
+        MesCalPlanDO plan = planService.getPlan(planId);
         if (plan == null) {
             return;
         }
