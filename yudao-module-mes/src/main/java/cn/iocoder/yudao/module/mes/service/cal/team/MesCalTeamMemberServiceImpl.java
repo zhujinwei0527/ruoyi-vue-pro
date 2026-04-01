@@ -6,6 +6,7 @@ import cn.iocoder.yudao.module.mes.controller.admin.cal.team.vo.member.MesCalTea
 import cn.iocoder.yudao.module.mes.controller.admin.cal.team.vo.member.MesCalTeamMemberSaveReqVO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.cal.team.MesCalTeamMemberDO;
 import cn.iocoder.yudao.module.mes.dal.mysql.cal.team.MesCalTeamMemberMapper;
+import cn.iocoder.yudao.module.system.api.user.AdminUserApi;
 import jakarta.annotation.Resource;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
@@ -31,12 +32,16 @@ public class MesCalTeamMemberServiceImpl implements MesCalTeamMemberService {
     @Resource
     @Lazy
     private MesCalTeamService teamService;
+    @Resource
+    private AdminUserApi adminUserApi;
 
     @Override
     public Long createTeamMember(MesCalTeamMemberSaveReqVO createReqVO) {
         // 1.1 校验班组存在
         teamService.validateTeamExists(createReqVO.getTeamId());
-        // 1.2 校验用户未分配到其他班组
+        // 1.2 校验用户存在
+        validateUserExists(createReqVO.getUserId());
+        // 1.3 校验用户未分配到其他班组
         validateUserUnique(createReqVO.getUserId());
 
         // 2. 插入
@@ -86,6 +91,12 @@ public class MesCalTeamMemberServiceImpl implements MesCalTeamMemberService {
     private void validateTeamMemberExists(Long id) {
         if (teamMemberMapper.selectById(id) == null) {
             throw exception(CAL_TEAM_MEMBER_NOT_EXISTS);
+        }
+    }
+
+    private void validateUserExists(Long userId) {
+        if (adminUserApi.getUser(userId) == null) {
+            throw exception(CAL_TEAM_MEMBER_USER_NOT_EXISTS);
         }
     }
 

@@ -35,6 +35,9 @@ public class MesCalTeamServiceImpl implements MesCalTeamService {
     @Resource
     @Lazy
     private MesCalTeamMemberService teamMemberService;
+    @Resource
+    @Lazy
+    private MesCalTeamShiftService teamShiftService;
 
     @Override
     public Long createTeam(MesCalTeamSaveReqVO createReqVO) {
@@ -67,7 +70,9 @@ public class MesCalTeamServiceImpl implements MesCalTeamService {
 
         // 2.1 级联删除成员
         teamMemberService.deleteByTeamId(id);
-        // 2.2 删除班组
+        // 2.2 级联删除排班记录
+        teamShiftService.deleteByTeamId(id);
+        // 2.3 删除班组
         teamMapper.deleteById(id);
     }
 

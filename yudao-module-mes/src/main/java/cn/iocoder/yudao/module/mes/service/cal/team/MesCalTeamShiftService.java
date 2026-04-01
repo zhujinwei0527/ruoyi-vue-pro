@@ -34,4 +34,11 @@ public interface MesCalTeamShiftService {
      */
     void deleteByPlanId(Long planId);
 
+    /**
+     * 根据班组编号删除所有排班记录
+     *
+     * @param teamId 班组编号
+     */
+    void deleteByTeamId(Long teamId);
+
 }

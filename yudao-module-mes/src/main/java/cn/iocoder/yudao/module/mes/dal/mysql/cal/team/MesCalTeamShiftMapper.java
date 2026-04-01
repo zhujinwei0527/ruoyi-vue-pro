@@ -37,4 +37,8 @@ public interface MesCalTeamShiftMapper extends BaseMapperX<MesCalTeamShiftDO> {
         delete(MesCalTeamShiftDO::getPlanId, planId);
     }
 
+    default void deleteByTeamId(Long teamId) {
+        delete(MesCalTeamShiftDO::getTeamId, teamId);
+    }
+
 }

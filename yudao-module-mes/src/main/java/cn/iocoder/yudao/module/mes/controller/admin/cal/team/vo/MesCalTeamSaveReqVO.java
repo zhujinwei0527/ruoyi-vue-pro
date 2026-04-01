@@ -2,6 +2,7 @@ package cn.iocoder.yudao.module.mes.controller.admin.cal.team.vo;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
 @Schema(description = "管理后台 - MES 班组新增/修改 Request VO")
@@ -19,10 +20,11 @@ public class MesCalTeamSaveReqVO {
     @NotEmpty(message = "班组名称不能为空")
     private String name;
 
-    @Schema(description = "班组类型", example = "1")
+    @Schema(description = "班组类型", requiredMode = Schema.RequiredMode.REQUIRED, example = "1")
+    @NotNull(message = "班组类型不能为空")
     private Integer calendarType;
 
     @Schema(description = "备注")
     private String remark;
 
-    }
+}
