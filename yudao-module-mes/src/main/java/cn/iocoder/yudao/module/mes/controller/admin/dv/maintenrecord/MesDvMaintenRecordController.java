@@ -138,7 +138,12 @@ public class MesDvMaintenRecordController {
         // 2. 拼接 VO
         return BeanUtils.toBean(list, MesDvMaintenRecordRespVO.class, vo -> {
             MapUtils.findAndThen(planMap, vo.getPlanId(),
-                    plan -> vo.setPlanName(plan.getName()));
+                    plan -> vo.setPlanName(plan.getName())
+                            .setPlanCode(plan.getCode())
+                            .setPlanStartDate(plan.getStartDate())
+                            .setPlanEndDate(plan.getEndDate())
+                            .setPlanCycleType(plan.getCycleType())
+                            .setPlanCycleCount(plan.getCycleCount()));
             MapUtils.findAndThen(machineryMap, vo.getMachineryId(), machinery -> vo
                     .setMachineryCode(machinery.getCode()).setMachineryName(machinery.getName())
                     .setMachineryBrand(machinery.getBrand()).setMachinerySpec(machinery.getSpec()));

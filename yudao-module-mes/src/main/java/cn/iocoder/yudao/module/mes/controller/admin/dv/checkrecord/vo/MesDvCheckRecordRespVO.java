@@ -26,6 +26,27 @@ public class MesDvCheckRecordRespVO {
     @ExcelProperty("计划名称")
     private String planName;
 
+    @Schema(description = "计划编码", example = "P001")
+    @ExcelProperty("计划编码")
+    private String planCode;
+
+    @Schema(description = "开始时间")
+    @ExcelProperty("开始时间")
+    private LocalDateTime planStartDate;
+
+    @Schema(description = "结束日期")
+    @ExcelProperty("结束日期")
+    private LocalDateTime planEndDate;
+
+    @Schema(description = "频率类型", example = "1")
+    @ExcelProperty(value = "频率类型", converter = DictConvert.class)
+    @DictFormat(DictTypeConstants.MES_DV_CYCLE_TYPE)
+    private Integer planCycleType;
+
+    @Schema(description = "频率数量", example = "5")
+    @ExcelProperty(value = "频率数量")
+    private Integer planCycleCount;
+
     @Schema(description = "设备编号", requiredMode = Schema.RequiredMode.REQUIRED, example = "1")
     private Long machineryId;
 
