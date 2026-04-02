@@ -36,9 +36,8 @@ public interface MesDvMachineryTypeMapper extends BaseMapperX<MesDvMachineryType
                 .eq(MesDvMachineryTypeDO::getName, name));
     }
 
-    default MesDvMachineryTypeDO selectByParentIdAndCode(Long parentId, String code) {
+    default MesDvMachineryTypeDO selectByCode(String code) {
         return selectOne(new LambdaQueryWrapperX<MesDvMachineryTypeDO>()
-                .eq(MesDvMachineryTypeDO::getParentId, parentId)
                 .eq(MesDvMachineryTypeDO::getCode, code));
     }
 

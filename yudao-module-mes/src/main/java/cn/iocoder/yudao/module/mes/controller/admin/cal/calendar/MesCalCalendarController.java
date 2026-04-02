@@ -161,14 +161,11 @@ public class MesCalCalendarController {
         if (CollUtil.isEmpty(teams)) {
             return Collections.emptyList();
         }
-        // 2. 查询这些班组在日期范围内的排班记录
-        List<MesCalTeamShiftDO> result = new ArrayList<>(teams.size());
-        for (MesCalTeamDO team : teams) {
-            MesCalTeamShiftListReqVO reqVO = new MesCalTeamShiftListReqVO()
-                    .setTeamId(team.getId()).setStartDay(startDay).setEndDay(endDay);
-            result.addAll(teamShiftService.getTeamShiftList(reqVO));
-        }
-        return result;
+        // 2. 一次 IN 查询这些班组在日期范围内的排班记录
+        MesCalTeamShiftListReqVO reqVO = new MesCalTeamShiftListReqVO()
+                .setTeamIds(convertSet(teams, MesCalTeamDO::getId))
+                .setStartDay(startDay).setEndDay(endDay);
+        return teamShiftService.getTeamShiftList(reqVO);
     }
 
     /**

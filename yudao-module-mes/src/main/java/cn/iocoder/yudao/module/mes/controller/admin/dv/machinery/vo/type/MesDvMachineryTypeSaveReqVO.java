@@ -12,8 +12,7 @@ public class MesDvMachineryTypeSaveReqVO {
     @Schema(description = "编号", requiredMode = Schema.RequiredMode.REQUIRED, example = "1024")
     private Long id;
 
-    @Schema(description = "类型编码", requiredMode = Schema.RequiredMode.REQUIRED, example = "MT-001")
-    @NotEmpty(message = "类型编码不能为空")
+    @Schema(description = "类型编码", example = "MT-001")
     private String code;
 
     @Schema(description = "类型名称", requiredMode = Schema.RequiredMode.REQUIRED, example = "数控机床")

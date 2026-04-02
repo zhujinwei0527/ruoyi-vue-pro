@@ -5,6 +5,7 @@ import lombok.Data;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDateTime;
+import java.util.Collection;
 
 import static cn.iocoder.yudao.framework.common.util.date.DateUtils.FORMAT_YEAR_MONTH_DAY_HOUR_MINUTE_SECOND;
 
@@ -14,6 +15,9 @@ public class MesCalTeamShiftListReqVO {
 
     @Schema(description = "班组编号", example = "201")
     private Long teamId;
+
+    @Schema(description = "班组编号集合")
+    private Collection<Long> teamIds;
 
     @Schema(description = "排班计划编号", example = "1")
     private Long planId;

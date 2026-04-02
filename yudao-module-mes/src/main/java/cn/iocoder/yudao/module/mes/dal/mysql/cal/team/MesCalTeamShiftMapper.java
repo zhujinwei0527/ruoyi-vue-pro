@@ -19,6 +19,7 @@ public interface MesCalTeamShiftMapper extends BaseMapperX<MesCalTeamShiftDO> {
     default List<MesCalTeamShiftDO> selectList(MesCalTeamShiftListReqVO reqVO) {
         return selectList(new LambdaQueryWrapperX<MesCalTeamShiftDO>()
                 .eqIfPresent(MesCalTeamShiftDO::getTeamId, reqVO.getTeamId())
+                .inIfPresent(MesCalTeamShiftDO::getTeamId, reqVO.getTeamIds())
                 .eqIfPresent(MesCalTeamShiftDO::getPlanId, reqVO.getPlanId())
                 .geIfPresent(MesCalTeamShiftDO::getDay, reqVO.getStartDay())
                 .leIfPresent(MesCalTeamShiftDO::getDay, reqVO.getEndDay())

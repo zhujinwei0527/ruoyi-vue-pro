@@ -2,12 +2,14 @@ package cn.iocoder.yudao.module.mes.service.dv.machinery;
 
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.ObjUtil;
+import cn.hutool.core.util.StrUtil;
 import cn.iocoder.yudao.framework.common.util.object.BeanUtils;
 import cn.iocoder.yudao.module.mes.controller.admin.dv.machinery.vo.type.MesDvMachineryTypeListReqVO;
 import cn.iocoder.yudao.module.mes.controller.admin.dv.machinery.vo.type.MesDvMachineryTypeSaveReqVO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.dv.machinery.MesDvMachineryTypeDO;
-import cn.iocoder.yudao.module.mes.dal.mysql.dv.machinery.MesDvMachineryMapper;
 import cn.iocoder.yudao.module.mes.dal.mysql.dv.machinery.MesDvMachineryTypeMapper;
+import cn.iocoder.yudao.module.mes.enums.md.autocode.MesMdAutoCodeRuleCodeEnum;
+import cn.iocoder.yudao.module.mes.service.md.autocode.MesMdAutoCodeRecordService;
 import jakarta.annotation.Resource;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
@@ -33,11 +35,17 @@ public class MesDvMachineryTypeServiceImpl implements MesDvMachineryTypeService 
     @Resource
     @Lazy // 延迟加载，避免循环依赖
     private MesDvMachineryService machineryService;
+    @Resource
+    private MesMdAutoCodeRecordService autoCodeRecordService;
 
     @Override
     public Long createMachineryType(MesDvMachineryTypeSaveReqVO createReqVO) {
+        // 自动生成编码
+        if (StrUtil.isEmpty(createReqVO.getCode())) {
+            createReqVO.setCode(autoCodeRecordService.generateAutoCode(MesMdAutoCodeRuleCodeEnum.DV_MACHINERY_TYPE_CODE.getCode()));
+        }
         // 校验
-        validateMachineryTypeSave(null, createReqVO.getParentId(), createReqVO.getName(), createReqVO.getCode());
+        validateMachineryTypeSaveData(createReqVO);
 
         // 插入
         MesDvMachineryTypeDO machineryType = BeanUtils.toBean(createReqVO, MesDvMachineryTypeDO.class);
@@ -48,7 +56,7 @@ public class MesDvMachineryTypeServiceImpl implements MesDvMachineryTypeService 
     @Override
     public void updateMachineryType(MesDvMachineryTypeSaveReqVO updateReqVO) {
         // 校验
-        validateMachineryTypeSave(updateReqVO.getId(), updateReqVO.getParentId(), updateReqVO.getName(), updateReqVO.getCode());
+        validateMachineryTypeSaveData(updateReqVO);
 
         // 更新
         MesDvMachineryTypeDO updateObj = BeanUtils.toBean(updateReqVO, MesDvMachineryTypeDO.class);
@@ -72,16 +80,16 @@ public class MesDvMachineryTypeServiceImpl implements MesDvMachineryTypeService 
         machineryTypeMapper.deleteById(id);
     }
 
-    private void validateMachineryTypeSave(Long id, Long parentId, String name, String code) {
-        if (id != null) {
-            validateMachineryTypeExists(id);
+    private void validateMachineryTypeSaveData(MesDvMachineryTypeSaveReqVO saveReqVO) {
+        if (saveReqVO.getId() != null) {
+            validateMachineryTypeExists(saveReqVO.getId());
         }
         // 校验父级节点有效性
-        validateParentMachineryType(id, parentId);
+        validateParentMachineryType(saveReqVO.getId(), saveReqVO.getParentId());
         // 校验类型名称唯一性
-        validateMachineryTypeNameUnique(id, parentId, name);
+        validateMachineryTypeNameUnique(saveReqVO.getId(), saveReqVO.getParentId(), saveReqVO.getName());
         // 校验类型编码唯一性
-        validateMachineryTypeCodeUnique(id, parentId, code);
+        validateMachineryTypeCodeUnique(saveReqVO.getId(), saveReqVO.getParentId(), saveReqVO.getCode());
     }
 
     private void validateMachineryTypeExists(Long id) {
@@ -135,8 +143,7 @@ public class MesDvMachineryTypeServiceImpl implements MesDvMachineryTypeService 
     }
 
     private void validateMachineryTypeCodeUnique(Long id, Long parentId, String code) {
-        // TODO @yunai：类型编码的唯一性，建议全局校验，而非同一父级下校验
-        MesDvMachineryTypeDO machineryType = machineryTypeMapper.selectByParentIdAndCode(parentId, code);
+        MesDvMachineryTypeDO machineryType = machineryTypeMapper.selectByCode(code);
         if (machineryType == null) {
             return;
         }
