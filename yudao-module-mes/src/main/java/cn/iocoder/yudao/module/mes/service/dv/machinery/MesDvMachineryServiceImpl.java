@@ -2,23 +2,33 @@ package cn.iocoder.yudao.module.mes.service.dv.machinery;
 
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.ObjUtil;
+import cn.hutool.core.util.StrUtil;
 import cn.iocoder.yudao.framework.common.pojo.PageResult;
 import cn.iocoder.yudao.framework.common.util.object.BeanUtils;
+import cn.iocoder.yudao.module.mes.controller.admin.dv.machinery.vo.MesDvMachineryImportExcelVO;
+import cn.iocoder.yudao.module.mes.controller.admin.dv.machinery.vo.MesDvMachineryImportRespVO;
 import cn.iocoder.yudao.module.mes.controller.admin.dv.machinery.vo.MesDvMachineryPageReqVO;
 import cn.iocoder.yudao.module.mes.controller.admin.dv.machinery.vo.MesDvMachinerySaveReqVO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.dv.machinery.MesDvMachineryDO;
+import cn.iocoder.yudao.module.mes.dal.dataobject.dv.machinery.MesDvMachineryTypeDO;
+import cn.iocoder.yudao.module.mes.dal.dataobject.md.workstation.MesMdWorkshopDO;
 import cn.iocoder.yudao.module.mes.dal.mysql.dv.machinery.MesDvMachineryMapper;
 import cn.iocoder.yudao.module.mes.enums.wm.BarcodeBizTypeEnum;
+import cn.iocoder.yudao.module.mes.service.dv.checkplan.MesDvCheckPlanMachineryService;
+import cn.iocoder.yudao.module.mes.service.dv.checkrecord.MesDvCheckRecordService;
+import cn.iocoder.yudao.module.mes.service.dv.maintenrecord.MesDvMaintenRecordService;
+import cn.iocoder.yudao.module.mes.service.dv.repair.MesDvRepairService;
 import cn.iocoder.yudao.module.mes.service.md.workstation.MesMdWorkshopService;
 import cn.iocoder.yudao.module.mes.service.wm.barcode.MesWmBarcodeService;
 import jakarta.annotation.Resource;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
 import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception;
 import static cn.iocoder.yudao.module.mes.enums.ErrorCodeConstants.*;
@@ -45,6 +55,22 @@ public class MesDvMachineryServiceImpl implements MesDvMachineryService {
 
     @Resource
     private MesWmBarcodeService barcodeService;
+
+    @Resource
+    @Lazy
+    private MesDvCheckPlanMachineryService checkPlanMachineryService;
+
+    @Resource
+    @Lazy
+    private MesDvCheckRecordService checkRecordService;
+
+    @Resource
+    @Lazy
+    private MesDvMaintenRecordService maintenRecordService;
+
+    @Resource
+    @Lazy
+    private MesDvRepairService repairService;
 
     @Override
     public Long createMachinery(MesDvMachinerySaveReqVO createReqVO) {
@@ -85,7 +111,19 @@ public class MesDvMachineryServiceImpl implements MesDvMachineryService {
     public void deleteMachinery(Long id) {
         // 校验存在
         validateMachineryExists(id);
-        // TODO @芋艿：后续补充点检计划、保养记录、维修工单等引用校验
+        // 校验关联数据
+        if (checkPlanMachineryService.getCheckPlanMachineryCountByMachineryId(id) > 0) {
+            throw exception(DV_MACHINERY_HAS_CHECK_PLAN);
+        }
+        if (checkRecordService.getCheckRecordCountByMachineryId(id) > 0) {
+            throw exception(DV_MACHINERY_HAS_CHECK_RECORD);
+        }
+        if (maintenRecordService.getMaintenRecordCountByMachineryId(id) > 0) {
+            throw exception(DV_MACHINERY_HAS_MAINTEN_RECORD);
+        }
+        if (repairService.getRepairCountByMachineryId(id) > 0) {
+            throw exception(DV_MACHINERY_HAS_REPAIR);
+        }
 
         // 删除
         machineryMapper.deleteById(id);
@@ -118,6 +156,15 @@ public class MesDvMachineryServiceImpl implements MesDvMachineryService {
 
     @Override
     public PageResult<MesDvMachineryDO> getMachineryPage(MesDvMachineryPageReqVO pageReqVO) {
+        // 处理设备类型树形查询：选择父类型时，同时查询所有子类型下的设备
+        if (pageReqVO.getMachineryTypeId() != null) {
+            List<MesDvMachineryTypeDO> children = machineryTypeService.getMachineryTypeChildrenList(
+                    pageReqVO.getMachineryTypeId());
+            Set<Long> typeIds = new HashSet<>();
+            typeIds.add(pageReqVO.getMachineryTypeId());
+            children.forEach(child -> typeIds.add(child.getId()));
+            pageReqVO.setMachineryTypeIds(typeIds);
+        }
         return machineryMapper.selectPage(pageReqVO);
     }
 
@@ -137,6 +184,91 @@ public class MesDvMachineryServiceImpl implements MesDvMachineryService {
             return Collections.emptyList();
         }
         return machineryMapper.selectByIds(ids);
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public MesDvMachineryImportRespVO importMachineryList(List<MesDvMachineryImportExcelVO> importMachineryList,
+                                                          boolean updateSupport) {
+        // 1. 参数校验
+        if (CollUtil.isEmpty(importMachineryList)) {
+            throw exception(DV_MACHINERY_IMPORT_LIST_IS_EMPTY);
+        }
+
+        // 2. 批量加载设备类型和车间，构建编码到实体的映射
+        List<MesDvMachineryTypeDO> allTypes = machineryTypeService.getMachineryTypeList(
+                new cn.iocoder.yudao.module.mes.controller.admin.dv.machinery.vo.type.MesDvMachineryTypeListReqVO());
+        Map<String, MesDvMachineryTypeDO> typeCodeMap = allTypes.stream()
+                .collect(Collectors.toMap(MesDvMachineryTypeDO::getCode, t -> t, (a, b) -> a));
+        List<MesMdWorkshopDO> allWorkshops = workshopService.getWorkshopListByStatus(
+                cn.iocoder.yudao.framework.common.enums.CommonStatusEnum.ENABLE.getStatus());
+        Map<String, MesMdWorkshopDO> workshopCodeMap = allWorkshops.stream()
+                .collect(Collectors.toMap(MesMdWorkshopDO::getCode, w -> w, (a, b) -> a));
+
+        // 3. 遍历，逐个创建 or 更新
+        MesDvMachineryImportRespVO respVO = MesDvMachineryImportRespVO.builder()
+                .createCodes(new ArrayList<>()).updateCodes(new ArrayList<>())
+                .failureCodes(new LinkedHashMap<>()).build();
+        AtomicInteger index = new AtomicInteger(1);
+        importMachineryList.forEach(importItem -> {
+            int currentIndex = index.getAndIncrement();
+            // 3.1 校验必填字段
+            String key = StrUtil.blankToDefault(importItem.getCode(), "第 " + currentIndex + " 行");
+            if (StrUtil.isBlank(importItem.getCode())) {
+                respVO.getFailureCodes().put(key, "设备编码不能为空");
+                return;
+            }
+            if (StrUtil.isBlank(importItem.getName())) {
+                respVO.getFailureCodes().put(key, "设备名称不能为空");
+                return;
+            }
+            // 3.2 校验设备类型编码
+            if (StrUtil.isBlank(importItem.getMachineryTypeCode())) {
+                respVO.getFailureCodes().put(key, "设备类型编码不能为空");
+                return;
+            }
+            MesDvMachineryTypeDO machineryType = typeCodeMap.get(importItem.getMachineryTypeCode());
+            if (machineryType == null) {
+                respVO.getFailureCodes().put(key, "设备类型编码[" + importItem.getMachineryTypeCode() + "]不存在");
+                return;
+            }
+            // 3.3 校验车间编码
+            if (StrUtil.isBlank(importItem.getWorkshopCode())) {
+                respVO.getFailureCodes().put(key, "车间编码不能为空");
+                return;
+            }
+            MesMdWorkshopDO workshop = workshopCodeMap.get(importItem.getWorkshopCode());
+            if (workshop == null) {
+                respVO.getFailureCodes().put(key, "车间编码[" + importItem.getWorkshopCode() + "]不存在");
+                return;
+            }
+
+            // 3.4 判断：创建 or 更新
+            MesDvMachineryDO existMachinery = machineryMapper.selectByCode(importItem.getCode());
+            if (existMachinery == null) {
+                // 3.4.1 创建
+                MesDvMachineryDO machinery = BeanUtils.toBean(importItem, MesDvMachineryDO.class);
+                machinery.setMachineryTypeId(machineryType.getId());
+                machinery.setWorkshopId(workshop.getId());
+                machineryMapper.insert(machinery);
+                // 自动生成条码
+                barcodeService.autoGenerateBarcode(BarcodeBizTypeEnum.MACHINERY.getValue(),
+                        machinery.getId(), machinery.getCode(), machinery.getName());
+                respVO.getCreateCodes().add(importItem.getCode());
+            } else if (updateSupport) {
+                // 3.4.2 更新
+                MesDvMachineryDO updateObj = BeanUtils.toBean(importItem, MesDvMachineryDO.class);
+                updateObj.setId(existMachinery.getId());
+                updateObj.setMachineryTypeId(machineryType.getId());
+                updateObj.setWorkshopId(workshop.getId());
+                machineryMapper.updateById(updateObj);
+                respVO.getUpdateCodes().add(importItem.getCode());
+            } else {
+                // 不支持更新
+                respVO.getFailureCodes().put(key, "设备编码已存在");
+            }
+        });
+        return respVO;
     }
 
 }

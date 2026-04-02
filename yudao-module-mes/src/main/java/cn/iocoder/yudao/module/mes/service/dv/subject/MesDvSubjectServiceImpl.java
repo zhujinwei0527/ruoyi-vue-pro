@@ -8,7 +8,9 @@ import cn.iocoder.yudao.module.mes.controller.admin.dv.subject.vo.MesDvSubjectPa
 import cn.iocoder.yudao.module.mes.controller.admin.dv.subject.vo.MesDvSubjectSaveReqVO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.dv.subject.MesDvSubjectDO;
 import cn.iocoder.yudao.module.mes.dal.mysql.dv.subject.MesDvSubjectMapper;
+import cn.iocoder.yudao.module.mes.service.dv.checkplan.MesDvCheckPlanSubjectService;
 import jakarta.annotation.Resource;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 
@@ -30,6 +32,10 @@ public class MesDvSubjectServiceImpl implements MesDvSubjectService {
 
     @Resource
     private MesDvSubjectMapper subjectMapper;
+    // DONE @AI：调用对方的 service
+    @Resource
+    @Lazy
+    private MesDvCheckPlanSubjectService checkPlanSubjectService;
 
     @Override
     public Long createSubject(MesDvSubjectSaveReqVO createReqVO) {
@@ -58,6 +64,11 @@ public class MesDvSubjectServiceImpl implements MesDvSubjectService {
     public void deleteSubject(Long id) {
         // 校验存在
         validateSubjectExists(id);
+        // 校验是否被点检保养方案引用
+        if (checkPlanSubjectService.getCheckPlanSubjectCountBySubjectId(id) > 0) {
+            throw exception(DV_SUBJECT_USED_BY_CHECK_PLAN);
+        }
+
         // 删除
         subjectMapper.deleteById(id);
     }

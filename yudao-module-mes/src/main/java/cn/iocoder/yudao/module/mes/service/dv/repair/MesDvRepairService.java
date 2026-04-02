@@ -44,6 +44,14 @@ public interface MesDvRepairService {
     void validateRepairExists(Long id);
 
     /**
+     * 获得指定设备的维修工单数量
+     *
+     * @param machineryId 设备编号
+     * @return 维修工单数量
+     */
+    Long getRepairCountByMachineryId(Long machineryId);
+
+    /**
      * 获得维修工单
      *
      * @param id 编号

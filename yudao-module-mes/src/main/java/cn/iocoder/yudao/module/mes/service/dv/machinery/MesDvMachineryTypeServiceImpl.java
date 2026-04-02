@@ -164,23 +164,28 @@ public class MesDvMachineryTypeServiceImpl implements MesDvMachineryTypeService 
     @Override
     public List<MesDvMachineryTypeDO> getMachineryTypeChildrenList(Long parentId) {
         List<MesDvMachineryTypeDO> allList = machineryTypeMapper.selectList(); // 类型总量小，全量查
-        // 递归收集所有子类型
+        // 1. 构建 parentId -> children 的 Map（类似 menu 的 treeNodeMap 思路）
+        Map<Long, List<MesDvMachineryTypeDO>> parentChildrenMap = new LinkedHashMap<>();
+        allList.forEach(type -> parentChildrenMap
+                .computeIfAbsent(type.getParentId(), k -> new ArrayList<>()).add(type));
+        // 2. 收集所有后代节点
         List<MesDvMachineryTypeDO> result = new ArrayList<>();
-        collectMachineryTypeChildren(result, parentId, allList);
-        return result;
-    }
-
-    /**
-     * 递归收集所有子类型
-     */
-    private void collectMachineryTypeChildren(List<MesDvMachineryTypeDO> result, Long parentId,
-                                               List<MesDvMachineryTypeDO> allList) {
-        for (MesDvMachineryTypeDO machineryType : allList) {
-            if (Objects.equals(machineryType.getParentId(), parentId)) {
-                result.add(machineryType);
-                collectMachineryTypeChildren(result, machineryType.getId(), allList);
+        List<Long> parentIds = new ArrayList<>();
+        parentIds.add(parentId);
+        for (int i = 0; i < Short.MAX_VALUE; i++) {
+            if (i >= parentIds.size()) {
+                break;
+            }
+            List<MesDvMachineryTypeDO> children = parentChildrenMap.get(parentIds.get(i));
+            if (children == null) {
+                continue;
+            }
+            for (MesDvMachineryTypeDO child : children) {
+                result.add(child);
+                parentIds.add(child.getId());
             }
         }
+        return result;
     }
 
 }

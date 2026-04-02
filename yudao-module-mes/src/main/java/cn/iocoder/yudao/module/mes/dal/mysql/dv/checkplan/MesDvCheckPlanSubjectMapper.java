@@ -28,4 +28,8 @@ public interface MesDvCheckPlanSubjectMapper extends BaseMapperX<MesDvCheckPlanS
                 .eq(MesDvCheckPlanSubjectDO::getPlanId, planId));
     }
 
+    default Long selectCountBySubjectId(Long subjectId) {
+        return selectCount(MesDvCheckPlanSubjectDO::getSubjectId, subjectId);
+    }
+
 }

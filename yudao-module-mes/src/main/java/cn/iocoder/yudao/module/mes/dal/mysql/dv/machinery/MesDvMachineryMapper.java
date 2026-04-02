@@ -1,5 +1,6 @@
 package cn.iocoder.yudao.module.mes.dal.mysql.dv.machinery;
 
+import cn.hutool.core.collection.CollUtil;
 import cn.iocoder.yudao.framework.common.pojo.PageResult;
 import cn.iocoder.yudao.framework.mybatis.core.mapper.BaseMapperX;
 import cn.iocoder.yudao.framework.mybatis.core.query.LambdaQueryWrapperX;
@@ -21,6 +22,7 @@ public interface MesDvMachineryMapper extends BaseMapperX<MesDvMachineryDO> {
                 .likeIfPresent(MesDvMachineryDO::getName, reqVO.getName())
                 .likeIfPresent(MesDvMachineryDO::getBrand, reqVO.getBrand())
                 .eqIfPresent(MesDvMachineryDO::getMachineryTypeId, reqVO.getMachineryTypeId())
+                .inIfPresent(MesDvMachineryDO::getMachineryTypeId, reqVO.getMachineryTypeIds())
                 .eqIfPresent(MesDvMachineryDO::getWorkshopId, reqVO.getWorkshopId())
                 .eqIfPresent(MesDvMachineryDO::getStatus, reqVO.getStatus())
                 .orderByDesc(MesDvMachineryDO::getId));

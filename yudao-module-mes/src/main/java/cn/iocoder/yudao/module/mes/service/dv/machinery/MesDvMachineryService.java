@@ -1,6 +1,8 @@
 package cn.iocoder.yudao.module.mes.service.dv.machinery;
 
 import cn.iocoder.yudao.framework.common.pojo.PageResult;
+import cn.iocoder.yudao.module.mes.controller.admin.dv.machinery.vo.MesDvMachineryImportExcelVO;
+import cn.iocoder.yudao.module.mes.controller.admin.dv.machinery.vo.MesDvMachineryImportRespVO;
 import cn.iocoder.yudao.module.mes.controller.admin.dv.machinery.vo.MesDvMachineryPageReqVO;
 import cn.iocoder.yudao.module.mes.controller.admin.dv.machinery.vo.MesDvMachinerySaveReqVO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.dv.machinery.MesDvMachineryDO;
@@ -96,5 +98,15 @@ public interface MesDvMachineryService {
     default Map<Long, MesDvMachineryDO> getMachineryMap(Collection<Long> ids) {
         return convertMap(getMachineryList(ids), MesDvMachineryDO::getId);
     }
+
+    /**
+     * 导入设备列表
+     *
+     * @param importMachineryList 导入设备列表
+     * @param updateSupport 是否支持更新
+     * @return 导入结果
+     */
+    MesDvMachineryImportRespVO importMachineryList(List<MesDvMachineryImportExcelVO> importMachineryList,
+                                                    boolean updateSupport);
 
 }

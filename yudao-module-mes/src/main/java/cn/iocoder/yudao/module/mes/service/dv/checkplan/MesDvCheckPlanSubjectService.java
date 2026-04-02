@@ -51,4 +51,12 @@ public interface MesDvCheckPlanSubjectService {
      */
     void deleteByPlanId(Long planId);
 
+    /**
+     * 获得指定项目的方案项目关联数量
+     *
+     * @param subjectId 项目编号
+     * @return 项目关联数量
+     */
+    Long getCheckPlanSubjectCountBySubjectId(Long subjectId);
+
 }

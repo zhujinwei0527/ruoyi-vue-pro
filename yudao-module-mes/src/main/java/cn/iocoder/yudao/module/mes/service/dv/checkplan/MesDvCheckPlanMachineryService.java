@@ -51,4 +51,12 @@ public interface MesDvCheckPlanMachineryService {
      */
     void deleteByPlanId(Long planId);
 
+    /**
+     * 获得指定设备关联的方案设备数量
+     *
+     * @param machineryId 设备编号
+     * @return 方案设备数量
+     */
+    Long getCheckPlanMachineryCountByMachineryId(Long machineryId);
+
 }

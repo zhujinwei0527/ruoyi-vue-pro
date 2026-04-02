@@ -110,6 +110,11 @@ public class MesDvMaintenRecordServiceImpl implements MesDvMaintenRecordService 
         }
     }
 
+    @Override
+    public Long getMaintenRecordCountByMachineryId(Long machineryId) {
+        return maintenRecordMapper.selectCountByMachineryId(machineryId);
+    }
+
     /**
      * 校验设备保养记录是否为草稿状态
      *

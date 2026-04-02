@@ -25,4 +25,8 @@ public interface MesDvRepairMapper extends BaseMapperX<MesDvRepairDO> {
                 .orderByDesc(MesDvRepairDO::getId));
     }
 
+    default Long selectCountByMachineryId(Long machineryId) {
+        return selectCount(MesDvRepairDO::getMachineryId, machineryId);
+    }
+
 }

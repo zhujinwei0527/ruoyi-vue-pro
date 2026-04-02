@@ -5,7 +5,6 @@ import cn.iocoder.yudao.framework.mybatis.core.mapper.BaseMapperX;
 import cn.iocoder.yudao.framework.mybatis.core.query.LambdaQueryWrapperX;
 import cn.iocoder.yudao.module.mes.controller.admin.dv.maintenrecord.vo.MesDvMaintenRecordPageReqVO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.dv.maintenrecord.MesDvMaintenRecordDO;
-import cn.hutool.core.util.StrUtil;
 import org.apache.ibatis.annotations.Mapper;
 
 /**
@@ -18,6 +17,7 @@ public interface MesDvMaintenRecordMapper extends BaseMapperX<MesDvMaintenRecord
 
     default PageResult<MesDvMaintenRecordDO> selectPage(MesDvMaintenRecordPageReqVO reqVO) {
         return selectPage(reqVO, new LambdaQueryWrapperX<MesDvMaintenRecordDO>()
+                // TODO @AI：对齐分析下，哪里有问题！
 //                .apply(StrUtil.isNotBlank(reqVO.getPlanName()),
 //                        "plan_id IN (SELECT id FROM mes_dv_check_plan WHERE name LIKE CONCAT('%', {0}, '%') AND deleted = 0)",
 //                        reqVO.getPlanName())
@@ -32,6 +32,10 @@ public interface MesDvMaintenRecordMapper extends BaseMapperX<MesDvMaintenRecord
 //                        reqVO.getNickname())
                 .betweenIfPresent(MesDvMaintenRecordDO::getMaintenTime, reqVO.getMaintenTime())
                 .orderByDesc(MesDvMaintenRecordDO::getId));
+    }
+
+    default Long selectCountByMachineryId(Long machineryId) {
+        return selectCount(MesDvMaintenRecordDO::getMachineryId, machineryId);
     }
 
 }

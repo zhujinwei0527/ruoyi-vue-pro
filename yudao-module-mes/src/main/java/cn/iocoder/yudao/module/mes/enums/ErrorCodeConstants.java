@@ -149,10 +149,16 @@ public interface ErrorCodeConstants {
     // ========== MES 设备管理-设备台账（1-040-301-000） ==========
     ErrorCode DV_MACHINERY_NOT_EXISTS = new ErrorCode(1_040_301_000, "设备不存在");
     ErrorCode DV_MACHINERY_CODE_DUPLICATE = new ErrorCode(1_040_301_001, "设备编码已存在");
+    ErrorCode DV_MACHINERY_IMPORT_LIST_IS_EMPTY = new ErrorCode(1_040_301_002, "导入设备数据不能为空");
+    ErrorCode DV_MACHINERY_HAS_CHECK_PLAN = new ErrorCode(1_040_301_003, "设备已关联点检计划，无法删除");
+    ErrorCode DV_MACHINERY_HAS_CHECK_RECORD = new ErrorCode(1_040_301_004, "设备已关联点检记录，无法删除");
+    ErrorCode DV_MACHINERY_HAS_MAINTEN_RECORD = new ErrorCode(1_040_301_005, "设备已关联保养记录，无法删除");
+    ErrorCode DV_MACHINERY_HAS_REPAIR = new ErrorCode(1_040_301_006, "设备已关联维修工单，无法删除");
 
     // ========== MES 设备管理-点检保养项目（1-040-304-000） ==========
     ErrorCode DV_SUBJECT_NOT_EXISTS = new ErrorCode(1_040_304_000, "点检保养项目不存在");
     ErrorCode DV_SUBJECT_CODE_DUPLICATE = new ErrorCode(1_040_304_001, "项目编码已存在");
+    ErrorCode DV_SUBJECT_USED_BY_CHECK_PLAN = new ErrorCode(1_040_304_002, "点检保养项目已被点检保养方案使用，无法删除");
 
     // ========== MES 设备管理-点检计划（1-040-302-000） ==========
     ErrorCode DV_CHECK_PLAN_NOT_EXISTS = new ErrorCode(1_040_302_000, "点检计划不存在");

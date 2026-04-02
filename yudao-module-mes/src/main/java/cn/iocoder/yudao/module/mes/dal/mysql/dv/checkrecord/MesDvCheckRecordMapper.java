@@ -25,4 +25,8 @@ public interface MesDvCheckRecordMapper extends BaseMapperX<MesDvCheckRecordDO> 
                 .orderByDesc(MesDvCheckRecordDO::getId));
     }
 
+    default Long selectCountByMachineryId(Long machineryId) {
+        return selectCount(MesDvCheckRecordDO::getMachineryId, machineryId);
+    }
+
 }

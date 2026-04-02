@@ -74,4 +74,9 @@ public class MesDvCheckPlanSubjectServiceImpl implements MesDvCheckPlanSubjectSe
         checkPlanSubjectMapper.deleteByPlanId(planId);
     }
 
+    @Override
+    public Long getCheckPlanSubjectCountBySubjectId(Long subjectId) {
+        return checkPlanSubjectMapper.selectCountBySubjectId(subjectId);
+    }
+
 }

@@ -51,6 +51,14 @@ public interface MesDvMaintenRecordService {
     void validateMaintenRecordExists(Long id);
 
     /**
+     * 获得指定设备的保养记录数量
+     *
+     * @param machineryId 设备编号
+     * @return 保养记录数量
+     */
+    Long getMaintenRecordCountByMachineryId(Long machineryId);
+
+    /**
      * 获得设备保养记录
      *
      * @param id 编号

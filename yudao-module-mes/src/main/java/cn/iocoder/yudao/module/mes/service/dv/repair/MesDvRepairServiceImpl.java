@@ -83,6 +83,11 @@ public class MesDvRepairServiceImpl implements MesDvRepairService {
         }
     }
 
+    @Override
+    public Long getRepairCountByMachineryId(Long machineryId) {
+        return repairMapper.selectCountByMachineryId(machineryId);
+    }
+
     /**
      * 校验维修工单是否为草稿状态
      *

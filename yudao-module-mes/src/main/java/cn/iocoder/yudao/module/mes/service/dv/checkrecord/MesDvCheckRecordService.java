@@ -51,6 +51,14 @@ public interface MesDvCheckRecordService {
     void validateCheckRecordExists(Long id);
 
     /**
+     * 获得指定设备的点检记录数量
+     *
+     * @param machineryId 设备编号
+     * @return 点检记录数量
+     */
+    Long getCheckRecordCountByMachineryId(Long machineryId);
+
+    /**
      * 获得设备点检记录
      *
      * @param id 编号

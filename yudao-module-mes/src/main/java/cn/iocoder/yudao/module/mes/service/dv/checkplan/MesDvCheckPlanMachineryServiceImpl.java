@@ -74,4 +74,9 @@ public class MesDvCheckPlanMachineryServiceImpl implements MesDvCheckPlanMachine
         checkPlanMachineryMapper.deleteByPlanId(planId);
     }
 
+    @Override
+    public Long getCheckPlanMachineryCountByMachineryId(Long machineryId) {
+        return checkPlanMachineryMapper.selectCountByMachineryId(machineryId);
+    }
+
 }

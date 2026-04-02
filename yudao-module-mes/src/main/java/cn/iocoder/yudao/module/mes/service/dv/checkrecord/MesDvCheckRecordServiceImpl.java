@@ -125,6 +125,11 @@ public class MesDvCheckRecordServiceImpl implements MesDvCheckRecordService {
     }
 
     @Override
+    public Long getCheckRecordCountByMachineryId(Long machineryId) {
+        return checkRecordMapper.selectCountByMachineryId(machineryId);
+    }
+
+    @Override
     public MesDvCheckRecordDO getCheckRecord(Long id) {
         return checkRecordMapper.selectById(id);
     }
