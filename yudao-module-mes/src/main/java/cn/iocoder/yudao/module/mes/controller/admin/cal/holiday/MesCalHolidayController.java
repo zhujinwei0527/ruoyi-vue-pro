@@ -50,10 +50,14 @@ public class MesCalHolidayController {
     }
 
     @GetMapping("/list")
-    @Operation(summary = "获得所有假期设置列表", description = "日历组件使用，返回全量数据")
+    @Operation(summary = "获得假期设置列表", description = "支持可选日期范围过滤，不传则返回全量数据")
     @PreAuthorize("@ss.hasPermission('mes:cal-holiday:query')")
-    public CommonResult<List<MesCalHolidayRespVO>> getHolidayList() {
-        List<MesCalHolidayDO> list = holidayService.getHolidayList();
+    public CommonResult<List<MesCalHolidayRespVO>> getHolidayList(
+            @RequestParam(value = "startDay", required = false)
+            @DateTimeFormat(pattern = FORMAT_YEAR_MONTH_DAY_HOUR_MINUTE_SECOND) LocalDateTime startDay,
+            @RequestParam(value = "endDay", required = false)
+            @DateTimeFormat(pattern = FORMAT_YEAR_MONTH_DAY_HOUR_MINUTE_SECOND) LocalDateTime endDay) {
+        List<MesCalHolidayDO> list = holidayService.getHolidayList(startDay, endDay);
         return success(BeanUtils.toBean(list, MesCalHolidayRespVO.class));
     }
 

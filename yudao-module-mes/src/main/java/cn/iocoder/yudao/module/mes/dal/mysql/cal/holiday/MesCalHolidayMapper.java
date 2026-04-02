@@ -20,14 +20,9 @@ public interface MesCalHolidayMapper extends BaseMapperX<MesCalHolidayDO> {
         return selectOne(MesCalHolidayDO::getDay, day);
     }
 
-    default List<MesCalHolidayDO> selectList() {
+    default List<MesCalHolidayDO> selectList(LocalDateTime startDay, LocalDateTime endDay) {
         return selectList(new LambdaQueryWrapperX<MesCalHolidayDO>()
-                .orderByAsc(MesCalHolidayDO::getDay));
-    }
-
-    default List<MesCalHolidayDO> selectListByDayRange(LocalDateTime startDay, LocalDateTime endDay) {
-        return selectList(new LambdaQueryWrapperX<MesCalHolidayDO>()
-                .between(MesCalHolidayDO::getDay, startDay, endDay)
+                .betweenIfPresent(MesCalHolidayDO::getDay, startDay, endDay)
                 .orderByAsc(MesCalHolidayDO::getDay));
     }
 

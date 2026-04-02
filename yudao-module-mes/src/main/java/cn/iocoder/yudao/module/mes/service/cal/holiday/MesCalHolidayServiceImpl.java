@@ -41,13 +41,8 @@ public class MesCalHolidayServiceImpl implements MesCalHolidayService {
     }
 
     @Override
-    public List<MesCalHolidayDO> getHolidayList() {
-        return holidayMapper.selectList();
-    }
-
-    @Override
     public List<MesCalHolidayDO> getHolidayList(LocalDateTime startDay, LocalDateTime endDay) {
-        return holidayMapper.selectListByDayRange(startDay, endDay);
+        return holidayMapper.selectList(startDay, endDay);
     }
 
     @Override

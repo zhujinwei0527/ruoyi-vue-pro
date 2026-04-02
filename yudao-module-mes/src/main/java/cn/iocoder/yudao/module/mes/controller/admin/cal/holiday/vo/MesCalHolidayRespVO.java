@@ -9,6 +9,9 @@ import java.time.LocalDateTime;
 @Data
 public class MesCalHolidayRespVO {
 
+    @Schema(description = "编号", example = "1024")
+    private Long id;
+
     @Schema(description = "日期")
     private LocalDateTime day;
 

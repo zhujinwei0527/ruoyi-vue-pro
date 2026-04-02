@@ -23,17 +23,10 @@ public interface MesCalHolidayService {
     Long saveHoliday(@Valid MesCalHolidaySaveReqVO saveReqVO);
 
     /**
-     * 获得所有假期设置列表（用于日历显示，不分页）
+     * 获得假期设置列表
      *
-     * @return 假期设置列表
-     */
-    List<MesCalHolidayDO> getHolidayList();
-
-    /**
-     * 根据日期范围获得假期设置列表
-     *
-     * @param startDay 开始日期
-     * @param endDay   结束日期
+     * @param startDay 开始日期（可选）
+     * @param endDay   结束日期（可选）
      * @return 假期设置列表
      */
     List<MesCalHolidayDO> getHolidayList(LocalDateTime startDay, LocalDateTime endDay);
