@@ -38,6 +38,10 @@ public class MesDvCheckPlanSubjectServiceImpl implements MesDvCheckPlanSubjectSe
         checkPlanService.validateCheckPlanPrepare(createReqVO.getPlanId());
         // 1.2 校验项目存在
         subjectService.validateSubjectExists(createReqVO.getSubjectId());
+        // 1.3 校验同一方案下项目不重复
+        if (checkPlanSubjectMapper.selectByPlanIdAndSubjectId(createReqVO.getPlanId(), createReqVO.getSubjectId()) != null) {
+            throw exception(DV_CHECK_PLAN_SUBJECT_DUPLICATE);
+        }
 
         // 2. 插入
         MesDvCheckPlanSubjectDO planSubject = BeanUtils.toBean(createReqVO, MesDvCheckPlanSubjectDO.class);

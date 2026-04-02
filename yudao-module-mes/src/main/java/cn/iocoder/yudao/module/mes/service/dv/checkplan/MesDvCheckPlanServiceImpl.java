@@ -91,8 +91,11 @@ public class MesDvCheckPlanServiceImpl implements MesDvCheckPlanService {
 
     @Override
     public void disableCheckPlan(Long id) {
-        // 1. 校验存在
-        validateCheckPlanExists(id);
+        // 1. 校验存在 + 校验已启用状态
+        MesDvCheckPlanDO plan = doValidateCheckPlanExists(id);
+        if (ObjUtil.notEqual(MesDvCheckPlanStatusEnum.ENABLED.getStatus(), plan.getStatus())) {
+            throw exception(DV_CHECK_PLAN_NOT_ENABLED);
+        }
 
         // 2. 更新状态为草稿
         checkPlanMapper.updateById(new MesDvCheckPlanDO().setId(id)

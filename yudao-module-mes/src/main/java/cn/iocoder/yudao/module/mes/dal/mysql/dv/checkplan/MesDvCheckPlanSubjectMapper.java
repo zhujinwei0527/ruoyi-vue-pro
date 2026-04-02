@@ -32,4 +32,10 @@ public interface MesDvCheckPlanSubjectMapper extends BaseMapperX<MesDvCheckPlanS
         return selectCount(MesDvCheckPlanSubjectDO::getSubjectId, subjectId);
     }
 
+    default MesDvCheckPlanSubjectDO selectByPlanIdAndSubjectId(Long planId, Long subjectId) {
+        return selectOne(new LambdaQueryWrapperX<MesDvCheckPlanSubjectDO>()
+                .eq(MesDvCheckPlanSubjectDO::getPlanId, planId)
+                .eq(MesDvCheckPlanSubjectDO::getSubjectId, subjectId));
+    }
+
 }

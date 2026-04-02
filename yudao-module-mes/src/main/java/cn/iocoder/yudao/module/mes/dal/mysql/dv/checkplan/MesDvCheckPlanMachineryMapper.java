@@ -32,4 +32,10 @@ public interface MesDvCheckPlanMachineryMapper extends BaseMapperX<MesDvCheckPla
         return selectCount(MesDvCheckPlanMachineryDO::getMachineryId, machineryId);
     }
 
+    default MesDvCheckPlanMachineryDO selectByPlanIdAndMachineryId(Long planId, Long machineryId) {
+        return selectOne(new LambdaQueryWrapperX<MesDvCheckPlanMachineryDO>()
+                .eq(MesDvCheckPlanMachineryDO::getPlanId, planId)
+                .eq(MesDvCheckPlanMachineryDO::getMachineryId, machineryId));
+    }
+
 }
