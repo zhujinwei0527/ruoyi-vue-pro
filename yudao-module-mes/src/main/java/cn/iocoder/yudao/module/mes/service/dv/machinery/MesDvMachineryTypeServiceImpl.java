@@ -36,12 +36,8 @@ public class MesDvMachineryTypeServiceImpl implements MesDvMachineryTypeService 
 
     @Override
     public Long createMachineryType(MesDvMachineryTypeSaveReqVO createReqVO) {
-        // 校验父类型编号的有效性
-        validateParentMachineryType(null, createReqVO.getParentId());
-        // 校验类型名称的唯一性
-        validateMachineryTypeNameUnique(null, createReqVO.getParentId(), createReqVO.getName());
-        // 校验类型编码的唯一性
-        validateMachineryTypeCodeUnique(null, createReqVO.getParentId(), createReqVO.getCode());
+        // 校验
+        validateMachineryTypeSave(null, createReqVO.getParentId(), createReqVO.getName(), createReqVO.getCode());
 
         // 插入
         MesDvMachineryTypeDO machineryType = BeanUtils.toBean(createReqVO, MesDvMachineryTypeDO.class);
@@ -51,14 +47,8 @@ public class MesDvMachineryTypeServiceImpl implements MesDvMachineryTypeService 
 
     @Override
     public void updateMachineryType(MesDvMachineryTypeSaveReqVO updateReqVO) {
-        // 校验存在
-        validateMachineryTypeExists(updateReqVO.getId());
-        // 校验父类型编号的有效性
-        validateParentMachineryType(updateReqVO.getId(), updateReqVO.getParentId());
-        // 校验类型名称的唯一性
-        validateMachineryTypeNameUnique(updateReqVO.getId(), updateReqVO.getParentId(), updateReqVO.getName());
-        // 校验类型编码的唯一性
-        validateMachineryTypeCodeUnique(updateReqVO.getId(), updateReqVO.getParentId(), updateReqVO.getCode());
+        // 校验
+        validateMachineryTypeSave(updateReqVO.getId(), updateReqVO.getParentId(), updateReqVO.getName(), updateReqVO.getCode());
 
         // 更新
         MesDvMachineryTypeDO updateObj = BeanUtils.toBean(updateReqVO, MesDvMachineryTypeDO.class);
@@ -80,6 +70,18 @@ public class MesDvMachineryTypeServiceImpl implements MesDvMachineryTypeService 
 
         // 2. 删除
         machineryTypeMapper.deleteById(id);
+    }
+
+    private void validateMachineryTypeSave(Long id, Long parentId, String name, String code) {
+        if (id != null) {
+            validateMachineryTypeExists(id);
+        }
+        // 校验父级节点有效性
+        validateParentMachineryType(id, parentId);
+        // 校验类型名称唯一性
+        validateMachineryTypeNameUnique(id, parentId, name);
+        // 校验类型编码唯一性
+        validateMachineryTypeCodeUnique(id, parentId, code);
     }
 
     private void validateMachineryTypeExists(Long id) {
@@ -133,6 +135,7 @@ public class MesDvMachineryTypeServiceImpl implements MesDvMachineryTypeService 
     }
 
     private void validateMachineryTypeCodeUnique(Long id, Long parentId, String code) {
+        // TODO @yunai：类型编码的唯一性，建议全局校验，而非同一父级下校验
         MesDvMachineryTypeDO machineryType = machineryTypeMapper.selectByParentIdAndCode(parentId, code);
         if (machineryType == null) {
             return;
