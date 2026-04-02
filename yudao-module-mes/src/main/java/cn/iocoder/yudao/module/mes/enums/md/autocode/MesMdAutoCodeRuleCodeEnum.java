@@ -38,6 +38,7 @@ public enum MesMdAutoCodeRuleCodeEnum {
     WM_STOCK_TAKING_CODE("WM_STOCK_TAKING_CODE", "盘点任务编码"),
     TRANSFER_CODE("TRANSFER_CODE", "转移调拨单编码"),
     WM_OUTSOURCE_ISSUE_CODE("WM_OUTSOURCE_ISSUE_CODE", "外协发料单编码"),
+    DV_MACHINERY_CODE("DV_MACHINERY_CODE", "设备编码"),
     DV_MACHINERY_TYPE_CODE("DV_MACHINERY_TYPE_CODE", "设备类型编码");
 
     /**
