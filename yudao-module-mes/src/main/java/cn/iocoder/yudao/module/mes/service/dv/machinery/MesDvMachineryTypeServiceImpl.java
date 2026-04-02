@@ -2,14 +2,11 @@ package cn.iocoder.yudao.module.mes.service.dv.machinery;
 
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.ObjUtil;
-import cn.hutool.core.util.StrUtil;
 import cn.iocoder.yudao.framework.common.util.object.BeanUtils;
 import cn.iocoder.yudao.module.mes.controller.admin.dv.machinery.vo.type.MesDvMachineryTypeListReqVO;
 import cn.iocoder.yudao.module.mes.controller.admin.dv.machinery.vo.type.MesDvMachineryTypeSaveReqVO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.dv.machinery.MesDvMachineryTypeDO;
 import cn.iocoder.yudao.module.mes.dal.mysql.dv.machinery.MesDvMachineryTypeMapper;
-import cn.iocoder.yudao.module.mes.enums.md.autocode.MesMdAutoCodeRuleCodeEnum;
-import cn.iocoder.yudao.module.mes.service.md.autocode.MesMdAutoCodeRecordService;
 import jakarta.annotation.Resource;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
@@ -35,15 +32,9 @@ public class MesDvMachineryTypeServiceImpl implements MesDvMachineryTypeService 
     @Resource
     @Lazy // 延迟加载，避免循环依赖
     private MesDvMachineryService machineryService;
-    @Resource
-    private MesMdAutoCodeRecordService autoCodeRecordService;
 
     @Override
     public Long createMachineryType(MesDvMachineryTypeSaveReqVO createReqVO) {
-        // 自动生成编码
-        if (StrUtil.isEmpty(createReqVO.getCode())) {
-            createReqVO.setCode(autoCodeRecordService.generateAutoCode(MesMdAutoCodeRuleCodeEnum.DV_MACHINERY_TYPE_CODE.getCode()));
-        }
         // 校验
         validateMachineryTypeSaveData(createReqVO);
 
