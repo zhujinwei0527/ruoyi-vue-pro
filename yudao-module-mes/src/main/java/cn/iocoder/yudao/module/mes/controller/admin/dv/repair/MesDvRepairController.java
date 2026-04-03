@@ -31,7 +31,6 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.stream.Stream;
 
 import static cn.iocoder.yudao.framework.apilog.core.enums.OperateTypeEnum.EXPORT;
@@ -111,8 +110,28 @@ public class MesDvRepairController {
                 buildRepairRespVOList(list));
     }
 
+    @PutMapping("/submit")
+    @Operation(summary = "提交维修工单（草稿→维修中）")
+    @Parameter(name = "id", description = "编号", required = true)
+    @PreAuthorize("@ss.hasPermission('mes:dv-repair:update')")
+    public CommonResult<Boolean> submitRepair(@RequestParam("id") Long id) {
+        repairService.submitRepair(id);
+        return success(true);
+    }
+
+    // TODO @AI：submit=>confirm=>finish（然后里面有是 resultstatus 这样的字段【对齐实体？】）
+
+    @PutMapping("/finish")
+    @Operation(summary = "完成维修（维修中→待验收）")
+    @Parameter(name = "id", description = "编号", required = true)
+    @PreAuthorize("@ss.hasPermission('mes:dv-repair:update')")
+    public CommonResult<Boolean> finishRepair(@RequestParam("id") Long id) {
+        repairService.finishRepair(id);
+        return success(true);
+    }
+
     @PutMapping("/confirm")
-    @Operation(summary = "通过维修工单（草稿→已确认，结果=通过）")
+    @Operation(summary = "验收通过（待验收→已确认，结果=通过）")
     @Parameter(name = "id", description = "编号", required = true)
     @PreAuthorize("@ss.hasPermission('mes:dv-repair:update')")
     public CommonResult<Boolean> confirmRepair(@RequestParam("id") Long id) {
@@ -121,7 +140,7 @@ public class MesDvRepairController {
     }
 
     @PutMapping("/reject")
-    @Operation(summary = "不通过维修工单（草稿→已确认，结果=不通过）")
+    @Operation(summary = "验收不通过（待验收→已确认，结果=不通过）")
     @Parameter(name = "id", description = "编号", required = true)
     @PreAuthorize("@ss.hasPermission('mes:dv-repair:update')")
     public CommonResult<Boolean> rejectRepair(@RequestParam("id") Long id) {

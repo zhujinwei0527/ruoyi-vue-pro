@@ -177,8 +177,10 @@ public interface ErrorCodeConstants {
 
     // ========== MES 设备管理-维修工单（1-040-303-000） ==========
     ErrorCode DV_REPAIR_NOT_EXISTS = new ErrorCode(1_040_303_000, "维修工单不存在");
-    ErrorCode DV_REPAIR_NOT_DRAFT = new ErrorCode(1_040_303_001, "维修工单已确认，不允许修改或删除");
+    ErrorCode DV_REPAIR_NOT_PREPARE = new ErrorCode(1_040_303_001, "维修工单不是草稿状态，不允许修改或删除");
     ErrorCode DV_REPAIR_CODE_DUPLICATE = new ErrorCode(1_040_303_002, "维修工单编码已存在");
+    ErrorCode DV_REPAIR_NOT_CONFIRMED = new ErrorCode(1_040_303_003, "只有维修中状态的维修工单才能完成维修");
+    ErrorCode DV_REPAIR_NOT_APPROVING = new ErrorCode(1_040_303_004, "只有待验收状态的维修工单才能验收");
     // ========== MES 设备管理-维修工单行（1-040-303-100） ==========
     ErrorCode DV_REPAIR_LINE_NOT_EXISTS = new ErrorCode(1_040_303_100, "维修工单行不存在");
 

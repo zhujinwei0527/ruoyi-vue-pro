@@ -40,8 +40,9 @@ public interface MesDvRepairService {
      * 校验维修工单是否存在
      *
      * @param id 编号
+     * @return 维修工单
      */
-    void validateRepairExists(Long id);
+    MesDvRepairDO validateRepairExists(Long id);
 
     /**
      * 获得指定设备的维修工单数量
@@ -68,14 +69,28 @@ public interface MesDvRepairService {
     PageResult<MesDvRepairDO> getRepairPage(MesDvRepairPageReqVO pageReqVO);
 
     /**
-     * 通过维修工单（草稿→已确认，结果=通过）
+     * 提交维修工单（草稿→维修中）
+     *
+     * @param id 编号
+     */
+    void submitRepair(Long id);
+
+    /**
+     * 完成维修（维修中→待验收）
+     *
+     * @param id 编号
+     */
+    void finishRepair(Long id);
+
+    /**
+     * 验收通过（待验收→已确认，结果=通过）
      *
      * @param id 编号
      */
     void confirmRepair(Long id);
 
     /**
-     * 不通过维修工单（草稿→已确认，结果=不通过）
+     * 验收不通过（待验收→已确认，结果=不通过）
      *
      * @param id 编号
      */

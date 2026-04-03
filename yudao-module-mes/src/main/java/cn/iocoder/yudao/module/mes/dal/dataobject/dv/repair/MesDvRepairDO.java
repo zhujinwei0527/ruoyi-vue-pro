@@ -76,7 +76,7 @@ public class MesDvRepairDO extends BaseDO {
      * 关联 AdminUserDO#getId()
      */
     private Long confirmUserId;
-    // TODO @芋艿：sourceDocType、sourceDocId、sourceDocCode 需要哪里处理；
+    // DONE @芋艿：sourceDocType、sourceDocId、sourceDocCode 为预留字段，对齐：暂未使用
     /**
      * 来源单据类型
      */
@@ -93,7 +93,6 @@ public class MesDvRepairDO extends BaseDO {
      * 状态
      *
      * 枚举 {@link MesDvRepairStatusEnum}
-     * 字典类型 mes_dv_repair_status
      */
     private Integer status;
     /**

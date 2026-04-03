@@ -38,7 +38,7 @@ public class MesDvRepairLineServiceImpl implements MesDvRepairLineService {
         // 1.1 校验关联数据
         validateRepairLineRelation(createReqVO);
         // 1.2 校验维修工单为草稿状态
-        repairService.validateRepairDraft(createReqVO.getRepairId());
+        repairService.validateRepairPrepare(createReqVO.getRepairId());
 
         // 2. 插入
         MesDvRepairLineDO repairLine = BeanUtils.toBean(createReqVO, MesDvRepairLineDO.class);
@@ -53,7 +53,7 @@ public class MesDvRepairLineServiceImpl implements MesDvRepairLineService {
         // 1.2 校验关联数据
         validateRepairLineRelation(updateReqVO);
         // 1.3 校验维修工单为草稿状态
-        repairService.validateRepairDraft(updateReqVO.getRepairId());
+        repairService.validateRepairPrepare(updateReqVO.getRepairId());
 
         // 2. 更新
         MesDvRepairLineDO updateObj = BeanUtils.toBean(updateReqVO, MesDvRepairLineDO.class);
@@ -68,7 +68,7 @@ public class MesDvRepairLineServiceImpl implements MesDvRepairLineService {
             throw exception(DV_REPAIR_LINE_NOT_EXISTS);
         }
         // 1.2 校验维修工单为草稿状态
-        repairService.validateRepairDraft(line.getRepairId());
+        repairService.validateRepairPrepare(line.getRepairId());
 
         // 2. 删除
         repairLineMapper.deleteById(id);
