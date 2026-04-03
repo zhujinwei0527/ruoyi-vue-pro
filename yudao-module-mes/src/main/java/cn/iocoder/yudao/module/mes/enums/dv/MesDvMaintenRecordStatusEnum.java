@@ -15,10 +15,11 @@ import java.util.Arrays;
 @AllArgsConstructor
 public enum MesDvMaintenRecordStatusEnum implements ArrayValuable<Integer> {
 
-    PREPARE(0, "草稿"),
-    SUBMITTED(1, "已提交");
+    PREPARE(1, "草稿"),
+    SUBMITTED(2, "已提交");
 
-    public static final Integer[] ARRAYS = Arrays.stream(values()).map(MesDvMaintenRecordStatusEnum::getStatus).toArray(Integer[]::new);
+    public static final Integer[] ARRAYS = Arrays.stream(values()).map(MesDvMaintenRecordStatusEnum::getStatus)
+            .toArray(Integer[]::new);
 
     /**
      * 状态值
