@@ -6,7 +6,6 @@ import cn.iocoder.yudao.framework.common.util.object.BeanUtils;
 import cn.iocoder.yudao.module.mes.controller.admin.dv.repair.vo.MesDvRepairPageReqVO;
 import cn.iocoder.yudao.module.mes.controller.admin.dv.repair.vo.MesDvRepairSaveReqVO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.dv.repair.MesDvRepairDO;
-import cn.iocoder.yudao.module.mes.dal.mysql.dv.repair.MesDvRepairLineMapper;
 import cn.iocoder.yudao.module.mes.dal.mysql.dv.repair.MesDvRepairMapper;
 import cn.iocoder.yudao.module.mes.enums.dv.MesDvRepairResultEnum;
 import cn.iocoder.yudao.module.mes.enums.dv.MesDvRepairStatusEnum;
@@ -15,6 +14,8 @@ import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
+
+import java.time.LocalDateTime;
 
 import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception;
 import static cn.iocoder.yudao.module.mes.enums.ErrorCodeConstants.*;
@@ -30,15 +31,19 @@ public class MesDvRepairServiceImpl implements MesDvRepairService {
 
     @Resource
     private MesDvRepairMapper repairMapper;
+
     @Resource
-    private MesDvRepairLineMapper repairLineMapper;
+    private MesDvRepairLineService repairLineService;
     @Resource
     private MesDvMachineryService machineryService;
 
     @Override
     public Long createRepair(MesDvRepairSaveReqVO createReqVO) {
-        // 1. 校验关联数据
+        // TODO @AI：抽成 validateXXSaveData（vo）；
+        // 1.1 校验关联数据
         validateRepairRelation(createReqVO);
+        // 1.2 校验编码唯一
+        validateCodeUnique(null, createReqVO.getCode());
 
         // 2. 插入
         MesDvRepairDO repair = BeanUtils.toBean(createReqVO, MesDvRepairDO.class);
@@ -51,8 +56,11 @@ public class MesDvRepairServiceImpl implements MesDvRepairService {
     public void updateRepair(MesDvRepairSaveReqVO updateReqVO) {
         // 1.1 校验存在，且状态为草稿
         validateRepairDraft(updateReqVO.getId());
+        // TODO @AI：抽成 validateXXSaveData（vo）；
         // 1.2 校验关联数据
         validateRepairRelation(updateReqVO);
+        // 1.3 校验编码唯一
+        validateCodeUnique(updateReqVO.getId(), updateReqVO.getCode());
 
         // 2. 更新
         MesDvRepairDO updateObj = BeanUtils.toBean(updateReqVO, MesDvRepairDO.class);
@@ -68,12 +76,26 @@ public class MesDvRepairServiceImpl implements MesDvRepairService {
         // 删除
         repairMapper.deleteById(id);
         // 级联删除子表
-        repairLineMapper.deleteByRepairId(id);
+        repairLineService.deleteByRepairId(id);
     }
 
     private void validateRepairRelation(MesDvRepairSaveReqVO reqVO) {
         // 校验设备是否存在
         machineryService.validateMachineryExists(reqVO.getMachineryId());
+    }
+
+    private void validateCodeUnique(Long id, String code) {
+        if (code == null) {
+            return;
+        }
+        MesDvRepairDO repair = repairMapper.selectByCode(code);
+        // TODO @AI：参考别的模块，notEquals
+        if (repair == null) {
+            return;
+        }
+        if (id == null || !id.equals(repair.getId())) {
+            throw exception(DV_REPAIR_CODE_DUPLICATE);
+        }
     }
 
     @Override
@@ -95,6 +117,7 @@ public class MesDvRepairServiceImpl implements MesDvRepairService {
      * @return 维修工单
      */
     public MesDvRepairDO validateRepairDraft(Long id) {
+        // TODO @AI：复用 validateRepairExists 方法
         MesDvRepairDO repair = repairMapper.selectById(id);
         if (repair == null) {
             throw exception(DV_REPAIR_NOT_EXISTS);
@@ -120,10 +143,11 @@ public class MesDvRepairServiceImpl implements MesDvRepairService {
         // 1. 校验存在，且状态为草稿
         validateRepairDraft(id);
 
-        // 2. 更新状态为已确认，结果为通过
+        // 2. 更新状态为已确认，结果为通过，自动设置验收日期
         repairMapper.updateById(new MesDvRepairDO().setId(id)
                 .setStatus(MesDvRepairStatusEnum.CONFIRMED.getStatus())
-                .setResult(MesDvRepairResultEnum.PASS.getResult()));
+                .setResult(MesDvRepairResultEnum.PASS.getResult())
+                .setConfirmDate(LocalDateTime.now()));
     }
 
     @Override
@@ -131,10 +155,11 @@ public class MesDvRepairServiceImpl implements MesDvRepairService {
         // 1. 校验存在，且状态为草稿
         validateRepairDraft(id);
 
-        // 2. 更新状态为已确认，结果为不通过
+        // 2. 更新状态为已确认，结果为不通过，自动设置验收日期
         repairMapper.updateById(new MesDvRepairDO().setId(id)
                 .setStatus(MesDvRepairStatusEnum.CONFIRMED.getStatus())
-                .setResult(MesDvRepairResultEnum.FAIL.getResult()));
+                .setResult(MesDvRepairResultEnum.FAIL.getResult())
+                .setConfirmDate(LocalDateTime.now()));
     }
 
 }

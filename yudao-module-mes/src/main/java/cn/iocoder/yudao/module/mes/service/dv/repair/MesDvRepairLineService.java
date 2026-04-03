@@ -52,4 +52,11 @@ public interface MesDvRepairLineService {
      */
     PageResult<MesDvRepairLineDO> getRepairLinePage(MesDvRepairLinePageReqVO pageReqVO);
 
+    /**
+     * 根据维修工单编号删除所有行
+     *
+     * @param repairId 维修工单编号
+     */
+    void deleteByRepairId(Long repairId);
+
 }

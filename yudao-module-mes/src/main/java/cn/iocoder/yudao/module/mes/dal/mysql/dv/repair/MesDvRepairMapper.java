@@ -19,10 +19,15 @@ public interface MesDvRepairMapper extends BaseMapperX<MesDvRepairDO> {
         return selectPage(reqVO, new LambdaQueryWrapperX<MesDvRepairDO>()
                 .likeIfPresent(MesDvRepairDO::getCode, reqVO.getCode())
                 .likeIfPresent(MesDvRepairDO::getName, reqVO.getName())
+                .eqIfPresent(MesDvRepairDO::getMachineryId, reqVO.getMachineryId())
                 .eqIfPresent(MesDvRepairDO::getResult, reqVO.getResult())
                 .eqIfPresent(MesDvRepairDO::getStatus, reqVO.getStatus())
                 .betweenIfPresent(MesDvRepairDO::getRequireDate, reqVO.getRequireDate())
                 .orderByDesc(MesDvRepairDO::getId));
+    }
+
+    default MesDvRepairDO selectByCode(String code) {
+        return selectOne(MesDvRepairDO::getCode, code);
     }
 
     default Long selectCountByMachineryId(Long machineryId) {

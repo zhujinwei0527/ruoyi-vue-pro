@@ -99,4 +99,9 @@ public class MesDvRepairLineServiceImpl implements MesDvRepairLineService {
         return repairLineMapper.selectPage(pageReqVO);
     }
 
+    @Override
+    public void deleteByRepairId(Long repairId) {
+        repairLineMapper.deleteByRepairId(repairId);
+    }
+
 }
