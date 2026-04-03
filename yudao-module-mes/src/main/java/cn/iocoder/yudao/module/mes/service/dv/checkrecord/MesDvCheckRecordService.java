@@ -51,6 +51,13 @@ public interface MesDvCheckRecordService {
     void validateCheckRecordExists(Long id);
 
     /**
+     * 校验点检记录为草稿状态
+     *
+     * @param id 编号
+     */
+    void validateCheckRecordDraft(Long id);
+
+    /**
      * 获得指定设备的点检记录数量
      *
      * @param machineryId 设备编号

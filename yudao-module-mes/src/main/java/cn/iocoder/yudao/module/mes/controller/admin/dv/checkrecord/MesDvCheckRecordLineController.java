@@ -96,10 +96,8 @@ public class MesDvCheckRecordLineController {
         // 2. 拼接 VO
         return BeanUtils.toBean(list, MesDvCheckRecordLineRespVO.class, vo ->
                 MapUtils.findAndThen(subjectMap, vo.getSubjectId(), subject -> vo
-                        .setSubjectCode(subject.getCode())
-                        .setSubjectName(subject.getName())
-                        .setSubjectContent(subject.getContent())
-                        .setSubjectStandard(subject.getStandard())));
+                        .setSubjectCode(subject.getCode()).setSubjectName(subject.getName())
+                        .setSubjectType(subject.getType()).setSubjectContent(subject.getContent()).setSubjectStandard(subject.getStandard())));
     }
 
 }

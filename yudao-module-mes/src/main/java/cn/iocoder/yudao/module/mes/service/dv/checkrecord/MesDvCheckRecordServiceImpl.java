@@ -11,12 +11,13 @@ import cn.iocoder.yudao.module.mes.dal.dataobject.dv.checkrecord.MesDvCheckRecor
 import cn.iocoder.yudao.module.mes.dal.dataobject.dv.checkrecord.MesDvCheckRecordLineDO;
 import cn.iocoder.yudao.module.mes.enums.dv.MesDvCheckRecordStatusEnum;
 import cn.iocoder.yudao.module.mes.enums.dv.MesDvCheckResultEnum;
-import cn.iocoder.yudao.module.mes.dal.mysql.dv.checkrecord.MesDvCheckRecordLineMapper;
 import cn.iocoder.yudao.module.mes.dal.mysql.dv.checkrecord.MesDvCheckRecordMapper;
 import cn.iocoder.yudao.module.mes.service.dv.checkplan.MesDvCheckPlanService;
 import cn.iocoder.yudao.module.mes.service.dv.checkplan.MesDvCheckPlanSubjectService;
 import cn.iocoder.yudao.module.mes.service.dv.machinery.MesDvMachineryService;
+import cn.iocoder.yudao.module.system.api.user.AdminUserApi;
 import jakarta.annotation.Resource;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
@@ -39,19 +40,22 @@ public class MesDvCheckRecordServiceImpl implements MesDvCheckRecordService {
     @Resource
     private MesDvCheckRecordMapper checkRecordMapper;
     @Resource
-    private MesDvCheckRecordLineMapper checkRecordLineMapper;
+    @Lazy
+    private MesDvCheckRecordLineService checkRecordLineService;
     @Resource
     private MesDvMachineryService machineryService;
     @Resource
     private MesDvCheckPlanService checkPlanService;
     @Resource
     private MesDvCheckPlanSubjectService checkPlanSubjectService;
+    @Resource
+    private AdminUserApi adminUserApi;
 
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Long createCheckRecord(MesDvCheckRecordSaveReqVO createReqVO) {
         // 1. 校验关联数据
-        validateCheckRecordRelation(createReqVO);
+        validateCheckRecordSave(createReqVO);
 
         // 2. 插入主记录，状态默认为草稿
         MesDvCheckRecordDO checkRecord = BeanUtils.toBean(createReqVO, MesDvCheckRecordDO.class)
@@ -69,16 +73,17 @@ public class MesDvCheckRecordServiceImpl implements MesDvCheckRecordService {
     @Transactional(rollbackFor = Exception.class)
     public void updateCheckRecord(MesDvCheckRecordSaveReqVO updateReqVO) {
         // 1.1 校验存在 + 状态为草稿
-        MesDvCheckRecordDO existRecord = validateCheckRecordDraft(updateReqVO.getId());
+        validateCheckRecordDraft(updateReqVO.getId());
         // 1.2 校验关联数据
-        validateCheckRecordRelation(updateReqVO);
+        validateCheckRecordSave(updateReqVO);
 
         // 2. 如果计划变更，删除旧明细并重新生成
+        MesDvCheckRecordDO existRecord = checkRecordMapper.selectById(updateReqVO.getId());
         Long oldPlanId = existRecord.getPlanId();
         Long newPlanId = updateReqVO.getPlanId();
-        boolean planChanged = !java.util.Objects.equals(oldPlanId, newPlanId);
+        boolean planChanged = ObjUtil.notEqual(oldPlanId, newPlanId);
         if (planChanged) {
-            checkRecordLineMapper.deleteByRecordId(updateReqVO.getId());
+            checkRecordLineService.deleteByRecordId(updateReqVO.getId());
             if (newPlanId != null) {
                 generateCheckRecordLines(updateReqVO.getId(), newPlanId);
             }
@@ -94,7 +99,7 @@ public class MesDvCheckRecordServiceImpl implements MesDvCheckRecordService {
         // 1.1 校验状态为草稿
         validateCheckRecordDraft(id);
         // 1.2 校验至少有一条明细
-        List<MesDvCheckRecordLineDO> lines = checkRecordLineMapper.selectListByRecordId(id);
+        List<MesDvCheckRecordLineDO> lines = checkRecordLineService.getCheckRecordLineListByRecordId(id);
         if (CollUtil.isEmpty(lines)) {
             throw exception(DV_CHECK_RECORD_NO_LINE);
         }
@@ -114,7 +119,7 @@ public class MesDvCheckRecordServiceImpl implements MesDvCheckRecordService {
         // 2.1 删除主记录
         checkRecordMapper.deleteById(id);
         // 2.2 级联删除明细
-        checkRecordLineMapper.deleteByRecordId(id);
+        checkRecordLineService.deleteByRecordId(id);
     }
 
     @Override
@@ -139,12 +144,10 @@ public class MesDvCheckRecordServiceImpl implements MesDvCheckRecordService {
         return checkRecordMapper.selectPage(pageReqVO);
     }
 
-    // ==================== 私有方法 ====================
+    // ==================== 校验方法 ====================
 
-    /**
-     * 校验点检记录为草稿状态
-     */
-    private MesDvCheckRecordDO validateCheckRecordDraft(Long id) {
+    @Override
+    public void validateCheckRecordDraft(Long id) {
         MesDvCheckRecordDO record = checkRecordMapper.selectById(id);
         if (record == null) {
             throw exception(DV_CHECK_RECORD_NOT_EXISTS);
@@ -152,15 +155,18 @@ public class MesDvCheckRecordServiceImpl implements MesDvCheckRecordService {
         if (ObjUtil.notEqual(MesDvCheckRecordStatusEnum.DRAFT.getStatus(), record.getStatus())) {
             throw exception(DV_CHECK_RECORD_NOT_DRAFT);
         }
-        return record;
     }
 
-    private void validateCheckRecordRelation(MesDvCheckRecordSaveReqVO reqVO) {
+    private void validateCheckRecordSave(MesDvCheckRecordSaveReqVO reqVO) {
         // 校验设备是否存在
         machineryService.validateMachineryExists(reqVO.getMachineryId());
         // 校验点检计划是否存在
         if (reqVO.getPlanId() != null) {
             checkPlanService.validateCheckPlanExists(reqVO.getPlanId());
+        }
+        // 校验点检人是否存在
+        if (reqVO.getUserId() != null) {
+            adminUserApi.validateUser(reqVO.getUserId());
         }
     }
 
@@ -178,7 +184,7 @@ public class MesDvCheckRecordServiceImpl implements MesDvCheckRecordService {
                     .setRecordId(recordId).setSubjectId(planSubject.getSubjectId())
                     .setCheckStatus(MesDvCheckResultEnum.NORMAL.getResult()));
         }
-        checkRecordLineMapper.insertBatch(lines);
+        checkRecordLineService.createCheckRecordLineList(lines);
     }
 
 }

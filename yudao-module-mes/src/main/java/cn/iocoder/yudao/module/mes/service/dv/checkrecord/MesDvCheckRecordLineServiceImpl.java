@@ -34,8 +34,8 @@ public class MesDvCheckRecordLineServiceImpl implements MesDvCheckRecordLineServ
 
     @Override
     public Long createCheckRecordLine(MesDvCheckRecordLineSaveReqVO createReqVO) {
-        // 1. 校验点检记录存在
-        checkRecordService.validateCheckRecordExists(createReqVO.getRecordId());
+        // 1. 校验点检记录存在且为草稿状态
+        checkRecordService.validateCheckRecordDraft(createReqVO.getRecordId());
 
         // 2. 插入
         MesDvCheckRecordLineDO line = BeanUtils.toBean(createReqVO, MesDvCheckRecordLineDO.class);
@@ -47,8 +47,8 @@ public class MesDvCheckRecordLineServiceImpl implements MesDvCheckRecordLineServ
     public void updateCheckRecordLine(MesDvCheckRecordLineSaveReqVO updateReqVO) {
         // 1.1 校验行存在
         validateCheckRecordLineExists(updateReqVO.getId());
-        // 1.2 校验点检记录存在
-        checkRecordService.validateCheckRecordExists(updateReqVO.getRecordId());
+        // 1.2 校验点检记录存在且为草稿状态
+        checkRecordService.validateCheckRecordDraft(updateReqVO.getRecordId());
 
         // 2. 更新
         MesDvCheckRecordLineDO updateObj = BeanUtils.toBean(updateReqVO, MesDvCheckRecordLineDO.class);
@@ -57,15 +57,27 @@ public class MesDvCheckRecordLineServiceImpl implements MesDvCheckRecordLineServ
 
     @Override
     public void deleteCheckRecordLine(Long id) {
-        // 校验存在
-        validateCheckRecordLineExists(id);
-        // 删除
+        // 1. 校验存在
+        // TODO @AI：复用 validateCheckRecordLineExists 方法；
+        MesDvCheckRecordLineDO line = checkRecordLineMapper.selectById(id);
+        if (line == null) {
+            throw exception(DV_CHECK_RECORD_LINE_NOT_EXISTS);
+        }
+
+        // 2. 校验父记录为草稿状态
+        checkRecordService.validateCheckRecordDraft(line.getRecordId());
+        // 3. 删除
         checkRecordLineMapper.deleteById(id);
     }
 
     @Override
     public void deleteByRecordId(Long recordId) {
         checkRecordLineMapper.deleteByRecordId(recordId);
+    }
+
+    @Override
+    public void createCheckRecordLineList(List<MesDvCheckRecordLineDO> lines) {
+        checkRecordLineMapper.insertBatch(lines);
     }
 
     @Override

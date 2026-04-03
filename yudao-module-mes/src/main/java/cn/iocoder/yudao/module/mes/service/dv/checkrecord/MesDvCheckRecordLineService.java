@@ -45,6 +45,13 @@ public interface MesDvCheckRecordLineService {
     void deleteByRecordId(Long recordId);
 
     /**
+     * 批量创建点检记录明细
+     *
+     * @param lines 明细列表
+     */
+    void createCheckRecordLineList(List<MesDvCheckRecordLineDO> lines);
+
+    /**
      * 校验点检记录明细存在
      *
      * @param id 编号

@@ -33,6 +33,10 @@ public class MesDvCheckRecordLineRespVO {
     @ExcelProperty("项目名称")
     private String subjectName;
 
+    @Schema(description = "项目类型", example = "1")
+    @ExcelProperty("项目类型")
+    private Integer subjectType;
+
     @Schema(description = "检查内容", example = "检查润滑油是否充足")
     @ExcelProperty("检查内容")
     private String subjectContent;
