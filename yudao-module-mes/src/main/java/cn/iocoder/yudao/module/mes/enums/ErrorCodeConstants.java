@@ -170,6 +170,7 @@ public interface ErrorCodeConstants {
     // ========== MES 设备管理-点检方案设备（1-040-302-100） ==========
     ErrorCode DV_CHECK_PLAN_MACHINERY_NOT_EXISTS = new ErrorCode(1_040_302_100, "点检保养方案设备不存在");
     ErrorCode DV_CHECK_PLAN_MACHINERY_DUPLICATE = new ErrorCode(1_040_302_101, "该设备已关联到当前方案，请勿重复添加");
+    ErrorCode DV_CHECK_PLAN_MACHINERY_EXISTS_IN_SAME_TYPE = new ErrorCode(1_040_302_102, "该设备已存在于同类型的其他启用的或草稿的方案中，不允许同一设备添加多个同类型的方案");
     // ========== MES 设备管理-点检方案项目（1-040-302-200） ==========
     ErrorCode DV_CHECK_PLAN_SUBJECT_NOT_EXISTS = new ErrorCode(1_040_302_200, "点检保养方案项目不存在");
     ErrorCode DV_CHECK_PLAN_SUBJECT_DUPLICATE = new ErrorCode(1_040_302_201, "该项目已关联到当前方案，请勿重复添加");

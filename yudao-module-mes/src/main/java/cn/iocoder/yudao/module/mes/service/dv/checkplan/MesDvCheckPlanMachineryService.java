@@ -59,4 +59,12 @@ public interface MesDvCheckPlanMachineryService {
      */
     Long getCheckPlanMachineryCountByMachineryId(Long machineryId);
 
+    /**
+     * 获得指定设备关联的方案设备列表
+     *
+     * @param machineryId 设备编号
+     * @return 方案设备列表
+     */
+    List<MesDvCheckPlanMachineryDO> getCheckPlanMachineryListByMachineryId(Long machineryId);
+
 }
