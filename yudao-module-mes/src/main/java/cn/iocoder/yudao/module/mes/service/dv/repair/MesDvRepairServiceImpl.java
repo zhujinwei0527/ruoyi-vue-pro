@@ -7,7 +7,6 @@ import cn.iocoder.yudao.module.mes.controller.admin.dv.repair.vo.MesDvRepairPage
 import cn.iocoder.yudao.module.mes.controller.admin.dv.repair.vo.MesDvRepairSaveReqVO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.dv.repair.MesDvRepairDO;
 import cn.iocoder.yudao.module.mes.dal.mysql.dv.repair.MesDvRepairMapper;
-import cn.iocoder.yudao.module.mes.enums.dv.MesDvRepairResultEnum;
 import cn.iocoder.yudao.module.mes.enums.dv.MesDvRepairStatusEnum;
 import cn.iocoder.yudao.module.mes.service.dv.machinery.MesDvMachineryService;
 import jakarta.annotation.Resource;
@@ -18,7 +17,6 @@ import org.springframework.validation.annotation.Validated;
 import java.time.LocalDateTime;
 
 import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception;
-import static cn.iocoder.yudao.framework.security.core.util.SecurityFrameworkUtils.getLoginUserId;
 import static cn.iocoder.yudao.module.mes.enums.ErrorCodeConstants.*;
 
 /**
@@ -136,18 +134,17 @@ public class MesDvRepairServiceImpl implements MesDvRepairService {
     }
 
     @Override
-    public void submitRepair(Long id) {
+    public void submitRepair(Long id, Long userId) {
         // 1. 校验存在，且状态为草稿
         validateRepairPrepare(id);
 
-        // 2. 更新状态为维修中，自动设置维修人为当前用户
+        // 2. 更新状态为维修中，设置维修人
         repairMapper.updateById(new MesDvRepairDO().setId(id)
-                .setStatus(MesDvRepairStatusEnum.CONFIRMED.getStatus())
-                .setAcceptedUserId(getLoginUserId()));
+                .setStatus(MesDvRepairStatusEnum.CONFIRMED.getStatus()).setAcceptedUserId(userId));
     }
 
     @Override
-    public void finishRepair(Long id) {
+    public void confirmRepair(Long id) {
         // 1. 校验存在，且状态为维修中
         MesDvRepairDO repair = validateRepairExists(id);
         if (ObjUtil.notEqual(MesDvRepairStatusEnum.CONFIRMED.getStatus(), repair.getStatus())) {
@@ -156,40 +153,21 @@ public class MesDvRepairServiceImpl implements MesDvRepairService {
 
         // 2. 更新状态为待验收，自动设置维修完成日期
         repairMapper.updateById(new MesDvRepairDO().setId(id)
-                .setStatus(MesDvRepairStatusEnum.APPROVING.getStatus())
-                .setFinishDate(LocalDateTime.now()));
+                .setStatus(MesDvRepairStatusEnum.APPROVING.getStatus()).setFinishDate(LocalDateTime.now()));
     }
 
     @Override
-    public void confirmRepair(Long id) {
+    public void finishRepair(Long id, Integer result, Long userId) {
         // 1. 校验存在，且状态为待验收
         MesDvRepairDO repair = validateRepairExists(id);
         if (ObjUtil.notEqual(MesDvRepairStatusEnum.APPROVING.getStatus(), repair.getStatus())) {
             throw exception(DV_REPAIR_NOT_APPROVING);
         }
 
-        // 2. 更新状态为已确认，结果为通过，自动设置验收人和验收日期
+        // 2. 更新状态为已确认，设置验收结果、验收人和验收日期
         repairMapper.updateById(new MesDvRepairDO().setId(id)
-                .setStatus(MesDvRepairStatusEnum.FINISHED.getStatus())
-                .setResult(MesDvRepairResultEnum.PASS.getResult())
-                .setConfirmUserId(getLoginUserId())
-                .setConfirmDate(LocalDateTime.now()));
-    }
-
-    @Override
-    public void rejectRepair(Long id) {
-        // 1. 校验存在，且状态为待验收
-        MesDvRepairDO repair = validateRepairExists(id);
-        if (ObjUtil.notEqual(MesDvRepairStatusEnum.APPROVING.getStatus(), repair.getStatus())) {
-            throw exception(DV_REPAIR_NOT_APPROVING);
-        }
-
-        // 2. 更新状态为已确认，结果为不通过，自动设置验收人和验收日期
-        repairMapper.updateById(new MesDvRepairDO().setId(id)
-                .setStatus(MesDvRepairStatusEnum.FINISHED.getStatus())
-                .setResult(MesDvRepairResultEnum.FAIL.getResult())
-                .setConfirmUserId(getLoginUserId())
-                .setConfirmDate(LocalDateTime.now()));
+                .setStatus(MesDvRepairStatusEnum.FINISHED.getStatus()).setResult(result)
+                .setConfirmUserId(userId).setConfirmDate(LocalDateTime.now()));
     }
 
 }

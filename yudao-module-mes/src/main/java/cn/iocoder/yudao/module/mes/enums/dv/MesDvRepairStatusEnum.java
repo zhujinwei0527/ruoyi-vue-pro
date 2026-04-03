@@ -2,6 +2,7 @@ package cn.iocoder.yudao.module.mes.enums.dv;
 
 import cn.iocoder.yudao.framework.common.core.ArrayValuable;
 import cn.iocoder.yudao.module.mes.enums.MesOrderStatusConstants;
+import cn.iocoder.yudao.module.mes.service.dv.repair.MesDvRepairService;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -18,25 +19,28 @@ import java.util.Arrays;
 @AllArgsConstructor
 public enum MesDvRepairStatusEnum implements ArrayValuable<Integer> {
 
-    // TODO @AI：不用 ktg 的注释，里面需要 @ 对应方法，对齐现有项目的规范；
     /**
      * 草稿
+     *
+     * 对应方法：{@link MesDvRepairService#createRepair}
      */
     PREPARE(MesOrderStatusConstants.PREPARE, "草稿"),
     /**
      * 维修中（提交后，维修人接单）
+     *
+     * 对应方法：{@link MesDvRepairService#submitRepair(Long, Long)}
      */
     CONFIRMED(MesOrderStatusConstants.CONFIRMED, "维修中"),
     /**
      * 待验收（维修完成，等待验收）
      *
-     * 对应 KTG: FINISHED
+     * 对应方法：{@link MesDvRepairService#confirmRepair(Long)}
      */
     APPROVING(MesOrderStatusConstants.APPROVING, "待验收"),
     /**
      * 已确认（验收通过或不通过，终态）
      *
-     * 对应 KTG: CONFIRMED
+     * 对应方法：{@link MesDvRepairService#finishRepair(Long, Integer, Long)}
      */
     FINISHED(MesOrderStatusConstants.FINISHED, "已确认");
 

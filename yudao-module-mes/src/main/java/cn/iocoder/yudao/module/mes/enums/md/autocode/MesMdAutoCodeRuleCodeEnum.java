@@ -40,7 +40,11 @@ public enum MesMdAutoCodeRuleCodeEnum {
     WM_OUTSOURCE_ISSUE_CODE("WM_OUTSOURCE_ISSUE_CODE", "外协发料单编码"),
     DV_MACHINERY_CODE("DV_MACHINERY_CODE", "设备编码"),
     DV_MACHINERY_TYPE_CODE("DV_MACHINERY_TYPE_CODE", "设备类型编码"),
-    DV_SUBJECT_CODE("DV_SUBJECT_CODE", "点检保养项目编码");
+    DV_SUBJECT_CODE("DV_SUBJECT_CODE", "点检保养项目编码"),
+    DV_REPAIR_CODE("DV_REPAIR_CODE", "维修单编码"),
+    WM_SALES_NOTICE_CODE("WM_SALES_NOTICE_CODE", "发货通知单编码"),
+    WM_RETURN_SALES_CODE("WM_RETURN_SALES_CODE", "销售退货单编码"),
+    WM_MISC_ISSUE_CODE("WM_MISC_ISSUE_CODE", "杂项出库单编码");
 
     /**
      * 规则代码

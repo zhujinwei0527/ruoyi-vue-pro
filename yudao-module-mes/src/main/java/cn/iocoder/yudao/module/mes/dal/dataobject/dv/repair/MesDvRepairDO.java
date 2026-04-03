@@ -61,7 +61,6 @@ public class MesDvRepairDO extends BaseDO {
      * 维修结果
      *
      * 枚举 {@link MesDvRepairResultEnum}
-     * 字典类型 mes_dv_repair_result
      */
     private Integer result;
     /**

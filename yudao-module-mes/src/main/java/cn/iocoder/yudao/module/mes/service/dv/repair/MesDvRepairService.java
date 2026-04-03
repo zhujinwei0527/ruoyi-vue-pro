@@ -73,27 +73,22 @@ public interface MesDvRepairService {
      *
      * @param id 编号
      */
-    void submitRepair(Long id);
+    void submitRepair(Long id, Long userId);
 
     /**
-     * 完成维修（维修中→待验收）
-     *
-     * @param id 编号
-     */
-    void finishRepair(Long id);
-
-    /**
-     * 验收通过（待验收→已确认，结果=通过）
+     * 确认维修完成（维修中→待验收）
      *
      * @param id 编号
      */
     void confirmRepair(Long id);
 
     /**
-     * 验收不通过（待验收→已确认，结果=不通过）
+     * 完成验收（待验收→已确认）
      *
      * @param id 编号
+     * @param result 验收结果
+     * @param userId 当前登录用户编号
      */
-    void rejectRepair(Long id);
+    void finishRepair(Long id, Integer result, Long userId);
 
 }

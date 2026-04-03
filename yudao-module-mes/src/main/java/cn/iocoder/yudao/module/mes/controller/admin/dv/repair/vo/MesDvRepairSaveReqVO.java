@@ -25,7 +25,8 @@ public class MesDvRepairSaveReqVO {
     @NotNull(message = "设备不能为空")
     private Long machineryId;
 
-    @Schema(description = "报修日期")
+    @Schema(description = "报修日期", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotNull(message = "报修日期不能为空")
     private LocalDateTime requireDate;
 
     @Schema(description = "维修完成日期")
