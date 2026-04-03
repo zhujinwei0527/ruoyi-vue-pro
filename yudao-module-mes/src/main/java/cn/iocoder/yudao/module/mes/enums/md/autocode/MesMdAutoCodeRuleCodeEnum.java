@@ -39,7 +39,8 @@ public enum MesMdAutoCodeRuleCodeEnum {
     TRANSFER_CODE("TRANSFER_CODE", "转移调拨单编码"),
     WM_OUTSOURCE_ISSUE_CODE("WM_OUTSOURCE_ISSUE_CODE", "外协发料单编码"),
     DV_MACHINERY_CODE("DV_MACHINERY_CODE", "设备编码"),
-    DV_MACHINERY_TYPE_CODE("DV_MACHINERY_TYPE_CODE", "设备类型编码");
+    DV_MACHINERY_TYPE_CODE("DV_MACHINERY_TYPE_CODE", "设备类型编码"),
+    DV_SUBJECT_CODE("DV_SUBJECT_CODE", "点检保养项目编码");
 
     /**
      * 规则代码
