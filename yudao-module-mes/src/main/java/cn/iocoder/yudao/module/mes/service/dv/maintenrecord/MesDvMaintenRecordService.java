@@ -51,6 +51,14 @@ public interface MesDvMaintenRecordService {
     void validateMaintenRecordExists(Long id);
 
     /**
+     * 校验设备保养记录是否为草稿状态
+     *
+     * @param id 编号
+     * @return 保养记录
+     */
+    MesDvMaintenRecordDO validateMaintenRecordDraft(Long id);
+
+    /**
      * 获得指定设备的保养记录数量
      *
      * @param machineryId 设备编号

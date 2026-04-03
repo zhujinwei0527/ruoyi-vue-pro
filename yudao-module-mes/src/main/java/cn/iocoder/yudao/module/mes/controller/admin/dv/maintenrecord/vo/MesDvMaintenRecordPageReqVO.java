@@ -17,17 +17,14 @@ import static cn.iocoder.yudao.framework.common.util.date.DateUtils.FORMAT_YEAR_
 @ToString(callSuper = true)
 public class MesDvMaintenRecordPageReqVO extends PageParam {
 
-    @Schema(description = "计划名称", example = "计划1")
-    private String planName;
+    @Schema(description = "保养计划编号", example = "1")
+    private Long planId;
 
-    @Schema(description = "设备编码", example = "M1")
-    private String machineryCode;
+    @Schema(description = "设备编号", example = "1")
+    private Long machineryId;
 
-    @Schema(description = "设备名称", example = "设备1")
-    private String machineryName;
-
-    @Schema(description = "保养人名称", example = "张三")
-    private String nickname;
+    @Schema(description = "保养人编号", example = "1")
+    private Long userId;
 
     @Schema(description = "保养时间")
     @DateTimeFormat(pattern = FORMAT_YEAR_MONTH_DAY_HOUR_MINUTE_SECOND)

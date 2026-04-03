@@ -6,6 +6,7 @@ import cn.iocoder.yudao.module.mes.controller.admin.dv.maintenrecord.vo.line.Mes
 import cn.iocoder.yudao.module.mes.dal.dataobject.dv.maintenrecord.MesDvMaintenRecordLineDO;
 
 import jakarta.validation.Valid;
+import java.util.List;
 
 /**
  * 设备保养记录明细 Service 接口
@@ -51,5 +52,20 @@ public interface MesDvMaintenRecordLineService {
      * @return 设备保养记录明细分页
      */
     PageResult<MesDvMaintenRecordLineDO> getMaintenRecordLinePage(MesDvMaintenRecordLinePageReqVO pageReqVO);
+
+    /**
+     * 获得指定保养记录的明细列表
+     *
+     * @param recordId 保养记录编号
+     * @return 明细列表
+     */
+    List<MesDvMaintenRecordLineDO> getMaintenRecordLineListByRecordId(Long recordId);
+
+    /**
+     * 根据保养记录编号删除所有明细
+     *
+     * @param recordId 保养记录编号
+     */
+    void deleteMaintenRecordLineByRecordId(Long recordId);
 
 }

@@ -12,6 +12,8 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 
+import java.util.List;
+
 import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception;
 import static cn.iocoder.yudao.module.mes.enums.ErrorCodeConstants.*;
 
@@ -29,7 +31,7 @@ public class MesDvMaintenRecordLineServiceImpl implements MesDvMaintenRecordLine
 
     @Resource
     @Lazy
-    private MesDvMaintenRecordServiceImpl maintenRecordService;
+    private MesDvMaintenRecordService maintenRecordService;
     @Resource
     private MesDvSubjectService subjectService;
 
@@ -76,7 +78,7 @@ public class MesDvMaintenRecordLineServiceImpl implements MesDvMaintenRecordLine
 
     private MesDvMaintenRecordLineDO validateMaintenRecordLineExists(Long id) {
         MesDvMaintenRecordLineDO maintenRecordLine = maintenRecordLineMapper.selectById(id);
-        if (maintenRecordLineMapper.selectById(id) == null) {
+        if (maintenRecordLine == null) {
             throw exception(MAINTEN_RECORD_LINE_NOT_EXISTS);
         }
         return maintenRecordLine;
@@ -90,6 +92,16 @@ public class MesDvMaintenRecordLineServiceImpl implements MesDvMaintenRecordLine
     @Override
     public PageResult<MesDvMaintenRecordLineDO> getMaintenRecordLinePage(MesDvMaintenRecordLinePageReqVO pageReqVO) {
         return maintenRecordLineMapper.selectPage(pageReqVO);
+    }
+
+    @Override
+    public List<MesDvMaintenRecordLineDO> getMaintenRecordLineListByRecordId(Long recordId) {
+        return maintenRecordLineMapper.selectListByRecordId(recordId);
+    }
+
+    @Override
+    public void deleteMaintenRecordLineByRecordId(Long recordId) {
+        maintenRecordLineMapper.deleteByRecordId(recordId);
     }
 
 }

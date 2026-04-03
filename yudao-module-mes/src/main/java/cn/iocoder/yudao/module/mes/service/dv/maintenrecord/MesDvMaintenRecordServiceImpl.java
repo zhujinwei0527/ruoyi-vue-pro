@@ -8,12 +8,12 @@ import cn.iocoder.yudao.module.mes.controller.admin.dv.maintenrecord.vo.MesDvMai
 import cn.iocoder.yudao.module.mes.controller.admin.dv.maintenrecord.vo.MesDvMaintenRecordSaveReqVO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.dv.maintenrecord.MesDvMaintenRecordDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.dv.maintenrecord.MesDvMaintenRecordLineDO;
-import cn.iocoder.yudao.module.mes.dal.mysql.dv.maintenrecord.MesDvMaintenRecordLineMapper;
 import cn.iocoder.yudao.module.mes.dal.mysql.dv.maintenrecord.MesDvMaintenRecordMapper;
 import cn.iocoder.yudao.module.mes.enums.dv.MesDvMaintenRecordStatusEnum;
 import cn.iocoder.yudao.module.mes.service.dv.checkplan.MesDvCheckPlanService;
 import cn.iocoder.yudao.module.mes.service.dv.machinery.MesDvMachineryService;
 import jakarta.annotation.Resource;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
@@ -35,7 +35,8 @@ public class MesDvMaintenRecordServiceImpl implements MesDvMaintenRecordService 
     @Resource
     private MesDvMaintenRecordMapper maintenRecordMapper;
     @Resource
-    private MesDvMaintenRecordLineMapper maintenRecordLineMapper;
+    @Lazy
+    private MesDvMaintenRecordLineService maintenRecordLineService;
     @Resource
     private MesDvMachineryService machineryService;
     @Resource
@@ -70,7 +71,7 @@ public class MesDvMaintenRecordServiceImpl implements MesDvMaintenRecordService 
         // 1.1 校验状态为草稿
         validateMaintenRecordDraft(id);
         // 1.2 校验至少有一条明细
-        List<MesDvMaintenRecordLineDO> lines = maintenRecordLineMapper.selectListByRecordId(id);
+        List<MesDvMaintenRecordLineDO> lines = maintenRecordLineService.getMaintenRecordLineListByRecordId(id);
         if (CollUtil.isEmpty(lines)) {
             throw exception(MAINTEN_RECORD_NO_LINE);
         }
@@ -91,7 +92,7 @@ public class MesDvMaintenRecordServiceImpl implements MesDvMaintenRecordService 
         // 删除
         maintenRecordMapper.deleteById(id);
         // 级联删除子表
-        maintenRecordLineMapper.deleteByRecordId(id);
+        maintenRecordLineService.deleteMaintenRecordLineByRecordId(id);
     }
 
     private void validateMaintenRecordRelation(MesDvMaintenRecordSaveReqVO reqVO) {
@@ -115,12 +116,7 @@ public class MesDvMaintenRecordServiceImpl implements MesDvMaintenRecordService 
         return maintenRecordMapper.selectCountByMachineryId(machineryId);
     }
 
-    /**
-     * 校验设备保养记录是否为草稿状态
-     *
-     * @param id 编号
-     * @return 保养记录
-     */
+    @Override
     public MesDvMaintenRecordDO validateMaintenRecordDraft(Long id) {
         MesDvMaintenRecordDO record = maintenRecordMapper.selectById(id);
         if (record == null) {

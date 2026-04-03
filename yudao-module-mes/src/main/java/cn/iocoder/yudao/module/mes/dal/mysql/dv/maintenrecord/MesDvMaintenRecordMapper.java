@@ -17,19 +17,9 @@ public interface MesDvMaintenRecordMapper extends BaseMapperX<MesDvMaintenRecord
 
     default PageResult<MesDvMaintenRecordDO> selectPage(MesDvMaintenRecordPageReqVO reqVO) {
         return selectPage(reqVO, new LambdaQueryWrapperX<MesDvMaintenRecordDO>()
-                // TODO @AI：对齐分析下，哪里有问题！
-//                .apply(StrUtil.isNotBlank(reqVO.getPlanName()),
-//                        "plan_id IN (SELECT id FROM mes_dv_check_plan WHERE name LIKE CONCAT('%', {0}, '%') AND deleted = 0)",
-//                        reqVO.getPlanName())
-//                .apply(StrUtil.isNotBlank(reqVO.getMachineryCode()),
-//                        "machinery_id IN (SELECT id FROM mes_dv_machinery WHERE code LIKE CONCAT('%', {0}, '%') AND deleted = 0)",
-//                        reqVO.getMachineryCode())
-//                .apply(StrUtil.isNotBlank(reqVO.getMachineryName()),
-//                        "machinery_id IN (SELECT id FROM mes_dv_machinery WHERE name LIKE CONCAT('%', {0}, '%') AND deleted = 0)",
-//                        reqVO.getMachineryName())
-//                .apply(StrUtil.isNotBlank(reqVO.getNickname()),
-//                        "user_id IN (SELECT id FROM system_users WHERE nickname LIKE CONCAT('%', {0}, '%') AND deleted = 0)",
-//                        reqVO.getNickname())
+                .eqIfPresent(MesDvMaintenRecordDO::getPlanId, reqVO.getPlanId())
+                .eqIfPresent(MesDvMaintenRecordDO::getMachineryId, reqVO.getMachineryId())
+                .eqIfPresent(MesDvMaintenRecordDO::getUserId, reqVO.getUserId())
                 .betweenIfPresent(MesDvMaintenRecordDO::getMaintenTime, reqVO.getMaintenTime())
                 .orderByDesc(MesDvMaintenRecordDO::getId));
     }
