@@ -18,7 +18,8 @@ public class MesDvRepairSaveReqVO {
     @NotBlank(message = "维修工单编码不能为空")
     private String code;
 
-    @Schema(description = "维修工单名称", example = "注塑机液压系统维修")
+    @Schema(description = "维修工单名称", requiredMode = Schema.RequiredMode.REQUIRED, example = "注塑机液压系统维修")
+    @NotBlank(message = "维修工单名称不能为空")
     private String name;
 
     @Schema(description = "设备编号", requiredMode = Schema.RequiredMode.REQUIRED, example = "1")

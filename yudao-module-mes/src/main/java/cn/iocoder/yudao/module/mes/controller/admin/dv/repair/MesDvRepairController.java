@@ -125,10 +125,9 @@ public class MesDvRepairController {
 
     @PutMapping("/confirm")
     @Operation(summary = "确认维修完成（维修中→待验收）")
-    @Parameter(name = "id", description = "编号", required = true)
     @PreAuthorize("@ss.hasPermission('mes:dv-repair:update')")
-    public CommonResult<Boolean> confirmRepair(@RequestParam("id") Long id) {
-        repairService.confirmRepair(id);
+    public CommonResult<Boolean> confirmRepair(@Valid @RequestBody cn.iocoder.yudao.module.mes.controller.admin.dv.repair.vo.MesDvRepairConfirmReqVO confirmReqVO) {
+        repairService.confirmRepair(confirmReqVO);
         return success(true);
     }
 

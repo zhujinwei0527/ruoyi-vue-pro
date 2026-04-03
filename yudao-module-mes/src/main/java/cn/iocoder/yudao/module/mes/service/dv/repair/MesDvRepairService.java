@@ -1,10 +1,10 @@
 package cn.iocoder.yudao.module.mes.service.dv.repair;
 
 import cn.iocoder.yudao.framework.common.pojo.PageResult;
+import cn.iocoder.yudao.module.mes.controller.admin.dv.repair.vo.MesDvRepairConfirmReqVO;
 import cn.iocoder.yudao.module.mes.controller.admin.dv.repair.vo.MesDvRepairPageReqVO;
 import cn.iocoder.yudao.module.mes.controller.admin.dv.repair.vo.MesDvRepairSaveReqVO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.dv.repair.MesDvRepairDO;
-
 import jakarta.validation.Valid;
 
 /**
@@ -78,9 +78,9 @@ public interface MesDvRepairService {
     /**
      * 确认维修完成（维修中→待验收）
      *
-     * @param id 编号
+     * @param confirmReqVO 确认信息
      */
-    void confirmRepair(Long id);
+    void confirmRepair(@Valid MesDvRepairConfirmReqVO confirmReqVO);
 
     /**
      * 完成验收（待验收→已确认）

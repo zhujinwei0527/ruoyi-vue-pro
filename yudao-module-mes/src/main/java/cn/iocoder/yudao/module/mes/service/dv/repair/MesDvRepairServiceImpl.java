@@ -144,16 +144,16 @@ public class MesDvRepairServiceImpl implements MesDvRepairService {
     }
 
     @Override
-    public void confirmRepair(Long id) {
+    public void confirmRepair(cn.iocoder.yudao.module.mes.controller.admin.dv.repair.vo.MesDvRepairConfirmReqVO confirmReqVO) {
         // 1. 校验存在，且状态为维修中
-        MesDvRepairDO repair = validateRepairExists(id);
+        MesDvRepairDO repair = validateRepairExists(confirmReqVO.getId());
         if (ObjUtil.notEqual(MesDvRepairStatusEnum.CONFIRMED.getStatus(), repair.getStatus())) {
             throw exception(DV_REPAIR_NOT_CONFIRMED);
         }
 
-        // 2. 更新状态为待验收，自动设置维修完成日期
-        repairMapper.updateById(new MesDvRepairDO().setId(id)
-                .setStatus(MesDvRepairStatusEnum.APPROVING.getStatus()).setFinishDate(LocalDateTime.now()));
+        // 2. 更新状态为待验收，设置维修完成日期
+        repairMapper.updateById(new MesDvRepairDO().setId(confirmReqVO.getId())
+                .setStatus(MesDvRepairStatusEnum.APPROVING.getStatus()).setFinishDate(confirmReqVO.getFinishDate()));
     }
 
     @Override
