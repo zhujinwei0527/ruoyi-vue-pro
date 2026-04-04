@@ -5,6 +5,7 @@ import cn.iocoder.yudao.module.mes.controller.admin.pro.process.vo.content.MesPr
 import cn.iocoder.yudao.module.mes.dal.dataobject.pro.process.MesProProcessContentDO;
 import cn.iocoder.yudao.module.mes.dal.mysql.pro.process.MesProProcessContentMapper;
 import jakarta.annotation.Resource;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 
@@ -25,8 +26,16 @@ public class MesProProcessContentServiceImpl implements MesProProcessContentServ
     @Resource
     private MesProProcessContentMapper processContentMapper;
 
+    @Resource
+    @Lazy
+    private MesProProcessService processService;
+
     @Override
     public Long createProcessContent(MesProProcessContentSaveReqVO createReqVO) {
+        // 校验工序存在
+        processService.validateProcessExists(createReqVO.getProcessId());
+
+        // 插入
         MesProProcessContentDO content = BeanUtils.toBean(createReqVO, MesProProcessContentDO.class);
         processContentMapper.insert(content);
         return content.getId();
@@ -36,6 +45,7 @@ public class MesProProcessContentServiceImpl implements MesProProcessContentServ
     public void updateProcessContent(MesProProcessContentSaveReqVO updateReqVO) {
         // 校验存在
         validateProcessContentExists(updateReqVO.getId());
+
         // 更新
         MesProProcessContentDO updateObj = BeanUtils.toBean(updateReqVO, MesProProcessContentDO.class);
         processContentMapper.updateById(updateObj);
@@ -45,6 +55,7 @@ public class MesProProcessContentServiceImpl implements MesProProcessContentServ
     public void deleteProcessContent(Long id) {
         // 校验存在
         validateProcessContentExists(id);
+
         // 删除
         processContentMapper.deleteById(id);
     }

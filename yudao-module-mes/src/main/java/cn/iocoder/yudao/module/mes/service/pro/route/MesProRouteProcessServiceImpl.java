@@ -192,10 +192,16 @@ public class MesProRouteProcessServiceImpl implements MesProRouteProcessService 
         MesProRouteProductDO routeProduct = routeProductService.getRouteProductByItemId(productId);
         if (routeProduct == null) {
             // TODO @芋艿：会不会存在配置了多个的情况？？？
+            // TODO @AI：会有这个情况么？
             return Collections.emptyList();
         }
         // 2. 返回该工艺路线的工序列表
         return routeProcessMapper.selectListByRouteId(routeProduct.getRouteId());
+    }
+
+    @Override
+    public List<MesProRouteProcessDO> getRouteProcessListByProcessId(Long processId) {
+        return routeProcessMapper.selectListByProcessId(processId);
     }
 
     @Override

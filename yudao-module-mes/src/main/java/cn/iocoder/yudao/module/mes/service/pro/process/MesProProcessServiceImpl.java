@@ -7,8 +7,9 @@ import cn.iocoder.yudao.module.mes.controller.admin.pro.process.vo.MesProProcess
 import cn.iocoder.yudao.module.mes.controller.admin.pro.process.vo.MesProProcessSaveReqVO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.pro.process.MesProProcessDO;
 import cn.iocoder.yudao.module.mes.dal.mysql.pro.process.MesProProcessMapper;
-import cn.iocoder.yudao.module.mes.dal.mysql.pro.route.MesProRouteProcessMapper;
+import cn.iocoder.yudao.module.mes.service.pro.route.MesProRouteProcessService;
 import jakarta.annotation.Resource;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
@@ -36,10 +37,12 @@ public class MesProProcessServiceImpl implements MesProProcessService {
     private MesProProcessContentService processContentService;
 
     @Resource
-    private MesProRouteProcessMapper routeProcessMapper;
+    @Lazy
+    private MesProRouteProcessService routeProcessService;
 
     @Override
     public Long createProcess(MesProProcessSaveReqVO createReqVO) {
+        // TODO @AI：validateXXXSaveData，传入 vo；
         // 1.1 校验工序编码唯一性
         validateProcessCodeUnique(null, createReqVO.getCode());
         // 1.2 校验工序名称唯一性
@@ -55,6 +58,7 @@ public class MesProProcessServiceImpl implements MesProProcessService {
     public void updateProcess(MesProProcessSaveReqVO updateReqVO) {
         // 1.1 校验存在
         validateProcessExists(updateReqVO.getId());
+        // TODO @AI：validateXXXSaveData，传入 vo；
         // 1.2 校验工序编码唯一性
         validateProcessCodeUnique(updateReqVO.getId(), updateReqVO.getCode());
         // 1.3 校验工序名称唯一性
@@ -71,7 +75,7 @@ public class MesProProcessServiceImpl implements MesProProcessService {
         // 1.1 校验存在
         validateProcessExists(id);
         // 1.2 校验是否被工艺路线引用
-        if (CollUtil.isNotEmpty(routeProcessMapper.selectListByProcessId(id))) {
+        if (CollUtil.isNotEmpty(routeProcessService.getRouteProcessListByProcessId(id))) {
             throw exception(PRO_PROCESS_USED_BY_ROUTE);
         }
 
