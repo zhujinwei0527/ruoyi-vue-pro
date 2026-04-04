@@ -59,6 +59,7 @@ public class MesProRouteServiceImpl implements MesProRouteService {
         validateRouteCodeUnique(null, createReqVO.getCode());
         // 2. 插入
         MesProRouteDO route = BeanUtils.toBean(createReqVO, MesProRouteDO.class);
+        route.setStatus(CommonStatusEnum.DISABLE.getStatus());
         routeMapper.insert(route);
         return route.getId();
     }
@@ -143,8 +144,8 @@ public class MesProRouteServiceImpl implements MesProRouteService {
             List<MesProRouteProductBomDO> bomList = routeProductBomService
                     .getRouteProductBomList(routeId, null, product.getItemId());
             if (CollUtil.isEmpty(bomList)) {
-                MesMdItemDO item = itemService.getItem(product.getItemId());
-                throw exception(PRO_ROUTE_ENABLE_PRODUCT_NO_BOM, item != null ? item.getItemName() : product.getItemId());
+                MesMdItemDO item = itemService.validateItemExists(product.getItemId());
+                throw exception(PRO_ROUTE_ENABLE_PRODUCT_NO_BOM, item.getName());
             }
         }
     }
