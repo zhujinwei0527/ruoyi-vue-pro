@@ -2,6 +2,7 @@ package cn.iocoder.yudao.module.mes.dal.dataobject.wm.productproduce;
 
 import cn.iocoder.yudao.framework.mybatis.core.dataobject.BaseDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.md.item.MesMdItemDO;
+import cn.iocoder.yudao.module.mes.dal.dataobject.pro.feedback.MesProFeedbackDO;
 import com.baomidou.mybatisplus.annotation.KeySequence;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
@@ -39,7 +40,7 @@ public class MesWmProductProduceLineDO extends BaseDO {
     /**
      * 报工记录 ID
      *
-     * TODO @芋艿：关联 ProFeedback，待 ProFeedback 联调时补充
+     * 关联 {@link MesProFeedbackDO#getId()}
      */
     private Long feedbackId;
     /**
@@ -68,12 +69,10 @@ public class MesWmProductProduceLineDO extends BaseDO {
      * 生产批号
      */
     private String lotNumber;
-    // TODO @AI：待定
     /**
      * 质量状态
      *
-     * 0-待检, 1-合格, 2-不合格
-     * 字典类型 mes_wm_quality_status
+     * 枚举 {@link cn.iocoder.yudao.module.mes.enums.wm.MesWmQualityStatusEnum}
      */
     private Integer qualityStatus;
     /**

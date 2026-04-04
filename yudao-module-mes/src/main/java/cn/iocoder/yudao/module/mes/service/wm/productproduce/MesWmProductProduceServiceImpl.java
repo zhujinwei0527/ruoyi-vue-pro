@@ -129,10 +129,9 @@ public class MesWmProductProduceServiceImpl implements MesWmProductProduceServic
                 .setExpireDate(feedback.getExpireDate())
                 .setWorkOrderId(feedback.getWorkOrderId())
                 .setClientId(workOrder != null ? workOrder.getClientId() : null)
+                .setSalesOrderCode(workOrder != null ? workOrder.getOrderSourceCode() : null)
                 .setWorkstationId(feedback.getWorkstationId())
                 .setLotNumber(feedback.getLotNumber());
-        // TODO @AI（from codex）：对齐 批次生成还需要带上工单来源单号（salesOrderCode / coCode 对应 orderSourceCode）；
-        //  否则启用该维度的批次规则会生成错误批次或直接缺参失败。
         MesWmBatchDO batch = batchService.getOrGenerateBatchCode(batchReqVO);
         Long batchId = batch != null ? batch.getId() : null;
         String batchCode = batch != null ? batch.getCode() : null;
@@ -148,7 +147,7 @@ public class MesWmProductProduceServiceImpl implements MesWmProductProduceServic
             MesWmProductProduceLineDO line = buildProduceLine(produce, feedback, batchId, batchCode,
                     feedback.getFeedbackQuantity(), MesWmQualityStatusEnum.PENDING.getStatus());
             productProduceLineService.createProductProduceLine(line);
-            // TODO @芋艿：先不生成明细行，等待检验完成时，再根据行的质量状态生成明细行
+            // 注意：checkFlag=true 时不生成明细行，等 IPQC 检验完成后由 splitPendingAndFinishProduce 按质量结果拆行+生成明细
         } else {
             // 3.2 无需检验：按合格品/不合格品各生成一行 + 明细
             BigDecimal qualifiedQty = ObjectUtil.defaultIfNull(feedback.getQualifiedQuantity(), BigDecimal.ZERO);
@@ -236,11 +235,11 @@ public class MesWmProductProduceServiceImpl implements MesWmProductProduceServic
 
         // 2. 查找待检验行（checkFlag=true 时只有一行 PENDING）
         List<MesWmProductProduceLineDO> lines = productProduceLineService.getProductProduceLineListByProduceId(produce.getId());
-        // TODO @AI：hutool 的 findOne 方法，替代掉 stream；手动 if 判断为空，抛出异常；
-        MesWmProductProduceLineDO pendingLine = lines.stream()
-                .filter(l -> ObjUtil.equal(l.getQualityStatus(), MesWmQualityStatusEnum.PENDING.getStatus()))
-                .findFirst()
-                .orElseThrow(() -> exception(WM_PRODUCT_PRODUCE_LINE_NOT_EXISTS));
+        MesWmProductProduceLineDO pendingLine = CollUtil.findOne(lines,
+                l -> ObjUtil.equal(l.getQualityStatus(), MesWmQualityStatusEnum.PENDING.getStatus()));
+        if (pendingLine == null) {
+            throw exception(WM_PRODUCT_PRODUCE_LINE_NOT_EXISTS);
+        }
 
         // 3A. 情况一：存在不合格品数量，需要拆分行
         if (unqualifiedQty != null && unqualifiedQty.compareTo(BigDecimal.ZERO) > 0) {
