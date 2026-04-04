@@ -1,18 +1,20 @@
 package cn.iocoder.yudao.module.mes.service.qc.indicatorresult;
 
+import cn.hutool.core.collection.CollUtil;
 import cn.iocoder.yudao.framework.common.pojo.PageResult;
 import cn.iocoder.yudao.framework.common.util.object.BeanUtils;
 import cn.iocoder.yudao.module.mes.controller.admin.qc.indicatorresult.vo.MesQcIndicatorResultPageReqVO;
 import cn.iocoder.yudao.module.mes.controller.admin.qc.indicatorresult.vo.MesQcIndicatorResultSaveReqVO;
-import cn.iocoder.yudao.module.mes.dal.dataobject.qc.iqc.MesQcIqcDO;
+import cn.iocoder.yudao.module.mes.dal.dataobject.qc.indicator.MesQcIndicatorDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.qc.indicatorresult.MesQcIndicatorResultDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.qc.indicatorresult.MesQcIndicatorResultDetailDO;
-import cn.iocoder.yudao.module.mes.dal.mysql.qc.indicatorresult.MesQcIndicatorResultDetailMapper;
-import cn.iocoder.yudao.module.mes.dal.mysql.qc.indicatorresult.MesQcIndicatorResultMapper;
+import cn.iocoder.yudao.module.mes.dal.dataobject.qc.iqc.MesQcIqcDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.qc.ipqc.MesQcIpqcDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.qc.oqc.MesQcOqcDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.qc.rqc.MesQcRqcDO;
+import cn.iocoder.yudao.module.mes.dal.mysql.qc.indicatorresult.MesQcIndicatorResultMapper;
 import cn.iocoder.yudao.module.mes.enums.qc.MesQcTypeEnum;
+import cn.iocoder.yudao.module.mes.service.qc.indicator.MesQcIndicatorService;
 import cn.iocoder.yudao.module.mes.service.qc.ipqc.MesQcIpqcService;
 import cn.iocoder.yudao.module.mes.service.qc.iqc.MesQcIqcService;
 import cn.iocoder.yudao.module.mes.service.qc.oqc.MesQcOqcService;
@@ -26,7 +28,6 @@ import org.springframework.validation.annotation.Validated;
 import java.util.*;
 
 import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception;
-import static cn.iocoder.yudao.framework.common.util.collection.CollectionUtils.convertMap;
 import static cn.iocoder.yudao.framework.common.util.collection.CollectionUtils.convertSet;
 import static cn.iocoder.yudao.module.mes.enums.ErrorCodeConstants.*;
 
@@ -42,8 +43,10 @@ public class MesQcIndicatorResultServiceImpl implements MesQcIndicatorResultServ
     @Resource
     private MesQcIndicatorResultMapper resultMapper;
     @Resource
-    private MesQcIndicatorResultDetailMapper resultDetailMapper;
+    private MesQcIndicatorResultDetailService resultDetailService;
 
+    @Resource
+    private MesQcIndicatorService indicatorService;
     @Resource
     private MesQcIqcService iqcService;
     @Resource
@@ -59,8 +62,10 @@ public class MesQcIndicatorResultServiceImpl implements MesQcIndicatorResultServ
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Long createIndicatorResult(MesQcIndicatorResultSaveReqVO createReqVO) {
-        // 1. 根据 qcType 查询源质检单，获取 itemId
+        // 1.1 根据 qcType 查询源质检单，获取 itemId
         Long itemId = getItemIdFromQcDoc(createReqVO.getQcId(), createReqVO.getQcType());
+        // 1.2 校验所有明细的 indicatorId 是否存在
+        validateIndicatorIds(createReqVO.getItems());
 
         // 2.1 插入主表
         MesQcIndicatorResultDO result = BeanUtils.toBean(createReqVO, MesQcIndicatorResultDO.class);
@@ -70,7 +75,7 @@ public class MesQcIndicatorResultServiceImpl implements MesQcIndicatorResultServ
         List<MesQcIndicatorResultDetailDO> details = BeanUtils.toBean(createReqVO.getItems(),
                 MesQcIndicatorResultDetailDO.class);
         details.forEach(detail -> detail.setResultId(result.getId()));
-        resultDetailMapper.insertBatch(details);
+        resultDetailService.createDetailList(details);
         return result.getId();
     }
 
@@ -86,7 +91,7 @@ public class MesQcIndicatorResultServiceImpl implements MesQcIndicatorResultServ
         // 2.2 批量更新明细
         List<MesQcIndicatorResultDetailDO> details = BeanUtils.toBean(updateReqVO.getItems(),
                 MesQcIndicatorResultDetailDO.class);
-        resultDetailMapper.insertOrUpdate(details);
+        resultDetailService.createOrUpdateDetailList(details);
     }
 
     @Override
@@ -96,7 +101,7 @@ public class MesQcIndicatorResultServiceImpl implements MesQcIndicatorResultServ
         validateIndicatorResultExists(id);
 
         // 2.1 级联删除明细
-        resultDetailMapper.deleteByResultId(id);
+        resultDetailService.deleteDetailByResultId(id);
         // 2.2 删除主表
         resultMapper.deleteById(id);
     }
@@ -113,7 +118,7 @@ public class MesQcIndicatorResultServiceImpl implements MesQcIndicatorResultServ
 
     @Override
     public List<MesQcIndicatorResultDetailDO> getIndicatorResultDetailListByResultId(Long resultId) {
-        return resultDetailMapper.selectListByResultId(resultId);
+        return resultDetailService.getDetailListByResultId(resultId);
     }
 
     // ==================== 私有方法 ====================
@@ -124,6 +129,22 @@ public class MesQcIndicatorResultServiceImpl implements MesQcIndicatorResultServ
             throw exception(QC_RESULT_NOT_EXISTS);
         }
         return result;
+    }
+
+    /**
+     * 校验所有明细的 indicatorId 是否存在
+     */
+    private void validateIndicatorIds(List<MesQcIndicatorResultSaveReqVO.Item> items) {
+        if (CollUtil.isEmpty(items)) {
+            return;
+        }
+        Set<Long> indicatorIds = convertSet(items, MesQcIndicatorResultSaveReqVO.Item::getIndicatorId);
+        List<MesQcIndicatorDO> indicators = indicatorService.getIndicatorList(indicatorIds);
+        if (indicators.size() != indicatorIds.size()) {
+            Set<Long> existIds = convertSet(indicators, MesQcIndicatorDO::getId);
+            indicatorIds.removeAll(existIds);
+            throw exception(QC_INDICATOR_NOT_EXISTS);
+        }
     }
 
     /**
