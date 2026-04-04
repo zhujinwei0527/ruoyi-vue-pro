@@ -7,10 +7,9 @@ import cn.iocoder.yudao.framework.common.util.object.BeanUtils;
 import cn.iocoder.yudao.module.mes.controller.admin.qc.template.vo.MesQcTemplatePageReqVO;
 import cn.iocoder.yudao.module.mes.controller.admin.qc.template.vo.MesQcTemplateSaveReqVO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.qc.template.MesQcTemplateDO;
-import cn.iocoder.yudao.module.mes.dal.mysql.qc.template.MesQcTemplateIndicatorMapper;
-import cn.iocoder.yudao.module.mes.dal.mysql.qc.template.MesQcTemplateItemMapper;
 import cn.iocoder.yudao.module.mes.dal.mysql.qc.template.MesQcTemplateMapper;
 import jakarta.annotation.Resource;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
@@ -34,9 +33,11 @@ public class MesQcTemplateServiceImpl implements MesQcTemplateService {
     @Resource
     private MesQcTemplateMapper templateMapper;
     @Resource
-    private MesQcTemplateIndicatorMapper templateIndicatorMapper;
+    @Lazy
+    private MesQcTemplateIndicatorService templateIndicatorService;
     @Resource
-    private MesQcTemplateItemMapper templateItemMapper;
+    @Lazy
+    private MesQcTemplateItemService templateItemService;
 
     @Override
     public Long createTemplate(MesQcTemplateSaveReqVO createReqVO) {
@@ -70,9 +71,9 @@ public class MesQcTemplateServiceImpl implements MesQcTemplateService {
         // 删除主表
         templateMapper.deleteById(id);
         // 级联删除检测指标项
-        templateIndicatorMapper.deleteByTemplateId(id);
+        templateIndicatorService.deleteTemplateIndicatorByTemplateId(id);
         // 级联删除产品关联
-        templateItemMapper.deleteByTemplateId(id);
+        templateItemService.deleteTemplateItemByTemplateId(id);
     }
 
     @Override

@@ -11,7 +11,7 @@ import cn.iocoder.yudao.module.mes.dal.dataobject.md.unitmeasure.MesMdUnitMeasur
 import cn.iocoder.yudao.module.mes.dal.dataobject.qc.template.MesQcTemplateItemDO;
 import cn.iocoder.yudao.module.mes.service.md.item.MesMdItemService;
 import cn.iocoder.yudao.module.mes.service.md.unitmeasure.MesMdUnitMeasureService;
-import cn.iocoder.yudao.module.mes.service.qc.template.MesQcTemplateDetailService;
+import cn.iocoder.yudao.module.mes.service.qc.template.MesQcTemplateItemService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -36,7 +36,7 @@ import static cn.iocoder.yudao.framework.common.pojo.CommonResult.success;
 public class MesQcTemplateItemController {
 
     @Resource
-    private MesQcTemplateDetailService templateDetailService;
+    private MesQcTemplateItemService templateItemService;
     @Resource
     private MesMdItemService mdItemService;
     @Resource
@@ -46,14 +46,14 @@ public class MesQcTemplateItemController {
     @Operation(summary = "创建质检方案-产品关联")
     @PreAuthorize("@ss.hasPermission('mes:qc-template:create')")
     public CommonResult<Long> createTemplateItem(@Valid @RequestBody MesQcTemplateItemSaveReqVO createReqVO) {
-        return success(templateDetailService.createTemplateItem(createReqVO));
+        return success(templateItemService.createTemplateItem(createReqVO));
     }
 
     @PutMapping("/update")
     @Operation(summary = "更新质检方案-产品关联")
     @PreAuthorize("@ss.hasPermission('mes:qc-template:update')")
     public CommonResult<Boolean> updateTemplateItem(@Valid @RequestBody MesQcTemplateItemSaveReqVO updateReqVO) {
-        templateDetailService.updateTemplateItem(updateReqVO);
+        templateItemService.updateTemplateItem(updateReqVO);
         return success(true);
     }
 
@@ -62,7 +62,7 @@ public class MesQcTemplateItemController {
     @Parameter(name = "id", description = "编号", required = true)
     @PreAuthorize("@ss.hasPermission('mes:qc-template:update')")
     public CommonResult<Boolean> deleteTemplateItem(@RequestParam("id") Long id) {
-        templateDetailService.deleteTemplateItem(id);
+        templateItemService.deleteTemplateItem(id);
         return success(true);
     }
 
@@ -71,7 +71,7 @@ public class MesQcTemplateItemController {
     @Parameter(name = "id", description = "编号", required = true, example = "1024")
     @PreAuthorize("@ss.hasPermission('mes:qc-template:query')")
     public CommonResult<MesQcTemplateItemRespVO> getTemplateItem(@RequestParam("id") Long id) {
-        MesQcTemplateItemDO item = templateDetailService.getTemplateItem(id);
+        MesQcTemplateItemDO item = templateItemService.getTemplateItem(id);
         return success(buildItemRespVOList(Collections.singletonList(item)).get(0));
     }
 
@@ -80,7 +80,7 @@ public class MesQcTemplateItemController {
     @PreAuthorize("@ss.hasPermission('mes:qc-template:query')")
     public CommonResult<PageResult<MesQcTemplateItemRespVO>> getTemplateItemPage(
             @Valid MesQcTemplateItemPageReqVO pageReqVO) {
-        PageResult<MesQcTemplateItemDO> pageResult = templateDetailService.getTemplateItemPage(pageReqVO);
+        PageResult<MesQcTemplateItemDO> pageResult = templateItemService.getTemplateItemPage(pageReqVO);
         return success(new PageResult<>(buildItemRespVOList(pageResult.getList()), pageResult.getTotal()));
     }
 

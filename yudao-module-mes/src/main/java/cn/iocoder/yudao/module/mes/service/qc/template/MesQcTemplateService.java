@@ -12,15 +12,12 @@ import java.util.Map;
 
 import static cn.iocoder.yudao.framework.common.util.collection.CollectionUtils.convertMap;
 
-// DONE @AI：已拆分成 2 个 service；MesQcTemplateService 专注于质检方案主表的 CRUD；MesQcTemplateDetailService 专注于质检方案的检测指标项和产品关联的 CRUD，以及复杂查询逻辑。
 /**
  * MES 质检方案 Service 接口
  *
  * @author 芋道源码
  */
 public interface MesQcTemplateService {
-
-    // ========== 质检方案主表 ==========
 
     /**
      * 创建质检方案

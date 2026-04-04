@@ -25,7 +25,7 @@ import cn.iocoder.yudao.module.mes.service.pro.route.MesProRouteProcessService;
 import cn.iocoder.yudao.module.mes.service.pro.route.MesProRouteProductService;
 import cn.iocoder.yudao.module.mes.service.pro.workorder.MesProWorkOrderService;
 import cn.iocoder.yudao.module.mes.service.qc.defectrecord.MesQcDefectRecordService;
-import cn.iocoder.yudao.module.mes.service.qc.template.MesQcTemplateDetailService;
+import cn.iocoder.yudao.module.mes.service.qc.template.MesQcTemplateItemService;
 import cn.iocoder.yudao.module.system.api.user.AdminUserApi;
 import jakarta.annotation.Resource;
 import org.springframework.context.annotation.Lazy;
@@ -55,7 +55,7 @@ public class MesQcIpqcServiceImpl implements MesQcIpqcService {
     private MesQcIpqcMapper ipqcMapper;
 
     @Resource
-    private MesQcTemplateDetailService templateDetailService;
+    private MesQcTemplateItemService templateItemService;
     @Resource
     private MesQcIpqcLineService ipqcLineService;
     @Resource
@@ -91,7 +91,7 @@ public class MesQcIpqcServiceImpl implements MesQcIpqcService {
         // 1.2 校验工单存在
         MesProWorkOrderDO workOrder = workOrderService.validateWorkOrderExists(createReqVO.getWorkOrderId());
         // 1.3 根据产品 + 检验类型自动匹配模板
-        MesQcTemplateItemDO templateItem = templateDetailService.getRequiredTemplateByItemIdAndType(
+        MesQcTemplateItemDO templateItem = templateItemService.getRequiredTemplateByItemIdAndType(
                 workOrder.getProductId(), MesQcTypeEnum.IPQC.getType());
         Long templateId = templateItem.getTemplateId();
         // 1.4 获取来源单据编号

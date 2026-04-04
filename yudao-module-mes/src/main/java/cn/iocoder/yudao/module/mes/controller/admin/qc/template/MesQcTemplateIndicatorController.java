@@ -12,7 +12,7 @@ import cn.iocoder.yudao.module.mes.dal.dataobject.qc.indicator.MesQcIndicatorDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.qc.template.MesQcTemplateIndicatorDO;
 import cn.iocoder.yudao.module.mes.service.md.unitmeasure.MesMdUnitMeasureService;
 import cn.iocoder.yudao.module.mes.service.qc.indicator.MesQcIndicatorService;
-import cn.iocoder.yudao.module.mes.service.qc.template.MesQcTemplateDetailService;
+import cn.iocoder.yudao.module.mes.service.qc.template.MesQcTemplateIndicatorService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -37,7 +37,7 @@ import static cn.iocoder.yudao.framework.common.pojo.CommonResult.success;
 public class MesQcTemplateIndicatorController {
 
     @Resource
-    private MesQcTemplateDetailService templateDetailService;
+    private MesQcTemplateIndicatorService templateIndicatorService;
     @Resource
     private MesQcIndicatorService indicatorService;
     @Resource
@@ -47,14 +47,14 @@ public class MesQcTemplateIndicatorController {
     @Operation(summary = "创建质检方案-检测指标项")
     @PreAuthorize("@ss.hasPermission('mes:qc-template:create')")
     public CommonResult<Long> createTemplateIndicator(@Valid @RequestBody MesQcTemplateIndicatorSaveReqVO createReqVO) {
-        return success(templateDetailService.createTemplateIndicator(createReqVO));
+        return success(templateIndicatorService.createTemplateIndicator(createReqVO));
     }
 
     @PutMapping("/update")
     @Operation(summary = "更新质检方案-检测指标项")
     @PreAuthorize("@ss.hasPermission('mes:qc-template:update')")
     public CommonResult<Boolean> updateTemplateIndicator(@Valid @RequestBody MesQcTemplateIndicatorSaveReqVO updateReqVO) {
-        templateDetailService.updateTemplateIndicator(updateReqVO);
+        templateIndicatorService.updateTemplateIndicator(updateReqVO);
         return success(true);
     }
 
@@ -63,7 +63,7 @@ public class MesQcTemplateIndicatorController {
     @Parameter(name = "id", description = "编号", required = true)
     @PreAuthorize("@ss.hasPermission('mes:qc-template:update')")
     public CommonResult<Boolean> deleteTemplateIndicator(@RequestParam("id") Long id) {
-        templateDetailService.deleteTemplateIndicator(id);
+        templateIndicatorService.deleteTemplateIndicator(id);
         return success(true);
     }
 
@@ -72,7 +72,7 @@ public class MesQcTemplateIndicatorController {
     @Parameter(name = "id", description = "编号", required = true, example = "1024")
     @PreAuthorize("@ss.hasPermission('mes:qc-template:query')")
     public CommonResult<MesQcTemplateIndicatorRespVO> getTemplateIndicator(@RequestParam("id") Long id) {
-        MesQcTemplateIndicatorDO indicator = templateDetailService.getTemplateIndicator(id);
+        MesQcTemplateIndicatorDO indicator = templateIndicatorService.getTemplateIndicator(id);
         return success(buildIndicatorRespVOList(Collections.singletonList(indicator)).get(0));
     }
 
@@ -81,7 +81,7 @@ public class MesQcTemplateIndicatorController {
     @PreAuthorize("@ss.hasPermission('mes:qc-template:query')")
     public CommonResult<PageResult<MesQcTemplateIndicatorRespVO>> getTemplateIndicatorPage(
             @Valid MesQcTemplateIndicatorPageReqVO pageReqVO) {
-        PageResult<MesQcTemplateIndicatorDO> pageResult = templateDetailService.getTemplateIndicatorPage(pageReqVO);
+        PageResult<MesQcTemplateIndicatorDO> pageResult = templateIndicatorService.getTemplateIndicatorPage(pageReqVO);
         return success(new PageResult<>(buildIndicatorRespVOList(pageResult.getList()), pageResult.getTotal()));
     }
 

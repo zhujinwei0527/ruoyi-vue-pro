@@ -10,7 +10,7 @@ import cn.iocoder.yudao.module.mes.service.md.workstation.MesMdWorkstationServic
 import cn.iocoder.yudao.module.mes.service.pro.feedback.MesProFeedbackService;
 import cn.iocoder.yudao.module.mes.service.pro.workorder.MesProWorkOrderService;
 import cn.iocoder.yudao.module.mes.service.qc.defectrecord.MesQcDefectRecordService;
-import cn.iocoder.yudao.module.mes.service.qc.template.MesQcTemplateDetailService;
+import cn.iocoder.yudao.module.mes.service.qc.template.MesQcTemplateItemService;
 import cn.iocoder.yudao.module.system.api.user.AdminUserApi;
 import jakarta.annotation.Resource;
 import org.junit.jupiter.api.Test;
@@ -39,7 +39,7 @@ public class MesQcIpqcServiceImplTest extends BaseDbUnitTest {
     private MesQcIpqcMapper ipqcMapper;
 
     @MockitoBean
-    private MesQcTemplateDetailService templateDetailService;
+    private MesQcTemplateItemService templateItemService;
     @MockitoBean
     private MesQcIpqcLineService ipqcLineService;
     @MockitoBean

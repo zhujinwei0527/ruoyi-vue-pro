@@ -16,7 +16,7 @@ import cn.iocoder.yudao.module.mes.enums.MesBizTypeConstants;
 import cn.iocoder.yudao.module.mes.service.md.client.MesMdClientService;
 import cn.iocoder.yudao.module.mes.service.md.item.MesMdItemService;
 import cn.iocoder.yudao.module.mes.service.qc.defectrecord.MesQcDefectRecordService;
-import cn.iocoder.yudao.module.mes.service.qc.template.MesQcTemplateDetailService;
+import cn.iocoder.yudao.module.mes.service.qc.template.MesQcTemplateItemService;
 import cn.iocoder.yudao.module.mes.service.wm.productsales.MesWmProductSalesLineService;
 import cn.iocoder.yudao.module.mes.service.wm.productsales.MesWmProductSalesService;
 import cn.iocoder.yudao.module.mes.dal.dataobject.wm.productsales.MesWmProductSalesDO;
@@ -48,7 +48,7 @@ public class MesQcOqcServiceImpl implements MesQcOqcService {
     @Resource
     private MesQcOqcMapper oqcMapper;
     @Resource
-    private MesQcTemplateDetailService templateDetailService;
+    private MesQcTemplateItemService templateItemService;
     @Resource
     private MesQcOqcLineService oqcLineService;
     @Resource
@@ -79,7 +79,7 @@ public class MesQcOqcServiceImpl implements MesQcOqcService {
         String sourceDocCode = validateAndGetSourceDocCode(
                 createReqVO.getSourceDocType(), createReqVO.getSourceLineId());
         // 1.3 根据产品 + 检验类型自动匹配模板
-        MesQcTemplateItemDO templateItem = templateDetailService.getRequiredTemplateByItemIdAndType(
+        MesQcTemplateItemDO templateItem = templateItemService.getRequiredTemplateByItemIdAndType(
                 createReqVO.getItemId(), MesQcTypeEnum.OQC.getType());
         Long templateId = templateItem.getTemplateId();
 

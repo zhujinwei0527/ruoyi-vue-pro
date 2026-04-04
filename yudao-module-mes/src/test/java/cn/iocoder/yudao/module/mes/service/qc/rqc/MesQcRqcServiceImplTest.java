@@ -7,7 +7,7 @@ import cn.iocoder.yudao.module.mes.enums.MesBizTypeConstants;
 import cn.iocoder.yudao.module.mes.enums.qc.MesQcStatusEnum;
 import cn.iocoder.yudao.module.mes.service.md.item.MesMdItemService;
 import cn.iocoder.yudao.module.mes.service.qc.defectrecord.MesQcDefectRecordService;
-import cn.iocoder.yudao.module.mes.service.qc.template.MesQcTemplateDetailService;
+import cn.iocoder.yudao.module.mes.service.qc.template.MesQcTemplateItemService;
 import cn.iocoder.yudao.module.mes.service.wm.returnissue.MesWmReturnIssueLineService;
 import cn.iocoder.yudao.module.mes.service.wm.returnsales.MesWmReturnSalesLineService;
 import cn.iocoder.yudao.module.system.api.user.AdminUserApi;
@@ -51,7 +51,7 @@ public class MesQcRqcServiceImplTest extends BaseDbUnitTest {
     @MockitoBean
     private MesMdItemService itemService;
     @MockitoBean
-    private MesQcTemplateDetailService templateDetailService;
+    private MesQcTemplateItemService templateItemService;
     @MockitoBean
     private MesQcDefectRecordService defectRecordService;
     @MockitoBean

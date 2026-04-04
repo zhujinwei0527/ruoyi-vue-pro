@@ -9,7 +9,6 @@ import org.apache.ibatis.annotations.Mapper;
 
 import java.util.List;
 
-// TODO @AI：MesQcTemplateIndicatorService 独立一个；然后非 MesQcTemplateIndicatorService 调用 mapper 的地方，都替换下；
 /**
  * MES 质检方案-检测指标项 Mapper
  *
