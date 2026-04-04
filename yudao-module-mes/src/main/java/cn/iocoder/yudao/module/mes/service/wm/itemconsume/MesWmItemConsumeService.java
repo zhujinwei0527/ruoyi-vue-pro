@@ -24,10 +24,18 @@ public interface MesWmItemConsumeService {
     /**
      * 完成物料消耗（库存扣减）
      *
-     * 遍历消耗行，扣减线边库库存，更新消耗单状态为已完成
+     * 遍历消耗明细（detail），按批次精确扣减线边库库存，更新消耗单状态为已完成
      *
      * @param consumeId 消耗记录编号
      */
     void finishItemConsume(Long consumeId);
+
+    /**
+     * 根据报工记录编号获取消耗记录
+     *
+     * @param feedbackId 报工记录编号
+     * @return 消耗记录，不存在返回 null
+     */
+    MesWmItemConsumeDO getByFeedbackId(Long feedbackId);
 
 }
