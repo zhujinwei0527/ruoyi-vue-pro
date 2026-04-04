@@ -44,7 +44,8 @@ public enum MesMdAutoCodeRuleCodeEnum {
     DV_REPAIR_CODE("DV_REPAIR_CODE", "维修单编码"),
     WM_SALES_NOTICE_CODE("WM_SALES_NOTICE_CODE", "发货通知单编码"),
     WM_RETURN_SALES_CODE("WM_RETURN_SALES_CODE", "销售退货单编码"),
-    WM_MISC_ISSUE_CODE("WM_MISC_ISSUE_CODE", "杂项出库单编码");
+    WM_MISC_ISSUE_CODE("WM_MISC_ISSUE_CODE", "杂项出库单编码"),
+    PRO_WORK_ORDER_CODE("PRO_WORK_ORDER_CODE", "生产工单编码");
 
     /**
      * 规则代码

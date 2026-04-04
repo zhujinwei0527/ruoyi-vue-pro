@@ -56,6 +56,7 @@ public class MesProWorkOrderServiceImpl implements MesProWorkOrderService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Long createWorkOrder(MesProWorkOrderSaveReqVO createReqVO) {
+        // TODO @AI：validateXXXSaveData
         // 1.1 校验编码唯一
         validateWorkOrderCodeUnique(null, createReqVO.getCode());
         // 1.2 校验产品存在
@@ -69,9 +70,7 @@ public class MesProWorkOrderServiceImpl implements MesProWorkOrderService {
         }
         // 2.2 插入工单
         MesProWorkOrderDO workOrder = BeanUtils.toBean(createReqVO, MesProWorkOrderDO.class);
-        if (workOrder.getStatus() == null) {
-            workOrder.setStatus(MesProWorkOrderStatusEnum.PREPARE.getStatus());
-        }
+        workOrder.setStatus(MesProWorkOrderStatusEnum.PREPARE.getStatus());
         workOrderMapper.insert(workOrder);
 
         // 3. 自动生成 BOM：根据产品 BOM 生成工单 BOM
@@ -88,9 +87,14 @@ public class MesProWorkOrderServiceImpl implements MesProWorkOrderService {
     public void updateWorkOrder(MesProWorkOrderSaveReqVO updateReqVO) {
         // 1.1 校验存在
         MesProWorkOrderDO oldWorkOrder = validateWorkOrderExists(updateReqVO.getId());
-        // 1.2 校验编码唯一
+        // TODO @AI：validateXXXSaveData
+        // 1.2 只有草稿状态才能编辑
+        if (ObjUtil.notEqual(oldWorkOrder.getStatus(), MesProWorkOrderStatusEnum.PREPARE.getStatus())) {
+            throw exception(PRO_WORK_ORDER_NOT_PREPARE);
+        }
+        // 1.3 校验编码唯一
         validateWorkOrderCodeUnique(updateReqVO.getId(), updateReqVO.getCode());
-        // 1.3 校验批次配置
+        // 1.4 校验批次配置
         validateBatchConfig(updateReqVO.getProductId(), updateReqVO.getClientId());
 
         // 2. 判断产品或数量是否变更，如果变更则重新生成 BOM（updated=true 会先清理旧数据）
@@ -113,6 +117,11 @@ public class MesProWorkOrderServiceImpl implements MesProWorkOrderService {
         // 1.2 只能删除草稿状态的工单
         if (ObjUtil.notEqual(workOrder.getStatus(), MesProWorkOrderStatusEnum.PREPARE.getStatus())) {
             throw exception(PRO_WORK_ORDER_NOT_PREPARE);
+        }
+        // 1.3 校验是否有子工单
+        Long childCount = workOrderMapper.selectCount(MesProWorkOrderDO::getParentId, id);
+        if (childCount > 0) {
+            throw exception(PRO_WORK_ORDER_HAS_CHILDREN);
         }
 
         // 2. 删除工单 + BOM
@@ -227,7 +236,7 @@ public class MesProWorkOrderServiceImpl implements MesProWorkOrderService {
     }
 
     private void validateBatchConfig(Long productId, Long clientId) {
-        // 如果产品有 clientFlag=true，则 clientId 必填
+        // 如果产品有 clientFlag =true，则 clientId 必填
         MesMdItemBatchConfigDO batchConfig = itemBatchConfigService.getItemBatchConfigByItemId(productId);
         if (batchConfig != null && Boolean.TRUE.equals(batchConfig.getClientFlag()) && clientId == null) {
             // 产品要求批次管理中必须填写客户
