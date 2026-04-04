@@ -34,12 +34,10 @@ public class MesQcDefectDO extends BaseDO {
      * 缺陷描述
      */
     private String name;
-    // TODO @AI：改成 mes_defect_type；字典 sql 变更；另外，dict constants 里也写下
-    // TODO @AI：枚举类；
     /**
      * 检测项类型
      *
-     * 字典类型 mes_index_type
+     * 字典类型 {@link cn.iocoder.yudao.module.mes.enums.DictTypeConstants#MES_DEFECT_TYPE}
      */
     private String type;
     /**

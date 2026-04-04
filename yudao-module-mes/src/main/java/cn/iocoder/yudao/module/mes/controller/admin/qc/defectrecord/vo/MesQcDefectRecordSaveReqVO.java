@@ -37,7 +37,8 @@ public class MesQcDefectRecordSaveReqVO {
     @InEnum(MesQcDefectLevelEnum.class)
     private Integer level;
 
-    @Schema(description = "缺陷数量", example = "1")
+    @Schema(description = "缺陷数量", requiredMode = Schema.RequiredMode.REQUIRED, example = "1")
+    @NotNull(message = "缺陷数量不能为空")
     private Integer quantity;
 
     @Schema(description = "备注", example = "备注")

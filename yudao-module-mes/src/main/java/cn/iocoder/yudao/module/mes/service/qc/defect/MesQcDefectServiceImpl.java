@@ -33,10 +33,8 @@ public class MesQcDefectServiceImpl implements MesQcDefectService {
 
     @Override
     public Long createDefect(MesQcDefectSaveReqVO createReqVO) {
-        // 校验编码唯一
-        validateDefectCodeUnique(null, createReqVO.getCode());
-        // 校验名称唯一
-        validateDefectNameUnique(null, createReqVO.getName());
+        // 校验编码、名称唯一
+        validateDefectSaveData(null, createReqVO);
 
         // 插入
         MesQcDefectDO defect = BeanUtils.toBean(createReqVO, MesQcDefectDO.class);
@@ -48,10 +46,8 @@ public class MesQcDefectServiceImpl implements MesQcDefectService {
     public void updateDefect(MesQcDefectSaveReqVO updateReqVO) {
         // 校验存在
         validateDefectExists(updateReqVO.getId());
-        // 校验编码唯一
-        validateDefectCodeUnique(updateReqVO.getId(), updateReqVO.getCode());
-        // 校验名称唯一
-        validateDefectNameUnique(updateReqVO.getId(), updateReqVO.getName());
+        // 校验编码、名称唯一
+        validateDefectSaveData(updateReqVO.getId(), updateReqVO);
 
         // 更新
         MesQcDefectDO updateObj = BeanUtils.toBean(updateReqVO, MesQcDefectDO.class);
@@ -70,6 +66,11 @@ public class MesQcDefectServiceImpl implements MesQcDefectService {
         if (defectMapper.selectById(id) == null) {
             throw exception(QC_DEFECT_NOT_EXISTS);
         }
+    }
+
+    private void validateDefectSaveData(Long id, MesQcDefectSaveReqVO reqVO) {
+        validateDefectCodeUnique(id, reqVO.getCode());
+        validateDefectNameUnique(id, reqVO.getName());
     }
 
     private void validateDefectCodeUnique(Long id, String code) {

@@ -246,6 +246,8 @@ public interface ErrorCodeConstants {
     // ========== MES 生产管理-生产任务（1-040-503-000） ==========
     ErrorCode PRO_TASK_NOT_EXISTS = new ErrorCode(1_040_503_000, "生产任务不存在");
     ErrorCode PRO_TASK_ALREADY_FINISHED = new ErrorCode(1_040_503_001, "生产任务已完成或已取消，不能继续操作");
+    // ========== MES 生产管理-生产任务投料（1-040-503-100） ==========
+    ErrorCode PRO_TASK_ISSUE_NOT_EXISTS = new ErrorCode(1_040_503_100, "生产任务投料记录不存在");
 
     // ========== MES 生产管理-安灯呼叫配置（1-040-504-000） ==========
     ErrorCode PRO_ANDON_CONFIG_NOT_EXISTS = new ErrorCode(1_040_504_000, "安灯呼叫配置不存在");

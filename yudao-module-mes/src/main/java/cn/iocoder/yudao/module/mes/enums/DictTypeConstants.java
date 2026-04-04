@@ -21,6 +21,7 @@ public interface DictTypeConstants {
     String MES_DV_SUBJECT_TYPE = "mes_dv_subject_type"; // MES 点检保养项目类型
     String MES_INDICATOR_TYPE = "mes_indicator_type"; // MES 检测项类型
     String MES_QC_RESULT_TYPE = "mes_qc_result_type"; // MES 质检结果值类型
+    String MES_DEFECT_TYPE = "mes_defect_type"; // MES 缺陷检测项类型
     String MES_DEFECT_LEVEL = "mes_defect_level"; // MES 缺陷等级
     String MES_PRO_WORK_ORDER_STATUS = "mes_pro_work_order_status"; // MES 生产工单状态
     String MES_PRO_WORK_ORDER_SOURCE_TYPE = "mes_pro_work_order_source_type"; // MES 工单来源类型

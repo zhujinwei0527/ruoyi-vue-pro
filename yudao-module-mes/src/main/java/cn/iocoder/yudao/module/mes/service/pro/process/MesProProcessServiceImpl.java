@@ -42,11 +42,8 @@ public class MesProProcessServiceImpl implements MesProProcessService {
 
     @Override
     public Long createProcess(MesProProcessSaveReqVO createReqVO) {
-        // TODO @AI：validateXXXSaveData，传入 vo；
-        // 1.1 校验工序编码唯一性
-        validateProcessCodeUnique(null, createReqVO.getCode());
-        // 1.2 校验工序名称唯一性
-        validateProcessNameUnique(null, createReqVO.getName());
+        // 1. 校验编码、名称唯一
+        validateProcessSaveData(createReqVO);
 
         // 2. 插入工序
         MesProProcessDO process = BeanUtils.toBean(createReqVO, MesProProcessDO.class);
@@ -58,11 +55,8 @@ public class MesProProcessServiceImpl implements MesProProcessService {
     public void updateProcess(MesProProcessSaveReqVO updateReqVO) {
         // 1.1 校验存在
         validateProcessExists(updateReqVO.getId());
-        // TODO @AI：validateXXXSaveData，传入 vo；
-        // 1.2 校验工序编码唯一性
-        validateProcessCodeUnique(updateReqVO.getId(), updateReqVO.getCode());
-        // 1.3 校验工序名称唯一性
-        validateProcessNameUnique(updateReqVO.getId(), updateReqVO.getName());
+        // 1.2 校验编码、名称唯一
+        validateProcessSaveData(updateReqVO);
 
         // 2. 更新工序
         MesProProcessDO updateObj = BeanUtils.toBean(updateReqVO, MesProProcessDO.class);
@@ -116,6 +110,13 @@ public class MesProProcessServiceImpl implements MesProProcessService {
         if (!process.getId().equals(id)) {
             throw exception(PRO_PROCESS_NAME_EXISTS);
         }
+    }
+
+    private void validateProcessSaveData(MesProProcessSaveReqVO saveReqVO) {
+        // 1. 校验编码唯一
+        validateProcessCodeUnique(saveReqVO.getId(), saveReqVO.getCode());
+        // 2. 校验名称唯一
+        validateProcessNameUnique(saveReqVO.getId(), saveReqVO.getName());
     }
 
     @Override

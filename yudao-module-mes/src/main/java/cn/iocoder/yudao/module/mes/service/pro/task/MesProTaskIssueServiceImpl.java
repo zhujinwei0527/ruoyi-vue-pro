@@ -64,6 +64,7 @@ public class MesProTaskIssueServiceImpl implements MesProTaskIssueService {
     public void deleteTaskIssue(Long id) {
         // 1. 校验存在
         validateTaskIssueExists(id);
+
         // 2. 删除
         taskIssueMapper.deleteById(id);
     }
