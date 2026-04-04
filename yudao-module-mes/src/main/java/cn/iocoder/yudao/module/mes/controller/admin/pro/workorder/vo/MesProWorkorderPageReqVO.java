@@ -26,9 +26,6 @@ public class MesProWorkOrderPageReqVO extends PageParam {
     @Schema(description = "工单类型", example = "1")
     private Integer type;
 
-    @Schema(description = "工单状态", example = "1")
-    private Integer status;
-
     @Schema(description = "来源单据编号", example = "SO-001")
     private String orderSourceCode;
 

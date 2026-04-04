@@ -56,13 +56,8 @@ public class MesProWorkOrderServiceImpl implements MesProWorkOrderService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Long createWorkOrder(MesProWorkOrderSaveReqVO createReqVO) {
-        // TODO @AI：validateXXXSaveData
-        // 1.1 校验编码唯一
-        validateWorkOrderCodeUnique(null, createReqVO.getCode());
-        // 1.2 校验产品存在
-        itemService.validateItemExists(createReqVO.getProductId());
-        // 1.3 校验批次配置
-        validateBatchConfig(createReqVO.getProductId(), createReqVO.getClientId());
+        // 1. 校验数据
+        validateWorkOrderSaveData(null, createReqVO);
 
         // 2.1 设置默认值
         if (createReqVO.getParentId() == null) {
@@ -85,17 +80,13 @@ public class MesProWorkOrderServiceImpl implements MesProWorkOrderService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void updateWorkOrder(MesProWorkOrderSaveReqVO updateReqVO) {
-        // 1.1 校验存在
+        // 1.1 校验存在 + 只有草稿状态才能编辑
         MesProWorkOrderDO oldWorkOrder = validateWorkOrderExists(updateReqVO.getId());
-        // TODO @AI：validateXXXSaveData
-        // 1.2 只有草稿状态才能编辑
         if (ObjUtil.notEqual(oldWorkOrder.getStatus(), MesProWorkOrderStatusEnum.PREPARE.getStatus())) {
             throw exception(PRO_WORK_ORDER_NOT_PREPARE);
         }
-        // 1.3 校验编码唯一
-        validateWorkOrderCodeUnique(updateReqVO.getId(), updateReqVO.getCode());
-        // 1.4 校验批次配置
-        validateBatchConfig(updateReqVO.getProductId(), updateReqVO.getClientId());
+        // 1.2 校验数据
+        validateWorkOrderSaveData(updateReqVO.getId(), updateReqVO);
 
         // 2. 判断产品或数量是否变更，如果变更则重新生成 BOM（updated=true 会先清理旧数据）
         boolean productChanged = ObjUtil.notEqual(oldWorkOrder.getProductId(), updateReqVO.getProductId());
@@ -222,6 +213,18 @@ public class MesProWorkOrderServiceImpl implements MesProWorkOrderService {
 
     // ==================== 校验方法 ====================
 
+    private void validateWorkOrderSaveData(Long id, MesProWorkOrderSaveReqVO reqVO) {
+        // 1. 校验编码唯一
+        validateWorkOrderCodeUnique(id, reqVO.getCode());
+        // 2. 校验产品存在
+        itemService.validateItemExists(reqVO.getProductId());
+        // 3. 校验批次配置（如果产品有 clientFlag=true，则 clientId 必填）
+        MesMdItemBatchConfigDO batchConfig = itemBatchConfigService.getItemBatchConfigByItemId(reqVO.getProductId());
+        if (batchConfig != null && Boolean.TRUE.equals(batchConfig.getClientFlag()) && reqVO.getClientId() == null) {
+            throw exception(MD_CLIENT_NOT_EXISTS);
+        }
+    }
+
     private void validateWorkOrderCodeUnique(Long id, String code) {
         if (code == null) {
             return;
@@ -232,15 +235,6 @@ public class MesProWorkOrderServiceImpl implements MesProWorkOrderService {
         }
         if (ObjUtil.notEqual(workOrder.getId(), id)) {
             throw exception(PRO_WORK_ORDER_CODE_DUPLICATE);
-        }
-    }
-
-    private void validateBatchConfig(Long productId, Long clientId) {
-        // 如果产品有 clientFlag =true，则 clientId 必填
-        MesMdItemBatchConfigDO batchConfig = itemBatchConfigService.getItemBatchConfigByItemId(productId);
-        if (batchConfig != null && Boolean.TRUE.equals(batchConfig.getClientFlag()) && clientId == null) {
-            // 产品要求批次管理中必须填写客户
-            throw exception(MD_CLIENT_NOT_EXISTS);
         }
     }
 
