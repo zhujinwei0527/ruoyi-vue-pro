@@ -6,12 +6,15 @@ import cn.iocoder.yudao.framework.common.util.object.BeanUtils;
 import cn.iocoder.yudao.module.mes.controller.admin.pro.task.vo.MesProTaskPageReqVO;
 import cn.iocoder.yudao.module.mes.controller.admin.pro.task.vo.MesProTaskSaveReqVO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.md.item.MesMdItemDO;
+import cn.iocoder.yudao.module.mes.dal.dataobject.md.unitmeasure.MesMdUnitMeasureDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.pro.task.MesProTaskDO;
+import cn.iocoder.yudao.module.mes.dal.dataobject.pro.workorder.MesProWorkOrderDO;
 import cn.iocoder.yudao.module.mes.dal.mysql.pro.task.MesProTaskMapper;
 import cn.iocoder.yudao.module.mes.enums.md.autocode.MesMdAutoCodeRuleCodeEnum;
 import cn.iocoder.yudao.module.mes.enums.pro.MesProTaskStatusEnum;
 import cn.iocoder.yudao.module.mes.service.md.autocode.MesMdAutoCodeRecordService;
 import cn.iocoder.yudao.module.mes.service.md.item.MesMdItemService;
+import cn.iocoder.yudao.module.mes.service.md.unitmeasure.MesMdUnitMeasureService;
 import cn.iocoder.yudao.module.mes.service.md.workstation.MesMdWorkstationService;
 import cn.iocoder.yudao.module.mes.service.pro.process.MesProProcessService;
 import cn.iocoder.yudao.module.mes.service.pro.route.MesProRouteService;
@@ -54,6 +57,8 @@ public class MesProTaskServiceImpl implements MesProTaskService {
     @Resource
     private MesMdItemService itemService;
     @Resource
+    private MesMdUnitMeasureService unitMeasureService;
+    @Resource
     private MesProRouteService routeService;
     @Resource
     private MesMdAutoCodeRecordService autoCodeRecordService;
@@ -61,17 +66,20 @@ public class MesProTaskServiceImpl implements MesProTaskService {
     @Override
     public Long createTask(MesProTaskSaveReqVO createReqVO) {
         // 1. 校验关联数据存在
-        workOrderService.validateWorkOrderExists(createReqVO.getWorkOrderId());
+        MesProWorkOrderDO workOrder = workOrderService.validateWorkOrderExists(createReqVO.getWorkOrderId());
         workstationService.validateWorkstationExists(createReqVO.getWorkstationId());
         routeService.validateRouteExists(createReqVO.getRouteId());
         processService.validateProcessExists(createReqVO.getProcessId());
         MesMdItemDO item = itemService.validateItemExists(createReqVO.getItemId());
 
-        // 2.1 构建任务 DO
+        // 2.1 构建任务 DO：自动填充客户信息
         MesProTaskDO task = BeanUtils.toBean(createReqVO, MesProTaskDO.class)
-                .setName(buildTaskName(item.getName(), createReqVO.getQuantity()))
+                .setName(buildTaskName(item, createReqVO.getQuantity()))
                 .setCode(autoCodeRecordService.generateAutoCode(MesMdAutoCodeRuleCodeEnum.PRO_TASK_CODE.getCode()))
                 .setStatus(MesProTaskStatusEnum.PREPARE.getStatus());
+        if (task.getClientId() == null && workOrder.getClientId() != null) {
+            task.setClientId(workOrder.getClientId());
+        }
         // 2.2 插入
         taskMapper.insert(task);
         return task.getId();
@@ -104,18 +112,29 @@ public class MesProTaskServiceImpl implements MesProTaskService {
 
         // 2. 更新
         MesProTaskDO updateObj = BeanUtils.toBean(updateReqVO, MesProTaskDO.class)
-                .setName(buildTaskName(item.getName(), quantity));
+                .setName(buildTaskName(item, quantity));
         taskMapper.updateById(updateObj);
     }
 
-    private String buildTaskName(String itemName, BigDecimal quantity) {
-        return itemName + "【" + quantity + "】";
+    /**
+     * 构建任务名称，格式："产品名【数量】单位"
+     */
+    private String buildTaskName(MesMdItemDO item, BigDecimal quantity) {
+        String unitName = "";
+        if (item.getUnitMeasureId() != null) {
+            MesMdUnitMeasureDO unit = unitMeasureService.getUnitMeasure(item.getUnitMeasureId());
+            if (unit != null) {
+                unitName = unit.getName();
+            }
+        }
+        return item.getName() + "【" + quantity + "】" + unitName;
     }
 
     @Override
     public void deleteTask(Long id) {
-        // 1. 校验存在
-        validateTaskExists(id);
+        // 1. 校验存在且非终态
+        validateTaskNotFinished(id);
+
         // 2. 删除
         taskMapper.deleteById(id);
     }
