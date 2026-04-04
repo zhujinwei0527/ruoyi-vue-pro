@@ -1,8 +1,10 @@
 package cn.iocoder.yudao.module.mes.service.wm.itemconsume;
 
+import cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil;
 import cn.iocoder.yudao.framework.test.core.ut.BaseDbUnitTest;
 import cn.iocoder.yudao.module.mes.controller.admin.wm.materialstock.vo.MesWmMaterialStockListReqVO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.pro.feedback.MesProFeedbackDO;
+import cn.iocoder.yudao.module.mes.dal.dataobject.pro.route.MesProRouteDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.pro.route.MesProRouteProductBomDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.wm.itemconsume.MesWmItemConsumeDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.wm.itemconsume.MesWmItemConsumeDetailDO;
@@ -16,6 +18,7 @@ import cn.iocoder.yudao.module.mes.enums.MesBizTypeConstants;
 import cn.iocoder.yudao.module.mes.enums.wm.MesWmItemConsumeStatusEnum;
 import cn.iocoder.yudao.module.mes.enums.wm.MesWmTransactionTypeEnum;
 import cn.iocoder.yudao.module.mes.service.pro.route.MesProRouteProductBomService;
+import cn.iocoder.yudao.module.mes.service.pro.route.MesProRouteService;
 import cn.iocoder.yudao.module.mes.service.wm.materialstock.MesWmMaterialStockService;
 import cn.iocoder.yudao.module.mes.service.wm.transaction.MesWmTransactionService;
 import cn.iocoder.yudao.module.mes.service.wm.transaction.dto.MesWmTransactionSaveReqDTO;
@@ -35,9 +38,13 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
 
+import static cn.iocoder.yudao.framework.test.core.util.AssertUtils.assertServiceException;
 import static cn.iocoder.yudao.framework.test.core.util.RandomUtils.randomLongId;
+import static cn.iocoder.yudao.module.mes.enums.ErrorCodeConstants.PRO_FEEDBACK_ROUTE_PROCESS_INVALID;
+import static cn.iocoder.yudao.module.mes.enums.ErrorCodeConstants.PRO_ROUTE_NOT_EXISTS;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.*;
 
@@ -61,6 +68,8 @@ public class MesWmItemConsumeServiceImplTest extends BaseDbUnitTest {
     private MesWmItemConsumeDetailService itemConsumeDetailService;
     @MockitoBean
     private MesProRouteProductBomService routeProductBomService;
+    @MockitoBean
+    private MesProRouteService routeService;
     @MockitoBean
     private MesWmTransactionService wmTransactionService;
     @MockitoBean
@@ -103,6 +112,11 @@ public class MesWmItemConsumeServiceImplTest extends BaseDbUnitTest {
         when(areaService.getWarehouseAreaByCode(MesWmWarehouseAreaDO.WIP_VIRTUAL_AREA))
                 .thenReturn(virtualArea);
 
+        lenient().when(routeService.validateRouteExists(anyLong())).thenAnswer(invocation -> {
+            Long routeId = invocation.getArgument(0);
+            return new MesProRouteDO().setId(routeId);
+        });
+
         // mock createItemConsumeLineBatch：模拟 insertBatch 后填充 ID
         AtomicLong lineIdSeq = new AtomicLong(1000L);
         doAnswer(invocation -> {
@@ -123,6 +137,23 @@ public class MesWmItemConsumeServiceImplTest extends BaseDbUnitTest {
     }
 
     // ========== generateItemConsume ==========
+
+    @Test
+    public void testGenerateItemConsume_routeContextIncomplete() {
+        MesProFeedbackDO feedback = buildFeedback();
+        feedback.setRouteId(null);
+        assertServiceException(() -> itemConsumeService.generateItemConsume(feedback), PRO_FEEDBACK_ROUTE_PROCESS_INVALID);
+        verify(routeProductBomService, never()).getRouteProductBomList(any(), any(), any());
+    }
+
+    @Test
+    public void testGenerateItemConsume_routeNotExists() {
+        MesProFeedbackDO feedback = buildFeedback();
+        doThrow(ServiceExceptionUtil.exception(PRO_ROUTE_NOT_EXISTS)).when(routeService)
+                .validateRouteExists(feedback.getRouteId());
+        assertServiceException(() -> itemConsumeService.generateItemConsume(feedback), PRO_ROUTE_NOT_EXISTS);
+        verify(routeProductBomService, never()).getRouteProductBomList(any(), any(), any());
+    }
 
     @Test
     public void testGenerateItemConsume_noBom() {

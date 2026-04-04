@@ -16,6 +16,7 @@ import cn.iocoder.yudao.module.mes.enums.MesBizTypeConstants;
 import cn.iocoder.yudao.module.mes.enums.wm.MesWmItemConsumeStatusEnum;
 import cn.iocoder.yudao.module.mes.enums.wm.MesWmTransactionTypeEnum;
 import cn.iocoder.yudao.module.mes.service.pro.route.MesProRouteProductBomService;
+import cn.iocoder.yudao.module.mes.service.pro.route.MesProRouteService;
 import cn.iocoder.yudao.module.mes.service.wm.materialstock.MesWmMaterialStockService;
 import cn.iocoder.yudao.module.mes.service.wm.transaction.MesWmTransactionService;
 import cn.iocoder.yudao.module.mes.service.wm.transaction.dto.MesWmTransactionSaveReqDTO;
@@ -31,7 +32,9 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception;
 import static cn.iocoder.yudao.framework.common.util.collection.CollectionUtils.convertList;
+import static cn.iocoder.yudao.module.mes.enums.ErrorCodeConstants.PRO_FEEDBACK_ROUTE_PROCESS_INVALID;
 
 /**
  * MES 物料消耗记录 Service 实现类
@@ -51,6 +54,8 @@ public class MesWmItemConsumeServiceImpl implements MesWmItemConsumeService {
     @Resource
     private MesProRouteProductBomService routeProductBomService;
     @Resource
+    private MesProRouteService routeService;
+    @Resource
     private MesWmTransactionService wmTransactionService;
     @Resource
     private MesWmWarehouseService warehouseService;
@@ -63,34 +68,37 @@ public class MesWmItemConsumeServiceImpl implements MesWmItemConsumeService {
 
     @Override
     public MesWmItemConsumeDO generateItemConsume(MesProFeedbackDO feedback) {
-        // 1. 查询当前工序的 BOM 物料配置
+        // 1.1 避免 routeId 等为 null 时 getRouteProductBomList 因 eqIfPresent 放宽条件导致误查
+        if (feedback.getRouteId() == null || feedback.getProcessId() == null || feedback.getItemId() == null) {
+            throw exception(PRO_FEEDBACK_ROUTE_PROCESS_INVALID);
+        }
+        routeService.validateRouteExists(feedback.getRouteId());
+        // 1.2 查询当前工序的 BOM 物料配置
         List<MesProRouteProductBomDO> boms = routeProductBomService.getRouteProductBomList(
                 feedback.getRouteId(), feedback.getProcessId(), feedback.getItemId());
         if (CollUtil.isEmpty(boms)) {
             return null;
         }
-
-        // 2. 获取虚拟线边库信息
+        // 1.3 获取虚拟线边库信息
         MesWmWarehouseDO virtualWarehouse = warehouseService.getWarehouseByCode(MesWmWarehouseDO.WIP_VIRTUAL_WAREHOUSE);
         MesWmWarehouseLocationDO virtualLocation = locationService.getWarehouseLocationByCode(
                 MesWmWarehouseLocationDO.WIP_VIRTUAL_LOCATION);
         MesWmWarehouseAreaDO virtualArea = areaService.getWarehouseAreaByCode(MesWmWarehouseAreaDO.WIP_VIRTUAL_AREA);
 
-        // 3. 生成消耗单头
+        // 2.1 生成消耗单头
         MesWmItemConsumeDO consume = MesWmItemConsumeDO.builder()
                 .workOrderId(feedback.getWorkOrderId()).taskId(feedback.getTaskId())
                 .workstationId(feedback.getWorkstationId()).processId(feedback.getProcessId())
                 .feedbackId(feedback.getId()).consumeDate(LocalDateTime.now())
                 .status(MesWmItemConsumeStatusEnum.PREPARE.getStatus()).build();
         itemConsumeMapper.insert(consume);
-
-        // 4. 批量生成消耗行（消耗数量 = BOM 用料比例 × 报工数量）
+        // 2.2 批量生成消耗行（消耗数量 = BOM 用料比例 × 报工数量）
         List<MesWmItemConsumeLineDO> lines = convertList(boms, bom -> MesWmItemConsumeLineDO.builder()
                 .consumeId(consume.getId()).itemId(bom.getItemId())
                 .quantity(bom.getQuantity().multiply(feedback.getFeedbackQuantity())).build());
         itemConsumeLineService.createItemConsumeLineBatch(lines);
 
-        // 5. 按线边库 FIFO 生成消耗明细
+        // 3. 按线边库 FIFO 生成消耗明细
         List<MesWmItemConsumeDetailDO> allDetails = new ArrayList<>();
         for (MesWmItemConsumeLineDO line : lines) {
             generateDetailForLine(line, consume.getId(),
