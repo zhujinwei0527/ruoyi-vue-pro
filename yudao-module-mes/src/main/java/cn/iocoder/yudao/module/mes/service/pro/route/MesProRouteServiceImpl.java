@@ -12,7 +12,9 @@ import cn.iocoder.yudao.module.mes.dal.dataobject.pro.route.MesProRouteDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.pro.route.MesProRouteProcessDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.pro.route.MesProRouteProductDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.pro.route.MesProRouteProductBomDO;
+import cn.iocoder.yudao.module.mes.dal.dataobject.md.item.MesMdItemDO;
 import cn.iocoder.yudao.module.mes.dal.mysql.pro.route.MesProRouteMapper;
+import cn.iocoder.yudao.module.mes.service.md.item.MesMdItemService;
 import jakarta.annotation.Resource;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
@@ -47,6 +49,9 @@ public class MesProRouteServiceImpl implements MesProRouteService {
     @Resource
     @Lazy
     private MesProRouteProductBomService routeProductBomService;
+    @Resource
+    @Lazy
+    private MesMdItemService itemService;
 
     @Override
     public Long createRoute(MesProRouteSaveReqVO createReqVO) {
@@ -138,7 +143,8 @@ public class MesProRouteServiceImpl implements MesProRouteService {
             List<MesProRouteProductBomDO> bomList = routeProductBomService
                     .getRouteProductBomList(routeId, null, product.getItemId());
             if (CollUtil.isEmpty(bomList)) {
-                throw exception(PRO_ROUTE_ENABLE_PRODUCT_NO_BOM, product.getItemId());
+                MesMdItemDO item = itemService.getItem(product.getItemId());
+                throw exception(PRO_ROUTE_ENABLE_PRODUCT_NO_BOM, item != null ? item.getItemName() : product.getItemId());
             }
         }
     }
