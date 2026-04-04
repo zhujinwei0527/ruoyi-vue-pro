@@ -48,8 +48,9 @@ public enum MesMdAutoCodeRuleCodeEnum {
     PRO_ROUTE_CODE("PRO_ROUTE_CODE", "工艺路线编码"),
     PRO_FEEDBACK_CODE("PRO_FEEDBACK_CODE", "生产报工单编码"),
     PRO_WORK_ORDER_CODE("PRO_WORK_ORDER_CODE", "生产工单编码"),
-    PRO_CARD_CODE("PRO_CARD_CODE", "流转卡编码"),
-    QC_DEFECT_CODE("QC_DEFECT_CODE", "缺陷类型编码");
+    QC_DEFECT_CODE("QC_DEFECT_CODE", "缺陷类型编码"),
+    QC_INDICATOR_RESULT_CODE("QC_INDICATOR_RESULT_CODE", "样品检验结果编码"),
+    WM_OUTSOURCE_RECEIPT_CODE("WM_OUTSOURCE_RECEIPT_CODE", "外协入库单编码");
 
     /**
      * 规则代码

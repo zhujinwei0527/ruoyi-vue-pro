@@ -1,5 +1,6 @@
 package cn.iocoder.yudao.module.mes.service.wm.transaction;
 
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.lang.Assert;
 import cn.hutool.core.util.ObjUtil;
 import cn.hutool.core.util.StrUtil;
@@ -58,7 +59,9 @@ public class MesWmTransactionServiceImpl implements MesWmTransactionService {
     public Long createTransaction(MesWmTransactionSaveReqDTO reqDTO) {
         // 1.1 校验事务类型
         MesWmTransactionTypeEnum typeEnum = MesWmTransactionTypeEnum.valueOf(reqDTO.getType());
-        Assert.notNull(typeEnum, "事务类型({}) 不存在", reqDTO.getType());
+        if (typeEnum == null) {
+            throw exception(WM_TRANSACTION_TYPE_NOT_EXISTS);
+        }
         // 1.2 校验 quantity 正负号与事务方向一致（入库必须正数，出库必须负数）
         boolean inbound = typeEnum.isInbound();
         checkQuantity(reqDTO, inbound);
@@ -96,6 +99,9 @@ public class MesWmTransactionServiceImpl implements MesWmTransactionService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void createTransactionList(List<MesWmTransactionSaveReqDTO> reqDTOs) {
+        if (CollUtil.isEmpty(reqDTOs)) {
+            throw exception(WM_TRANSACTION_LIST_EMPTY);
+        }
         reqDTOs.forEach(this::createTransaction);
     }
 
@@ -124,19 +130,21 @@ public class MesWmTransactionServiceImpl implements MesWmTransactionService {
         // 1. batchId / batchCode 互补
         if (reqDTO.getBatchId() != null && StrUtil.isEmpty(reqDTO.getBatchCode())) {
             MesWmBatchDO batch = batchService.getBatch(reqDTO.getBatchId());
-            if (batch != null) {
-                reqDTO.setBatchCode(batch.getCode());
+            if (batch == null) {
+                throw exception(WM_TRANSACTION_BATCH_NOT_EXISTS);
             }
+            reqDTO.setBatchCode(batch.getCode());
         } else if (StrUtil.isNotEmpty(reqDTO.getBatchCode()) && reqDTO.getBatchId() == null) {
             MesWmBatchDO batch = batchService.getBatchByCode(reqDTO.getBatchCode());
-            if (batch != null) {
-                reqDTO.setBatchId(batch.getId());
+            if (batch == null) {
+                throw exception(WM_TRANSACTION_BATCH_NOT_EXISTS);
             }
+            reqDTO.setBatchId(batch.getId());
         }
         // 2. 入库时：启用批次管理的物料，必须传递批次号
         if (inbound) {
-            MesMdItemDO item = itemService.getItem(reqDTO.getItemId());
-            if (item != null && Boolean.TRUE.equals(item.getBatchFlag())) {
+            MesMdItemDO item = itemService.validateItemExists(reqDTO.getItemId());
+            if (Boolean.TRUE.equals(item.getBatchFlag())) {
                 if (StrUtil.isEmpty(reqDTO.getBatchCode()) && reqDTO.getBatchId() == null) {
                     throw exception(WM_TRANSACTION_BATCH_REQUIRED);
                 }

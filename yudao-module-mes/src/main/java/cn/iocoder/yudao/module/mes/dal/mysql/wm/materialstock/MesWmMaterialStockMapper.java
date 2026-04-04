@@ -74,12 +74,18 @@ public interface MesWmMaterialStockMapper extends BaseMapperX<MesWmMaterialStock
 
     default MesWmMaterialStockDO selectByCompositeKey(Long itemId, Long warehouseId, Long locationId,
                                                        Long areaId, Long batchId) {
-        return selectOne(new LambdaQueryWrapperX<MesWmMaterialStockDO>()
+        LambdaQueryWrapperX<MesWmMaterialStockDO> wrapper = new LambdaQueryWrapperX<MesWmMaterialStockDO>()
                 .eqIfPresent(MesWmMaterialStockDO::getItemId, itemId)
                 .eqIfPresent(MesWmMaterialStockDO::getWarehouseId, warehouseId)
                 .eqIfPresent(MesWmMaterialStockDO::getLocationId, locationId)
-                .eqIfPresent(MesWmMaterialStockDO::getAreaId, areaId)
-                .eqIfPresent(MesWmMaterialStockDO::getBatchId, batchId));
+                .eqIfPresent(MesWmMaterialStockDO::getAreaId, areaId);
+        // batchId=null 时精确匹配 is null，避免 eqIfPresent 跳过条件导致匹配到其他批次
+        if (batchId != null) {
+            wrapper.eq(MesWmMaterialStockDO::getBatchId, batchId);
+        } else {
+            wrapper.isNull(MesWmMaterialStockDO::getBatchId);
+        }
+        return selectOne(wrapper);
     }
 
     default List<MesWmMaterialStockDO> selectList(MesWmMaterialStockListReqVO reqVO) {
