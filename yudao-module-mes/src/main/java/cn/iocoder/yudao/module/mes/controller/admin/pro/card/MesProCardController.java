@@ -89,13 +89,12 @@ public class MesProCardController {
         return success(true);
     }
 
-    // TODO @AI：要不改成 finish，因为它是完成；
-    @PutMapping("/execute")
-    @Operation(summary = "执行生产流转卡")
+    @PutMapping("/finish")
+    @Operation(summary = "完成生产流转卡")
     @Parameter(name = "id", description = "编号", required = true)
-    @PreAuthorize("@ss.hasPermission('mes:pro-card:update')")
-    public CommonResult<Boolean> executeCard(@RequestParam("id") Long id) {
-        cardService.executeCard(id);
+    @PreAuthorize("@ss.hasPermission('mes:pro-card:finish')")
+    public CommonResult<Boolean> finishCard(@RequestParam("id") Long id) {
+        cardService.finishCard(id);
         return success(true);
     }
 

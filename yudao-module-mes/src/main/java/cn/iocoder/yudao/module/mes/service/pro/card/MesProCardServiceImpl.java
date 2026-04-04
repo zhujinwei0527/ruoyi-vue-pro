@@ -50,13 +50,8 @@ public class MesProCardServiceImpl implements MesProCardService {
 
     @Override
     public Long createCard(MesProCardSaveReqVO createReqVO) {
-        // TODO @AI：validateXXXSaveData
-        // 1.1 校验编码唯一
-        validateCardCodeUnique(null, createReqVO.getCode());
-        // 1.2 校验工单存在
-        workOrderService.validateWorkOrderExists(createReqVO.getWorkOrderId());
-        // 1.3 校验物料存在
-        itemService.validateItemExists(createReqVO.getItemId());
+        // 1. 校验关联数据
+        validateCardSaveData(createReqVO);
 
         // 2. 插入
         MesProCardDO card = BeanUtils.toBean(createReqVO, MesProCardDO.class)
@@ -71,15 +66,10 @@ public class MesProCardServiceImpl implements MesProCardService {
 
     @Override
     public void updateCard(MesProCardSaveReqVO updateReqVO) {
-        // TODO @AI：validateXXXSaveData
         // 1.1 校验存在
         validateCardExists(updateReqVO.getId());
-        // 1.2 校验编码唯一
-        validateCardCodeUnique(updateReqVO.getId(), updateReqVO.getCode());
-        // 1.3 校验工单存在
-        workOrderService.validateWorkOrderExists(updateReqVO.getWorkOrderId());
-        // 1.4 校验物料存在
-        itemService.validateItemExists(updateReqVO.getItemId());
+        // 1.2 校验关联数据
+        validateCardSaveData(updateReqVO);
 
         // 2. 更新
         MesProCardDO updateObj = BeanUtils.toBean(updateReqVO, MesProCardDO.class);
@@ -123,11 +113,11 @@ public class MesProCardServiceImpl implements MesProCardService {
     }
 
     @Override
-    public void executeCard(Long id) {
+    public void finishCard(Long id) {
         // 1. 校验存在 + 已确认状态
         validateCardExistsAndStatus(id, MesProWorkOrderStatusEnum.CONFIRMED);
 
-        // 2. 执行（已确认 → 已完成）
+        // 2. 完成（已确认 → 已完成）
         cardMapper.updateById(new MesProCardDO()
                 .setId(id).setStatus(MesProWorkOrderStatusEnum.FINISHED.getStatus()));
     }
@@ -182,6 +172,15 @@ public class MesProCardServiceImpl implements MesProCardService {
         if (ObjUtil.notEqual(card.getId(), id)) {
             throw exception(PRO_CARD_CODE_DUPLICATE);
         }
+    }
+
+    private void validateCardSaveData(MesProCardSaveReqVO reqVO) {
+        // 校验编码唯一
+        validateCardCodeUnique(reqVO.getId(), reqVO.getCode());
+        // 校验工单存在
+        workOrderService.validateWorkOrderExists(reqVO.getWorkOrderId());
+        // 校验物料存在
+        itemService.validateItemExists(reqVO.getItemId());
     }
 
 }

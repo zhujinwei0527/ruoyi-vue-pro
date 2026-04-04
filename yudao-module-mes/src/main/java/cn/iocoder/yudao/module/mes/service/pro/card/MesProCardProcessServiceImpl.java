@@ -36,13 +36,8 @@ public class MesProCardProcessServiceImpl implements MesProCardProcessService {
 
     @Override
     public Long createCardProcess(MesProCardProcessSaveReqVO createReqVO) {
-        // TODO @AI：validateXXXSaveData
-        // 1.1 校验流转卡存在
-        cardService.validateCardExists(createReqVO.getCardId());
-        // 1.2 校验工序存在
-        if (createReqVO.getProcessId() != null) {
-            processService.validateProcessExists(createReqVO.getProcessId());
-        }
+        // 1. 校验关联数据
+        validateCardProcessSaveData(createReqVO);
 
         // 2. 插入
         MesProCardProcessDO cardProcess = BeanUtils.toBean(createReqVO, MesProCardProcessDO.class);
@@ -54,13 +49,8 @@ public class MesProCardProcessServiceImpl implements MesProCardProcessService {
     public void updateCardProcess(MesProCardProcessSaveReqVO updateReqVO) {
         // 1.1 校验存在
         validateCardProcessExists(updateReqVO.getId());
-        // TODO @AI：validateXXXSaveData
-        // 1.2 校验流转卡存在
-        cardService.validateCardExists(updateReqVO.getCardId());
-        // 1.3 校验工序存在
-        if (updateReqVO.getProcessId() != null) {
-            processService.validateProcessExists(updateReqVO.getProcessId());
-        }
+        // 1.2 校验关联数据
+        validateCardProcessSaveData(updateReqVO);
 
         // 2. 更新
         MesProCardProcessDO updateObj = BeanUtils.toBean(updateReqVO, MesProCardProcessDO.class);
@@ -91,6 +81,15 @@ public class MesProCardProcessServiceImpl implements MesProCardProcessService {
     private void validateCardProcessExists(Long id) {
         if (cardProcessMapper.selectById(id) == null) {
             throw exception(PRO_CARD_PROCESS_NOT_EXISTS);
+        }
+    }
+
+    private void validateCardProcessSaveData(MesProCardProcessSaveReqVO reqVO) {
+        // 校验流转卡存在
+        cardService.validateCardExists(reqVO.getCardId());
+        // 校验工序存在
+        if (reqVO.getProcessId() != null) {
+            processService.validateProcessExists(reqVO.getProcessId());
         }
     }
 
