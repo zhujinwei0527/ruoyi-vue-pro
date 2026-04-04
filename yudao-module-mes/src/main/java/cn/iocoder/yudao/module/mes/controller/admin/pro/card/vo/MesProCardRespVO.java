@@ -62,6 +62,10 @@ public class MesProCardRespVO {
     @ExcelProperty("流转数量")
     private BigDecimal transferedQuantity;
 
+    @Schema(description = "状态", example = "0")
+    @ExcelProperty("状态")
+    private Integer status;
+
     @Schema(description = "备注", example = "备注")
     @ExcelProperty("备注")
     private String remark;

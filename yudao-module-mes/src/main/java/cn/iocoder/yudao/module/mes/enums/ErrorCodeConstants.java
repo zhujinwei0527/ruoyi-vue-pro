@@ -274,6 +274,8 @@ public interface ErrorCodeConstants {
     // ========== MES 生产管理-生产流转卡（1-040-507-000） ==========
     ErrorCode PRO_CARD_NOT_EXISTS = new ErrorCode(1_040_507_000, "生产流转卡不存在");
     ErrorCode PRO_CARD_CODE_DUPLICATE = new ErrorCode(1_040_507_001, "流转卡编码已存在");
+    ErrorCode PRO_CARD_STATUS_ERROR = new ErrorCode(1_040_507_002, "流转卡状态不正确");
+    ErrorCode PRO_CARD_CANCEL_NOT_ALLOWED = new ErrorCode(1_040_507_003, "已完成或已取消的流转卡不允许取消");
     // ========== MES 生产管理-流转卡工序（1-040-507-100） ==========
     ErrorCode PRO_CARD_PROCESS_NOT_EXISTS = new ErrorCode(1_040_507_100, "流转卡工序记录不存在");
 

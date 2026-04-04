@@ -54,7 +54,6 @@ public class MesProCardDO extends BaseDO {
      * 流转数量
      */
     private BigDecimal transferedQuantity;
-    // TODO @芋艿：预留字段，暂未使用；
     /**
      * 状态
      *

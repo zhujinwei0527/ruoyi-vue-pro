@@ -80,6 +80,34 @@ public class MesProCardController {
         return success(true);
     }
 
+    @PutMapping("/submit")
+    @Operation(summary = "提交生产流转卡")
+    @Parameter(name = "id", description = "编号", required = true)
+    @PreAuthorize("@ss.hasPermission('mes:pro-card:update')")
+    public CommonResult<Boolean> submitCard(@RequestParam("id") Long id) {
+        cardService.submitCard(id);
+        return success(true);
+    }
+
+    // TODO @AI：要不改成 finish，因为它是完成；
+    @PutMapping("/execute")
+    @Operation(summary = "执行生产流转卡")
+    @Parameter(name = "id", description = "编号", required = true)
+    @PreAuthorize("@ss.hasPermission('mes:pro-card:update')")
+    public CommonResult<Boolean> executeCard(@RequestParam("id") Long id) {
+        cardService.executeCard(id);
+        return success(true);
+    }
+
+    @PutMapping("/cancel")
+    @Operation(summary = "取消生产流转卡")
+    @Parameter(name = "id", description = "编号", required = true)
+    @PreAuthorize("@ss.hasPermission('mes:pro-card:update')")
+    public CommonResult<Boolean> cancelCard(@RequestParam("id") Long id) {
+        cardService.cancelCard(id);
+        return success(true);
+    }
+
     @GetMapping("/get")
     @Operation(summary = "获得生产流转卡")
     @Parameter(name = "id", description = "编号", required = true, example = "1024")

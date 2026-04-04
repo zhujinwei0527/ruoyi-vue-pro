@@ -67,4 +67,25 @@ public interface MesProCardService {
      */
     List<MesProCardDO> getCardSimpleList();
 
+    /**
+     * 提交生产流转卡（草稿 → 已确认）
+     *
+     * @param id 编号
+     */
+    void submitCard(Long id);
+
+    /**
+     * 执行生产流转卡（已确认 → 已完成）
+     *
+     * @param id 编号
+     */
+    void executeCard(Long id);
+
+    /**
+     * 取消生产流转卡（任意非已完成/已取消状态 → 已取消）
+     *
+     * @param id 编号
+     */
+    void cancelCard(Long id);
+
 }
