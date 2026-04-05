@@ -60,14 +60,6 @@ public interface MesMdClientService {
     PageResult<MesMdClientDO> getClientPage(MesMdClientPageReqVO pageReqVO);
 
     /**
-     * 获得指定状态的客户列表
-     *
-     * @param status 状态
-     * @return 客户列表
-     */
-    List<MesMdClientDO> getClientListByStatus(Integer status);
-
-    /**
      * 获得客户列表
      *
      * @param ids 编号列表

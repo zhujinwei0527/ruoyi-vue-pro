@@ -7,7 +7,8 @@ import cn.iocoder.yudao.module.mes.controller.admin.md.client.vo.MesMdClientPage
 import cn.iocoder.yudao.module.mes.dal.dataobject.md.client.MesMdClientDO;
 import org.apache.ibatis.annotations.Mapper;
 
-import java.util.List;
+
+
 
 /**
  * MES 客户 Mapper
@@ -38,10 +39,6 @@ public interface MesMdClientMapper extends BaseMapperX<MesMdClientDO> {
 
     default MesMdClientDO selectByNickname(String nickname) {
         return selectOne(MesMdClientDO::getNickname, nickname);
-    }
-
-    default List<MesMdClientDO> selectListByStatus(Integer status) {
-        return selectList(MesMdClientDO::getStatus, status);
     }
 
 }

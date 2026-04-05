@@ -1,7 +1,7 @@
 package cn.iocoder.yudao.module.mes.controller.admin.md.client;
 
 import cn.iocoder.yudao.framework.apilog.core.annotation.ApiAccessLog;
-import cn.iocoder.yudao.framework.common.enums.CommonStatusEnum;
+
 import cn.iocoder.yudao.framework.common.pojo.CommonResult;
 import cn.iocoder.yudao.framework.common.pojo.PageParam;
 import cn.iocoder.yudao.framework.common.pojo.PageResult;
@@ -32,7 +32,7 @@ import java.util.List;
 
 import static cn.iocoder.yudao.framework.apilog.core.enums.OperateTypeEnum.EXPORT;
 import static cn.iocoder.yudao.framework.common.pojo.CommonResult.success;
-import static cn.iocoder.yudao.framework.common.util.collection.CollectionUtils.convertList;
+
 
 @Tag(name = "管理后台 - MES 客户")
 @RestController
@@ -82,14 +82,6 @@ public class MesMdClientController {
     public CommonResult<PageResult<MesMdClientRespVO>> getClientPage(@Valid MesMdClientPageReqVO pageReqVO) {
         PageResult<MesMdClientDO> pageResult = clientService.getClientPage(pageReqVO);
         return success(BeanUtils.toBean(pageResult, MesMdClientRespVO.class));
-    }
-
-    @GetMapping("/simple-list")
-    @Operation(summary = "获得客户精简列表", description = "只包含被开启的客户，主要用于前端的下拉选项")
-    public CommonResult<List<MesMdClientRespVO>> getClientSimpleList() {
-        List<MesMdClientDO> list = clientService.getClientListByStatus(CommonStatusEnum.ENABLE.getStatus());
-        return success(convertList(list, client -> new MesMdClientRespVO()
-                .setId(client.getId()).setName(client.getName()).setCode(client.getCode())));
     }
 
     @GetMapping("/export-excel")

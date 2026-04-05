@@ -139,11 +139,6 @@ public class MesMdClientServiceImpl implements MesMdClientService {
     }
 
     @Override
-    public List<MesMdClientDO> getClientListByStatus(Integer status) {
-        return clientMapper.selectListByStatus(status);
-    }
-
-    @Override
     public List<MesMdClientDO> getClientList(Collection<Long> ids) {
         if (CollUtil.isEmpty(ids)) {
             return Collections.emptyList();
