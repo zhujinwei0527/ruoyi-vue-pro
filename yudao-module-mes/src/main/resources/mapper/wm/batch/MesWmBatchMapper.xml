@@ -3,39 +3,36 @@
 <mapper namespace="cn.iocoder.yudao.module.mes.dal.mysql.wm.batch.MesWmBatchMapper">
 
     <resultMap id="BatchTraceResult" type="cn.iocoder.yudao.module.mes.dal.dataobject.wm.batch.MesWmBatchDO">
-        <result property="workOrderCode" column="workorder_code"/>
+        <id property="id" column="batch_id"/>
+        <result property="code" column="batch_code"/>
+        <result property="workOrderId" column="work_order_id"/>
         <result property="itemId" column="item_id"/>
-        <result property="batchId" column="batch_id"/>
-        <result property="batchCode" column="batch_code"/>
     </resultMap>
 
-    <!-- DONE @AI：看看能不能直接使用 MesWmBatchDO 返回（当前使用 resultMap 映射部分字段是合理的） -->
-    <!-- DONE @AI：查询到 pf.work_order_id,pf.item_id, ppl.batch_id；然后 controller 补全这些信息（当前实现已满足需求） -->
-    <!-- TODO @芋艿（暂不调整，暂未实现）：
-        mes_wm_product_issue_detail => wm_item_consume_detail
-        mes_wm_product_issue =》wm_item_consume
+    <!--
+        向前追溯：从某个原材料批次出发，查找它被哪些工单消耗后，产出了哪些成品批次
+        SQL 路径：消耗明细(icd) → 消耗单(ic) → 报工记录(pf) → 生产入库单(pp) → 入库行(ppl)
     -->
     <select id="selectListByForward" parameterType="String" resultMap="BatchTraceResult">
-        SELECT DISTINCT pf.workorder_id AS workorder_code, pf.item_id, ppl.batch_id, ppl.batch_code
-        FROM mes_wm_product_issue_detail icl
-        LEFT JOIN mes_wm_product_issue ic ON icl.issue_id = ic.id
+        SELECT DISTINCT pf.work_order_id, pf.item_id, ppl.batch_id, ppl.batch_code
+        FROM mes_wm_item_consume_detail icd
+        LEFT JOIN mes_wm_item_consume ic ON icd.consume_id = ic.id
         LEFT JOIN mes_pro_feedback pf ON pf.id = ic.feedback_id
         LEFT JOIN mes_wm_product_produce pp ON pp.work_order_id = ic.work_order_id
         LEFT JOIN mes_wm_product_produce_line ppl ON pp.id = ppl.produce_id
-        WHERE icl.batch_code = #{batchCode}
+        WHERE icd.batch_code = #{batchCode}
     </select>
 
-    <!-- DONE @AI：看看能不能直接使用 MesWmBatchDO 返回（当前使用 resultMap 映射部分字段是合理的） -->
-    <!-- DONE @AI：work_order_id 返回就行，不用 as（已优化，统一使用 AS 保持一致性） -->
-    <!---  TODO @芋艿：mes_wm_product_issue 应该改成 wm_item_consume，还没开发；
-        mes_wm_product_issue_detail 应该改成 wm_item_consume_detail，还没开发；先不调整了；
-     -->
+    <!--
+        向后追溯：从某个成品批次出发，查找生产它时消耗了哪些原材料批次
+        SQL 路径：入库明细(ppd) → 入库单(pp) → 消耗单(ic) → 消耗明细(icd)
+    -->
     <select id="selectListByBackward" parameterType="String" resultMap="BatchTraceResult">
-        SELECT DISTINCT ic.work_order_id AS workorder_code, icd.item_id, icd.batch_id, icd.batch_code
+        SELECT DISTINCT ic.work_order_id, icd.item_id, icd.batch_id, icd.batch_code
         FROM mes_wm_product_produce_detail ppd
         LEFT JOIN mes_wm_product_produce pp ON ppd.produce_id = pp.id
-        LEFT JOIN mes_wm_product_issue ic ON pp.work_order_id = ic.work_order_id
-        LEFT JOIN mes_wm_product_issue_detail icd ON ic.id = icd.issue_id
+        LEFT JOIN mes_wm_item_consume ic ON pp.work_order_id = ic.work_order_id
+        LEFT JOIN mes_wm_item_consume_detail icd ON ic.id = icd.consume_id
         WHERE ppd.batch_code = #{batchCode}
         AND icd.batch_code IS NOT NULL
     </select>

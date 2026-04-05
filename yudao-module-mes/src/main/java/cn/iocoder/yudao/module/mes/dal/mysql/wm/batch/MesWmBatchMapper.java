@@ -1,6 +1,6 @@
 package cn.iocoder.yudao.module.mes.dal.mysql.wm.batch;
 
-import cn.hutool.core.collection.CollUtil;
+
 import cn.hutool.core.util.ObjUtil;
 import cn.iocoder.yudao.framework.common.pojo.PageResult;
 import cn.iocoder.yudao.framework.mybatis.core.mapper.BaseMapperX;
@@ -119,8 +119,8 @@ public interface MesWmBatchMapper extends BaseMapperX<MesWmBatchDO> {
 
         // 返回 ID 最小的批次
         query.orderByAsc(MesWmBatchDO::getId);
-        List<MesWmBatchDO> list = selectList(query);
-        return CollUtil.getFirst(list);
+        query.last("LIMIT 1");
+        return selectOne(query);
     }
 
     /**

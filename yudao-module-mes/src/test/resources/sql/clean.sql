@@ -12,3 +12,4 @@ DELETE FROM "mes_wm_product_produce_detail";
 DELETE FROM "mes_wm_item_receipt";
 DELETE FROM "mes_wm_item_receipt_line";
 DELETE FROM "mes_wm_item_receipt_detail";
+DELETE FROM "mes_wm_batch";

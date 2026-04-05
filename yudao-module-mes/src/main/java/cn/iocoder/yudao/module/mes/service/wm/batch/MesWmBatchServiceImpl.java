@@ -22,7 +22,9 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception;
 import static cn.iocoder.yudao.module.mes.enums.ErrorCodeConstants.*;
@@ -194,28 +196,42 @@ public class MesWmBatchServiceImpl implements MesWmBatchService {
 
     @Override
     public List<MesWmBatchDO> getForwardBatchList(String code) {
+        return getForwardBatchList(code, new HashSet<>());
+    }
+
+    private List<MesWmBatchDO> getForwardBatchList(String code, Set<String> visited) {
+        if (code == null || !visited.add(code)) {
+            return new ArrayList<>();
+        }
         List<MesWmBatchDO> list = batchMapper.selectListByForward(code);
         if (CollUtil.isEmpty(list)) {
-            return list;
+            return new ArrayList<>();
         }
         // 继续递归查询下游批次
         List<MesWmBatchDO> results = new ArrayList<>(list);
         for (MesWmBatchDO batch : list) {
-            results.addAll(getForwardBatchList(batch.getCode()));
+            results.addAll(getForwardBatchList(batch.getCode(), visited));
         }
         return results;
     }
 
     @Override
     public List<MesWmBatchDO> getBackwardBatchList(String code) {
+        return getBackwardBatchList(code, new HashSet<>());
+    }
+
+    private List<MesWmBatchDO> getBackwardBatchList(String code, Set<String> visited) {
+        if (code == null || !visited.add(code)) {
+            return new ArrayList<>();
+        }
         List<MesWmBatchDO> list = batchMapper.selectListByBackward(code);
         if (CollUtil.isEmpty(list)) {
-            return list;
+            return new ArrayList<>();
         }
         // 继续递归查询上游批次
         List<MesWmBatchDO> results = new ArrayList<>(list);
         for (MesWmBatchDO batch : list) {
-            results.addAll(getBackwardBatchList(batch.getCode()));
+            results.addAll(getBackwardBatchList(batch.getCode(), visited));
         }
         return results;
     }
