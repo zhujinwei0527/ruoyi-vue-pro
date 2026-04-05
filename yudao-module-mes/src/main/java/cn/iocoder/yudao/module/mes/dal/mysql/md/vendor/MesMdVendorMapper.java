@@ -7,8 +7,6 @@ import cn.iocoder.yudao.module.mes.controller.admin.md.vendor.vo.MesMdVendorPage
 import cn.iocoder.yudao.module.mes.dal.dataobject.md.vendor.MesMdVendorDO;
 import org.apache.ibatis.annotations.Mapper;
 
-import java.util.List;
-
 /**
  * MES 供应商 Mapper
  *
@@ -37,9 +35,5 @@ public interface MesMdVendorMapper extends BaseMapperX<MesMdVendorDO> {
 
     default MesMdVendorDO selectByNickname(String nickname) {
         return selectOne(MesMdVendorDO::getNickname, nickname);
-    }
-
-    default List<MesMdVendorDO> selectListByStatus(Integer status) {
-        return selectList(MesMdVendorDO::getStatus, status);
     }
 }

@@ -164,11 +164,6 @@ public class MesMdVendorServiceImpl implements MesMdVendorService {
     }
 
     @Override
-    public List<MesMdVendorDO> getVendorListByStatus(Integer status) {
-        return vendorMapper.selectListByStatus(status);
-    }
-
-    @Override
     public List<MesMdVendorDO> getVendorList(Collection<Long> ids) {
         if (CollUtil.isEmpty(ids)) {
             return Collections.emptyList();

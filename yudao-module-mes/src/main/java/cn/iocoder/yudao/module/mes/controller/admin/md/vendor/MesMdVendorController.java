@@ -1,7 +1,6 @@
 package cn.iocoder.yudao.module.mes.controller.admin.md.vendor;
 
 import cn.iocoder.yudao.framework.apilog.core.annotation.ApiAccessLog;
-import cn.iocoder.yudao.framework.common.enums.CommonStatusEnum;
 import cn.iocoder.yudao.framework.common.pojo.CommonResult;
 import cn.iocoder.yudao.framework.common.pojo.PageParam;
 import cn.iocoder.yudao.framework.common.pojo.PageResult;
@@ -32,7 +31,6 @@ import java.util.List;
 
 import static cn.iocoder.yudao.framework.apilog.core.enums.OperateTypeEnum.EXPORT;
 import static cn.iocoder.yudao.framework.common.pojo.CommonResult.success;
-import static cn.iocoder.yudao.framework.common.util.collection.CollectionUtils.convertList;
 
 @Tag(name = "管理后台 - MES 供应商")
 @RestController
@@ -82,14 +80,6 @@ public class MesMdVendorController {
     public CommonResult<PageResult<MesMdVendorRespVO>> getVendorPage(@Valid MesMdVendorPageReqVO pageReqVO) {
         PageResult<MesMdVendorDO> pageResult = vendorService.getVendorPage(pageReqVO);
         return success(BeanUtils.toBean(pageResult, MesMdVendorRespVO.class));
-    }
-
-    @GetMapping("/simple-list")
-    @Operation(summary = "获得供应商精简列表", description = "只包含被开启的供应商，主要用于前端的下拉选项")
-    public CommonResult<List<MesMdVendorRespVO>> getVendorSimpleList() {
-        List<MesMdVendorDO> list = vendorService.getVendorListByStatus(CommonStatusEnum.ENABLE.getStatus());
-        return success(convertList(list, vendor -> new MesMdVendorRespVO()
-                .setId(vendor.getId()).setName(vendor.getName()).setCode(vendor.getCode())));
     }
 
     @GetMapping("/export-excel")

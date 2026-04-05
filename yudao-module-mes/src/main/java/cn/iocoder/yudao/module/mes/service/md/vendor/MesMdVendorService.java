@@ -68,14 +68,6 @@ public interface MesMdVendorService {
     PageResult<MesMdVendorDO> getVendorPage(MesMdVendorPageReqVO pageReqVO);
 
     /**
-     * 获得指定状态的供应商列表
-     *
-     * @param status 状态
-     * @return 供应商列表
-     */
-    List<MesMdVendorDO> getVendorListByStatus(Integer status);
-
-    /**
      * 获得供应商列表
      *
      * @param ids 编号列表
