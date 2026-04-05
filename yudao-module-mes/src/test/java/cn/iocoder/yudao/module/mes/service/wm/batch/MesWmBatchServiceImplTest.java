@@ -1,8 +1,20 @@
 package cn.iocoder.yudao.module.mes.service.wm.batch;
 
 import cn.iocoder.yudao.framework.test.core.ut.BaseDbUnitTest;
+import cn.iocoder.yudao.module.mes.dal.dataobject.pro.feedback.MesProFeedbackDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.wm.batch.MesWmBatchDO;
+import cn.iocoder.yudao.module.mes.dal.dataobject.wm.itemconsume.MesWmItemConsumeDO;
+import cn.iocoder.yudao.module.mes.dal.dataobject.wm.itemconsume.MesWmItemConsumeDetailDO;
+import cn.iocoder.yudao.module.mes.dal.dataobject.wm.productproduce.MesWmProductProduceDO;
+import cn.iocoder.yudao.module.mes.dal.dataobject.wm.productproduce.MesWmProductProduceDetailDO;
+import cn.iocoder.yudao.module.mes.dal.dataobject.wm.productproduce.MesWmProductProduceLineDO;
+import cn.iocoder.yudao.module.mes.dal.mysql.pro.feedback.MesProFeedbackMapper;
 import cn.iocoder.yudao.module.mes.dal.mysql.wm.batch.MesWmBatchMapper;
+import cn.iocoder.yudao.module.mes.dal.mysql.wm.itemconsume.MesWmItemConsumeDetailMapper;
+import cn.iocoder.yudao.module.mes.dal.mysql.wm.itemconsume.MesWmItemConsumeMapper;
+import cn.iocoder.yudao.module.mes.dal.mysql.wm.productproduce.MesWmProductProduceDetailMapper;
+import cn.iocoder.yudao.module.mes.dal.mysql.wm.productproduce.MesWmProductProduceLineMapper;
+import cn.iocoder.yudao.module.mes.dal.mysql.wm.productproduce.MesWmProductProduceMapper;
 import cn.iocoder.yudao.module.mes.service.md.autocode.MesMdAutoCodeRecordService;
 import cn.iocoder.yudao.module.mes.service.md.item.MesMdItemBatchConfigService;
 import cn.iocoder.yudao.module.mes.service.md.item.MesMdItemService;
@@ -12,6 +24,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import static cn.iocoder.yudao.framework.test.core.util.RandomUtils.randomLongId;
@@ -30,6 +44,19 @@ public class MesWmBatchServiceImplTest extends BaseDbUnitTest {
 
     @Resource
     private MesWmBatchMapper batchMapper;
+
+    @Resource
+    private MesWmItemConsumeMapper consumeMapper;
+    @Resource
+    private MesWmItemConsumeDetailMapper consumeDetailMapper;
+    @Resource
+    private MesProFeedbackMapper feedbackMapper;
+    @Resource
+    private MesWmProductProduceMapper produceMapper;
+    @Resource
+    private MesWmProductProduceLineMapper produceLineMapper;
+    @Resource
+    private MesWmProductProduceDetailMapper produceDetailMapper;
 
     @MockitoBean
     private MesMdItemService itemService;
@@ -192,6 +219,189 @@ public class MesWmBatchServiceImplTest extends BaseDbUnitTest {
         // 查询不存在的
         MesWmBatchDO notFound = batchMapper.selectByCode("NOT_EXIST");
         assertNull(notFound);
+    }
+
+    // ==================== 向前追溯（集成测试）====================
+
+    /**
+     * 向前追溯集成测试：构造完整链路数据
+     * 链路：消耗明细(icd, batchCode=RAW_BATCH) → 消耗单(ic) → 报工(pf) → 入库单(pp) → 入库行(ppl, batchCode=PRODUCT_BATCH)
+     * 预期：查 RAW_BATCH 能找到 PRODUCT_BATCH
+     */
+    @Test
+    public void testSelectListByForward_withData() {
+        // 准备：公共 ID
+        Long workOrderId = randomLongId();
+        Long rawItemId = randomLongId();
+        Long productItemId = randomLongId();
+        Long productBatchId = randomLongId();
+        LocalDateTime now = LocalDateTime.now();
+
+        // 1. 报工记录
+        MesProFeedbackDO feedback = MesProFeedbackDO.builder()
+                .workOrderId(workOrderId).itemId(productItemId).build();
+        feedbackMapper.insert(feedback);
+
+        // 2. 消耗单
+        MesWmItemConsumeDO consume = MesWmItemConsumeDO.builder()
+                .workOrderId(workOrderId).taskId(randomLongId()).workstationId(randomLongId())
+                .processId(randomLongId()).feedbackId(feedback.getId()).consumeDate(now).build();
+        consumeMapper.insert(consume);
+
+        // 3. 消耗明细（关联原材料批次 RAW_BATCH）
+        MesWmItemConsumeDetailDO consumeDetail = MesWmItemConsumeDetailDO.builder()
+                .consumeId(consume.getId()).lineId(randomLongId()).itemId(rawItemId)
+                .quantity(BigDecimal.TEN).batchCode("RAW_BATCH")
+                .warehouseId(randomLongId()).locationId(randomLongId()).areaId(randomLongId()).build();
+        consumeDetailMapper.insert(consumeDetail);
+
+        // 4. 生产入库单
+        MesWmProductProduceDO produce = MesWmProductProduceDO.builder()
+                .workOrderId(workOrderId).build();
+        produceMapper.insert(produce);
+
+        // 5. 入库行（关联成品批次 PRODUCT_BATCH）
+        MesWmProductProduceLineDO produceLine = MesWmProductProduceLineDO.builder()
+                .produceId(produce.getId()).itemId(productItemId)
+                .batchId(productBatchId).batchCode("PRODUCT_BATCH").build();
+        produceLineMapper.insert(produceLine);
+
+        // 执行向前追溯
+        List<MesWmBatchDO> result = batchMapper.selectListByForward("RAW_BATCH");
+
+        // 断言
+        assertNotNull(result);
+        assertEquals(1, result.size());
+        assertEquals("PRODUCT_BATCH", result.get(0).getCode());
+        assertEquals(productBatchId, result.get(0).getId());
+        assertEquals(workOrderId, result.get(0).getWorkOrderId());
+        assertEquals(productItemId, result.get(0).getItemId());
+    }
+
+    /**
+     * 向前追溯：已删除的消耗明细应被过滤（icd.deleted = 1）
+     */
+    @Test
+    public void testSelectListByForward_deletedDataFiltered() {
+        Long workOrderId = randomLongId();
+        LocalDateTime now = LocalDateTime.now();
+
+        // 1. 报工记录
+        MesProFeedbackDO feedback = MesProFeedbackDO.builder()
+                .workOrderId(workOrderId).itemId(randomLongId()).build();
+        feedbackMapper.insert(feedback);
+
+        // 2. 消耗单
+        MesWmItemConsumeDO consume = MesWmItemConsumeDO.builder()
+                .workOrderId(workOrderId).taskId(randomLongId()).workstationId(randomLongId())
+                .processId(randomLongId()).feedbackId(feedback.getId()).consumeDate(now).build();
+        consumeMapper.insert(consume);
+
+        // 3. 消耗明细（逻辑删除）
+        MesWmItemConsumeDetailDO consumeDetail = MesWmItemConsumeDetailDO.builder()
+                .consumeId(consume.getId()).lineId(randomLongId()).itemId(randomLongId())
+                .quantity(BigDecimal.TEN).batchCode("RAW_DEL_TEST")
+                .warehouseId(randomLongId()).locationId(randomLongId()).areaId(randomLongId()).build();
+        consumeDetailMapper.insert(consumeDetail);
+        consumeDetailMapper.deleteById(consumeDetail.getId()); // 逻辑删除消耗明细
+
+        // 4. 生产入库单 + 入库行
+        MesWmProductProduceDO produce = MesWmProductProduceDO.builder()
+                .workOrderId(workOrderId).build();
+        produceMapper.insert(produce);
+        MesWmProductProduceLineDO produceLine = MesWmProductProduceLineDO.builder()
+                .produceId(produce.getId()).itemId(randomLongId())
+                .batchId(randomLongId()).batchCode("PRODUCT_DEL_TEST").build();
+        produceLineMapper.insert(produceLine);
+
+        // 执行：消耗明细已删除，应该追溯不到
+        List<MesWmBatchDO> result = batchMapper.selectListByForward("RAW_DEL_TEST");
+        assertNotNull(result);
+        assertTrue(result.isEmpty());
+    }
+
+    // ==================== 向后追溯（集成测试）====================
+
+    /**
+     * 向后追溯集成测试：构造完整链路数据
+     * 链路：入库明细(ppd, batchCode=PRODUCT_BATCH) → 入库单(pp) → 消耗单(ic) → 消耗明细(icd, batchCode=RAW_BATCH)
+     * 预期：查 PRODUCT_BATCH 能找到 RAW_BATCH
+     */
+    @Test
+    public void testSelectListByBackward_withData() {
+        Long workOrderId = randomLongId();
+        Long rawItemId = randomLongId();
+        Long rawBatchId = randomLongId();
+        LocalDateTime now = LocalDateTime.now();
+
+        // 1. 生产入库单
+        MesWmProductProduceDO produce = MesWmProductProduceDO.builder()
+                .workOrderId(workOrderId).build();
+        produceMapper.insert(produce);
+
+        // 2. 入库明细（关联成品批次 PRODUCT_BACK_BATCH）
+        MesWmProductProduceDetailDO produceDetail = MesWmProductProduceDetailDO.builder()
+                .produceId(produce.getId()).itemId(randomLongId())
+                .batchCode("PRODUCT_BACK_BATCH").build();
+        produceDetailMapper.insert(produceDetail);
+
+        // 3. 消耗单
+        MesWmItemConsumeDO consume = MesWmItemConsumeDO.builder()
+                .workOrderId(workOrderId).taskId(randomLongId()).workstationId(randomLongId())
+                .processId(randomLongId()).feedbackId(randomLongId()).consumeDate(now).build();
+        consumeMapper.insert(consume);
+
+        // 4. 消耗明细（关联原材料批次 RAW_BACK_BATCH）
+        MesWmItemConsumeDetailDO consumeDetail = MesWmItemConsumeDetailDO.builder()
+                .consumeId(consume.getId()).lineId(randomLongId()).itemId(rawItemId)
+                .quantity(BigDecimal.ONE).batchId(rawBatchId).batchCode("RAW_BACK_BATCH")
+                .warehouseId(randomLongId()).locationId(randomLongId()).areaId(randomLongId()).build();
+        consumeDetailMapper.insert(consumeDetail);
+
+        // 执行向后追溯
+        List<MesWmBatchDO> result = batchMapper.selectListByBackward("PRODUCT_BACK_BATCH");
+
+        // 断言
+        assertNotNull(result);
+        assertEquals(1, result.size());
+        assertEquals("RAW_BACK_BATCH", result.get(0).getCode());
+        assertEquals(rawBatchId, result.get(0).getId());
+        assertEquals(workOrderId, result.get(0).getWorkOrderId());
+        assertEquals(rawItemId, result.get(0).getItemId());
+    }
+
+    /**
+     * 向后追溯：消耗明细 batchCode 为 NULL 的应被过滤
+     */
+    @Test
+    public void testSelectListByBackward_nullBatchCodeFiltered() {
+        Long workOrderId = randomLongId();
+        LocalDateTime now = LocalDateTime.now();
+
+        // 生产入库单 + 入库明细
+        MesWmProductProduceDO produce = MesWmProductProduceDO.builder()
+                .workOrderId(workOrderId).build();
+        produceMapper.insert(produce);
+        MesWmProductProduceDetailDO produceDetail = MesWmProductProduceDetailDO.builder()
+                .produceId(produce.getId()).itemId(randomLongId())
+                .batchCode("PRODUCT_NULL_TEST").build();
+        produceDetailMapper.insert(produceDetail);
+
+        // 消耗单 + 消耗明细（batchCode 为 null）
+        MesWmItemConsumeDO consume = MesWmItemConsumeDO.builder()
+                .workOrderId(workOrderId).taskId(randomLongId()).workstationId(randomLongId())
+                .processId(randomLongId()).feedbackId(randomLongId()).consumeDate(now).build();
+        consumeMapper.insert(consume);
+        MesWmItemConsumeDetailDO consumeDetail = MesWmItemConsumeDetailDO.builder()
+                .consumeId(consume.getId()).lineId(randomLongId()).itemId(randomLongId())
+                .quantity(BigDecimal.ONE).batchCode(null) // 无批次
+                .warehouseId(randomLongId()).locationId(randomLongId()).areaId(randomLongId()).build();
+        consumeDetailMapper.insert(consumeDetail);
+
+        // 执行：应过滤掉 batchCode IS NULL 的消耗明细
+        List<MesWmBatchDO> result = batchMapper.selectListByBackward("PRODUCT_NULL_TEST");
+        assertNotNull(result);
+        assertTrue(result.isEmpty());
     }
 
 }
