@@ -17,6 +17,7 @@ import org.springframework.validation.annotation.Validated;
 import java.time.LocalDateTime;
 
 import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception;
+import static cn.iocoder.yudao.module.mes.enums.ErrorCodeConstants.WORK_RECORD_ALREADY_CLOCK_IN;
 import static cn.iocoder.yudao.module.mes.enums.ErrorCodeConstants.WORK_RECORD_NOT_CLOCK_IN;
 
 /**
@@ -48,8 +49,13 @@ public class MesProWorkRecordServiceImpl implements MesProWorkRecordService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Long clockInWorkRecord(Long userId, Long workstationId) {
-        // 1. 校验工作站是否存在
+        // 1.1 校验工作站是否存在
         workstationService.validateWorkstationExists(workstationId);
+        // 1.2 校验是否重复上线
+        MesProWorkRecordDO record = workRecordMapper.selectByUserId(userId);
+        if (record != null && ObjUtil.equal(MesProWorkRecordTypeEnum.CLOCK_IN.getType(), record.getType())) {
+            throw exception(WORK_RECORD_ALREADY_CLOCK_IN);
+        }
 
         // 2. 写入上线流水
         MesProWorkRecordLogDO log = MesProWorkRecordLogDO.builder().userId(userId)
@@ -57,7 +63,6 @@ public class MesProWorkRecordServiceImpl implements MesProWorkRecordService {
         workRecordLogMapper.insert(log);
 
         // 3. 更新用户工作站状态：如果没有记录，或先删除旧记录
-        MesProWorkRecordDO record = workRecordMapper.selectByUserId(userId);
         if (record == null) {
             record = MesProWorkRecordDO.builder().userId(userId).workstationId(workstationId)
                     .type(MesProWorkRecordTypeEnum.CLOCK_IN.getType()).clockInTime(LocalDateTime.now()).build();
