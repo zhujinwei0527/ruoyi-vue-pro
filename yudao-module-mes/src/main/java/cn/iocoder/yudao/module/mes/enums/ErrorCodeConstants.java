@@ -282,7 +282,6 @@ public interface ErrorCodeConstants {
     ErrorCode PRO_CARD_PROCESS_NOT_EXISTS = new ErrorCode(1_040_507_100, "流转卡工序记录不存在");
 
     // ========== MES 生产管理-工作记录（1-040-508-000） ==========
-    ErrorCode WORK_RECORD_WORKSTATION_NOT_EXISTS = new ErrorCode(1_040_508_000, "工作站不存在");
     ErrorCode WORK_RECORD_NOT_CLOCK_IN = new ErrorCode(1_040_508_001, "当前用户未上工，无法下工");
 
     // ========== MES 质量管理-质检方案（1-040-600-000） ==========
