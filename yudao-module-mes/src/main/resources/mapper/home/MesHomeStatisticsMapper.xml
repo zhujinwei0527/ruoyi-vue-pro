@@ -17,6 +17,7 @@
                IFNULL(SUM(unqualified_quantity), 0)  AS unqualifiedQuantity
         FROM mes_pro_feedback
         WHERE deleted = 0
+          AND status = ${@cn.iocoder.yudao.module.mes.enums.pro.MesProFeedbackStatusEnum@FINISHED.status}
           AND feedback_time >= #{beginTime}
           <if test="endTime != null">
               AND feedback_time &lt; #{endTime}
@@ -36,7 +37,7 @@
         SELECT COUNT(*)
         FROM mes_pro_andon_record
         WHERE deleted = 0
-          AND status = 0
+          AND status = ${@cn.iocoder.yudao.module.mes.enums.pro.MesProAndonStatusEnum@ACTIVE.status}
     </select>
 
     <!-- 统计未完成维修工单数（草稿 0、维修中 1、待验收 2） -->
@@ -44,7 +45,9 @@
         SELECT COUNT(*)
         FROM mes_dv_repair
         WHERE deleted = 0
-          AND status IN (0, 1, 2)
+          AND status IN (${@cn.iocoder.yudao.module.mes.enums.dv.MesDvRepairStatusEnum@PREPARE.status},
+                        ${@cn.iocoder.yudao.module.mes.enums.dv.MesDvRepairStatusEnum@CONFIRMED.status},
+                        ${@cn.iocoder.yudao.module.mes.enums.dv.MesDvRepairStatusEnum@APPROVING.status})
     </select>
 
     <!-- 按天聚合报工产量 -->
@@ -55,6 +58,7 @@
                IFNULL(SUM(unqualified_quantity), 0)      AS unqualifiedQuantity
         FROM mes_pro_feedback
         WHERE deleted = 0
+          AND status = ${@cn.iocoder.yudao.module.mes.enums.pro.MesProFeedbackStatusEnum@FINISHED.status}
           AND feedback_time >= #{beginTime}
           <if test="endTime != null">
               AND feedback_time &lt; #{endTime}

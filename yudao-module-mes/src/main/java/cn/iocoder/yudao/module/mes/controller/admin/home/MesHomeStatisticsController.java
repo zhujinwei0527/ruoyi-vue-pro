@@ -9,6 +9,8 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -48,7 +50,7 @@ public class MesHomeStatisticsController {
     @Parameter(name = "days", description = "天数", example = "7")
     @PreAuthorize("@ss.hasPermission('mes:home:query')")
     public CommonResult<List<MesHomeProductionTrendRespVO>> getProductionTrend(
-            @RequestParam(value = "days", defaultValue = "7") Integer days) {
+            @RequestParam(value = "days", defaultValue = "7") @Min(1) @Max(90) Integer days) {
         return success(homeStatisticsService.getProductionTrend(days));
     }
 
