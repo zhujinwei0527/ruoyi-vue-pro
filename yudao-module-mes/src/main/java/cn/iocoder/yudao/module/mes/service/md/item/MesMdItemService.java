@@ -76,14 +76,6 @@ public interface MesMdItemService {
     PageResult<MesMdItemDO> getItemPage(MesMdItemPageReqVO pageReqVO);
 
     /**
-     * 获得指定状态的物料产品列表
-     *
-     * @param status 状态
-     * @return 物料产品列表
-     */
-    List<MesMdItemDO> getItemListByStatus(Integer status);
-
-    /**
      * 获得物料产品列表
      *
      * @param ids 编号数组

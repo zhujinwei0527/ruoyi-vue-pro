@@ -2,7 +2,6 @@ package cn.iocoder.yudao.module.mes.controller.admin.md.item;
 
 import cn.hutool.core.collection.CollUtil;
 import cn.iocoder.yudao.framework.apilog.core.annotation.ApiAccessLog;
-import cn.iocoder.yudao.framework.common.enums.CommonStatusEnum;
 import cn.iocoder.yudao.framework.common.pojo.CommonResult;
 import cn.iocoder.yudao.framework.common.pojo.PageParam;
 import cn.iocoder.yudao.framework.common.pojo.PageResult;
@@ -39,7 +38,6 @@ import java.util.Map;
 
 import static cn.iocoder.yudao.framework.apilog.core.enums.OperateTypeEnum.EXPORT;
 import static cn.iocoder.yudao.framework.common.pojo.CommonResult.success;
-import static cn.iocoder.yudao.framework.common.util.collection.CollectionUtils.convertList;
 import static cn.iocoder.yudao.framework.common.util.collection.CollectionUtils.convertSet;
 
 @Tag(name = "管理后台 - MES 物料产品")
@@ -109,16 +107,6 @@ public class MesMdItemController {
     public CommonResult<PageResult<MesMdItemRespVO>> getItemPage(@Valid MesMdItemPageReqVO pageReqVO) {
         PageResult<MesMdItemDO> pageResult = itemService.getItemPage(pageReqVO);
         return success(new PageResult<>(buildItemVOList(pageResult.getList()), pageResult.getTotal()));
-    }
-
-    @GetMapping("/simple-list")
-    @Operation(summary = "获得物料产品精简列表", description = "只包含被开启的物料，主要用于前端的下拉选项")
-    public CommonResult<List<MesMdItemRespVO>> getItemSimpleList() {
-        List<MesMdItemDO> list = itemService.getItemListByStatus(CommonStatusEnum.ENABLE.getStatus());
-        return success(convertList(buildItemVOList(list), item -> new MesMdItemRespVO()
-                .setId(item.getId()).setName(item.getName()).setCode(item.getCode())
-                .setItemTypeId(item.getItemTypeId()).setItemTypeName(item.getItemTypeName())
-                .setUnitMeasureId(item.getUnitMeasureId()).setUnitMeasureName(item.getUnitMeasureName())));
     }
 
     @GetMapping("/export-excel")

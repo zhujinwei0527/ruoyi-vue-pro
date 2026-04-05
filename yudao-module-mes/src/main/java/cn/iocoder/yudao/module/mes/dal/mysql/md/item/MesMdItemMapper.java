@@ -8,7 +8,6 @@ import cn.iocoder.yudao.module.mes.dal.dataobject.md.item.MesMdItemDO;
 import org.apache.ibatis.annotations.Mapper;
 
 import java.util.Collection;
-import java.util.List;
 
 /**
  * MES 物料产品 Mapper
@@ -38,10 +37,6 @@ public interface MesMdItemMapper extends BaseMapperX<MesMdItemDO> {
 
     default Long selectCountByItemTypeId(Long itemTypeId) {
         return selectCount(MesMdItemDO::getItemTypeId, itemTypeId);
-    }
-
-    default List<MesMdItemDO> selectListByStatus(Integer status) {
-        return selectList(MesMdItemDO::getStatus, status);
     }
 
     default Long selectCountByUnitMeasureId(Long unitMeasureId) {

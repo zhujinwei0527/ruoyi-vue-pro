@@ -239,11 +239,6 @@ public class MesMdItemServiceImpl implements MesMdItemService {
     }
 
     @Override
-    public List<MesMdItemDO> getItemListByStatus(Integer status) {
-        return itemMapper.selectListByStatus(status);
-    }
-
-    @Override
     public List<MesMdItemDO> getItemList(Collection<Long> ids) {
         if (CollUtil.isEmpty(ids)) {
             return Collections.emptyList();
