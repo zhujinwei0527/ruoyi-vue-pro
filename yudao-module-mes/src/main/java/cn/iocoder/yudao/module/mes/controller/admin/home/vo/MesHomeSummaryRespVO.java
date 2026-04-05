@@ -1,4 +1,4 @@
-package cn.iocoder.yudao.module.mes.controller.admin.statistics.vo;
+package cn.iocoder.yudao.module.mes.controller.admin.home.vo;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;

@@ -1,4 +1,4 @@
-package cn.iocoder.yudao.module.mes.dal.mysql.statistics;
+package cn.iocoder.yudao.module.mes.dal.mysql.home;
 
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;

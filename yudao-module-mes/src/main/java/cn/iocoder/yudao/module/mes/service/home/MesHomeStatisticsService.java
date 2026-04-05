@@ -1,8 +1,8 @@
-package cn.iocoder.yudao.module.mes.service.statistics;
+package cn.iocoder.yudao.module.mes.service.home;
 
-import cn.iocoder.yudao.module.mes.controller.admin.statistics.vo.MesHomeProductionTrendRespVO;
-import cn.iocoder.yudao.module.mes.controller.admin.statistics.vo.MesHomeSummaryRespVO;
-import cn.iocoder.yudao.module.mes.controller.admin.statistics.vo.MesHomeWorkOrderStatusRespVO;
+import cn.iocoder.yudao.module.mes.controller.admin.home.vo.MesHomeProductionTrendRespVO;
+import cn.iocoder.yudao.module.mes.controller.admin.home.vo.MesHomeSummaryRespVO;
+import cn.iocoder.yudao.module.mes.controller.admin.home.vo.MesHomeWorkOrderStatusRespVO;
 
 import java.util.List;
 
