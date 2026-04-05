@@ -9,6 +9,7 @@ import cn.iocoder.yudao.framework.common.util.object.BeanUtils;
 import cn.iocoder.yudao.framework.excel.core.util.ExcelUtils;
 import cn.iocoder.yudao.module.mes.controller.admin.pro.workrecord.vo.MesProWorkRecordLogPageReqVO;
 import cn.iocoder.yudao.module.mes.controller.admin.pro.workrecord.vo.MesProWorkRecordLogRespVO;
+import cn.iocoder.yudao.module.mes.controller.admin.pro.workrecord.vo.MesProWorkRecordRespVO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.md.workstation.MesMdWorkstationDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.pro.workrecord.MesProWorkRecordDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.pro.workrecord.MesProWorkRecordLogDO;
@@ -99,7 +100,7 @@ public class MesProWorkRecordController {
     @GetMapping("/get-my")
     @Operation(summary = "获取当前用户绑定的工作站状态")
     @PreAuthorize("@ss.hasPermission('mes:pro-workrecord:query')")
-    public CommonResult<MesProWorkRecordLogRespVO> getMyWorkRecord() {
+    public CommonResult<MesProWorkRecordRespVO> getMyWorkRecord() {
         MesProWorkRecordDO record = workRecordService.getWorkRecord(getLoginUserId());
         return success(buildWorkRecordRespVO(record));
     }
@@ -131,13 +132,11 @@ public class MesProWorkRecordController {
         });
     }
 
-    private MesProWorkRecordLogRespVO buildWorkRecordRespVO(MesProWorkRecordDO record) {
+    private MesProWorkRecordRespVO buildWorkRecordRespVO(MesProWorkRecordDO record) {
         if (record == null) {
             return null;
         }
-        MesProWorkRecordLogRespVO vo = new MesProWorkRecordLogRespVO()
-                .setUserId(record.getUserId()).setWorkstationId(record.getWorkstationId())
-                .setCreateTime(record.getClockInTime()); // 前端显示为上工时间
+        MesProWorkRecordRespVO vo = BeanUtils.toBean(record, MesProWorkRecordRespVO.class);
         // 拼接工作站信息
         MesMdWorkstationDO ws = workstationService.getWorkstation(record.getWorkstationId());
         if (ws != null) {
