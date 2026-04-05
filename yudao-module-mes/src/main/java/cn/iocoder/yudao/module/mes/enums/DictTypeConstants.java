@@ -49,11 +49,14 @@ public interface DictTypeConstants {
     String MES_PRO_FEEDBACK_CHANNEL = "mes_pro_feedback_channel"; // MES 生产报工途径
     String MES_WM_ARRIVAL_NOTICE_STATUS = "mes_wm_arrival_notice_status"; // MES 到货通知单状态
     String MES_WM_ITEM_RECEIPT_STATUS = "mes_wm_item_receipt_status"; // MES 采购入库单状态
+    String MES_WM_PRODUCT_PRODUCE_STATUS = "mes_wm_product_produce_status"; // MES 生产入库单状态
+    String MES_WM_RETURN_VENDOR_STATUS = "mes_wm_return_vendor_status"; // MES 供应商退货单状态
     String MES_WM_QUALITY_STATUS = "mes_wm_quality_status"; // MES 质量状态（待检/合格/不合格）
-    String MES_WM_RETURN_ISSUE_STATUS = "mes_return_issue_status"; // MES 生产退料单状态
-    String MES_WM_RETURN_ISSUE_TYPE = "mes_return_issue_type"; // MES 生产退料类型
+    String MES_WM_RETURN_ISSUE_STATUS = "mes_wm_return_issue_status"; // MES 生产退料单状态
+    String MES_WM_RETURN_ISSUE_TYPE = "mes_wm_return_issue_type"; // MES 生产退料类型
     String MES_WM_MISC_ISSUE_TYPE = "mes_wm_misc_issue_type"; // MES 杂项出库类型
     String MES_WM_MISC_ISSUE_STATUS = "mes_wm_misc_issue_status"; // MES 杂项出库单状态
+    String MES_WM_SALES_NOTICE_STATUS = "mes_wm_sales_notice_status"; // MES 发货通知单状态
     String MES_WM_TRANSFER_STATUS = "mes_wm_transfer_status"; // MES 转移单状态
     String MES_WM_TRANSFER_TYPE = "mes_wm_transfer_type"; // MES 转移单类型
 

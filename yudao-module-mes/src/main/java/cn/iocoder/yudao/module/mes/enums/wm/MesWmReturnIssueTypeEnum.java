@@ -9,7 +9,7 @@ import java.util.Arrays;
 /**
  * MES 生产退料类型枚举
  *
- * 对应字典 mes_return_issue_type
+ * 对应字典 mes_wm_return_issue_type
  *
  * @author 芋道源码
  */
