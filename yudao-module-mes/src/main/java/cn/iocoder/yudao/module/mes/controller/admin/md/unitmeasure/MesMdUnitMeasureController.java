@@ -86,7 +86,7 @@ public class MesMdUnitMeasureController {
         return success(convertList(list, unit -> new MesMdUnitMeasureRespVO()
                 .setId(unit.getId()).setCode(unit.getCode()).setName(unit.getName())
                 .setPrimaryFlag(unit.getPrimaryFlag()).setPrimaryId(unit.getPrimaryId())
-                .setChangeRate(unit.getChangeRate())));
+                .setChangeRate(unit.getChangeRate()).setRemark(unit.getRemark())));
     }
 
     @GetMapping("/export-excel")
