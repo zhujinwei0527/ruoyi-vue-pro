@@ -92,8 +92,8 @@ public class MesMdWorkshopController {
     @Operation(summary = "获得车间精简列表", description = "只包含被开启的车间，主要用于前端的下拉选项")
     public CommonResult<List<MesMdWorkshopRespVO>> getWorkshopSimpleList() {
         List<MesMdWorkshopDO> list = workshopService.getWorkshopListByStatus(CommonStatusEnum.ENABLE.getStatus());
-        return success(convertList(list, workshop -> new MesMdWorkshopRespVO()
-                .setId(workshop.getId()).setName(workshop.getName()).setCode(workshop.getCode())));
+        return success(convertList(list, ws -> new MesMdWorkshopRespVO()
+                .setId(ws.getId()).setCode(ws.getCode()).setName(ws.getName()).setArea(ws.getArea())));
     }
 
     @GetMapping("/export-excel")

@@ -2,7 +2,6 @@ package cn.iocoder.yudao.module.mes.controller.admin.md.workstation;
 
 import cn.hutool.core.collection.CollUtil;
 import cn.iocoder.yudao.framework.apilog.core.annotation.ApiAccessLog;
-import cn.iocoder.yudao.framework.common.enums.CommonStatusEnum;
 import cn.iocoder.yudao.framework.common.pojo.CommonResult;
 import cn.iocoder.yudao.framework.common.pojo.PageParam;
 import cn.iocoder.yudao.framework.common.pojo.PageResult;
@@ -92,13 +91,6 @@ public class MesMdWorkstationController {
         return success(new PageResult<>(buildWorkstationRespVOList(pageResult.getList()), pageResult.getTotal()));
     }
 
-    @GetMapping("/simple-list")
-    @Operation(summary = "获得工作站精简列表", description = "只包含被开启的工作站，主要用于前端的下拉选项")
-    public CommonResult<List<MesMdWorkstationRespVO>> getWorkstationSimpleList() {
-        List<MesMdWorkstationDO> list = workstationService.getWorkstationListByStatus(CommonStatusEnum.ENABLE.getStatus());
-        return success(convertList(list, ws -> new MesMdWorkstationRespVO()
-                .setId(ws.getId()).setName(ws.getName()).setCode(ws.getCode())));
-    }
 
     @GetMapping("/export-excel")
     @Operation(summary = "导出工作站 Excel")
