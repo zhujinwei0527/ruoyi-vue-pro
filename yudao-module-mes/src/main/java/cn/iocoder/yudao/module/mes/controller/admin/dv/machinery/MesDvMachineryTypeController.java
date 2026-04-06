@@ -78,8 +78,8 @@ public class MesDvMachineryTypeController {
         List<MesDvMachineryTypeDO> list = machineryTypeService.getMachineryTypeList(
                 new MesDvMachineryTypeListReqVO().setStatus(CommonStatusEnum.ENABLE.getStatus()));
         return success(convertList(list, machineryType -> new MesDvMachineryTypeRespVO()
-                .setId(machineryType.getId()).setName(machineryType.getName())
-                .setParentId(machineryType.getParentId())));
+                .setId(machineryType.getId()).setName(machineryType.getName()).setParentId(machineryType.getParentId())
+                .setCode(machineryType.getCode()).setRemark(machineryType.getRemark())));
     }
 
 }
