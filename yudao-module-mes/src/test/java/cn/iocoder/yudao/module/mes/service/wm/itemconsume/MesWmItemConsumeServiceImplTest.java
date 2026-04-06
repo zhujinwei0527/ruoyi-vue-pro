@@ -1,5 +1,6 @@
 package cn.iocoder.yudao.module.mes.service.wm.itemconsume;
 
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.collection.ListUtil;
 import cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil;
 import cn.iocoder.yudao.framework.test.core.ut.BaseDbUnitTest;
@@ -405,15 +406,15 @@ public class MesWmItemConsumeServiceImplTest extends BaseDbUnitTest {
         assertEquals(2, details.size());
 
         // 物料 A：有批次
-        MesWmItemConsumeDetailDO detailA = details.stream()
-                .filter(d -> itemA.equals(d.getItemId())).findFirst().orElseThrow();
+        MesWmItemConsumeDetailDO detailA = CollUtil.findOne(details,
+                d -> itemA.equals(d.getItemId()));
         assertEquals(0, new BigDecimal("10").compareTo(detailA.getQuantity()));
         assertNotNull(detailA.getMaterialStockId());
         assertEquals("BATCH-A", detailA.getBatchCode());
 
         // 物料 B：无批次
-        MesWmItemConsumeDetailDO detailB = details.stream()
-                .filter(d -> itemB.equals(d.getItemId())).findFirst().orElseThrow();
+        MesWmItemConsumeDetailDO detailB = CollUtil.findOne(details,
+                d -> itemB.equals(d.getItemId()));
         assertEquals(0, new BigDecimal("20").compareTo(detailB.getQuantity()));
         assertNull(detailB.getMaterialStockId());
     }
