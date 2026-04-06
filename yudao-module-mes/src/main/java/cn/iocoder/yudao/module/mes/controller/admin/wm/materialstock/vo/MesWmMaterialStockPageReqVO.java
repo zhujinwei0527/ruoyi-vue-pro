@@ -27,6 +27,9 @@ public class MesWmMaterialStockPageReqVO extends PageParam {
     @Schema(description = "库区编号", example = "1")
     private Long locationId;
 
+    @Schema(description = "库位编号", example = "1")
+    private Long areaId;
+
     @Schema(description = "供应商编号", example = "1")
     private Long vendorId;
 
