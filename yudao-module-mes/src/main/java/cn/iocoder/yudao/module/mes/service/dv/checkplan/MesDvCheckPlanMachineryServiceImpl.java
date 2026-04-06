@@ -46,7 +46,7 @@ public class MesDvCheckPlanMachineryServiceImpl implements MesDvCheckPlanMachine
         if (checkPlanMachineryMapper.selectByPlanIdAndMachineryId(createReqVO.getPlanId(), createReqVO.getMachineryId()) != null) {
             throw exception(DV_CHECK_PLAN_MACHINERY_DUPLICATE);
         }
-        // 1.4 跨方案类型唯一性校验（对齐 KTG 业务约束：设备不能存在于同类型多个方案中）
+        // 1.4 跨方案类型唯一性校验（设备不能存在于同类型多个方案中）
         List<MesDvCheckPlanMachineryDO> existingMachineryList = getCheckPlanMachineryListByMachineryId(createReqVO.getMachineryId());
         if (CollUtil.isNotEmpty(existingMachineryList)) {
             List<Long> existingPlanIds = existingMachineryList.stream().map(MesDvCheckPlanMachineryDO::getPlanId).toList();

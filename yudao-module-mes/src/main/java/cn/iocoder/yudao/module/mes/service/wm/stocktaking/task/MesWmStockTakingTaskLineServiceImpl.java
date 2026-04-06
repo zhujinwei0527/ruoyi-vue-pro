@@ -93,6 +93,7 @@ public class MesWmStockTakingTaskLineServiceImpl implements MesWmStockTakingTask
 
         // 2. 创建盘点任务行
         MesWmStockTakingTaskLineDO line = BeanUtils.toBean(createReqVO, MesWmStockTakingTaskLineDO.class);
+        line.setStatus(MesWmStockTakingTaskLineStatusEnum.LOSS.getStatus()); // 默认状态：盘亏（与 generateStockTakingLines 保持一致，待盘点后由 calculateLineStatus 更新）
         stockTakingTaskLineMapper.insert(line);
         return line.getId();
     }

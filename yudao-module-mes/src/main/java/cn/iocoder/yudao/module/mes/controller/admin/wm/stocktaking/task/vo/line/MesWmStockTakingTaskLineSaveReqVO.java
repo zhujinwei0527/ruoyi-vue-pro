@@ -17,6 +17,9 @@ public class MesWmStockTakingTaskLineSaveReqVO {
     @NotNull(message = "盘点任务编号不能为空")
     private Long taskId;
 
+    @Schema(description = "库存记录编号", example = "1")
+    private Long materialStockId;
+
     @Schema(description = "物料编号", requiredMode = Schema.RequiredMode.REQUIRED, example = "1")
     @NotNull(message = "物料编号不能为空")
     private Long itemId;
@@ -37,10 +40,6 @@ public class MesWmStockTakingTaskLineSaveReqVO {
 
     @Schema(description = "库位编号", example = "1")
     private Long areaId;
-
-    @Schema(description = "盘点状态", requiredMode = Schema.RequiredMode.REQUIRED, example = "1")
-    @NotNull(message = "盘点状态不能为空")
-    private Integer status;
 
     @Schema(description = "备注", example = "备注")
     private String remark;
