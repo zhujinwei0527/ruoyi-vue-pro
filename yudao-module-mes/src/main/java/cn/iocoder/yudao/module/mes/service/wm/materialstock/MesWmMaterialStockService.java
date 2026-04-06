@@ -97,14 +97,6 @@ public interface MesWmMaterialStockService {
     List<MesWmMaterialStockDO> getMaterialStockList(MesWmMaterialStockListReqVO reqVO);
 
     /**
-     * 获得库存精简列表（用于前端下拉选择）
-     *
-     * @param itemId 物料编号（可为 null）
-     * @return 库存记录列表
-     */
-    List<MesWmMaterialStockDO> getMaterialStockList(Long itemId);
-
-    /**
      * 获取或创建库存记录（按组合键唯一）
      *
      * @param itemId         物料编号

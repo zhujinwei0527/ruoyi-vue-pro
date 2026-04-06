@@ -113,15 +113,6 @@ public class MesWmMaterialStockController {
                 buildRespVOList(pageResult.getList()));
     }
 
-    @GetMapping("/simple-list")
-    @Operation(summary = "获得库存精简列表", description = "主要用于前端下拉，可按 itemId 过滤")
-    @Parameter(name = "itemId", description = "物料编号", example = "1")
-    public CommonResult<List<MesWmMaterialStockRespVO>> getMaterialStockSimpleList(
-            @RequestParam(value = "itemId", required = false) Long itemId) {
-        List<MesWmMaterialStockDO> list = materialStockService.getMaterialStockList(itemId);
-        return success(buildRespVOList(list));
-    }
-
     // ==================== 拼接 VO ====================
 
     private List<MesWmMaterialStockRespVO> buildRespVOList(List<MesWmMaterialStockDO> list) {

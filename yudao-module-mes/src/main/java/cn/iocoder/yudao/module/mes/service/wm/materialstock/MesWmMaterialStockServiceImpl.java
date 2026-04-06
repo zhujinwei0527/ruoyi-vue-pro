@@ -129,14 +129,6 @@ public class MesWmMaterialStockServiceImpl implements MesWmMaterialStockService 
     }
 
     @Override
-    public List<MesWmMaterialStockDO> getMaterialStockList(Long itemId) {
-        if (itemId != null) {
-            return materialStockMapper.selectList(MesWmMaterialStockDO::getItemId, itemId);
-        }
-        return materialStockMapper.selectList();
-    }
-
-    @Override
     public MesWmMaterialStockDO getOrCreateMaterialStock(Long itemId, Long warehouseId, Long locationId, Long areaId,
                                                          Long batchId, String batchCode, Long vendorId, LocalDateTime receiptTime) {
         // 1. 查找已有库存记录
