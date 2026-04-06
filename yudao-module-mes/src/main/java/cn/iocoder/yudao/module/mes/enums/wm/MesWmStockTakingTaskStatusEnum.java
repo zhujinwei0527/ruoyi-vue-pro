@@ -19,25 +19,25 @@ public enum MesWmStockTakingTaskStatusEnum implements ArrayValuable<Integer> {
     /**
      * 草稿
      *
-     * 对应方法：{@link cn.iocoder.yudao.module.mes.service.wm.stocktaking.task.MesWmStockTakingTaskService#createStockTakingTask}
+     * 对应 MesWmStockTakingTaskService#createStockTakingTask 方法
      */
     PREPARE(MesOrderStatusConstants.PREPARE, "草稿"),
     /**
      * 审批中
      *
-     * 对应方法：{@link cn.iocoder.yudao.module.mes.service.wm.stocktaking.task.MesWmStockTakingTaskService#submitStockTakingTask}
+     * 对应 MesWmStockTakingTaskService#submitStockTakingTask 方法
      */
     APPROVING(MesOrderStatusConstants.APPROVING, "审批中"),
     /**
      * 已完成
      *
-     * 对应方法：{@link cn.iocoder.yudao.module.mes.service.wm.stocktaking.task.MesWmStockTakingTaskService#finishStockTakingTask}
+     * 对应 MesWmStockTakingTaskService#finishStockTakingTask 方法
      */
     FINISHED(MesOrderStatusConstants.FINISHED, "已完成"),
     /**
      * 已取消
      *
-     * 对应方法：{@link cn.iocoder.yudao.module.mes.service.wm.stocktaking.task.MesWmStockTakingTaskService#cancelStockTakingTask}
+     * 对应 MesWmStockTakingTaskService#cancelStockTakingTask 方法
      */
     CANCELED(MesOrderStatusConstants.CANCELLED, "已取消");
 

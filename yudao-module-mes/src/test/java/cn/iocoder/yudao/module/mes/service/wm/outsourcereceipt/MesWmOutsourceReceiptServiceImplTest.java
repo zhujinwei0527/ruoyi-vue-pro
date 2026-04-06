@@ -8,6 +8,7 @@ import cn.iocoder.yudao.module.mes.enums.wm.MesWmOutsourceReceiptStatusEnum;
 import cn.iocoder.yudao.module.mes.enums.wm.MesWmQualityStatusEnum;
 import cn.iocoder.yudao.module.mes.service.md.item.MesMdItemService;
 import cn.iocoder.yudao.module.mes.service.md.vendor.MesMdVendorService;
+import cn.iocoder.yudao.module.mes.service.pro.workorder.MesProWorkOrderService;
 import cn.iocoder.yudao.module.mes.service.wm.transaction.MesWmTransactionService;
 import org.junit.jupiter.api.Test;
 import org.springframework.context.annotation.Import;
@@ -49,6 +50,8 @@ public class MesWmOutsourceReceiptServiceImplTest extends BaseDbUnitTest {
     private MesMdVendorService vendorService;
     @MockitoBean
     private MesMdItemService itemService;
+    @MockitoBean
+    private MesProWorkOrderService workOrderService;
 
     @Test
     public void testUpdateOutsourceReceiptWhenIqcFinish_success_bothQualifiedAndUnqualified() {

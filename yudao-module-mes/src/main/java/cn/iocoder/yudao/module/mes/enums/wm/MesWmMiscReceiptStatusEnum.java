@@ -18,18 +18,26 @@ public enum MesWmMiscReceiptStatusEnum implements ArrayValuable<Integer> {
 
     /**
      * 草稿
+     *
+     * 对应 MesWmMiscReceiptService#createMiscReceipt 方法
      */
     PREPARE(MesOrderStatusConstants.PREPARE, "草稿"),
     /**
      * 已审批
+     *
+     * 对应 MesWmMiscReceiptService#submitMiscReceipt 方法
      */
     APPROVED(MesOrderStatusConstants.APPROVED, "已审批"),
     /**
      * 已完成
+     *
+     * 对应 MesWmMiscReceiptService#finishMiscReceipt 方法
      */
     FINISHED(MesOrderStatusConstants.FINISHED, "已完成"),
     /**
      * 已取消
+     *
+     * 对应 MesWmMiscReceiptService#cancelMiscReceipt 方法
      */
     CANCELED(MesOrderStatusConstants.CANCELLED, "已取消");
 

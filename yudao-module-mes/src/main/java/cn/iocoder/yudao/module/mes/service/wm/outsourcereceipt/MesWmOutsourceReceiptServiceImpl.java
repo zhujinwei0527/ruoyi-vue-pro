@@ -1,6 +1,7 @@
 package cn.iocoder.yudao.module.mes.service.wm.outsourcereceipt;
 
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.collection.ListUtil;
 import cn.hutool.core.util.ObjUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.iocoder.yudao.framework.common.pojo.PageResult;
@@ -165,7 +166,7 @@ public class MesWmOutsourceReceiptServiceImpl implements MesWmOutsourceReceiptSe
                     allDetails, MesWmOutsourceReceiptDetailDO::getLineId);
             // 检查每行的明细数量
             for (MesWmOutsourceReceiptLineDO line : lines) {
-                List<MesWmOutsourceReceiptDetailDO> details = detailMap.getOrDefault(line.getId(), List.of());
+                List<MesWmOutsourceReceiptDetailDO> details = detailMap.getOrDefault(line.getId(), ListUtil.of());
                 BigDecimal totalDetailQuantity = CollectionUtils.getSumValue(details,
                         MesWmOutsourceReceiptDetailDO::getQuantity, BigDecimal::add, BigDecimal.ZERO);
                 // 对比行数量与明细总数量，不满足直接抛出

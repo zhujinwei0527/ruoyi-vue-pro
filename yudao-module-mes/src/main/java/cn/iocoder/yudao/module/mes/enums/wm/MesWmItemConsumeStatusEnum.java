@@ -18,10 +18,14 @@ public enum MesWmItemConsumeStatusEnum implements ArrayValuable<Integer> {
 
     /**
      * 草稿
+     *
+     * 对应 MesWmItemConsumeService#generateItemConsume 方法
      */
     PREPARE(MesOrderStatusConstants.PREPARE, "草稿"),
     /**
      * 已完成
+     *
+     * 对应 MesWmItemConsumeService#finishItemConsume 方法
      */
     FINISHED(MesOrderStatusConstants.FINISHED, "已完成");
 

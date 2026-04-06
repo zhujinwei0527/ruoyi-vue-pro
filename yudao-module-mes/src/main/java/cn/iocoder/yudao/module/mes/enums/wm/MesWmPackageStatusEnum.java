@@ -19,13 +19,13 @@ public enum MesWmPackageStatusEnum implements ArrayValuable<Integer> {
     /**
      * 草稿
      *
-     * 对应方法：{@link cn.iocoder.yudao.module.mes.service.wm.packages.MesWmPackageService#createPackage}
+     * 对应 MesWmPackageService#createPackage 方法
      */
     PREPARE(MesOrderStatusConstants.PREPARE, "草稿"),
     /**
      * 已完成
      *
-     * 对应方法：{@link cn.iocoder.yudao.module.mes.service.wm.packages.MesWmPackageService#finishPackage}
+     * 对应 MesWmPackageService#finishPackage 方法
      */
     FINISHED(MesOrderStatusConstants.FINISHED, "已完成");
 

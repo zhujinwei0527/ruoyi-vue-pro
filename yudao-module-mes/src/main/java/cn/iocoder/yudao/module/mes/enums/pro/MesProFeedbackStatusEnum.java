@@ -2,7 +2,6 @@ package cn.iocoder.yudao.module.mes.enums.pro;
 
 import cn.iocoder.yudao.framework.common.core.ArrayValuable;
 import cn.iocoder.yudao.module.mes.enums.MesOrderStatusConstants;
-import cn.iocoder.yudao.module.mes.service.pro.feedback.MesProFeedbackService;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -20,21 +19,25 @@ public enum MesProFeedbackStatusEnum implements ArrayValuable<Integer> {
     /**
      * 草稿
      *
-     * 对应方法：{@link MesProFeedbackService#createFeedback}
+     * 对应 MesProFeedbackService#createFeedback 方法
      */
     PREPARE(MesOrderStatusConstants.PREPARE, "草稿"),
     /**
      * 审批中
+     *
+     * 对应 MesProFeedbackService#submitFeedback 方法
      */
     APPROVING(MesOrderStatusConstants.APPROVING, "审批中"),
     /**
      * 待检验（质检工序特有）
+     *
+     * 对应 MesProFeedbackService#submitFeedback 方法
      */
     UNCHECK(MesOrderStatusConstants.APPROVED, "待检验"),
     /**
      * 已完成
      *
-     * 对应方法：{@link MesProFeedbackService#approveFeedback}
+     * 对应 MesProFeedbackService#approveFeedback 方法
      */
     FINISHED(MesOrderStatusConstants.FINISHED, "已完成");
 
