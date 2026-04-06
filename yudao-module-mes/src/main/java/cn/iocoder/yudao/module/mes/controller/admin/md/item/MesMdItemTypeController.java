@@ -79,6 +79,7 @@ public class MesMdItemTypeController {
                 new MesMdItemTypeListReqVO().setStatus(CommonStatusEnum.ENABLE.getStatus()));
         return success(convertList(list, itemType -> new MesMdItemTypeRespVO()
                 .setId(itemType.getId()).setName(itemType.getName()).setParentId(itemType.getParentId())
+                .setCode(itemType.getCode()).setRemark(itemType.getRemark())
                 .setItemOrProduct(itemType.getItemOrProduct())));
     }
 
