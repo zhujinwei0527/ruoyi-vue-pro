@@ -1,9 +1,7 @@
 package cn.iocoder.yudao.module.mes.enums.wm;
 
 import cn.iocoder.yudao.framework.common.core.ArrayValuable;
-import cn.iocoder.yudao.module.mes.controller.admin.wm.returnvendor.vo.MesWmReturnVendorSaveReqVO;
 import cn.iocoder.yudao.module.mes.enums.MesOrderStatusConstants;
-import cn.iocoder.yudao.module.mes.service.wm.returnvendor.MesWmReturnVendorService;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -21,31 +19,31 @@ public enum MesWmReturnVendorStatusEnum implements ArrayValuable<Integer> {
     /**
      * 草稿
      *
-     * 对应方法：{@link MesWmReturnVendorService#createReturnVendor(MesWmReturnVendorSaveReqVO)}
+     * 对应 MesWmReturnVendorService#createReturnVendor 方法
      */
     PREPARE(MesOrderStatusConstants.PREPARE, "草稿"),
     /**
      * 待拣货
      *
-     * 对应方法：{@link MesWmReturnVendorService#submitReturnVendor(Long)}
+     * 对应 MesWmReturnVendorService#submitReturnVendor 方法
      */
     APPROVING(MesOrderStatusConstants.APPROVING, "待拣货"),
     /**
      * 待执行退货
      *
-     * 对应方法：{@link MesWmReturnVendorService#stockReturnVendor(Long)}
+     * 对应 MesWmReturnVendorService#stockReturnVendor 方法
      */
     APPROVED(MesOrderStatusConstants.APPROVED, "待执行退货"),
     /**
      * 已完成
      *
-     * 对应方法：{@link MesWmReturnVendorService#finishReturnVendor(Long)}
+     * 对应 MesWmReturnVendorService#finishReturnVendor 方法
      */
     FINISHED(MesOrderStatusConstants.FINISHED, "已完成"),
     /**
      * 已取消
      *
-     * 对应方法：{@link MesWmReturnVendorService#cancelReturnVendor(Long)}
+     * 对应 MesWmReturnVendorService#cancelReturnVendor 方法
      */
     CANCELED(MesOrderStatusConstants.CANCELLED, "已取消");
 

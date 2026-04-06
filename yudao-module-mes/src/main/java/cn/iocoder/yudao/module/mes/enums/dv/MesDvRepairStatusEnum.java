@@ -2,7 +2,6 @@ package cn.iocoder.yudao.module.mes.enums.dv;
 
 import cn.iocoder.yudao.framework.common.core.ArrayValuable;
 import cn.iocoder.yudao.module.mes.enums.MesOrderStatusConstants;
-import cn.iocoder.yudao.module.mes.service.dv.repair.MesDvRepairService;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -22,25 +21,25 @@ public enum MesDvRepairStatusEnum implements ArrayValuable<Integer> {
     /**
      * 草稿
      *
-     * 对应方法：{@link MesDvRepairService#createRepair}
+     * 对应 MesDvRepairService#createRepair 方法
      */
     PREPARE(MesOrderStatusConstants.PREPARE, "草稿"),
     /**
      * 维修中（提交后，维修人接单）
      *
-     * 对应方法：{@link MesDvRepairService#submitRepair(Long, Long)}
+     * 对应 MesDvRepairService#submitRepair 方法
      */
     CONFIRMED(MesOrderStatusConstants.CONFIRMED, "维修中"),
     /**
      * 待验收（维修完成，等待验收）
      *
-     * 对应方法：{@link MesDvRepairService#confirmRepair(Long)}
+     * 对应 MesDvRepairService#confirmRepair 方法
      */
     APPROVING(MesOrderStatusConstants.APPROVING, "待验收"),
     /**
      * 已确认（验收通过或不通过，终态）
      *
-     * 对应方法：{@link MesDvRepairService#finishRepair(Long, Integer, Long)}
+     * 对应 MesDvRepairService#finishRepair 方法
      */
     FINISHED(MesOrderStatusConstants.FINISHED, "已确认");
 

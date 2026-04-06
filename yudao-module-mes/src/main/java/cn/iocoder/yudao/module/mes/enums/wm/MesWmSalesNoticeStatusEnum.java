@@ -1,9 +1,7 @@
 package cn.iocoder.yudao.module.mes.enums.wm;
 
 import cn.iocoder.yudao.framework.common.core.ArrayValuable;
-import cn.iocoder.yudao.module.mes.controller.admin.wm.salesnotice.vo.MesWmSalesNoticeSaveReqVO;
 import cn.iocoder.yudao.module.mes.enums.MesOrderStatusConstants;
-import cn.iocoder.yudao.module.mes.service.wm.salesnotice.MesWmSalesNoticeService;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -21,13 +19,13 @@ public enum MesWmSalesNoticeStatusEnum implements ArrayValuable<Integer> {
     /**
      * 草稿
      *
-     * 对应方法：{@link MesWmSalesNoticeService#createSalesNotice(MesWmSalesNoticeSaveReqVO)}
+     * 对应 MesWmSalesNoticeService#createSalesNotice 方法
      */
     PREPARE(MesOrderStatusConstants.PREPARE, "草稿"),
     /**
      * 待出库，对接 wm 模块的 MesWmProductSalesDO 后续流程
      *
-     * 对应方法：{@link MesWmSalesNoticeService#submitSalesNotice(Long)}
+     * 对应 MesWmSalesNoticeService#submitSalesNotice 方法
      */
     APPROVED(MesOrderStatusConstants.APPROVED, "待出库");
     // TODO @芋艿：【对齐】暂时无后续流程，看看后续要怎么支持下。

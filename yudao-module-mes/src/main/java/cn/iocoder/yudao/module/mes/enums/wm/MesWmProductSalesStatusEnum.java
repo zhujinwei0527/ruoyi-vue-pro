@@ -1,10 +1,7 @@
 package cn.iocoder.yudao.module.mes.enums.wm;
 
 import cn.iocoder.yudao.framework.common.core.ArrayValuable;
-import cn.iocoder.yudao.module.mes.controller.admin.wm.productsales.vo.MesWmProductSalesSaveReqVO;
-import cn.iocoder.yudao.module.mes.controller.admin.wm.productsales.vo.MesWmProductSalesShippingReqVO;
 import cn.iocoder.yudao.module.mes.enums.MesOrderStatusConstants;
-import cn.iocoder.yudao.module.mes.service.wm.productsales.MesWmProductSalesService;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -24,45 +21,45 @@ public enum MesWmProductSalesStatusEnum implements ArrayValuable<Integer> {
     /**
      * 草稿
      *
-     * 对应方法：{@link MesWmProductSalesService#createProductSales(MesWmProductSalesSaveReqVO)}
+     * 对应 MesWmProductSalesService#createProductSales 方法
      */
     PREPARE(MesOrderStatusConstants.PREPARE, "草稿"),
     /**
      * 待检测（需要 OQC 检验时），对接 qc 模块的 MesQcOqcDO 后续流程
      *
-     * 对应方法：{@link MesWmProductSalesService#submitProductSales(Long)}
+     * 对应 MesWmProductSalesService#submitProductSales 方法
      */
     CONFIRMED(MesOrderStatusConstants.CONFIRMED, "待检测"),
     /**
      * 待拣货
      *
      * 对应方法：
-     * 1. 不需要 OQC 检验时：{@link MesWmProductSalesService#submitProductSales(Long)}
-     * 2. 或 OQC 检验完成时：{@link MesWmProductSalesService#confirmProductSales(Long)}
+     * 1. 不需要 OQC 检验时：MesWmProductSalesService#submitProductSales 方法
+     * 2. 或 OQC 检验完成时：MesWmProductSalesService#confirmProductSales 方法
      */
     APPROVING(MesOrderStatusConstants.APPROVING, "待拣货"),
     /**
      * 待填写运单
      *
-     * 对应方法：{@link MesWmProductSalesService#shippingProductSales(MesWmProductSalesShippingReqVO)}
+     * 对应 MesWmProductSalesService#shippingProductSales 方法
      */
     SHIPPING(10, "待填写运单"), // 10 是一个特殊的状态值，不在 MesOrderStatusConstants 中，单独定义
     /**
      * 待执行出库
      *
-     * 对应方法：{@link MesWmProductSalesService#stockProductSales(Long)}
+     * 对应 MesWmProductSalesService#stockProductSales 方法
      */
     APPROVED(MesOrderStatusConstants.APPROVED, "待执行出库"),
     /**
      * 已完成
      *
-     * 对应方法：{@link MesWmProductSalesService#finishProductSales(Long)}
+     * 对应 MesWmProductSalesService#finishProductSales 方法
      */
     FINISHED(MesOrderStatusConstants.FINISHED, "已完成"),
     /**
      * 已取消
      *
-     * 对应方法：{@link MesWmProductSalesService#cancelProductSales(Long)}
+     * 对应 MesWmProductSalesService#cancelProductSales 方法
      */
     CANCELED(MesOrderStatusConstants.CANCELLED, "已取消");
 
