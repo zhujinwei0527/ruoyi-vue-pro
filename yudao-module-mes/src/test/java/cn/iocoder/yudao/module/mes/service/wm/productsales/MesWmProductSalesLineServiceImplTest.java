@@ -11,6 +11,7 @@ import org.springframework.context.annotation.Import;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import cn.iocoder.yudao.module.mes.service.md.item.MesMdItemService;
+import cn.iocoder.yudao.module.mes.service.wm.batch.MesWmBatchService;
 
 import static cn.iocoder.yudao.framework.test.core.util.RandomUtils.randomLongId;
 import static cn.iocoder.yudao.framework.test.core.util.RandomUtils.randomPojo;
@@ -39,6 +40,8 @@ public class MesWmProductSalesLineServiceImplTest extends BaseDbUnitTest {
 
     @MockitoBean
     private MesMdItemService itemService;
+    @MockitoBean
+    private MesWmBatchService batchService;
 
     @Test
     public void testUpdateProductSalesLineWhenOqcFinish_pass() {
