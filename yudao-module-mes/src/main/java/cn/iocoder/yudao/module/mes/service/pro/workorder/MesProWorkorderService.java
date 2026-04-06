@@ -122,14 +122,6 @@ public interface MesProWorkOrderService {
     void cancelWorkOrder(Long id);
 
     /**
-     * 获得工单列表
-     *
-     * @param type 工单类型（可选，为 null 时查询全部）
-     * @return 工单列表
-     */
-    List<MesProWorkOrderDO> getWorkOrderList(Integer type);
-
-    /**
      * 累加工单的已生产数量
      *
      * @param id                   工单编号
