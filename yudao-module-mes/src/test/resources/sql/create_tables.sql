@@ -390,6 +390,7 @@ CREATE TABLE IF NOT EXISTS "mes_wm_product_sales_line" (
     "item_id" bigint NOT NULL,
     "quantity" decimal(20,6) NOT NULL,
     "batch_id" bigint DEFAULT NULL,
+    "batch_code" varchar(255) DEFAULT NULL,
     "material_stock_id" bigint DEFAULT NULL,
     "oqc_check_flag" tinyint DEFAULT NULL,
     "oqc_id" bigint DEFAULT NULL,
