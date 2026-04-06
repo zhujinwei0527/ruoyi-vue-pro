@@ -30,4 +30,7 @@ public class MesWmBatchPageReqVO extends PageParam {
     @Schema(description = "采购订单编号", example = "PO20250314001")
     private String purchaseOrderCode;
 
+    @Schema(description = "生产工单编号", example = "1")
+    private Long workOrderId;
+
 }

@@ -32,6 +32,7 @@ public interface MesWmBatchMapper extends BaseMapperX<MesWmBatchDO> {
                 .eqIfPresent(MesWmBatchDO::getClientId, reqVO.getClientId())
                 .likeIfPresent(MesWmBatchDO::getSalesOrderCode, reqVO.getSalesOrderCode())
                 .likeIfPresent(MesWmBatchDO::getPurchaseOrderCode, reqVO.getPurchaseOrderCode())
+                .eqIfPresent(MesWmBatchDO::getWorkOrderId, reqVO.getWorkOrderId())
                 .orderByDesc(MesWmBatchDO::getId));
     }
 

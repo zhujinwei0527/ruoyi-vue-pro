@@ -96,13 +96,6 @@ public class MesWmBatchController {
         return success(buildBatchRespVOList(list));
     }
 
-    @GetMapping("/simple-list")
-    @Operation(summary = "获得批次精简列表", description = "主要用于前端下拉")
-    public CommonResult<List<MesWmBatchRespVO>> getBatchSimpleList() {
-        List<MesWmBatchDO> list = batchService.getBatchList();
-        return success(BeanUtils.toBean(list, MesWmBatchRespVO.class));
-    }
-
     // ==================== 拼接 VO ====================
 
     private List<MesWmBatchRespVO> buildBatchRespVOList(List<MesWmBatchDO> list) {
