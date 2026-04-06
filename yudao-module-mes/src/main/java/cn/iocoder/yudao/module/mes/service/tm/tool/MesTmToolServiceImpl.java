@@ -15,6 +15,7 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 
@@ -121,6 +122,14 @@ public class MesTmToolServiceImpl implements MesTmToolService {
     @Override
     public List<MesTmToolDO> getToolList() {
         return toolMapper.selectList();
+    }
+
+    @Override
+    public List<MesTmToolDO> getToolList(Collection<Long> ids) {
+        if (ids == null || ids.isEmpty()) {
+            return List.of();
+        }
+        return toolMapper.selectBatchIds(ids);
     }
 
 }

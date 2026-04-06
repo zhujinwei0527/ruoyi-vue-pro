@@ -33,6 +33,15 @@ public interface MesWmBatchMapper extends BaseMapperX<MesWmBatchDO> {
                 .likeIfPresent(MesWmBatchDO::getSalesOrderCode, reqVO.getSalesOrderCode())
                 .likeIfPresent(MesWmBatchDO::getPurchaseOrderCode, reqVO.getPurchaseOrderCode())
                 .eqIfPresent(MesWmBatchDO::getWorkOrderId, reqVO.getWorkOrderId())
+                .eqIfPresent(MesWmBatchDO::getTaskId, reqVO.getTaskId())
+                .eqIfPresent(MesWmBatchDO::getWorkstationId, reqVO.getWorkstationId())
+                .eqIfPresent(MesWmBatchDO::getToolId, reqVO.getToolId())
+                .eqIfPresent(MesWmBatchDO::getMoldId, reqVO.getMoldId())
+                .likeIfPresent(MesWmBatchDO::getLotNumber, reqVO.getLotNumber())
+                .eqIfPresent(MesWmBatchDO::getQualityStatus, reqVO.getQualityStatus())
+                .betweenIfPresent(MesWmBatchDO::getProduceDate, reqVO.getProduceDate())
+                .betweenIfPresent(MesWmBatchDO::getExpireDate, reqVO.getExpireDate())
+                .betweenIfPresent(MesWmBatchDO::getReceiptDate, reqVO.getReceiptDate())
                 .orderByDesc(MesWmBatchDO::getId));
     }
 

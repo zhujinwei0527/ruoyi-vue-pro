@@ -6,7 +6,11 @@ import cn.iocoder.yudao.module.mes.controller.admin.tm.tool.vo.MesTmToolSaveReqV
 import cn.iocoder.yudao.module.mes.dal.dataobject.tm.tool.MesTmToolDO;
 import jakarta.validation.Valid;
 
+import java.util.Collection;
 import java.util.List;
+import java.util.Map;
+
+import static cn.iocoder.yudao.framework.common.util.collection.CollectionUtils.convertMap;
 
 /**
  * MES 工具台账 Service 接口
@@ -59,5 +63,23 @@ public interface MesTmToolService {
      * @return 工具列表
      */
     List<MesTmToolDO> getToolList();
+
+    /**
+     * 获得工具列表
+     *
+     * @param ids 编号列表
+     * @return 工具列表
+     */
+    List<MesTmToolDO> getToolList(Collection<Long> ids);
+
+    /**
+     * 获得工具 Map
+     *
+     * @param ids 编号列表
+     * @return 工具 Map
+     */
+    default Map<Long, MesTmToolDO> getToolMap(Collection<Long> ids) {
+        return convertMap(getToolList(ids), MesTmToolDO::getId);
+    }
 
 }

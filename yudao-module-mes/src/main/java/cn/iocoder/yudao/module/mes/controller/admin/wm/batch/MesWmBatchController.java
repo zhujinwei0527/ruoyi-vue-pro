@@ -12,14 +12,18 @@ import cn.iocoder.yudao.module.mes.dal.dataobject.md.item.MesMdItemDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.md.unitmeasure.MesMdUnitMeasureDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.md.vendor.MesMdVendorDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.md.workstation.MesMdWorkstationDO;
+import cn.iocoder.yudao.module.mes.dal.dataobject.pro.task.MesProTaskDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.pro.workorder.MesProWorkOrderDO;
+import cn.iocoder.yudao.module.mes.dal.dataobject.tm.tool.MesTmToolDO;
 import cn.iocoder.yudao.module.mes.dal.dataobject.wm.batch.MesWmBatchDO;
 import cn.iocoder.yudao.module.mes.service.md.client.MesMdClientService;
 import cn.iocoder.yudao.module.mes.service.md.item.MesMdItemService;
 import cn.iocoder.yudao.module.mes.service.md.unitmeasure.MesMdUnitMeasureService;
 import cn.iocoder.yudao.module.mes.service.md.vendor.MesMdVendorService;
 import cn.iocoder.yudao.module.mes.service.md.workstation.MesMdWorkstationService;
+import cn.iocoder.yudao.module.mes.service.pro.task.MesProTaskService;
 import cn.iocoder.yudao.module.mes.service.pro.workorder.MesProWorkOrderService;
+import cn.iocoder.yudao.module.mes.service.tm.tool.MesTmToolService;
 import cn.iocoder.yudao.module.mes.service.wm.batch.MesWmBatchService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -59,7 +63,11 @@ public class MesWmBatchController {
     @Resource
     private MesProWorkOrderService workOrderService;
     @Resource
+    private MesProTaskService taskService;
+    @Resource
     private MesMdWorkstationService workstationService;
+    @Resource
+    private MesTmToolService toolService;
 
     @GetMapping("/get")
     @Operation(summary = "获得批次详情")
@@ -111,8 +119,12 @@ public class MesWmBatchController {
                 convertSet(list, MesWmBatchDO::getClientId));
         Map<Long, MesProWorkOrderDO> workOrderMap = workOrderService.getWorkOrderMap(
                 convertSet(list, MesWmBatchDO::getWorkOrderId));
+        Map<Long, MesProTaskDO> taskMap = taskService.getTaskMap(
+                convertSet(list, MesWmBatchDO::getTaskId));
         Map<Long, MesMdWorkstationDO> workstationMap = workstationService.getWorkstationMap(
                 convertSet(list, MesWmBatchDO::getWorkstationId));
+        Map<Long, MesTmToolDO> toolMap = toolService.getToolMap(
+                convertSet(list, MesWmBatchDO::getToolId));
         Map<Long, MesMdUnitMeasureDO> unitMeasureMap = unitMeasureService.getUnitMeasureMap(
                 convertSet(itemMap.values(), MesMdItemDO::getUnitMeasureId));
         // 2. 构建结果
@@ -129,8 +141,12 @@ public class MesWmBatchController {
                     client -> vo.setClientCode(client.getCode()).setClientName(client.getName()));
             MapUtils.findAndThen(workOrderMap, vo.getWorkOrderId(),
                     workOrder -> vo.setWorkOrderCode(workOrder.getCode()));
+            MapUtils.findAndThen(taskMap, vo.getTaskId(),
+                    task -> vo.setTaskCode(task.getCode()));
             MapUtils.findAndThen(workstationMap, vo.getWorkstationId(),
                     workstation -> vo.setWorkstationCode(workstation.getCode()));
+            MapUtils.findAndThen(toolMap, vo.getToolId(),
+                    tool -> vo.setToolCode(tool.getCode()));
         });
     }
 

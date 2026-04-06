@@ -72,6 +72,9 @@ public class MesWmBatchRespVO {
     @Schema(description = "生产任务 ID", example = "1")
     private Long taskId;
 
+    @Schema(description = "生产任务编号", example = "TASK20250314001")
+    private String taskCode;
+
     @Schema(description = "工作站 ID", example = "1")
     private Long workstationId;
 
@@ -80,6 +83,9 @@ public class MesWmBatchRespVO {
 
     @Schema(description = "工具 ID", example = "1")
     private Long toolId;
+
+    @Schema(description = "工具编号", example = "TOOL001")
+    private String toolCode;
 
     @Schema(description = "模具 ID", example = "1")
     private Long moldId;
