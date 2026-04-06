@@ -1,9 +1,7 @@
 package cn.iocoder.yudao.module.mes.enums.wm;
 
 import cn.iocoder.yudao.framework.common.core.ArrayValuable;
-import cn.iocoder.yudao.module.mes.controller.admin.wm.itemreceipt.vo.MesWmItemReceiptSaveReqVO;
 import cn.iocoder.yudao.module.mes.enums.MesOrderStatusConstants;
-import cn.iocoder.yudao.module.mes.service.wm.itemreceipt.MesWmItemReceiptService;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -21,31 +19,31 @@ public enum MesWmItemReceiptStatusEnum implements ArrayValuable<Integer> {
     /**
      * 草稿
      *
-     * 对应方法：{@link MesWmItemReceiptService#createItemReceipt(MesWmItemReceiptSaveReqVO)}
+     * 对应 MesWmItemReceiptService#createItemReceipt 方法
      */
     PREPARE(MesOrderStatusConstants.PREPARE, "草稿"),
     /**
      * 待上架
      *
-     * 对应方法：{@link MesWmItemReceiptService#submitItemReceipt(Long)}
+     * 对应 MesWmItemReceiptService#submitItemReceipt 方法
      */
     APPROVING(MesOrderStatusConstants.APPROVING, "待上架"),
     /**
      * 待入库
      *
-     * 对应方法：{@link MesWmItemReceiptService#stockItemReceipt(Long)}
+     * 对应 MesWmItemReceiptService#stockItemReceipt 方法
      */
     APPROVED(MesOrderStatusConstants.APPROVED, "待执行入库"),
     /**
      * 已完成
      *
-     * 对应方法：{@link MesWmItemReceiptService#finishItemReceipt(Long)}
+     * 对应 MesWmItemReceiptService#finishItemReceipt 方法
      */
     FINISHED(MesOrderStatusConstants.FINISHED, "已完成"),
     /**
      * 已取消
      *
-     * 对应方法：{@link MesWmItemReceiptService#cancelItemReceipt(Long)}
+     * 对应 MesWmItemReceiptService#cancelItemReceipt 方法
      */
     CANCELED(MesOrderStatusConstants.CANCELLED, "已取消");
 

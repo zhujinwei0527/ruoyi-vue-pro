@@ -1,9 +1,7 @@
 package cn.iocoder.yudao.module.mes.enums.wm;
 
 import cn.iocoder.yudao.framework.common.core.ArrayValuable;
-import cn.iocoder.yudao.module.mes.controller.admin.wm.productissue.vo.MesWmProductIssueSaveReqVO;
 import cn.iocoder.yudao.module.mes.enums.MesOrderStatusConstants;
-import cn.iocoder.yudao.module.mes.service.wm.productissue.MesWmProductIssueService;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -21,31 +19,31 @@ public enum MesWmProductIssueStatusEnum implements ArrayValuable<Integer> {
     /**
      * 草稿
      *
-     * 对应方法：{@link MesWmProductIssueService#createProductIssue(MesWmProductIssueSaveReqVO)}
+     * 对应 MesWmProductIssueService#createProductIssue 方法
      */
     PREPARE(MesOrderStatusConstants.PREPARE, "草稿"),
     /**
      * 待拣货
      *
-     * 对应方法：{@link MesWmProductIssueService#submitProductIssue(Long)}
+     * 对应 MesWmProductIssueService#submitProductIssue 方法
      */
     APPROVING(MesOrderStatusConstants.APPROVING, "待拣货"),
     /**
      * 待执行领出
      *
-     * 对应方法：{@link MesWmProductIssueService#stockProductIssue(Long)}
+     * 对应 MesWmProductIssueService#stockProductIssue 方法
      */
     APPROVED(MesOrderStatusConstants.APPROVED, "待执行领出"),
     /**
      * 已完成
      *
-     * 对应方法：{@link MesWmProductIssueService#finishProductIssue(Long)}
+     * 对应 MesWmProductIssueService#finishProductIssue 方法
      */
     FINISHED(MesOrderStatusConstants.FINISHED, "已完成"),
     /**
      * 已取消
      *
-     * 对应方法：{@link MesWmProductIssueService#cancelProductIssue(Long)}
+     * 对应 MesWmProductIssueService#cancelProductIssue 方法
      */
     CANCELED(MesOrderStatusConstants.CANCELLED, "已取消");
 

@@ -1,9 +1,7 @@
 package cn.iocoder.yudao.module.mes.enums.pro;
 
 import cn.iocoder.yudao.framework.common.core.ArrayValuable;
-import cn.iocoder.yudao.module.mes.controller.admin.pro.task.vo.MesProTaskSaveReqVO;
 import cn.iocoder.yudao.module.mes.enums.MesOrderStatusConstants;
-import cn.iocoder.yudao.module.mes.service.pro.task.MesProTaskService;
 import cn.iocoder.yudao.framework.common.util.object.ObjectUtils;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -22,19 +20,19 @@ public enum MesProTaskStatusEnum implements ArrayValuable<Integer> {
     /**
      * 草稿
      *
-     * 对应方法：{@link MesProTaskService#createTask(MesProTaskSaveReqVO)}
+     * 对应 MesProTaskService#createTask 方法
      */
     PREPARE(MesOrderStatusConstants.PREPARE, "草稿"),
     /**
      * 已完成
      *
-     * 对应方法：{@link MesProTaskService#finishTaskByOrderId(Long)}
+     * 对应 MesProTaskService#finishTaskByOrderId 方法
      */
     FINISHED(MesOrderStatusConstants.FINISHED, "已完成"),
     /**
      * 已取消
      *
-     * 对应方法：{@link MesProTaskService#cancelTaskByOrderId(Long)}
+     * 对应 MesProTaskService#cancelTaskByOrderId 方法
      */
     CANCELED(MesOrderStatusConstants.CANCELLED, "已取消");
 
