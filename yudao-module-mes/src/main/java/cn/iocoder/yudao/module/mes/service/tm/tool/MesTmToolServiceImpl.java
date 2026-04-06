@@ -11,11 +11,11 @@ import cn.iocoder.yudao.module.mes.dal.mysql.tm.tool.MesTmToolMapper;
 import cn.iocoder.yudao.module.mes.enums.tm.MesTmMaintenTypeEnum;
 import cn.iocoder.yudao.module.mes.enums.wm.BarcodeBizTypeEnum;
 import cn.iocoder.yudao.module.mes.service.wm.barcode.MesWmBarcodeService;
-import jakarta.annotation.Resource;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 
+import javax.annotation.Resource;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;

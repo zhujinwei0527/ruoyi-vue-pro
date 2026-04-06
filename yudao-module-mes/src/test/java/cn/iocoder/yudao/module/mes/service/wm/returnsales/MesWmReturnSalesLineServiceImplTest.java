@@ -5,14 +5,14 @@ import cn.iocoder.yudao.module.mes.dal.dataobject.wm.returnsales.MesWmReturnSale
 import cn.iocoder.yudao.module.mes.dal.mysql.wm.returnsales.MesWmReturnSalesLineMapper;
 import cn.iocoder.yudao.module.mes.enums.qc.MesQcCheckResultEnum;
 import cn.iocoder.yudao.module.mes.enums.wm.MesWmQualityStatusEnum;
-import jakarta.annotation.Resource;
-import org.junit.jupiter.api.Test;
-import org.springframework.context.annotation.Import;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
-
 import cn.iocoder.yudao.module.mes.service.md.item.MesMdItemService;
+import org.junit.jupiter.api.Test;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.Import;
 
+import javax.annotation.Resource;
 import java.math.BigDecimal;
+import java.util.List;
 
 import static cn.iocoder.yudao.framework.test.core.util.RandomUtils.randomPojo;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -32,10 +32,10 @@ public class MesWmReturnSalesLineServiceImplTest extends BaseDbUnitTest {
     @Resource
     private MesWmReturnSalesLineMapper returnSalesLineMapper;
 
-    @MockitoBean
+    @MockBean
     private MesWmReturnSalesService returnSalesService;
 
-    @MockitoBean
+    @MockBean
     private MesMdItemService itemService;
 
     @Test
@@ -100,7 +100,7 @@ public class MesWmReturnSalesLineServiceImplTest extends BaseDbUnitTest {
         assertEquals(0, qualifiedQty.compareTo(originalLine.getQuantity()));
 
         // 断言：新增了一行不合格品
-        var allLines = returnSalesLineMapper.selectListByReturnId(lineDO.getReturnId());
+        List<MesWmReturnSalesLineDO> allLines = returnSalesLineMapper.selectListByReturnId(lineDO.getReturnId());
         assertEquals(2, allLines.size());
         MesWmReturnSalesLineDO newLine = allLines.stream()
                 .filter(l -> !l.getId().equals(lineDO.getId()))
