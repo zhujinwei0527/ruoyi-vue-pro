@@ -1,5 +1,6 @@
 package cn.iocoder.yudao.module.mes.service.wm.itemconsume;
 
+import cn.hutool.core.collection.ListUtil;
 import cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil;
 import cn.iocoder.yudao.framework.test.core.ut.BaseDbUnitTest;
 import cn.iocoder.yudao.module.mes.controller.admin.wm.materialstock.vo.MesWmMaterialStockListReqVO;
@@ -43,9 +44,7 @@ import static cn.iocoder.yudao.framework.test.core.util.RandomUtils.randomLongId
 import static cn.iocoder.yudao.module.mes.enums.ErrorCodeConstants.PRO_FEEDBACK_ROUTE_PROCESS_INVALID;
 import static cn.iocoder.yudao.module.mes.enums.ErrorCodeConstants.PRO_ROUTE_NOT_EXISTS;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.ArgumentMatchers.argThat;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 /**
@@ -181,7 +180,7 @@ public class MesWmItemConsumeServiceImplTest extends BaseDbUnitTest {
         bom.setItemId(bomItemId);
         bom.setQuantity(new BigDecimal("2")); // 用料比例 = 2
         when(routeProductBomService.getRouteProductBomList(any(), any(), any()))
-                .thenReturn(List.of(bom));
+                .thenReturn(ListUtil.of(bom));
         when(materialStockService.getMaterialStockList(any(MesWmMaterialStockListReqVO.class)))
                 .thenReturn(Collections.emptyList());
 
@@ -229,7 +228,7 @@ public class MesWmItemConsumeServiceImplTest extends BaseDbUnitTest {
         bom.setItemId(bomItemId);
         bom.setQuantity(new BigDecimal("3")); // 消耗 = 3 × 10 = 30
         when(routeProductBomService.getRouteProductBomList(any(), any(), any()))
-                .thenReturn(List.of(bom));
+                .thenReturn(ListUtil.of(bom));
 
         Long stockId = randomLongId();
         Long batchId = randomLongId();
@@ -240,7 +239,7 @@ public class MesWmItemConsumeServiceImplTest extends BaseDbUnitTest {
         stock.setBatchId(batchId);
         stock.setBatchCode("BATCH-001");
         when(materialStockService.getMaterialStockList(any(MesWmMaterialStockListReqVO.class)))
-                .thenReturn(List.of(stock));
+                .thenReturn(ListUtil.of(stock));
 
         // 调用
         MesWmItemConsumeDO result = itemConsumeService.generateItemConsume(feedback);
@@ -268,7 +267,7 @@ public class MesWmItemConsumeServiceImplTest extends BaseDbUnitTest {
         bom.setItemId(bomItemId);
         bom.setQuantity(new BigDecimal("3")); // 消耗 = 3 × 10 = 30
         when(routeProductBomService.getRouteProductBomList(any(), any(), any()))
-                .thenReturn(List.of(bom));
+                .thenReturn(ListUtil.of(bom));
 
         Long stockId1 = randomLongId();
         Long stockId2 = randomLongId();
@@ -321,7 +320,7 @@ public class MesWmItemConsumeServiceImplTest extends BaseDbUnitTest {
         bom.setItemId(bomItemId);
         bom.setQuantity(new BigDecimal("3")); // 消耗 = 3 × 10 = 30
         when(routeProductBomService.getRouteProductBomList(any(), any(), any()))
-                .thenReturn(List.of(bom));
+                .thenReturn(ListUtil.of(bom));
 
         Long stockId = randomLongId();
         MesWmMaterialStockDO stock = new MesWmMaterialStockDO();
@@ -331,7 +330,7 @@ public class MesWmItemConsumeServiceImplTest extends BaseDbUnitTest {
         stock.setBatchId(1L);
         stock.setBatchCode("BATCH-001");
         when(materialStockService.getMaterialStockList(any(MesWmMaterialStockListReqVO.class)))
-                .thenReturn(List.of(stock));
+                .thenReturn(ListUtil.of(stock));
 
         // 调用
         MesWmItemConsumeDO result = itemConsumeService.generateItemConsume(feedback);
@@ -383,7 +382,7 @@ public class MesWmItemConsumeServiceImplTest extends BaseDbUnitTest {
 
         when(materialStockService.getMaterialStockList(argThat((MesWmMaterialStockListReqVO req) ->
                 req != null && itemA.equals(req.getItemId()))))
-                .thenReturn(List.of(stockA));
+                .thenReturn(ListUtil.of(stockA));
         when(materialStockService.getMaterialStockList(argThat((MesWmMaterialStockListReqVO req) ->
                 req != null && itemB.equals(req.getItemId()))))
                 .thenReturn(Collections.emptyList());

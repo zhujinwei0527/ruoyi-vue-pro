@@ -1,6 +1,7 @@
 package cn.iocoder.yudao.module.mes.service.wm.outsourceissue;
 
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.collection.ListUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.core.util.ObjUtil;
 import cn.iocoder.yudao.framework.common.pojo.PageResult;
@@ -146,7 +147,7 @@ public class MesWmOutsourceIssueServiceImpl implements MesWmOutsourceIssueServic
                     allDetails, MesWmOutsourceIssueDetailDO::getLineId);
             // 检查每行的明细数量
             for (MesWmOutsourceIssueLineDO line : lines) {
-                List<MesWmOutsourceIssueDetailDO> details = detailMap.getOrDefault(line.getId(), List.of());
+                List<MesWmOutsourceIssueDetailDO> details = detailMap.getOrDefault(line.getId(), ListUtil.of());
                 BigDecimal totalDetailQuantity = CollectionUtils.getSumValue(details,
                         MesWmOutsourceIssueDetailDO::getQuantity, BigDecimal::add, BigDecimal.ZERO);
                 // 对比行数量与明细总数量，不满足直接抛出
@@ -219,7 +220,7 @@ public class MesWmOutsourceIssueServiceImpl implements MesWmOutsourceIssueServic
                 allDetails, MesWmOutsourceIssueDetailDO::getLineId);
         // 检查每行的明细数量
         for (MesWmOutsourceIssueLineDO line : lines) {
-            List<MesWmOutsourceIssueDetailDO> details = detailMap.getOrDefault(line.getId(), List.of());
+            List<MesWmOutsourceIssueDetailDO> details = detailMap.getOrDefault(line.getId(), ListUtil.of());
             BigDecimal totalDetailQuantity = CollectionUtils.getSumValue(details,
                     MesWmOutsourceIssueDetailDO::getQuantity, BigDecimal::add, BigDecimal.ZERO);
             // 对比行数量与明细总数量
